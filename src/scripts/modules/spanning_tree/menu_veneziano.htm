@@ -1,0 +1,87 @@
+<div class="section" id="spanning-tree" title="Spanning Tree">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+            <button class="ribbon-button" id="spanning-tree-generate-wires" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a maximally branching spanning tree and a route twice around it.">
+                <span class="mif-loop2 mif-4x"></span>
+                <span class="caption">(Re)Generate<br>Spanning Tree</span>
+            </button>
+            <span class="title">Main</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+                    <input checked type="checkbox" data-role="switch" data-caption="Wires"
+                        id="spanning-tree-toggle-wires"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
+                        data-caption="Cylinders" id="spanning-tree-toggle-cylinders"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
+                        data-role="switch" data-caption="Nucleotides" id="spanning-tree-toggle-nucleotides"></li>
+            </ul>
+            <span class="title">Visibility</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
+                        type="number" data-role="input" data-default-value="5" data-size="225" data-prepend="Scale"
+                        data-append="nm" id="veneziano-scale"></li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
+                    <select data-prepend="Scaffold" data-role="select" id="veneziano-scaffold">
+                        <optgroup label="Scaffold strand">
+                            <option value="none">Blank</option>
+                            <option value="m13mp18">M13mp18 (7249)</option>
+                            <option value="p7560">p7560 (7560)</option>
+                            <option value="p8064">p8064 (8064)</option>
+                            <option value="p8634">p8634 (8634)</option>
+                            <option value="p7308">p7308 (7308)</option>
+                            <option value="p7704">p7704 (7704)</option>
+                            <option value="p8100">p8100 (8100)</option>
+                            <option value="random">Random</option>
+                        </optgroup>
+                    </select>
+                </li>
+            </ul>
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Add strand gaps in linker strands.">
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
+                        id="veneziano-add-nicks">
+                </li>
+            </ul>
+            <span class="title">Parameters</span>
+        </div>
+        <div class="group">
+            <button hidden class="ribbon-button" id="spanning-tree-relax" data-role="hint" data-hint-position="right"
+                data-hint-text="">
+                <span class="mif-flow-parallel mif-4x"></span>
+                <span class="caption">Relax<br>Cylinder<br>model</span>
+            </button>
+            <button class="ribbon-button" id="spanning-tree-generate-nucleotides" data-role="hint"
+                data-hint-position="right"
+                data-hint-text="Generate a nucleotide model based on the current cylinder model. Also assigns bases identities if the scaffold strand is defined.">
+                <span class="mif-share mif-4x"></span>
+                <span class="caption">(Re)Generate<br>nucleotide<br>model</span>
+            </button>
+            <span class="title">Generation</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="download-veneziano" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                <span class="mif-download mif-4x"></span>
+                <span class="caption">Download UNF</span>
+            </button>
+            <span class="title">Download</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type: none;">
+                <li>
+                    <h4>Source:</h4>
+                </li>
+                <li><a href="https://doi.org/10.1126/science.aaf4388"><span class="mif-file-text icon"></span> Designer
+                        nanoscale DNA assemblies programmed from the top down</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

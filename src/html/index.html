@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
+    <style>
+        .tight-list li {
+            height: 24px;
+            list-style-type: none;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar pos-absolute z-2" data-role="sidebar" data-toggle="#sidebar-toggle-3" id="sb3"
+        data-shift=".shifted-content">
+        <div class="sidebar-header">
+            <div class="avatar">
+                <img data-role="gravatar" data-email="ncgroup@aalto.fi">
+            </div>
+            <span class="title fg-red">
+                <%= htmlWebpackPlugin.options.title %>
+            </span>
+            <span class="subtitle fg-red"> 2023 © ncgroup</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="<%= gitAddress %>"><span class="mif-home icon"></span>Git</a></li>
+            <li><a href="<%= docsAddress %>"><span class="mif-books icon"></span>Docs</a></li>
+            <li><a href="<%= examplesAddress %>"><span class="mif-files-empty icon"></span>Examples</a></li>
+        </ul>
+    </aside>
+
+    <nav id = "main-tabs" data-role="ribbonmenu" class="shifted-content z-1" style="opacity: 0.98;">
+        <ul class="tabs-holder" style="background-color: white;" id="main-tabs-holder">
+            <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
+                <span class="mif-menu fg-red"></span>
+            </button>
+            <li id="file-tab"><a href="#file">File</a></li>
+            <li id="interface-tab"><a href="#ui">Interface</a></li>
+        </ul>
+
+        <div class="content-holder" id = "content-holder">
+            <%= require('html-loader!./menu_file.html').default %>
+            <%= require('html-loader!./menu_ui.html').default %>
+        </div>
+    </nav>
+
+    <div class="dialog" data-role="dialog" id="open-file-1">
+        <div class="dialog-title">Open file</div>
+        <div class="dialog-content">
+            <input type="file" data-role="file" data-mode="drop" id="file-input">
+        </div>
+        <div class="dialog-actions">
+            <button class="button js-dialog-close">Cancel</button>
+            <button class="button primary js-dialog-close" id="file-input-open">Open</button>
+        </div>
+    </div>
+
+    <div class="dialog" data-role="dialog" id="open-file-example">
+        <div class="dialog-title">Open file</div>
+        <div class="dialog-content">
+            <ul data-role="listview" data-view="content" data-select-node="true" id="file-input-example">
+            </ul>
+        </div>
+        <div class="dialog-actions">
+            <button class="button js-dialog-close">Cancel</button>
+            <button class="button primary js-dialog-close" id="file-input-example-open">Open</button>
+        </div>
+    </div>
+    <canvas id="canvas" style="position: absolute; top: 0; left: 0; z-index: 0;"></canvas>
+</body>
+
+</html>

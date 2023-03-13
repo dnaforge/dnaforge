@@ -1,0 +1,123 @@
+<div class="section" id="ui" title="Interface">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+
+            <div id="selection-mode" data-role="button-group" data-cls-active="active">
+                <button class="ribbon-button" data-id="none" data-role="hint" data-hint-position="right"
+                    data-hint-text="Disable all selecting.">
+                    <span class="icon">
+                        <span class="mif-vertical-align-top"></span>
+                    </span>
+                    <span class="caption">None</span>
+                </button>
+                <button class="ribbon-button" data-id="single" data-role="hint" data-hint-position="right"
+                    data-hint-text="Select one object at a time.">
+                    <span class="icon">
+                        <span class="mif-vertical-align-center"></span>
+                    </span>
+                    <span class="caption">Single</span>
+                </button>
+                <button class="ribbon-button" data-id="limited" data-role="hint" data-hint-position="right"
+                    data-hint-text="Select all connected objects of the same type.">
+                    <span class="icon">
+                        <span class="mif-vertical-align-bottom"></span>
+                    </span>
+                    <span class="caption">Limited</span>
+                </button>
+                <button class="ribbon-button active" data-id="connected" data-role="hint" data-hint-position="right"
+                    data-hint-text="Select all connected objects.">
+                    <span class="icon">
+                        <span class="mif-vertical-align-bottom"></span>
+                    </span>
+                    <span class="caption">Connected</span>
+                </button>
+            </div>
+            <div data-role="hint" data-hint-position="right"
+                data-hint-text="Colour objects as mouse hovers over them. Has a heavy impact on performance."><input
+                    type="checkbox" data-role="switch" data-caption="Hover" id="toggle-hover"></div>
+
+
+            <span class="title">Selection mode</span>
+        </div>
+
+        <div class="group">
+            <ul class="tight-list">
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle camera light."><input checked type="checkbox"
+                            data-role="switch" data-caption="Camera Light" id="toggle-camera-light"></div>
+                </li>
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle ambient light."><input type="checkbox"
+                            data-role="switch" data-caption="Ambient light" id="toggle-ambient-light"></div>
+                </li>
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle fog effect."><input type="checkbox"
+                            data-role="switch" data-caption="Fog" id="toggle-fog"></div>
+                </li>
+            </ul>
+            <span class="title">Lights</span>
+        </div>
+
+        <div class="group">
+            <ul class="tight-list">
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle axes display."><input checked type="checkbox"
+                            data-role="switch" data-caption="Axes" id="toggle-axes"></div>
+                </li>
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle grid display."><input checked type="checkbox"
+                            data-role="switch" data-caption="Grid" id="toggle-grid"></div>
+                </li>
+                <li>
+                    <div hidden data-role="hint" data-hint-position="right" data-hint-text="Toggle scale bar display."><input type="checkbox"
+                            data-role="switch" data-caption="Scale" id="toggle-scale"></div>
+                </li>
+            </ul>
+            <span class="title">Scene</span>
+        </div>
+
+        <div class="group">
+            <ul class="tight-list">
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh surface display."><input checked type="checkbox"
+                            data-role="switch" data-caption="Solid" id="toggle-solid"></div>
+                </li>
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh wireframe display."><input checked type="checkbox"
+                            data-role="switch" data-caption="Wireframe" id="toggle-wireframe"></div>
+                </li>
+                <li>
+                    <div hidden data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh bounding box display."><input type="checkbox"
+                            data-role="switch" data-caption="Bounding box" id="toggle-bounding-box"></div>
+                </li>
+            </ul>
+            <ul class="tight-list">
+                <li>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh vertex id display."><input type="checkbox"
+                            data-role="switch" data-caption="Indices" id="toggle-indices"></div>
+                </li>
+            </ul>
+            <span class="title">Graph</span>
+        </div>
+
+        <div class="group">
+            <button class="ribbon-button" id="reset-camera" data-role="hint" data-hint-position="right"
+                data-hint-text="Reset camera transformation.">
+                <span class="mif-camera mif-3x"></span>
+                <span class="mif-undo mif-2x"></span>
+                <span class="caption">Reset Camera</span>
+            </button>
+            <button class="ribbon-button" id="orthographic-camera" data-role="hint" data-hint-position="right"
+                data-hint-text="Toggle orthographic camera">
+                <span class="mif-photo-camera mif-3x"></span>
+                <span class="caption">Orthographic</span>
+            </button>
+            <button hidden class="ribbon-button" id="perspective-camera" data-role="hint" data-hint-position="right"
+                data-hint-text="Toggle perspective camera">
+                <span class="mif-photo-camera mif-3x"></span>
+                <span class="caption">Perspective</span>
+            </button>
+            <span class="title">Camera</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+##############################
+####  PROGRAM PARAMETERS  ####
+##############################
+backend = CUDA
+backend_precision = mixed
+#debug = 1
+#seed = 4982
+
+##############################
+####    SIM PARAMETERS    ####
+##############################
+newtonian_steps = 1
+#diff_coeff = 2.50
+pt = 0.99
+thermostat = john
+
+T = 30C
+verlet_skin = 0.05
+
+##############################
+####     INTERACTIONS     ####
+##############################
+sim_type = MD
+dt = 0.002
+thermostat = bussi
+bussi_tau = 1000
+newtonian_steps = 53
+steps = 2000
+
+max_backbone_force = 5
+max_backbone_force_far = 10
+interaction_type = DNA2
+salt_concentration = 1
+
+##############################
+####    INPUT / OUTPUT    ####
+##############################
+topology = output.top
+conf_file = relaxed.dat
+lastconf_file = relaxed.dat
+trajectory_file = trash.dat
+refresh_vel = 1
+#log_file = log.dat
+no_stdout_energy = 0
+restart_step_counter = 1
+energy_file = .energy.dat
+print_conf_interval = 1000
+print_conf_ppc = 51
+print_energy_every = 1000
+time_scale = linear
+external_forces=0

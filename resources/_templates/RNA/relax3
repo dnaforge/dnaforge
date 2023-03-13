@@ -1,0 +1,45 @@
+##############################
+####  PROGRAM PARAMETERS  ####
+##############################
+backend = CUDA
+backend_precision = mixed
+#debug = 1
+#seed = 1
+#CUDA_list = verlet
+#CUDA_device = 0
+
+##############################
+####    SIM PARAMETERS    ####
+##############################
+steps = 10000
+newtonian_steps = 103
+diff_coeff = 2.50
+thermostat = john
+
+T = 23C
+dt = 0.005
+verlet_skin = 0.1
+
+use_average_seq = 1
+interaction_type = RNA2
+salt_concentration = 1
+
+##############################
+####    INPUT / OUTPUT    ####
+##############################
+topology = output.top
+conf_file = relaxed.dat
+lastconf_file = relaxed.dat
+trajectory_file = trash.dat
+refresh_vel = 1
+#log_file = log.dat
+no_stdout_energy = 0
+restart_step_counter = 1
+energy_file = .energy.dat
+print_conf_interval = 1000
+print_conf_ppc = 51
+print_energy_every = 1000
+time_scale = linear
+
+external_forces=1
+external_forces_file=external_forces.txt

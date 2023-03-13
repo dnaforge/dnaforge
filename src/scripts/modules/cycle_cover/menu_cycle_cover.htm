@@ -1,0 +1,106 @@
+<div class="section" id="cycle-cover" title="Cycle Cover">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+            <button class="ribbon-button" id="cycle-cover-generate-wires" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a cycle cover.">
+                <span class="mif-loop2 mif-4x"></span>
+                <span class="caption">(Re)Generate<br>Cycle Cover</span>
+            </button>
+            <span class="title">Main</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+                    <input checked type="checkbox" data-role="switch" data-caption="Wires"
+                        id="cycle-cover-toggle-wires">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
+                        data-caption="Cylinders" id="cycle-cover-toggle-cylinders"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
+                        data-role="switch" data-caption="Nucleotides" id="cycle-cover-toggle-nucleotides"></li>
+            </ul>
+            <span class="title">Visibility</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
+                        type="number" data-role="input" data-default-value="15" data-size="225" data-prepend="Scale"
+                        data-append="nm" id="cycle-cover-scale"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
+                        type="number" data-role="input" data-default-value="3" data-size="225"
+                        data-prepend="Min Linkers" id="cycle-cover-linkers-min">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
+                        type="number" data-role="input" data-default-value="3" data-size="225"
+                        data-prepend="Max Linkers" id="cycle-cover-linkers-max">
+                </li>
+            </ul>
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Maximum strand length in nucleotides.">
+                    <input type="number" data-role="input" data-default-value="100" data-size="300"
+                        data-prepend="Max strand length" id="cycle-cover-strand-length-max">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Minimum length of overlapping segments between strands in nucleotides."><input
+                        type="number" data-role="input" data-default-value="10" data-size="300"
+                        data-prepend="Min overlap" id="cycle-cover-strand-length-min"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Separate strands with strand gaps. If off, strands will form cycles."><input checked
+                        type="checkbox" data-role="checkbox" data-caption="Add strand gaps" id="cycle-cover-add-nicks">
+                </li>
+            </ul>
+            <span class="title">Parameters</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="cycle-cover-relax" data-role="hint" data-hint-position="right"
+                data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of linker segments.">
+                <span class="mif-flow-parallel mif-4x"></span>
+                <span class="caption">Relax<br>Cylinder<br>model</span>
+            </button>
+            <button class="ribbon-button" id="cycle-cover-generate-nucleotides" data-role="hint"
+                data-hint-position="right"
+                data-hint-text="Generate a nucleotide model based on the current cylinder model.">
+                <span class="mif-share mif-4x"></span>
+                <span class="caption">(Re)Generate<br>nucleotide<br>model</span>
+            </button>
+            <span class="title">Generation</span>
+        </div>
+
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                        type="number" data-role="input" data-default-value="50" data-size="260"
+                        data-prepend="GC-content" data-append="%" id="cycle-cover-gc-content"></li>
+            </ul>
+            <button class="ribbon-button" id="generate-cycle-cover-primary" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a random complementary primary structure for the current nucleotide model.">
+                <span class="mif-paint mif-4x"></span>
+                <span class="caption">(Re)Generate<br>primary<br>structure</span>
+            </button>
+            <span class="title">Primary structure</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="download-cycle-cover" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                <span class="mif-download mif-4x"></span>
+                <span class="caption">Download UNF</span>
+            </button>
+            <span class="title">Download</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type: none;">
+                <li>
+                    <h4>Source:</h4>
+                </li>
+                <li><a href=""><span class="mif-file-text icon"></span> Automated design of scaffold-free<br> DNA
+                        wireframe nanostructures</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

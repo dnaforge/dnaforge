@@ -1,0 +1,57 @@
+##############################
+####  PROGRAM PARAMETERS  ####
+##############################
+backend = CPU
+backend_precision = double
+#debug = 1
+#seed = 4982
+
+##############################
+####    SIM PARAMETERS    ####
+##############################
+steps = 100
+newtonian_steps = 103
+diff_coeff = 2.50
+pt = 0.99
+thermostat = john
+
+T = 30C
+dt = 0.00001
+verlet_skin = 0.5
+delta_translation = 0.1
+delta_rotation = 0.1
+
+max_backbone_force = 5
+max_backbone_force_far = 10
+
+##############################
+####     INTERACTIONS     ####
+##############################
+interaction_type = RNA_relax
+relax_type = constant_force
+relax_strength = 1
+rcut = 2.0
+
+sim_type = MC
+ensemble = NVT
+
+
+##############################
+####    INPUT / OUTPUT    ####
+##############################
+topology = output.top
+conf_file = output.dat
+lastconf_file = relaxed.dat
+trajectory_file = trash.dat
+refresh_vel = 1
+#log_file = log.dat
+no_stdout_energy = 0
+restart_step_counter = 1
+energy_file = .energy.dat
+print_conf_interval = 1000
+print_conf_ppc = 51
+print_energy_every = 1000
+time_scale = linear
+
+external_forces=1
+external_forces_file=external_forces.txt

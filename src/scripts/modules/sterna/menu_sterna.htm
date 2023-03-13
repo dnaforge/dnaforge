@@ -1,0 +1,133 @@
+<div class="section" id="sterna" title="Sterna">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+            <button class="ribbon-button" id="sterna-generate-wires" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a random spanning tree and a route twice around it.">
+                <span class="mif-loop2 mif-4x"></span>
+                <span class="caption">(Re)Generate<br>Spanning Tree</span>
+            </button>
+            <button class="ribbon-button" id="sterna-generate-cylinders" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a cylinder model based on the current routing.">
+                <span class="mif-loop2 mif-4x"></span>
+                <span class="caption">(Re)Generate<br>Cylinders</span>
+            </button>
+            <span class="title">Main</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+                    <input checked type="checkbox" data-role="switch" data-caption="Wires" id="sterna-toggle-wires">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
+                        data-caption="Cylinders" id="sterna-toggle-cylinders"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
+                        data-role="switch" data-caption="Nucleotides" id="sterna-toggle-nucleotides"></li>
+            </ul>
+            <span class="title">Visibility</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
+                        type="number" data-role="input" data-default-value="5" data-size="225" data-prepend="Scale"
+                        data-append="nm" id="sterna-scale">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
+                        type="number" data-role="input" data-default-value="3" data-size="225"
+                        data-prepend="Min Linkers" id="sterna-linkers-min"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
+                        type="number" data-role="input" data-default-value="3" data-size="225"
+                        data-prepend="Max Linkers" id="sterna-linkers-max"></li>
+            </ul>
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Add a strand gap between the 5'- and 3'-ends.">
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add a strand gap"
+                        id="sterna-add-nicks">
+                </li>
+            </ul>
+            <span class="title">Parameters</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="sterna-relax" data-role="hint" data-hint-position="right"
+                data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of linker segments.">
+                <span class="mif-flow-parallel mif-4x"></span>
+                <span class="caption">Relax<br>Cylinder<br>model</span>
+            </button>
+            <button class="ribbon-button" id="sterna-generate-nucleotides" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a nucleotide model based on the current cylinder model.">
+                <span class="mif-share mif-4x"></span>
+                <span class="caption">(Re)Generate<br>nucleotide<br>model</span>
+            </button>
+            <span class="title">Generation</span>
+        </div>
+
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                        type="number" data-role="input" data-default-value="50" data-size="260"
+                        data-prepend="GC-content" data-append="%" id="sterna-gc-content"></li>
+                <li>
+                    <button class="button primary" id="generate-sterna-template" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Generate a partial primary structure by filling in pseudoknots, linkers and certain stem segments. The undetermined bases can be generated externally or filled randomly.">Generate
+                        partial</button>
+                    <button class="button primary" id="generate-sterna-primary" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Fill all undetermined bases with random complementary ones.">Generate
+                        random</button>
+                </li>
+                <li>
+                    <button class="button primary" id="download-sterna-np" data-role="hint" data-hint-position="right"
+                        data-hint-text="Download a NUPACK file of the current nucleotide model.">Download NP</button>
+                    <button class="button primary"
+                        onclick="Metro.dialog.open('#sterna-primary-dialog');  $('#sterna-primary-dialog-text').focus()"
+                        data-role="hint" data-hint-position="right"
+                        data-hint-text="Upload a primary structure as a sequence of IUPAC nucleotide codes.">Upload
+                        primary</button>
+                </li>
+            </ul>
+            <button hidden class="ribbon-button" id="generate-sterna-primary" data-role="hint"
+                data-hint-position="right"
+                data-hint-text="Generate a random complementary primary structure for the current nucleotide model.">
+                <span class="mif-paint mif-4x"></span>
+                <span class="caption">(Re)Generate<br>primary<br>structure</span>
+            </button>
+            <span class="title">Primary structure</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="download-sterna" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                <span class="mif-download mif-4x"></span>
+                <span class="caption">Download UNF</span>
+            </button>
+            <span class="title">Download</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type: none;">
+                <li>
+                    <h4>Source:</h4>
+                </li>
+                <li><a href="https://doi.org/10.1021/acsnano.2c06035"><span class="mif-file-text icon"></span>
+                        Algorithmic design of 3D wireframe RNA polyhedra</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="dialog" data-role="dialog" id="sterna-primary-dialog">
+    <div class="dialog-title">Input primary structure</div>
+    <div class="dialog-content">
+        <textarea data-role="textarea" data-chars-counter="#chars-counter" data-chars-counter-template="Length $1 bases"
+            id="sterna-primary-dialog-text" data-auto-size="false"></textarea>
+        <p id="chars-counter">Length: 0 bases</p>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="sterna-primary-dialog-confirm">Set Primary</button>
+    </div>
+</div>

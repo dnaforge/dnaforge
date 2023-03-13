@@ -1,0 +1,131 @@
+<div class="section" id="atrail" title="A-Trail">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li>
+                    <button class="ribbon-button" id="atrail-generate-wires" data-role="hint" data-hint-position="right"
+                        data-hint-text="Generate an A-Trail routing. This can take a while.">
+                        <span class="mif-loop2 mif-1x"></span>
+                        <span class="caption">(Re)Generate<br>A-trail</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button primary"
+                        onclick="Metro.dialog.open('#atrail-dialog'); $('#atrail-dialog-text').focus()" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Generate a routing along a set of vertex indices.">Upload trail</button>
+                </li>
+            </ul>
+            <button class="ribbon-button" id="atrail-generate-cylinders" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a cylinder model based on the current routing.">
+                <span class="mif-loop2 mif-4x"></span>
+                <span class="caption">(Re)Generate<br>Cylinders</span>
+            </button>
+            <span class="title">Main</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+                    <input checked type="checkbox" data-role="switch" data-caption="Wires" id="atrail-toggle-wires">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
+                        data-caption="Cylinders" id="atrail-toggle-cylinders"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
+                        data-role="switch" data-caption="Nucleotides" id="atrail-toggle-nucleotides"></li>
+            </ul>
+            <span class="title">Visibility</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
+                        type="number" data-role="input" data-default-value="5" data-size="225" data-prepend="Scale"
+                        data-append="nm" id="atrail-scale">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
+                        type="number" data-role="input" data-default-value="3" data-size="225"
+                        data-prepend="Min Linkers" id="atrail-linkers-min"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
+                        type="number" data-role="input" data-default-value="3" data-size="225"
+                        data-prepend="Max Linkers" id="atrail-linkers-max"></li>
+            </ul>
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Maximum staple length in nucleotides.">
+                    <input type="number" data-role="input" data-default-value="100" data-size="300"
+                        data-prepend="Max staple length" id="atrail-strand-length-max"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Minimum length of a continuous double helix without strand gaps."><input
+                        type="number" data-role="input" data-default-value="10" data-size="300"
+                        data-prepend="Min overlap" id="atrail-strand-length-min"></li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
+                    <select data-prepend="Scaffold" data-role="select" id="atrail-scaffold">
+                        <optgroup label="Scaffold strand">
+                            <option value="none">Blank</option>
+                            <option value="m13mp18">M13mp18 (7249)</option>
+                            <option value="p7560">p7560 (7560)</option>
+                            <option value="p8064">p8064 (8064)</option>
+                            <option value="p8634">p8634 (8634)</option>
+                            <option value="p7308">p7308 (7308)</option>
+                            <option value="p7704">p7704 (7704)</option>
+                            <option value="p8100">p8100 (8100)</option>
+                            <option value="random">Random</option>
+                        </optgroup>
+                    </select>
+                </li>
+            </ul>
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Separate linker strands with strand gaps. If off, linker strands will form long cycles.">
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
+                        id="atrail-add-nicks">
+                </li>
+            </ul>
+            <span class="title">Parameters</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="atrail-relax" data-role="hint" data-hint-position="right"
+                data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of linker segments.">
+                <span class="mif-flow-parallel mif-4x"></span>
+                <span class="caption">Relax<br>Cylinder<br>model</span>
+            </button>
+            <button class="ribbon-button" id="atrail-generate-nucleotides" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a nucleotide model based on the current cylinder model. Also assigns bases identities if the scaffold strand is defined.">
+                <span class="mif-share mif-4x"></span>
+                <span class="caption">(Re)Generate<br>nucleotide<br>model</span>
+            </button>
+            <span class="title">Generation</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="download-atrail" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                <span class="mif-download mif-4x"></span>
+                <span class="caption">Download UNF</span>
+            </button>
+            <span class="title">Download</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type: none;">
+                <li>
+                    <h4>Source:</h4>
+                </li>
+                <li><a href="https://doi.org/10.1038/nature14586"><span class="mif-file-text icon"></span> DNA rendering
+                        of polyhedral meshes at the nanoscale</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="dialog" data-role="dialog" id="atrail-dialog">
+    <div class="dialog-title">Input trail</div>
+    <div class="dialog-content">
+        <span>The trail should be a list of vertices separated by spaces.</span>
+        <textarea data-role="textarea" id="atrail-dialog-text" data-auto-size="false"></textarea>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="atrail-dialog-confirm">Set trail</button>
+    </div>
+</div>
