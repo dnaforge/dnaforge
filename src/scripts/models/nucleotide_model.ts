@@ -72,10 +72,10 @@ const nucleotideGeometry = ((nucParams: Record<string, any>) => {
 });
 
 class Nucleotide {
-    #instanceId: number;
-    #instanceMeshes: Record<string, THREE.InstancedMesh>;
-    #hover = false;
-    #select = false;
+    instanceId: number;
+    instanceMeshes: Record<string, THREE.InstancedMesh>;
+    hover = false;
+    select = false;
 
     id: number;
     base: string;
@@ -147,15 +147,15 @@ class Nucleotide {
     }
 
     setObjectInstance(index: number, meshes: Record<string, InstancedMesh>) {
-        this.#instanceId = index;
-        this.#instanceMeshes = meshes;
+        this.instanceId = index;
+        this.instanceMeshes = meshes;
         this.setObjectMatrices();
         this.setObjectColours();
     }
 
     setObjectMatrices() {
-        this.#instanceMeshes.bases.setMatrixAt(this.#instanceId, this.transform);
-        this.#instanceMeshes.nucleotides.setMatrixAt(this.#instanceId, this.transform);
+        this.instanceMeshes.bases.setMatrixAt(this.instanceId, this.transform);
+        this.instanceMeshes.nucleotides.setMatrixAt(this.instanceId, this.transform);
         let bbTransform;
         if (this.next) {
             const p1 = this.backboneCenter;
@@ -166,33 +166,33 @@ class Nucleotide {
         else {
             bbTransform = new Matrix4().scale(new Vector3(0, 0, 0));
         }
-        this.#instanceMeshes.backbone.setMatrixAt(this.#instanceId, bbTransform);
+        this.instanceMeshes.backbone.setMatrixAt(this.instanceId, bbTransform);
     }
 
     setObjectColours() {
         let colours;
-        if (this.#hover) colours = [nucleotideColours.hover, nucleotideColours.hover, nucleotideColours[this.base]];
-        else if (this.#select) colours = [nucleotideColours.selection, nucleotideColours.selection, nucleotideColours[this.base]];
+        if (this.hover) colours = [nucleotideColours.hover, nucleotideColours.hover, nucleotideColours[this.base]];
+        else if (this.select) colours = [nucleotideColours.selection, nucleotideColours.selection, nucleotideColours[this.base]];
         else colours = [nucleotideColours.backbone, nucleotideColours.nucleotide, nucleotideColours[this.base]];
 
-        this.#instanceMeshes.backbone.setColorAt(this.#instanceId, colours[0]);
-        this.#instanceMeshes.nucleotides.setColorAt(this.#instanceId, colours[1]);
-        this.#instanceMeshes.bases.setColorAt(this.#instanceId, colours[2]);
-        for (let m of _.keys(this.#instanceMeshes)) this.#instanceMeshes[m].instanceColor.needsUpdate = true;
+        this.instanceMeshes.backbone.setColorAt(this.instanceId, colours[0]);
+        this.instanceMeshes.nucleotides.setColorAt(this.instanceId, colours[1]);
+        this.instanceMeshes.bases.setColorAt(this.instanceId, colours[2]);
+        for (let m of _.keys(this.instanceMeshes)) this.instanceMeshes[m].instanceColor.needsUpdate = true;
     }
 
     setHover(val: boolean) {
-        this.#hover = val;
+        this.hover = val;
         this.setObjectColours();
     }
 
     setSelect(val: boolean) {
-        this.#select = val;
+        this.select = val;
         this.setObjectColours();
     }
 
     isSelected() {
-        return this.#select;
+        return this.select;
     }
 
     toJSON() {
