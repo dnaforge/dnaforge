@@ -407,13 +407,13 @@ class Graph {
         return faces;
     }
 
-    addVertex(coords: Vector3, normal = new THREE.Vector3()) {
+    addVertex(coords: Vector3, normal: Vector3 = undefined) {
         const v = new Vertex(this, coords, normal);
         this.vertices.add(v);
         return v;
     }
 
-    addEdge(v1: Vertex, v2: Vertex, normal = new Vector3()) {
+    addEdge(v1: Vertex, v2: Vertex, normal: Vector3 = undefined) {
         const edge = new Edge(this, v1, v2, normal);
         this.edges.add(edge);
         v1.addNeighbour(edge);

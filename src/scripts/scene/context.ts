@@ -8,6 +8,7 @@ import Controls from '../utils/controls';
 import Menu from './menu';
 import ModuleMenu from '../modules/module_menu'
 import { Graph } from '../models/graph';
+import * as _ from 'lodash';
 
 const canvas = document.querySelector('#canvas');
 
@@ -50,10 +51,7 @@ export default class Context {
     renderer: THREE.WebGLRenderer;
     labelRenderer: CSS2DRenderer;
 
-    menus = {
-        specific: new Set<ModuleMenu>(),
-        global: new Set<Menu>(),
-    };
+    menus = new Map<string, Menu>();
 
     tooltip: {
         object: THREE.Object3D,
@@ -78,8 +76,7 @@ export default class Context {
     }
 
     registerMenu(menu: Menu, isGlobal: boolean) {
-        if (isGlobal) this.menus.global.add(menu);
-        else this.menus.specific.add(<ModuleMenu>menu);
+        this.menus.set(menu.elementId, menu);
     }
 
     setupRenderer(){
@@ -107,7 +104,7 @@ export default class Context {
 
     handleHotKey(key: string) {
         if (this.activeContext && this.activeContext.handleHotKey(key)) return;
-        for (let menu of this.menus.global) if ((menu as Menu).handleHotKey(key)) return;
+        for (let menu of this.menus.values()) if(menu.isGlobal && menu.handleHotKey(key)) return;
         switch (key) {
             case "asdf":
                 console.log("asdf");
@@ -240,13 +237,15 @@ export default class Context {
         //Metro.toast.create(message, null, null, null, null);
     }
 
+    reset(graph: Graph){
+        this.graph = graph;
+        for (let ctx of this.menus.values()) ctx.reset();
+        this.activeContext = null;
+    }
 
 
     setGraph(graph: Graph) {
-        this.graph = graph;
-        for (let ctx of this.menus.specific) (ctx as Menu).reset();
-        for (let ctx of this.menus.global) (ctx as Menu).reset();
-        this.activeContext = null;
+        this.reset(graph);
         this.addMessage(`Loaded a graph with<br>${graph.getVertices().length} vertices<br>${graph.getEdges().length} edges<br>${graph.getFaces().length} faces`, "info");
     }
 
@@ -293,20 +292,15 @@ export default class Context {
     }
 
     switchContext(context: ModuleMenu) {
-        if (this.menus.specific.has(context)) {
-            this.activeContext && this.activeContext.inactivate();
-            context.activate();
-            this.activeContext = context;
-            this.addMessage(`Switched to ${context.title} context.`, "info", 500);
-        }
+        this.activeContext && this.activeContext.inactivate();
+        context.activate();
+        this.activeContext = context;
+        this.addMessage(`Switched to ${context.title} context.`, "info", 500);
     }
 
     switchMainTab(id: string) {
-        for (let ctx of this.menus.specific) {
-            if (id == (ctx as Menu).elementId) {
-                return this.switchContext(ctx as ModuleMenu);
-            }
-        }
+        const menu = this.menus.get(id);
+        if(menu && !menu.isGlobal) this.switchContext(<ModuleMenu>menu);
     }
 
 

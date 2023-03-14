@@ -7,6 +7,7 @@ import Context from './scene/context';
 import InterfaceMenu from "./scene/interface_context";
 import FileMenu from "./scene/file_menu";
 import setupModules from './modules/modules';
+import ModuleMenu from "./modules/module_menu";
 
 const context = new Context();
 
@@ -35,14 +36,14 @@ function dev(context: Context) {
     const shape2 = require('../../resources/shape2.obj');
     const bunny = require('../../resources/bunny-128.obj');
     const swan = require('../../resources/swan2.obj');
-    const graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
+    const graph = new OBJLoader(new THREE.LoadingManager()).parse(cube);
     context.setGraph(graph);
 
-    //context.cycleCover.addWires();
-    //context.cycleCover.addCylinders();
-    //context.cycleCover.addNucleotides();
+    (<ModuleMenu>context.menus.get("cycle-cover")).addWires();
+    //(<ModuleMenu>context.menus.get("cycle-cover")).addCylinders();
+    //(<ModuleMenu>context.menus.get("cycle-cover")).addNucleotides();
 
-    //(<any>context).atrail.addWires();
+    //context).atrail.addWires();
     //context.atrail.addCylinders();
     //context.atrail.addNucleotides();
 
@@ -50,10 +51,10 @@ function dev(context: Context) {
     //context.veneziano.addCylinders();
     //context.veneziano.addNucleotides();
 
-    //(<any>context).sterna.addWires();
-    //context.sterna.addCylinders();
-    //context.sterna.addNucleotides();
-    //context.sterna.downloadPrimary();
-    //context.sterna.generatePartialPrimary();
-    //context.sterna.generatePrimary();
+    //(<ModuleMenu>context.menus.get("sterna")).addWires();
+    //(<ModuleMenu>context.menus.get("sterna")).addCylinders();
+    //(<ModuleMenu>context.menus.get("sterna")).addNucleotides();
+    //(<ModuleMenu>context.menus.get("sterna")).downloadPrimary();
+    //(<ModuleMenu>context.menus.get("sterna")).generatePartialPrimary();
+    //(<ModuleMenu>context.menus.get("sterna")).generatePrimary();
 }

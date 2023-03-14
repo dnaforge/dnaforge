@@ -105,10 +105,6 @@ class Nucleotide {
         this.nucParams = naType == "DNA" ? DNA : RNA;
 
         this.setTransformMatrix(new Matrix4());
-
-        this.prev = undefined;
-        this.next = undefined;
-        this.pair = undefined;
     }
 
     setTransformMatrix(m: Matrix4) {

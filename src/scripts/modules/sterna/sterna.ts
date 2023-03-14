@@ -189,7 +189,7 @@ function wiresToCylinders(sterna: Sterna, params: {[name: string]: number | bool
         if (!edgeToCyl.has(edge)) {
             const dir = v2.coords.clone().sub(v1.coords).normalize();
             const nor = edge.normal.clone().cross(dir);
-
+            //console.log(edge.normal);
             const offset1 = cm.getVertexOffset(v1, v2).sub(dir.clone().multiplyScalar(cm.nucParams.INCLINATION * cm.scale));
             const offset2 = cm.getVertexOffset(v2, v1);
             const p1 = v1.coords.clone().add(offset1);
