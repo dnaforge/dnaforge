@@ -8,10 +8,10 @@ import Context from '../../scene/context';
 import { Graph } from '../../models/graph';
 
 export default class SpanningTreeMenu extends ModuleMenu {
-    scaleInput = $('#veneziano-scale');
-    addNicksSwitch = $('#veneziano-add-nicks');
-    venezianoScaffold = $("#veneziano-scaffold");
-    downloadButton = $('#download-veneziano');
+    scaleInput: any;
+    addNicksSwitch: any;
+    venezianoScaffold: any;
+    downloadButton: any;
 
     constructor(context: Context) {
         super(context, html);

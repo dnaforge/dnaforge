@@ -9,14 +9,14 @@ import { CylinderModel } from '../../models/cylinder_model';
 
 
 export default class ATrailMenu extends ModuleMenu {
-    scaleInput = $('#atrail-scale');
-    linkersMinInput = $('#atrail-linkers-min');
-    linkersMaxInput = $('#atrail-linkers-max');
-    strandLengthMaxInput = $('#atrail-strand-length-max');
-    strandLengthMinInput = $('#atrail-strand-length-min');
-    addNicksSwitch = $('#atrail-add-nicks');
-    atrailScaffold = $('#atrail-scaffold');
-    downloadButton = $('#download-atrail');
+    scaleInput: any;
+    linkersMinInput: any;
+    linkersMaxInput: any;
+    strandLengthMaxInput: any;
+    strandLengthMinInput: any;
+    addNicksSwitch: any;
+    atrailScaffold: any;
+    downloadButton: any;
 
 
     constructor(context: Context) {

@@ -277,14 +277,14 @@ export default class InterfaceMenu extends Menu {
     removeFog() {
         this.scene.fog = null;
     }
-/*
+
     addBoundingBox() {
         if (!this.boundingBox) {
             const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
             const lines = new THREE.Group();
 
             const coords = [];
-            for (let i = 0; i < 8; i++) coords.push(new Vector3((i < 4) as int) - 0.5, i % 2, (i < 2 || i >= 4 && i < 6) - 0.5).multiplyScalar(BOUNDING_BOX_SCALE));
+            for (let i = 0; i < 8; i++) coords.push(new Vector3((i < 4 ? 1 : 0) - 0.5, i % 2, (i < 2 || i >= 4 && i < 6 ? 1 : 0) - 0.5).multiplyScalar(BOUNDING_BOX_SCALE));
             const pairs = [];
             for (let p1 of coords) for (let p2 of coords) if (p1.distanceTo(p2) == BOUNDING_BOX_SCALE) pairs.push([p1, p2]);
 
@@ -299,7 +299,7 @@ export default class InterfaceMenu extends Menu {
         }
         this.scene.add(this.boundingBox);
     }
-*/
+
     removeBoundingBox() {
         this.scene.remove(this.boundingBox);
     }
@@ -363,8 +363,8 @@ export default class InterfaceMenu extends Menu {
         else this.removeMesh();
         if (this.wiresButton[0].checked) this.addWires();
         else this.removeWires();
-        //if (this.boundingBoxButton[0].checked) this.addBoundingBox();
-        //else this.removeBoundingBox();
+        if (this.boundingBoxButton[0].checked) this.addBoundingBox();
+        else this.removeBoundingBox();
     }
 
     setupEventListeners() {

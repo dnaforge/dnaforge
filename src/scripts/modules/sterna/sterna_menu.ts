@@ -9,14 +9,13 @@ import WiresModel from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 
 export default class SternaMenu extends ModuleMenu {
-    scaleInput = $('#sterna-scale');
-    linkersMinInput = $('#sterna-linkers-min');
-    linkersMaxInput = $('#sterna-linkers-max');
-    gcContentInput = $('#sterna-gc-content');
-    addNicksSwitch = $('#sterna-add-nicks');
-    generatePrimaryButton = $('#generate-sterna-primary');
-    downloadButton = $('#download-sterna');
-
+    scaleInput: any;
+    linkersMinInput: any;
+    linkersMaxInput: any;
+    gcContentInput: any;
+    addNicksSwitch: any;
+    generatePrimaryButton: any;
+    downloadButton: any;
 
     constructor(context: Context) {
         super(context, html);

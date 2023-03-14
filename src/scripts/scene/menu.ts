@@ -41,7 +41,13 @@ export default class Menu {
             else {
                 f = () => { const t = target[0]; t.click() };
                 let el = target;
-                if ($.type(el[0]) != "htmlbuttonelement") el = $(el.parents()[1]);
+                if ($.type(el[0]) != "htmlbuttonelement"){
+                    let i = 0;
+                    while(el.attr("data-role") != "hint"){
+                        el = el.parent();
+                        if(i++ > 5){break; console.error(`Could not set hotkey hint for ${key}`)};
+                    }
+                } 
                 el.attr("data-hint-text", el.attr("data-hint-text") + `<br><br><b>Hotkey: ${key}</b>`);
             }
             this.#hotkeyHandlers.set(key, f);
