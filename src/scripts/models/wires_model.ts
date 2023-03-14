@@ -1,17 +1,17 @@
-import { Object3D } from "three"
+import { Object3D } from 'three';
 
 abstract class WiresModel {
-    obj: Object3D;
-    
-    constructor(){}
+  obj: Object3D;
 
-    abstract selectAll(): void;
+  constructor() {}
 
-    abstract deselectAll(): void;
+  abstract selectAll(): void;
 
-    abstract getObject(): Object3D;
+  abstract deselectAll(): void;
 
-    abstract dispose(): void;
+  abstract getObject(): Object3D;
+
+  abstract dispose(): void;
 }
 
-export default WiresModel
+export default WiresModel;

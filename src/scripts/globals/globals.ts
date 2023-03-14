@@ -1,4 +1,4 @@
 export default {
-    hover: false,
-    selectionMode: "connected",
+  hover: false,
+  selectionMode: 'connected',
 };

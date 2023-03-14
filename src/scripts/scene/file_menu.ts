@@ -6,19 +6,19 @@ import Context from './context';
 import Menu from './menu';
 
 const examples = (() => {
-    const objs = require.context('../../examples', false, /\.(obj)$/);
-    const examples: {[id: string]: Graph;} = {};
-    for (let k of objs.keys()) {
-        const obj = objs(k);
-        const graph = new OBJLoader(new THREE.LoadingManager()).parse(obj);
-        const name = k.slice(2, k.length - 4);
-        const id = k.slice(2, k.length - 4);
-        const nVerts = graph.getVertices().length;
-        const nEdges = graph.getEdges().length;
-        const nFaces = graph.getFaces().length;
-        examples[id] = graph;
+  const objs = require.context('../../examples', false, /\.(obj)$/);
+  const examples: { [id: string]: Graph } = {};
+  for (let k of objs.keys()) {
+    const obj = objs(k);
+    const graph = new OBJLoader(new THREE.LoadingManager()).parse(obj);
+    const name = k.slice(2, k.length - 4);
+    const id = k.slice(2, k.length - 4);
+    const nVerts = graph.getVertices().length;
+    const nEdges = graph.getEdges().length;
+    const nFaces = graph.getFaces().length;
+    examples[id] = graph;
 
-        $("#file-input-example").append(`
+    $('#file-input-example').append(`
             <li data-icon="<span class='mif-file-empty'>" 
             data-caption="${name}"  
             data-id="${id}" 
@@ -27,75 +27,70 @@ const examples = (() => {
             ${nEdges} Edges - 
             ${nFaces} Faces
             </span>"></li>`);
-    }
+  }
 
-    return examples;
+  return examples;
 })();
 
 export default class FileMenu extends Menu {
+  fileInputButton: any;
+  fileInputExampleButton: any;
+  fileInput: any;
 
+  constructor(context: Context) {
+    super(context, 'file', 'File', true);
+  }
 
-    fileInputButton: any;
-    fileInputExampleButton: any;
-    fileInput: any;
+  handleHotKey(key: string) {
+    switch (key) {
+      case 'asdf':
+        return true;
 
-
-    constructor(context: Context) {
-        super(context, "file", "File", true);
+      default:
+        return false;
     }
+  }
 
-    handleHotKey(key: string) {
-        switch (key) {
-            case "asdf":
-                return true;
+  regenerateVisible() {}
 
-            default:
-                return false;
-        }
+  readFiles(files: FileList) {
+    const file = files[0]; // assuming just one file
+    if (file.name.endsWith('.obj')) {
+      read_obj(URL.createObjectURL(file), (graph: Graph) => {
+        this.context.setGraph(graph);
+      });
+      return;
     }
+    this.context.addMessage('Unrecognised file format.', '');
+  }
 
+  setupEventListeners() {
+    this.fileInputButton = $('#file-input-open');
+    this.fileInputExampleButton = $('#file-input-example-open');
+    this.fileInput = $('#file-input');
 
-    regenerateVisible() {
-    }
+    this.fileInputButton.on('click', () => {
+      const files = (<HTMLInputElement>this.fileInput[0]).files;
+      this.readFiles(files);
+    });
 
-    readFiles(files: FileList) {
-        const file = files[0]; // assuming just one file
-        if (file.name.endsWith(".obj")) {
-            read_obj(URL.createObjectURL(file), (graph: Graph) => {
-                this.context.setGraph(graph);
-            });
-            return;
-        }
-        this.context.addMessage("Unrecognised file format.", "");
-    }
+    this.fileInputExampleButton.on('click', () => {
+      //listview.getSelected doesn't return anything for some reason, so just find the selection like this:
+      const id = $('#file-input-example').children('.current').attr('data-id');
+      this.context.setGraph(examples[id]);
+    });
 
-    setupEventListeners() {
-        this.fileInputButton = $('#file-input-open');
-        this.fileInputExampleButton = $('#file-input-example-open');
-        this.fileInput = $('#file-input');
+    $('#canvas').on('dragover', (e: Event) => {
+      e.stopPropagation();
+      e.preventDefault();
+      (e as unknown as DragEvent).dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    });
 
-        this.fileInputButton.on("click", () => {
-            const files = (<HTMLInputElement>this.fileInput[0]).files;
-            this.readFiles(files);
-        });
-
-        this.fileInputExampleButton.on("click", () => {
-            //listview.getSelected doesn't return anything for some reason, so just find the selection like this:
-            const id = $("#file-input-example").children(".current").attr("data-id");
-            this.context.setGraph(examples[id]);
-        });
-
-        $("#canvas").on('dragover', (e: Event) => {
-            e.stopPropagation();
-            e.preventDefault();
-            (e as unknown as DragEvent) .dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-        });
-
-        $("#canvas").on('drop', (e: Event) => {
-            e.stopPropagation();
-            e.preventDefault();
-            const files = (e as unknown as DragEvent).dataTransfer.files;
-            this.readFiles(files);
-        });
-    }
+    $('#canvas').on('drop', (e: Event) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const files = (e as unknown as DragEvent).dataTransfer.files;
+      this.readFiles(files);
+    });
+  }
 }

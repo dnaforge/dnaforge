@@ -3,15 +3,15 @@ declare module 'metro4' {
   export default content;
 }
 
-declare var $: any;
-declare var Metro: any;
+declare const $: any;
+declare const Metro: any;
 
-declare module 'edmonds-blossom-fixed'{
+declare module 'edmonds-blossom-fixed' {
   const content: any;
   export default content;
 }
 
-declare module '*.htm'{
+declare module '*.htm' {
   const content: any;
   export default content;
 }
