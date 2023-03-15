@@ -65,7 +65,7 @@ export default class Menu {
       }
       this.#hotkeyHandlers.set(key, f);
     };
-    for (let k of this.hotkeys) {
+    for (const k of this.hotkeys) {
       setHotkey(k[0], k[1]);
     }
   }

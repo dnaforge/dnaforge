@@ -97,7 +97,7 @@ export default class Context {
 
   render() {
     const renderT = () => {
-      for (let c of this.callbacks) c();
+      for (const c of this.callbacks) c();
       this.controls.handleInput();
       requestAnimationFrame(renderT);
       this.renderer.render(this.scene, this.camera);
@@ -108,7 +108,7 @@ export default class Context {
 
   handleHotKey(key: string) {
     if (this.activeContext && this.activeContext.handleHotKey(key)) return;
-    for (let menu of this.menus.values())
+    for (const menu of this.menus.values())
       if (menu.isGlobal && menu.handleHotKey(key)) return;
     switch (key) {
       case 'asdf':
@@ -261,7 +261,7 @@ export default class Context {
   }
 
   addMessage(message: string, type: string, duration = 3000) {
-    var notify = Metro.notify;
+    const notify = Metro.notify;
     notify.setup({
       width: 300,
       timeout: duration,
@@ -275,7 +275,7 @@ export default class Context {
 
   reset(graph: Graph) {
     this.graph = graph;
-    for (let ctx of this.menus.values()) ctx.reset();
+    for (const ctx of this.menus.values()) ctx.reset();
     this.activeContext = null;
   }
 
@@ -319,7 +319,7 @@ export default class Context {
   }
 
   createWindow() {
-    let t = document.createElement('div');
+    const t = document.createElement('div');
     t.innerHTML = `<div class="p-2" data-role="window"
                         data-draggable="true"
                         data-width="200"

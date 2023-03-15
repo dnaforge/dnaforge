@@ -153,7 +153,7 @@ export default class InterfaceMenu extends Menu {
 
   removeAxes() {
     this.scene.remove(this.axes.object);
-    for (let d of this.axes.divs) d.remove();
+    for (const d of this.axes.divs) d.remove();
   }
 
   /*
@@ -221,7 +221,7 @@ export default class InterfaceMenu extends Menu {
   removeVertexIndices(dispose = false) {
     if (!this.vertexIndices) return;
     this.scene.remove(this.vertexIndices.object);
-    for (let d of this.vertexIndices.divs) d.remove();
+    for (const d of this.vertexIndices.divs) d.remove();
   }
 
   generateWires() {
@@ -262,7 +262,7 @@ export default class InterfaceMenu extends Menu {
     if (!this.wires) return;
     this.scene.remove(this.wires);
     if (dispose) {
-      for (let c of this.wires.children) (c as THREE.Line).geometry.dispose();
+      for (const c of this.wires.children) (c as THREE.Line).geometry.dispose();
       this.wires = null;
     }
   }
@@ -273,7 +273,7 @@ export default class InterfaceMenu extends Menu {
     this.removeMesh(true); // remove old
     const vertices = [];
     const normals = [];
-    for (let f of graph.getFaces()) {
+    for (const f of graph.getFaces()) {
       const edges = f.getEdges();
       const v1 = edges[0].getVertices()[0];
       for (let i = 0; i < edges.length; i++) {
@@ -355,11 +355,11 @@ export default class InterfaceMenu extends Menu {
           ).multiplyScalar(BOUNDING_BOX_SCALE)
         );
       const pairs = [];
-      for (let p1 of coords)
-        for (let p2 of coords)
+      for (const p1 of coords)
+        for (const p2 of coords)
           if (p1.distanceTo(p2) == BOUNDING_BOX_SCALE) pairs.push([p1, p2]);
 
-      for (let p of pairs) {
+      for (const p of pairs) {
         const [p1, p2] = p;
         const geometry = new THREE.BufferGeometry().setFromPoints([p1, p2]);
         const line = new THREE.Line(geometry, material);

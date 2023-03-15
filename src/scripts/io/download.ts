@@ -1,5 +1,5 @@
 export default function downloadTXT(filename: string, text: string) {
-  var element = document.createElement('a');
+  const element = document.createElement('a');
   element.setAttribute(
     'href',
     'data:text/plain;charset=utf-8,' + encodeURIComponent(text)

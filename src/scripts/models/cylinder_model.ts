@@ -36,7 +36,7 @@ class Cylinder {
 
   torque: number; // torque due to connections to neighbouring cylinders
 
-  isPseudo: boolean = false; // marks whether this is a cylinder that should form a pseudoknot.
+  isPseudo = false; // marks whether this is a cylinder that should form a pseudoknot.
 
   strand1: Strand;
   strand2: Strand;
@@ -194,7 +194,7 @@ class Cylinder {
 
   getPrimePairs(): Array<[Vector3, Vector3]> {
     const pairs: Array<[Vector3, Vector3]> = [];
-    for (let str of _.keys(this.neighbours)) {
+    for (const str of _.keys(this.neighbours)) {
       const p1 = this.getPrimePosition(str);
       const p2 = this.getPairPrimePosition(str);
       pairs.push([p1, p2]);
@@ -347,14 +347,14 @@ class CylinderModel {
       const c = this.cylinders[i];
       c.setObjectInstance(i, this.meshes);
     }
-    for (let k of _.keys(this.meshes)) {
+    for (const k of _.keys(this.meshes)) {
       this.meshes[k].instanceColor.needsUpdate = true;
       this.meshes[k].instanceMatrix.needsUpdate = true;
     }
   }
 
   dispose() {
-    for (let k of _.keys(this.meshes)) {
+    for (const k of _.keys(this.meshes)) {
       const mesh = this.meshes[k];
       mesh.geometry.dispose();
       delete this.obj;
@@ -366,14 +366,14 @@ class CylinderModel {
     for (let i = 0; i < iterations; i++) {
       this.calculateTorques();
 
-      let delta = 0.05 * (1 - i / iterations);
-      let jitter =
+      const delta = 0.05 * (1 - i / iterations);
+      const jitter =
         0.05 *
         Math.PI *
         (Math.random() - 0.5) *
         (1 - Math.min(1, i / iterations));
 
-      for (let cyl of this.cylinders) {
+      for (const cyl of this.cylinders) {
         cyl.rotate(cyl.dir, cyl.torque * delta + jitter);
       }
     }
@@ -384,10 +384,10 @@ class CylinderModel {
 
   calculateTorques() {
     let sum = 0;
-    for (let cyl of this.cylinders) {
+    for (const cyl of this.cylinders) {
       cyl.torque = 0;
       const dir = cyl.dir;
-      for (let str of _.keys(cyl.neighbours)) {
+      for (const str of _.keys(cyl.neighbours)) {
         const posPrime = cyl.getPrimePosition(str);
         const pairPrime = cyl.getPairPrimePosition(str);
 

@@ -8,7 +8,7 @@ import Menu from './menu';
 const examples = (() => {
   const objs = require.context('../../examples', false, /\.(obj)$/);
   const examples: { [id: string]: Graph } = {};
-  for (let k of objs.keys()) {
+  for (const k of objs.keys()) {
     const obj = objs(k);
     const graph = new OBJLoader(new THREE.LoadingManager()).parse(obj);
     const name = k.slice(2, k.length - 4);

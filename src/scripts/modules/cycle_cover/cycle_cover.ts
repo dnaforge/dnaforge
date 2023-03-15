@@ -5,13 +5,13 @@ import { InstancedMesh, Intersection, Vector3 } from 'three';
 import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import WiresModel from '../../models/wires_model';
-import { Graph, Edge, Vertex } from '../../models/graph';
+import { Graph, Vertex, HalfEdge } from '../../models/graph';
 
 const cyclesColorHover = 0xff8822;
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 export default class CycleCover extends WiresModel {
-  cycles: Array<Array<[Vertex, Vertex]>>;
+  cycles: Array<Array<HalfEdge>>;
   graph: Graph;
   obj: InstancedMesh;
 
@@ -21,44 +21,31 @@ export default class CycleCover extends WiresModel {
     this.cycles = this.getCycleCover();
   }
 
-  //TODO: remake this function to be something more sensible
-  //TODO: Use edges instead of vertex pairs
-  getCycleCover() {
-    const suc: Record<string, string> = {}; // successors by indices
-    const edges: Record<string, [Vertex, Vertex]> = {}; // map vertex pair strings to vertex pairs
-    for (let i = 0; i < this.graph.getVertices().length; i++) {
-      const v1 = this.graph.getVertices()[i];
-      try {
-        var neighbours = v1.getTopoNeighbours();
-      } catch (error) {
-        var neighbours = this.getNeighbours(v1);
-      }
-      for (let j = 0; j < neighbours.length; j++) {
-        const v0 =
-          j == 0 ? neighbours[neighbours.length - 1] : neighbours[j - 1];
-        const v2 = neighbours[j];
-        const s1 = [v0.id, v1.id].toString();
-        const s2 = [v1.id, v2.id].toString();
-        suc[s1] = s2;
-        edges[s1] = [v0, v1];
-        edges[s2] = [v1, v2];
-      }
+  getCycleCover(): Array<Array<HalfEdge>> {
+    const graph = this.graph;
+    const visited = new Set<HalfEdge>();
+    const cycles = new Array<Array<HalfEdge>>();
+    const traverse = (e: HalfEdge) => {
+      let curE = e;
+      const cycle = [];
+      do {
+        try {
+          var vNeighbours = curE.twin.vertex.getTopoAdjacentHalfEdges();
+        } catch {
+          var vNeighbours = this.getNeighbours(curE.twin.vertex);
+        }
+        const idx = vNeighbours.indexOf(curE.twin);
+        curE = vNeighbours[(idx + 1) % vNeighbours.length];
+        cycle.push(curE);
+        if(visited.has(curE)) return;
+        visited.add(curE);
+      } while (curE != e);
+      cycles.push(cycle);
+    };
+    for (const e of graph.getEdges()) {
+      traverse(e.halfEdges[0]);
+      traverse(e.halfEdges[1]);
     }
-    const cycles: Array<Array<[Vertex, Vertex]>> = [];
-    const visited = new Set<string>();
-    let current_cycle: Array<[Vertex, Vertex]> = [];
-    for (let e of _.keys(suc)) {
-      if (visited.has(e)) continue;
-      let cur = e;
-      while (!visited.has(cur)) {
-        visited.add(cur);
-        current_cycle.push(edges[cur]);
-        cur = suc[cur];
-      }
-      cycles.push(current_cycle);
-      current_cycle = [];
-    }
-
     return cycles;
   }
 
@@ -67,41 +54,36 @@ export default class CycleCover extends WiresModel {
   }
 
   //TODO: find a more accurate TSP solution
-  getNeighbours(v: Vertex) {
-    const neighbours = v.getNeighbours();
-    const t_points: Record<number, Vector3> = {};
-    const co1 = v.coords;
-    // find positions of neighbours
-    for (let n of neighbours) {
-      const co2 = n.coords.clone();
-      const t_point = co2.sub(co1).normalize();
-      t_points[n.id] = t_point;
-    }
+  getNeighbours(v: Vertex): Array<HalfEdge> {
+    const neighbours = v.getAdjacentHalfEdges();
     // find pairwise distances
-    const distances: Record<number, Array<[Vertex, number]>> = {};
-    for (let n1 of neighbours) {
-      const distsT: Array<[Vertex, number]> = [];
-      const tp1 = t_points[n1.id];
-      for (let n2 of neighbours) {
-        if (n1 == n2) continue;
-        const tp2 = t_points[n2.id].clone();
-        distsT.push([n2, tp2.sub(tp1).length()]);
+    const distances = new Map();
+    for (const e1 of neighbours) {
+      const distsT: Array<[HalfEdge, number]> = [];
+      const tp1 = e1.twin.vertex.coords.clone();
+      for (const e2 of neighbours) {
+        if (e1 == e2) continue;
+        const tp2 = e2.twin.vertex.coords.clone();
+        distsT.push([e2, tp2.sub(tp1).length()]);
       }
-      distances[n1.id] = distsT.sort((a, b) => {
-        return a[1] - b[1];
-      });
+      distances.set(
+        e1,
+        distsT.sort((a, b) => {
+          return a[1] - b[1];
+        })
+      );
     }
     // traverse to NN
     const result = [];
     const visited = new Set();
     let cur = neighbours[0];
     while (result.length < neighbours.length) {
-      for (let t of distances[cur.id]) {
-        const [n, d] = t;
-        if (visited.has(n.id)) continue;
-        result.push(n);
-        visited.add(n.id);
-        cur = n;
+      for (const t of distances.get(cur)) {
+        const [e, d] = t;
+        if (visited.has(e)) continue;
+        result.push(e);
+        visited.add(e);
+        cur = e;
         break;
       }
     }
@@ -116,51 +98,39 @@ export default class CycleCover extends WiresModel {
     const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
 
     const indexToCycle: Record<number, Array<number>> = {}; // maps an index of an edge to all the indices within the same cycle
-
     let i = 0;
     for (let j = 0; j < this.cycles.length; j++) {
       const oColor = Math.round(Math.random() * 0x0000ff);
       const cycle = this.cycles[j];
-      const points = [];
       indexToCycle[i] = [];
       for (let k = 0; k < cycle.length; k++) {
-        const pair = cycle[k];
-        const next = k == cycle.length - 1 ? cycle[0] : cycle[k + 1];
-        const [v1, v2] = pair;
-        const [_, v3] = next;
+        const v0 = cycle[k].vertex;
+        const v1 = cycle[(k + 1) % cycle.length].vertex;
+        const v2 = cycle[(k + 2) % cycle.length].vertex;
+        const v3 = cycle[(k + 3) % cycle.length].vertex;
 
+        const dirPrev = v1.coords.clone().sub(v0.coords).normalize();
         const dir = v2.coords.clone().sub(v1.coords).normalize();
-        const dir2 = v3.coords.clone().sub(v2.coords).normalize();
+        const dirNext = v3.coords.clone().sub(v2.coords).normalize();
 
-        const offset = dir
+        const offset1 = dir
+          .clone()
+          .multiplyScalar(0.05)
+          .add(dirPrev.multiplyScalar(-0.05));
+        const offset2 = dir
           .clone()
           .multiplyScalar(-0.05)
-          .add(dir2.multiplyScalar(0.05));
-        const planeOffset = dir
-          .clone()
-          .cross(dir2)
-          .normalize()
-          .multiplyScalar(0.05 * 0);
+          .add(dirNext.multiplyScalar(0.05));
 
-        const p1 = v2.coords.clone().add(offset.add(planeOffset));
-
-        points.push(p1);
-      }
-
-      for (let k = 0; k < points.length; k++) {
-        const p1 = points[k];
-        const p2 = k == points.length - 1 ? points[0] : points[k + 1];
-
-        const length = p2.clone().sub(p1).length();
-
-        const transform = get2PointTransform(p1, p2).scale(
-          new Vector3(1, length, 1)
-        );
+        const p1 = v1.coords.clone().add(offset1);
+        const p2 = v2.coords.clone().add(offset2);
 
         color.setHex(oColor);
-
-        lines.setMatrixAt(i, transform);
+        const transform = get2PointTransform(p1, p2).scale(
+          new Vector3(1, p2.clone().sub(p1).length(), 1)
+        );
         lines.setColorAt(i, color);
+        lines.setMatrixAt(i, transform);
 
         indexToCycle[i] = indexToCycle[i - k];
         indexToCycle[i].push(i);
@@ -173,7 +143,7 @@ export default class CycleCover extends WiresModel {
 
   setupEventListeners(indexToCycle: Record<number, Array<number>>) {
     const color = new THREE.Color(0xffffff);
-    let originalColor = new THREE.Color(0xffffff);
+    const originalColor = new THREE.Color(0xffffff);
 
     let lastI = -1;
     indexToCycle[-1] = []; // just in case it gets called somehow.
@@ -185,7 +155,7 @@ export default class CycleCover extends WiresModel {
         (intersection.object as any).onMouseOverExit();
       lastI = i;
       color.setHex(cyclesColorHover);
-      for (let j of indexToCycle[i]) {
+      for (const j of indexToCycle[i]) {
         this.obj.getColorAt(j, originalColor);
         this.obj.setColorAt(j, color);
       }
@@ -193,7 +163,7 @@ export default class CycleCover extends WiresModel {
     };
 
     const onMouseOverExit = () => {
-      for (let j of indexToCycle[lastI]) {
+      for (const j of indexToCycle[lastI]) {
         this.obj.setColorAt(j, originalColor);
       }
       this.obj.instanceColor.needsUpdate = true;
@@ -236,87 +206,87 @@ function graphToWires(
   return cc;
 }
 
+function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex){
+  const offset1 = cm.getVertexOffset(v1, v2);
+  const offset2 = cm.getVertexOffset(v2, v1);
+  const p1 = v1.coords.clone().add(offset1);
+  const p2 = v2.coords.clone().add(offset2);
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  let length =
+    Math.floor(
+      p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)
+    ) + 1;
+  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
+  if (length < 1)
+    throw `Cylinder length is zero nucleotides. Scale is too small.`;
+
+  const cyl = cm.addCylinder(p1, dir, length);
+  cyl.setOrientation(v1.getEdge(v2).normal);
+
+  return cyl;
+}
+
+function connectCylinder(cyl: Cylinder, nextCyl: Cylinder){
+  if(cyl.neighbours.first3Prime){
+    if(nextCyl.neighbours.first5Prime){
+      cyl.neighbours.second3Prime = [nextCyl, 'second5Prime'];
+      nextCyl.neighbours.second5Prime = [nextCyl, 'second3Prime'];
+    }
+    else{
+      cyl.neighbours.second3Prime = [nextCyl, 'first5Prime'];
+      nextCyl.neighbours.first5Prime = [nextCyl, 'second3Prime'];
+    }
+  }
+  else{
+    if(nextCyl.neighbours.first5Prime){
+      cyl.neighbours.first3Prime = [nextCyl, 'second5Prime'];
+      nextCyl.neighbours.second5Prime = [nextCyl, 'first3Prime'];
+    }
+    else{
+      cyl.neighbours.first3Prime = [nextCyl, 'first5Prime'];
+      nextCyl.neighbours.first5Prime = [nextCyl, 'first3Prime'];
+    }
+  }
+}
+
 function wiresToCylinders(
   cc: CycleCover,
   params: { [name: string]: number | boolean | string }
 ) {
   const scale = <number>params.scale;
   const cm = new CylinderModel(scale, 'DNA');
+  const edgeToCyl = new Map<HalfEdge, Cylinder>();
 
-  const visited = new Set();
-  const strToCyl: Record<string, Cylinder> = {};
-
-  for (let cycle of cc.cycles) {
-    const cylinders = [];
-
-    for (let pair of cycle) {
-      const v1 = pair[0];
-      const v2 = pair[1];
-
-      const s1 = [v1.id, v2.id].toString();
-      const s2 = [v2.id, v1.id].toString();
+  // create cylinders
+  for (const cycle of cc.cycles) {
+    for (let i = 0; i < cycle.length; i++) {
+      const edge = cycle[i];
+      const next = cycle[(i + 1) % cycle.length];
+      const twin = edge.twin;
 
       let cyl;
-      if (visited.has(s2)) {
-        cyl = strToCyl[s2];
+      if (edgeToCyl.get(twin)) {
+        cyl = edgeToCyl.get(twin);
       } else {
-        const offset1 = cm.getVertexOffset(v1, v2);
-        const offset2 = cm.getVertexOffset(v2, v1);
-        const p1 = v1.coords.clone().add(offset1);
-        const p2 = v2.coords.clone().add(offset2);
-        const dir = v2.coords.clone().sub(v1.coords).normalize();
-        let length =
-          Math.floor(
-            p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)
-          ) + 1;
-        if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
-
-        cyl = cm.addCylinder(p1, dir, length);
-        //cyl.setOrientation(v1.getEdge(v2).normal);
-        strToCyl[s1] = cyl;
-        visited.add(s1);
-
-        // used for connectivity:
-        cyl.v1 = v1;
-        cyl.v2 = v2;
+        const v1 = edge.vertex;
+        const v2 = next.vertex;
+        cyl = createCylinder(cm, v1, v2);
       }
-
-      cylinders.push(cyl);
-    }
-
-    // connect cylinders:
-    for (let i = 0; i < cylinders.length; i++) {
-      const cur = cylinders[i];
-      const prev = i == 0 ? cylinders[cylinders.length - 1] : cylinders[i - 1];
-
-      //find the common vertex
-      const curVerts = [cur.v1, cur.v2];
-
-      if (curVerts.includes(prev.v1)) {
-        if (curVerts[0] == prev.v1) {
-          prev.neighbours.second3Prime = [cur, 'first5Prime'];
-          cur.neighbours.first5Prime = [prev, 'second3Prime'];
-        } else {
-          prev.neighbours.second3Prime = [cur, 'second5Prime'];
-          cur.neighbours.second5Prime = [prev, 'second3Prime'];
-        }
-      } else {
-        if (curVerts[0] == prev.v2) {
-          prev.neighbours.first3Prime = [cur, 'first5Prime'];
-          cur.neighbours.first5Prime = [prev, 'first3Prime'];
-        } else {
-          prev.neighbours.first3Prime = [cur, 'second5Prime'];
-          cur.neighbours.second5Prime = [prev, 'first3Prime'];
-        }
-      }
+      edgeToCyl.set(edge, cyl);
     }
   }
-
-  for (let c of cm.cylinders) {
-    if (c.length < 1) {
-      throw `Cylinder length is zero nucleotides. Scale is too small.`;
+  // connect cylinders:
+  for (const cycle of cc.cycles) {
+    for (let i = 0; i < cycle.length; i++) {
+      const edge = cycle[i];
+      const next = cycle[(i + 1) % cycle.length];
+      const cyl = edgeToCyl.get(edge);
+      const nextCyl = edgeToCyl.get(next);
+      
+      connectCylinder(cyl, nextCyl);
     }
   }
+  
   return cm;
 }
 
@@ -340,7 +310,7 @@ function cylindersToNucleotides(
     nm.addNicks(minLength, maxLength);
     nm.connectStrands();
 
-    for (let s of nm.strands) {
+    for (const s of nm.strands) {
       const nucs = s.nucleotides;
       if (nucs[0].prev) {
         throw `Cyclical strands. Edges too short for strand gaps.`;

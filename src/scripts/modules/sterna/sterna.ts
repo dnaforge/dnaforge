@@ -83,17 +83,17 @@ export default class Sterna {
     const t_points = new Map();
     const co1 = v.coords;
     // find positions of neighbours
-    for (let e of neighbours) {
+    for (const e of neighbours) {
       const [v1, v2] = e.getVertices();
       const t_point = v1.coords.clone().add(v2.coords).sub(co1).normalize();
       t_points.set(e, t_point);
     }
     // find pairwise distances
     const distances = new Map();
-    for (let e1 of neighbours) {
+    for (const e1 of neighbours) {
       const distsT = [];
       const tp1 = t_points.get(e1);
-      for (let e2 of neighbours) {
+      for (const e2 of neighbours) {
         if (e1 == e2) continue;
         const tp2 = t_points.get(e2).clone();
         distsT.push([e2, tp2.sub(tp1).length()]);
@@ -110,7 +110,7 @@ export default class Sterna {
     const visited = new Set();
     let cur = neighbours[0];
     while (result.length < neighbours.length) {
-      for (let t of distances.get(cur)) {
+      for (const t of distances.get(cur)) {
         const [e, d] = t;
         if (visited.has(e)) continue;
         result.push(e);
@@ -131,7 +131,7 @@ export default class Sterna {
       const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
 
       let i = 0;
-      for (let curE of this.st) {
+      for (const curE of this.st) {
         const [v1, v2] = curE.getVertices();
 
         const co1 = v1.coords.clone();
@@ -186,7 +186,7 @@ function wiresToCylinders(
   if (new Set(trail[1].getVertices()).has(v1)) v1 = trail[0].getVertices()[1];
   for (let i = 0; i < trail.length; i++) {
     const edge = trail[i];
-    let v2 = edge.getOtherVertex(v1);
+    const v2 = edge.getOtherVertex(v1);
 
     if (!edgeToCyl.has(edge)) {
       const dir = v2.coords.clone().sub(v1.coords).normalize();
@@ -292,7 +292,7 @@ function cylindersToNucleotides(
   if (addNick) {
     let len = 0;
     let longest;
-    for (let s of nm.strands) {
+    for (const s of nm.strands) {
       if (s.length() > len && !s.isLinker && !s.isPseudo) {
         longest = s;
         len = s.length();

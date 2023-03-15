@@ -35,7 +35,7 @@ class Vertex {
 
   getNeighbours(): Vertex[] {
     const neighbours = [];
-    for (let e of this.getAdjacentEdges()) {
+    for (const e of this.getAdjacentEdges()) {
       const verts = e.getVertices();
       if (verts[0] == this) {
         neighbours.push(verts[1]);
@@ -49,7 +49,7 @@ class Vertex {
   getTopoNeighbours(): Vertex[] {
     const edges = this.getTopoAdjacentEdges();
     const verts = [];
-    for (let e of edges) {
+    for (const e of edges) {
       verts.push(e.getOtherVertex(this));
     }
     return verts;
@@ -59,7 +59,7 @@ class Vertex {
    * Adjacent edges based on rotating around vertex normal
    */
   getTopoAdjacentEdges2(): Edge[] {
-    let edges = this.getAdjacentEdges();
+    const edges = this.getAdjacentEdges();
     const startEdge = edges[0];
     const [vs1, vs2] = startEdge.getCoords();
     const xv = vs1
@@ -108,7 +108,7 @@ class Vertex {
     let prevF = prev.getFaces()[0];
     let nFaces = 0;
     // Find a start edge that has only one face, if it exists:
-    for (let e of this.getAdjacentEdges()) {
+    for (const e of this.getAdjacentEdges()) {
       const [f1, f2] = e.getFaces();
       if (f1) nFaces++;
       if (f2) nFaces++;
@@ -124,7 +124,7 @@ class Vertex {
     while (edges.length < this.degree()) {
       const [f1, f2] = prev.getFaces();
       prevF = f1 != prevF || !f2 ? f1 : f2;
-      for (let e of prevF.getEdges()) {
+      for (const e of prevF.getEdges()) {
         if (e != prev && this.adjacentEdges.has(e)) {
           prev = e;
           break;
@@ -150,12 +150,34 @@ class Vertex {
     return edges;
   }
 
+  getAdjacentHalfEdges(): HalfEdge[]{
+    const edges = this.getAdjacentEdges();
+    const halfEdges = [];
+    for(const e of edges){
+      for(const he of e.halfEdges){
+        if(he.vertex == this) halfEdges.push(he);
+      }
+    }
+    return halfEdges;
+  }
+
+  getTopoAdjacentHalfEdges(): HalfEdge[]{
+    const edges = this.getTopoAdjacentEdges();
+    const halfEdges = [];
+    for(const e of edges){
+      for(const he of e.halfEdges){
+        if(he.vertex == this) halfEdges.push(he);
+      }
+    }
+    return halfEdges;
+  }
+
   getAdjacentEdges(): Edge[] {
     return [...this.adjacentEdges];
   }
 
   getEdge(other: Vertex) {
-    for (let e of this.getAdjacentEdges()) {
+    for (const e of this.getAdjacentEdges()) {
       if (e.getOtherVertex(this) == other) return e;
     }
     return null;
@@ -163,7 +185,7 @@ class Vertex {
 
   getAdjacentFaces() {
     const faces: Face[] = [];
-    for (let e of this.getAdjacentEdges()) {
+    for (const e of this.getAdjacentEdges()) {
       faces.push(...e.getFaces());
     }
     return faces;
@@ -180,7 +202,7 @@ class Vertex {
       this.normal
     );
     const edges = this.getAdjacentEdges().slice(0, 3);
-    for (let e of edges) {
+    for (const e of edges) {
       const [v1, v2] = e.getVertices();
       this.graph.removeEdge(e);
       if (v1.id == this.id) this.graph.addEdge(nV, v2);
@@ -190,10 +212,22 @@ class Vertex {
   }
 }
 
+class HalfEdge {
+  edge: Edge;
+  vertex: Vertex;
+  twin: HalfEdge;
+
+  constructor(edge: Edge, vertex: Vertex ){
+    this.edge = edge;
+    this.vertex = vertex;
+  }
+}
+
 class Edge {
   id: number;
   graph: Graph;
   vertices: Vertex[];
+  halfEdges: HalfEdge[];
   faces: Face[];
   normal: Vector3;
   twin: Edge;
@@ -203,6 +237,9 @@ class Edge {
     this.id = uid();
     this.vertices = [v1, v2];
     this.faces = [];
+    this.halfEdges = [new HalfEdge(this, v1), new HalfEdge(this, v2)];
+    this.halfEdges[0].twin = this.halfEdges[1];
+    this.halfEdges[1].twin = this.halfEdges[0];
 
     if (normal) this.normal = normal;
     else {
@@ -243,7 +280,7 @@ class Edge {
     this.faces.push(f);
   }
 
-  getLength(): Number {
+  getLength(): number {
     const [v1, v2] = this.getVertices();
     return v1.coords.clone().sub(v2.coords).length();
   }
@@ -277,7 +314,7 @@ class Face {
     this.id = uid();
     this.graph = graph;
     this.edges = edges;
-    for (let e of edges) {
+    for (const e of edges) {
       e.addFace(this);
     }
     if (normal) this.normal = normal;
@@ -300,7 +337,7 @@ class Face {
   getVertices(): Vertex[] {
     const vertices = [];
     let last;
-    for (let e of this.getEdges()) {
+    for (const e of this.getEdges()) {
       const [v1, v2] = e.getVertices();
       if (last == v1) vertices.push(v2);
       else vertices.push(v1);
@@ -327,7 +364,7 @@ class Graph {
       const edges1 = new Set(face.getEdges());
       const edges2 = new Set(adjFace.getEdges());
       let e1, e2;
-      for (let e of commonEdge.getVertices()[0].getAdjacentEdges()) {
+      for (const e of commonEdge.getVertices()[0].getAdjacentEdges()) {
         if (e == commonEdge) continue;
         if (edges1.has(e)) e1 = e;
         if (edges2.has(e)) e2 = e;
@@ -364,8 +401,8 @@ class Graph {
     if (stack.length == 0) return; // don't even try to calculate normals unless the faces are given
     while (stack.length > 0) {
       const f = stack.pop();
-      for (let e of f.getEdges()) {
-        for (let f2 of e.getFaces()) {
+      for (const e of f.getEdges()) {
+        for (const f2 of e.getFaces()) {
           if (f == f2 || visited.has(f2)) continue;
           const n = calculateFaceNormal(f2, f, e);
           f2.normal = n;
@@ -376,18 +413,18 @@ class Graph {
     }
 
     //Edge normals:
-    for (let e of this.getEdges()) {
+    for (const e of this.getEdges()) {
       const n = new Vector3();
-      for (let f of e.getFaces()) {
+      for (const f of e.getFaces()) {
         n.add(f.normal);
       }
       e.normal = n.normalize();
     }
 
     //Vertex nromals:
-    for (let v of this.getVertices()) {
+    for (const v of this.getVertices()) {
       const n = new Vector3();
-      for (let e of v.getAdjacentEdges()) {
+      for (const e of v.getAdjacentEdges()) {
         n.add(e.normal);
       }
       v.normal = n.normalize();
@@ -399,7 +436,7 @@ class Graph {
     // The normal of the vertex highest on the y-axis should probably point up
     // TODO: find a better solution
     let highest = this.getVertices()[0];
-    for (let v of this.getVertices()) {
+    for (const v of this.getVertices()) {
       if (v.coords.y > highest.coords.y) highest = v;
     }
     if (highest.normal.dot(new Vector3(0, 1, 0)) > 0) return;
@@ -407,33 +444,21 @@ class Graph {
   }
 
   flipNormals() {
-    for (let v of this.getVertices()) v.normal.multiplyScalar(-1);
-    for (let e of this.getEdges()) e.normal.multiplyScalar(-1);
-    for (let f of this.getFaces()) f.normal.multiplyScalar(-1);
+    for (const v of this.getVertices()) v.normal.multiplyScalar(-1);
+    for (const e of this.getEdges()) e.normal.multiplyScalar(-1);
+    for (const f of this.getFaces()) f.normal.multiplyScalar(-1);
   }
 
   getVertices(): Vertex[] {
-    const vertices = [];
-    for (const v of this.vertices.entries()) {
-      vertices.push(v[1]);
-    }
-    return vertices;
+    return [...this.vertices];
   }
 
   getEdges(): Edge[] {
-    const edges = [];
-    for (const e of this.edges.entries()) {
-      edges.push(e[1]);
-    }
-    return edges;
+    return [...this.edges];
   }
 
   getFaces(): Face[] {
-    const faces: Face[] = [];
-    for (const f of this.faces.entries()) {
-      faces.push(f[1]);
-    }
-    return faces;
+    return [...this.faces];
   }
 
   addVertex(coords: Vector3, normal: Vector3 = undefined) {
@@ -475,8 +500,8 @@ class Graph {
 
   hasFaceInformation() {
     const verts = new Set();
-    for (let f of this.getFaces()) {
-      for (let v of f.getVertices()) {
+    for (const f of this.getFaces()) {
+      for (const v of f.getVertices()) {
         verts.add(v);
       }
     }
@@ -489,26 +514,26 @@ class Graph {
     const oldVtoNew = new Map();
     const oldEtoNew = new Map();
     const twins = [];
-    for (let v of this.getVertices()) {
+    for (const v of this.getVertices()) {
       const nv = g.addVertex(v.coords);
       oldVtoNew.set(v, nv);
       nv.normal = v.normal.clone();
     }
-    for (let e of this.getEdges()) {
+    for (const e of this.getEdges()) {
       if (e.twin) twins.push(e);
       const [v1, v2] = e.getVertices();
       const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2));
       oldEtoNew.set(e, ne);
       ne.normal = e.normal.clone();
     }
-    for (let f of this.getFaces()) {
+    for (const f of this.getFaces()) {
       const edges = f.getEdges().map((e) => {
         return oldEtoNew.get(e);
       });
       const nf = g.addFace(edges);
       nf.normal = f.normal.clone();
     }
-    for (let e of twins) {
+    for (const e of twins) {
       oldEtoNew.get(e).twin = oldEtoNew.get(e.twin);
     }
     return g;
@@ -523,7 +548,7 @@ class Graph {
     while (unvisited.size > 0) {
       let cur;
       let shortest = Infinity;
-      for (let v of unvisited) {
+      for (const v of unvisited) {
         if (dists.get(v) <= shortest) {
           shortest = dists.get(v);
           cur = v;
@@ -532,7 +557,7 @@ class Graph {
       if (cur == v2) break;
       unvisited.delete(cur);
       const dist1 = dists.get(cur);
-      for (let n of cur.getNeighbours()) {
+      for (const n of cur.getNeighbours()) {
         const dist2 = n.coords.clone().sub(cur.coords).clone().length();
         if (dists.get(n) == null || dists.get(n) > dist1 + dist2) {
           dists.set(n, dist1 + dist2);
@@ -551,8 +576,9 @@ class Graph {
   }
 
   isEulerian() {
+    //TODO: also check connectedness
     const verts = this.getVertices();
-    for (let v of verts) {
+    for (const v of verts) {
       if (v.degree() % 2 != 0) return false;
     }
     return true;
@@ -562,14 +588,14 @@ class Graph {
     if (this.isEulerian()) return;
     const verts = this.getVertices();
     const idToVert = new Map<number, Vertex>();
-    for (let v of verts) idToVert.set(v.id, v);
+    for (const v of verts) idToVert.set(v.id, v);
 
     // find minimum paths between all the odd vertices
     const minPaths = () => {
       let maxLength = 0;
       const paths = new Map();
-      for (let v1 of verts) {
-        for (let v2 of verts) {
+      for (const v1 of verts) {
+        for (const v2 of verts) {
           if (v1.id <= v2.id) continue;
           const path = this.dijkstra(v1, v2);
           //console.log(v1.id, v2.id, ":", path.path.length);
@@ -587,7 +613,7 @@ class Graph {
         }
       }
       // this blossom algorithm implementation requires all the weights to be positive for some reason:
-      for (let p of paths) {
+      for (const p of paths) {
         p[1].length = maxLength - p[1].length;
       }
       return paths;
@@ -602,7 +628,7 @@ class Graph {
       const oddVerts = [];
 
       let i = 0;
-      for (let v of verts) {
+      for (const v of verts) {
         if (v.degree() % 2) {
           oddVerts.push(v);
           indextoVert.set(i, v.id);
@@ -611,8 +637,8 @@ class Graph {
       }
 
       const data = [];
-      for (let v1 of oddVerts) {
-        for (let v2 of oddVerts) {
+      for (const v1 of oddVerts) {
+        for (const v2 of oddVerts) {
           if (v1.id <= v2.id) continue;
           data.push([
             vertToIndex.get(v1.id),
@@ -626,7 +652,7 @@ class Graph {
 
       const matchedPaths = [];
       i = 0;
-      for (let j of matching) {
+      for (const j of matching) {
         const v1 = indextoVert.get(i++);
         const v2 = indextoVert.get(j);
         if (v2 > v1) continue;
@@ -637,8 +663,8 @@ class Graph {
     };
 
     const splitEdges = (paths: { path: Edge[]; length: number }[]) => {
-      for (let p of paths) {
-        for (let e of p.path) {
+      for (const p of paths) {
+        for (const e of p.path) {
           e.split();
         }
       }
@@ -660,4 +686,4 @@ class Graph {
   }
 }
 
-export { Graph, Vertex, Edge };
+export { Graph, Vertex, Edge, HalfEdge };

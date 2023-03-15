@@ -107,7 +107,7 @@ export default class Controls {
   }
 
   handleMouseLeftDown(event: PointerEvent) {
-    var rect = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     this.pointerPrev.x = event.pageX;
     this.pointerPrev.y = event.pageY;
   }
@@ -143,7 +143,7 @@ export default class Controls {
   handleMouseRightUp(event: PointerEvent) {}
 
   handleMouseMiddleDown(event: PointerEvent) {
-    var rect = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     this.pointerPrev.x = event.pageX;
     this.pointerPrev.y = event.pageY;
   }
@@ -208,7 +208,7 @@ export default class Controls {
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
-        let mesh = this.intersection.object;
+        const mesh = this.intersection.object;
         if ((mesh as any).focusable) {
           this.context.focusCamera(this.intersection.point);
           break;
@@ -219,7 +219,7 @@ export default class Controls {
 
   handlePointerMove(event: PointerEvent) {
     this.pointerOnCanvas = event.target == canvas;
-    var rect = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     this.pointer.x = ((event.clientX - rect.x) / window.innerWidth) * 2 - 1;
     this.pointer.y = -((event.clientY - rect.y) / window.innerHeight) * 2 + 1;
   }

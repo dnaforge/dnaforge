@@ -45,7 +45,7 @@ class ATrail extends WiresModel {
     // Neighbourhoods for left-right-orderings:
     const neighbours = (() => {
       const vToN = new Map(); // vertex to neighbour, changes depending on the orientation
-      for (let v of this.graph.getVertices()) {
+      for (const v of this.graph.getVertices()) {
         const n = {
           LEFT: new Map(),
           RIGHT: new Map(),
@@ -61,8 +61,8 @@ class ATrail extends WiresModel {
           n.RIGHT.set(e, neighbours);
           n.NONE.set(e, neighbours);
           if (deg > 4) {
-            let L = (i + (-1) ** (i % 2) + deg) % deg;
-            let R = (i + (-1) ** ((i + 1) % 2) + deg) % deg;
+            const L = (i + (-1) ** (i % 2) + deg) % deg;
+            const R = (i + (-1) ** ((i + 1) % 2) + deg) % deg;
             n.LEFT.set(e, [neighbours[L], e]);
             n.RIGHT.set(e, [neighbours[R], e]);
           }
@@ -90,7 +90,7 @@ class ATrail extends WiresModel {
         visited.add(cur);
         const [v1, v2] = cur.getVertices();
         const es = neighbours(v1, cur).concat(neighbours(v2, cur));
-        for (let e of es) {
+        for (const e of es) {
           if (!visited.has(e)) {
             stack.push(e);
             visited.add(e);
@@ -104,10 +104,10 @@ class ATrail extends WiresModel {
     // Split vertices and keep checking:
     const splitAndCheck = () => {
       let bigVerts = [];
-      for (let v of this.graph.getVertices()) {
+      for (const v of this.graph.getVertices()) {
         if (v.degree() > 4) {
           let bigNeighbours = 0;
-          for (let v2 of v.getNeighbours()) {
+          for (const v2 of v.getNeighbours()) {
             bigNeighbours += v2.degree() > 4 ? 1 : 0;
           }
           bigVerts.push([v, bigNeighbours]);
@@ -150,13 +150,13 @@ class ATrail extends WiresModel {
       const visited = new Set();
       const unvisited = (a: Array<Edge>) => {
         const _intersection = [];
-        for (let m of a) {
+        for (const m of a) {
           if (!visited.has(m)) _intersection.push(m);
         }
         return _intersection;
       };
       const traverse = (startV: Vertex, startE: Edge) => {
-        let path = [];
+        const path = [];
         let curV = startV;
         let curE = startE;
         visited.add(startE);
@@ -172,9 +172,6 @@ class ATrail extends WiresModel {
           curE = nextE;
         }
       };
-      // The first vertex visited should always be the first vertex of the first edge in the trail,
-      // and the second vertex visited should be the second vertex of the first edge. This makes generating
-      // the object and the cylinder model easier.
       const startEdge = this.graph.getEdges()[0];
       atrail.push(...traverse(startEdge.getVertices()[1], startEdge));
       const nEdges = this.graph.getEdges().length;
@@ -279,7 +276,7 @@ class ATrail extends WiresModel {
     let co1 = curV.coords;
     for (let i = 0; i < this.trail.length; i++) {
       const curE = this.trail[i];
-      let nextV = curE.getOtherVertex(curV);
+      const nextV = curE.getOtherVertex(curV);
       curV = nextV;
       const dir = nextV.coords.clone().sub(co1).normalize();
       const co2 = nextV.coords.clone().sub(dir.multiplyScalar(0.1));
@@ -346,7 +343,7 @@ function wiresToCylinders(atrail: ATrail, params: Parameters) {
   let v1 = startV;
   for (let i = 0; i < atrail.trail.length; i++) {
     const edge = atrail.trail[i];
-    let v2 = edge.getOtherVertex(v1);
+    const v2 = edge.getOtherVertex(v1);
 
     //TODO: fix offset in case an edge is split multiple times
     const dir = v2.coords.clone().sub(v1.coords).normalize();
@@ -422,7 +419,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: Parameters) {
     nm.addNicks(minLength, maxLength);
     nm.connectStrands();
 
-    for (let s of nm.strands) {
+    for (const s of nm.strands) {
       const nucs = s.nucleotides;
       if (s.isScaffold) continue;
       if (nucs[0].prev) {

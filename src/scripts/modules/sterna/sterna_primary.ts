@@ -6,7 +6,7 @@ import {
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 
 function* getPKs(): IterableIterator<[string, string]> {
-  for (let pair of RNA_PSEUDOKNOTS) {
+  for (const pair of RNA_PSEUDOKNOTS) {
     yield pair;
   }
 }
@@ -80,7 +80,7 @@ function getPseudoknots(nucleotides: Array<Nucleotide>) {
   }
 
   const pseudos = new Map();
-  for (let pk of pkStack) {
+  for (const pk of pkStack) {
     const [idx, pkID] = pk;
     let p;
     if (pseudos.has(pkID)) p = pseudos.get(pkID);
@@ -107,7 +107,7 @@ function getPseudoknots(nucleotides: Array<Nucleotide>) {
 
 function getSS(nucleotides: Array<Nucleotide>) {
   const visited = new Set();
-  let ss = [];
+  const ss = [];
   for (let i = 0; i < nucleotides.length; i++) {
     const cur = nucleotides[i];
     visited.add(cur);
@@ -169,7 +169,7 @@ function generateRandom(nm: NucleotideModel, gcContent: number) {
 
 function getPrimary(nucleotides: Array<Nucleotide>) {
   const p = [];
-  for (let n of nucleotides) {
+  for (const n of nucleotides) {
     p.push(n.base);
   }
   return p;

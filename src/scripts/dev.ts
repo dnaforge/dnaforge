@@ -48,9 +48,9 @@ export default function dev(context: Context) {
   const graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
   context.setGraph(graph);
 
-  (<ModuleMenu>context.menus.get('cycle-cover')).addWires();
+  //(<ModuleMenu>context.menus.get('cycle-cover')).addWires();
   //(<ModuleMenu>context.menus.get("cycle-cover")).addCylinders();
-  //(<ModuleMenu>context.menus.get("cycle-cover")).addNucleotides();
+  (<ModuleMenu>context.menus.get("cycle-cover")).addNucleotides();
 
   //(<ModuleMenu>context.menus.get("atrail")).addWires();
   //(<ModuleMenu>context.menus.get("atrail")).addCylinders();

@@ -69,7 +69,7 @@ export default class ATrailMenu extends ModuleMenu {
     if (!graph) throw 'No model is loaded.';
     const t = str.trim().split(' ');
     const trail = [];
-    for (let n of t) {
+    for (const n of t) {
       const num = Number(n) - 1;
       trail.push(num);
       if (num < 0 || isNaN(num) || num >= graph.getVertices().length)

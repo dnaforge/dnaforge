@@ -219,7 +219,7 @@ class Nucleotide {
     this.instanceMeshes.backbone.setColorAt(this.instanceId, colours[0]);
     this.instanceMeshes.nucleotides.setColorAt(this.instanceId, colours[1]);
     this.instanceMeshes.bases.setColorAt(this.instanceId, colours[2]);
-    for (let m of _.keys(this.instanceMeshes))
+    for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[m].instanceColor.needsUpdate = true;
   }
 
@@ -496,7 +496,7 @@ class NucleotideModel {
 
   length() {
     let i = 0;
-    for (let s of this.strands) {
+    for (const s of this.strands) {
       i += s.nucleotides.length;
     }
     return i;
@@ -613,10 +613,10 @@ class NucleotideModel {
   generatePrimaryFromScaffold(scaffoldName: string) {
     //Generate primary structure:
     if (scaffoldName != 'none') {
-      for (let s of this.strands) {
+      for (const s of this.strands) {
         if (s.isScaffold) {
           if (scaffoldName == 'random') {
-            for (let n of s.nucleotides) n.base = 'ATGC'[randInt(0, 3)];
+            for (const n of s.nucleotides) n.base = 'ATGC'[randInt(0, 3)];
             break;
           }
           const scaffold = DNA_SCAFFOLDS[scaffoldName];
@@ -632,9 +632,9 @@ class NucleotideModel {
           break;
         }
       }
-      for (let s of this.strands) {
+      for (const s of this.strands) {
         if (!s.isScaffold) {
-          for (let n of s.nucleotides) {
+          for (const n of s.nucleotides) {
             if (n.pair) n.base = DNAComplement(n.pair.base);
             else n.base = 'AT'[randInt(0, 1)];
           }
@@ -666,8 +666,8 @@ class NucleotideModel {
       }
     };
 
-    for (let s of this.strands) {
-      for (let n of s.nucleotides) {
+    for (const s of this.strands) {
+      for (const n of s.nucleotides) {
         if (Math.random() < gcContent) n.base = 'GC'[randInt(0, 1)];
         else n.base = 'AT'[randInt(0, 1)];
         if (n.pair) n.pair.base = complement(n.base);
@@ -679,8 +679,8 @@ class NucleotideModel {
 
   updateObject() {
     if (!this.obj) this.getObject();
-    for (let s of this.strands) {
-      for (let n of s.nucleotides) {
+    for (const s of this.strands) {
+      for (const n of s.nucleotides) {
         n.setObjectColours();
       }
     }
@@ -690,10 +690,10 @@ class NucleotideModel {
     // UNF needs ID's to be somewhat specific for some reason
     let i = 0;
     let j = 0;
-    for (let s of this.strands) {
+    for (const s of this.strands) {
       s.id = j;
       j += 1;
-      for (let n of s.nucleotides) {
+      for (const n of s.nucleotides) {
         n.id = i;
         i += 1;
       }
@@ -755,13 +755,13 @@ class NucleotideModel {
     const addNicksT = (strand: Strand, indices: Array<number>) => {
       if (strand.isScaffold) return;
       const nucs1 = strand.nucleotides;
-      for (let i of indices) {
+      for (const i of indices) {
         nucs1[i].next = null;
         nucs1[i + 1].prev = null;
       }
     };
 
-    for (let strand of this.strands) {
+    for (const strand of this.strands) {
       if (strand.isLinker || strand.isScaffold || visited.has(strand)) continue;
 
       const l = strand.length();
@@ -795,7 +795,7 @@ class NucleotideModel {
     shortStrands.sort(() => Math.random() - 0.5);
 
     // Try to fix too long strands by utilising the short strands admitting only one nick:
-    for (let strand of shortStrands) {
+    for (const strand of shortStrands) {
       if (visited.has(strand)) continue;
       const nuc = strand.nucleotides[0];
       let startId = nuc.id;
@@ -827,7 +827,7 @@ class NucleotideModel {
   connectStrands() {
     const newStrands = [];
     const visited = new Set();
-    for (let s of this.strands) {
+    for (const s of this.strands) {
       const nucleotides = s.nucleotides;
       for (let i = 0; i < nucleotides.length; i++) {
         let cur = nucleotides[i];
@@ -887,9 +887,9 @@ class NucleotideModel {
     const instaceToNuc: Record<number, Nucleotide> = {};
 
     let i = 0;
-    for (let s of this.strands) {
-      let sn = new Set();
-      for (let n of s.nucleotides) {
+    for (const s of this.strands) {
+      const sn = new Set();
+      for (const n of s.nucleotides) {
         n.setObjectInstance(i, meshes);
         instaceToNuc[i] = n;
         i += 1;
@@ -908,7 +908,7 @@ class NucleotideModel {
     instaceToNuc: Record<number, Nucleotide>
   ) {
     let lastI = -1;
-    let selectionMode = 'none';
+    const selectionMode = 'none';
 
     //TODO: Move these somewhere else. Don't just hack them into the existing object3d.
 
@@ -940,7 +940,7 @@ class NucleotideModel {
       return `${nuc.base}<br>${i}`;
     };
 
-    for (let m of _.keys(meshes)) {
+    for (const m of _.keys(meshes)) {
       Object.defineProperty(meshes[m], 'onMouseOver', {
         value: onMouseOver,
         writable: false,
@@ -965,14 +965,14 @@ class NucleotideModel {
   }
 
   dispose() {
-    for (let k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
+    for (const k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
     delete this.obj;
   }
 
   getNucleotides() {
     const nucs = [];
-    for (let s of this.strands) {
-      for (let n of s.nucleotides) {
+    for (const s of this.strands) {
+      for (const n of s.nucleotides) {
         nucs.push(n);
       }
     }
@@ -984,7 +984,7 @@ class NucleotideModel {
     if (nucleotides.length != str.length)
       throw `Input length does not match the nucleotide model.`;
     const iupac = new Set('ACGTUWSMKRYBDHVN'.split(''));
-    for (let b of str) if (!iupac.has(b)) throw `Unrecognised base ${b}`;
+    for (const b of str) if (!iupac.has(b)) throw `Unrecognised base ${b}`;
     for (let i = 0; i < str.length; i++) {
       nucleotides[i].base = str[i];
     }
@@ -1033,26 +1033,26 @@ class NucleotideModel {
   }
 
   toggleSelect(target: Nucleotide) {
-    for (let n of this.getSelection(target)) {
+    for (const n of this.getSelection(target)) {
       n.setSelect(!n.isSelected());
     }
   }
 
   setHover(target: Nucleotide, val: boolean) {
-    for (let n of this.getSelection(target)) {
+    for (const n of this.getSelection(target)) {
       n.setHover(val);
     }
   }
 
   selectAll() {
-    for (let s of this.strands) {
-      for (let n of s.nucleotides) n.setSelect(true);
+    for (const s of this.strands) {
+      for (const n of s.nucleotides) n.setSelect(true);
     }
   }
 
   deselectAll() {
-    for (let s of this.strands) {
-      for (let n of s.nucleotides) n.setSelect(false);
+    for (const s of this.strands) {
+      for (const n of s.nucleotides) n.setSelect(false);
     }
   }
 }

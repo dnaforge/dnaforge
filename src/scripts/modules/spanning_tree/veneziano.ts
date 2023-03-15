@@ -64,7 +64,7 @@ class Veneziano {
     };
 
     const v0 = this.graph.getVertices()[0];
-    for (let e of v0.getAdjacentEdges()) enqueue(e);
+    for (const e of v0.getAdjacentEdges()) enqueue(e);
     while (queue.length > 0) {
       const edge = queue.pop()[0];
       const v1 = edge.vertices[0];
@@ -122,7 +122,7 @@ class Veneziano {
       const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
 
       let i = 0;
-      for (let curE of this.st) {
+      for (const curE of this.st) {
         const [v1, v2] = curE.getVertices();
 
         const co1 = v1.coords.clone();
@@ -176,7 +176,7 @@ function wiresToCylinders(
   let v1 = trail[0].getVertices()[0];
   for (let i = 0; i < trail.length; i++) {
     const edge = trail[i];
-    let v2 = edge.getOtherVertex(v1);
+    const v2 = edge.getOtherVertex(v1);
 
     let offset;
     const dir = v2.coords.clone().sub(v1.coords).normalize();
@@ -248,7 +248,7 @@ function cylindersToNucleotides(
 
   nm.createStrands(cm, true);
 
-  for (let cyl of cm.cylinders) {
+  for (const cyl of cm.cylinders) {
     const scaffold_next = cyl.neighbours['first3Prime'][0].strand1;
     const staple_next = cyl.neighbours['second3Prime'][0].strand2;
 

@@ -54,7 +54,7 @@ export class OBJLoader extends Loader {
       text = text.replace(/\\\n/g, '');
     }
     const lines = text.split('\n');
-    let result = [];
+    const result = [];
 
     for (let i = 0, l = lines.length; i < l; i++) {
       const line = lines[i].trimStart();
@@ -121,7 +121,7 @@ export class OBJLoader extends Loader {
     // find bounding box size and center of mass
     const min = new Vector3();
     const max = new Vector3();
-    for (let v of vertices) {
+    for (const v of vertices) {
       min.x = Math.min(min.x, v.x);
       min.y = Math.min(min.y, v.y);
       min.z = Math.min(min.z, v.z);
@@ -142,6 +142,7 @@ export class OBJLoader extends Loader {
         vertices[i].sub(com).multiplyScalar(scale),
         normals[i]
       );
+      v.id = i + 1;
       gVertices.push(v);
     }
     //implicit edges:
