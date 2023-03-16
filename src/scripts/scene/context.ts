@@ -5,9 +5,9 @@ import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import Controls from '../utils/controls';
-import Menu from './menu';
-import ModuleMenu from '../modules/module_menu';
+import { Controls } from '../utils/controls';
+import { Menu } from './menu';
+import { ModuleMenu } from '../modules/module_menu';
 import { Graph } from '../models/graph';
 
 const canvas = document.querySelector('#canvas');
@@ -39,7 +39,7 @@ const cameraParams = (() => {
   };
 })();
 
-export default class Context {
+export class Context {
   scene: THREE.Scene;
   camera: THREE.Camera;
   cameraControls: OrbitControls;

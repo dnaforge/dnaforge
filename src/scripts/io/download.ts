@@ -1,4 +1,4 @@
-export default function downloadTXT(filename: string, text: string) {
+export function downloadTXT(filename: string, text: string) {
   const element = document.createElement('a');
   element.setAttribute(
     'href',

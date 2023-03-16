@@ -4,15 +4,15 @@ import {
   wiresToCylinders,
   cylindersToNucleotides,
 } from './veneziano';
-import downloadTXT from '../../io/download';
+import { downloadTXT } from '../../io/download';
 import html from './menu_veneziano.htm';
-import ModuleMenu from '../module_menu';
-import WiresModel from '../../models/wires_model';
+import { ModuleMenu } from '../module_menu';
+import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import Context from '../../scene/context';
+import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 
-export default class SpanningTreeMenu extends ModuleMenu {
+export class SpanningTreeMenu extends ModuleMenu {
   scaleInput: any;
   addNicksSwitch: any;
   venezianoScaffold: any;

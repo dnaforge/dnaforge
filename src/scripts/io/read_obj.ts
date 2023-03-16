@@ -183,7 +183,7 @@ export class OBJLoader extends Loader {
   }
 }
 
-export default function read_obj(path: string, callback: (g: Graph) => void) {
+export function read_obj(path: string, callback: (g: Graph) => void) {
   const manager = new THREE.LoadingManager();
   const loader = new OBJLoader(manager);
   loader.load(

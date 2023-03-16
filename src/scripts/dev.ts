@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OBJLoader } from './io/read_obj';
-import Context from './scene/context';
-import ModuleMenu from './modules/module_menu';
+import { Context } from './scene/context';
+import { ModuleMenu } from './modules/module_menu';
 import { Matrix4, Vector3 } from 'three';
 
 class Nucleotide {
@@ -31,7 +31,7 @@ class Nucleotide {
   baseNormal: Vector3;
 }
 
-export default function dev(context: Context) {
+export function dev(context: Context) {
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');

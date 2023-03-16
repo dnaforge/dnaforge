@@ -1,9 +1,9 @@
 import { CylinderModel } from '../models/cylinder_model';
 import { Graph } from '../models/graph';
 import { NucleotideModel } from '../models/nucleotide_model';
-import WiresModel from '../models/wires_model';
-import Context from '../scene/context';
-import Menu from '../scene/menu';
+import { WiresModel } from '../models/wires_model';
+import { Context } from '../scene/context';
+import { Menu } from '../scene/menu';
 
 function setupHTML(html: string) {
   const mainData = $('<div>');
@@ -20,7 +20,7 @@ function setupHTML(html: string) {
   return [id, title];
 }
 
-export default abstract class ModuleMenu extends Menu {
+export abstract class ModuleMenu extends Menu {
   showWires = false;
   showCylinders = false;
   showNucleotides = false;

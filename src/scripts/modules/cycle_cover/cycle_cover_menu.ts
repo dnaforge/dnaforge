@@ -1,17 +1,18 @@
-import CycleCover, {
+import {
+  CycleCover,
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
 } from './cycle_cover';
-import downloadTXT from '../../io/download';
+import { downloadTXT } from '../../io/download';
 import html from './menu_cycle_cover.htm';
-import ModuleMenu from '../module_menu';
-import Context from '../../scene/context';
+import { ModuleMenu } from '../module_menu';
+import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
-import WiresModel from '../../models/wires_model';
+import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 
-export default class CycleCoverMenu extends ModuleMenu {
+export class CycleCoverMenu extends ModuleMenu {
   scaleInput: any;
   linkersMinInput: any;
   linkersMaxInput: any;

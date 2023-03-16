@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { Vector2 } from 'three';
-import GLOBALS from '../globals/globals';
-import Context from '../scene/context';
+import { GLOBALS } from '../globals/globals';
+import { Context } from '../scene/context';
 
 const MIN_DELTA = 3;
 
 const canvas = $('#canvas')[0];
 const body = $('body')[0];
 
-export default class Controls {
+export class Controls {
   pointer = new Vector2();
   pointerPrev = new Vector2();
   raycaster = new THREE.Raycaster(); // TODO: use layers

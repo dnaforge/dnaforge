@@ -3,7 +3,7 @@ import { get2PointTransform } from '../../utils/transforms';
 import { Object3D, Vector3 } from 'three';
 import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import WiresModel from '../../models/wires_model';
+import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
 
 const MAX_ITERATIONS = 1 * 10 ** 6; // give up after too many steps to prevent the browser from permanently freezing

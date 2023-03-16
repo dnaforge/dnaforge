@@ -1,18 +1,19 @@
-import Sterna, {
+import {
+  Sterna,
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
 } from './sterna';
 import { getNP, generatePartial, generateRandom } from './sterna_primary';
-import downloadTXT from '../../io/download';
+import { downloadTXT } from '../../io/download';
 import html from './menu_sterna.htm';
-import ModuleMenu from '../module_menu';
-import Context from '../../scene/context';
+import { ModuleMenu } from '../module_menu';
+import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
-import WiresModel from '../../models/wires_model';
+import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 
-export default class SternaMenu extends ModuleMenu {
+export class SternaMenu extends ModuleMenu {
   scaleInput: any;
   linkersMinInput: any;
   linkersMaxInput: any;

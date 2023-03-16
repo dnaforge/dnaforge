@@ -4,15 +4,15 @@ import {
   wiresToCylinders,
   cylindersToNucleotides,
 } from './atrail';
-import downloadTXT from '../../io/download';
+import { downloadTXT } from '../../io/download';
 import html from './menu_atrail.htm';
-import ModuleMenu from '../module_menu';
-import Context from '../../scene/context';
+import { ModuleMenu } from '../module_menu';
+import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
-import WiresModel from '../../models/wires_model';
+import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 
-export default class ATrailMenu extends ModuleMenu {
+export class ATrailMenu extends ModuleMenu {
   scaleInput: any;
   linkersMinInput: any;
   linkersMaxInput: any;

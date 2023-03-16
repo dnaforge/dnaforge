@@ -7,7 +7,7 @@ import { Graph, Edge, Vertex } from '../../models/graph';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-export default class Sterna {
+export class Sterna {
   graph: Graph;
   st: Set<Edge>;
   trail: Edge[];

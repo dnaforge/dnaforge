@@ -6,7 +6,7 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA, DNA_SCAFFOLDS } from '../globals/consts';
 import { randInt } from 'three/src/math/MathUtils';
-import GLOBALS from '../globals/globals';
+import { GLOBALS } from '../globals/globals';
 import { CylinderModel, Cylinder } from './cylinder_model';
 
 let UID = 0;

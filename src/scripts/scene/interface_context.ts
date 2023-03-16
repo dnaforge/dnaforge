@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { OrthographicCamera, Vector3 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import GLOBALS from '../globals/globals';
-import Context from './context';
-import Menu from './menu';
+import { GLOBALS } from '../globals/globals';
+import { Context } from './context';
+import { Menu } from './menu';
 
 const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
@@ -21,7 +21,7 @@ interface CSSOBject {
   divs: HTMLElement[];
 }
 
-export default class InterfaceMenu extends Menu {
+export class InterfaceMenu extends Menu {
   cameraLight = new THREE.PointLight(0xffffff, 0.75);
   ambientLight = new THREE.AmbientLight(0xbbbbbb);
 

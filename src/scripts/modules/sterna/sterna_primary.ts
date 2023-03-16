@@ -154,7 +154,7 @@ function getBase(options: string[], gcContent: number): string {
   else optionsF = optionsAU;
 
   const base = optionsF[Math.floor(Math.random() * optionsF.length)];
-  
+
   return base;
 }
 

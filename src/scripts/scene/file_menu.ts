@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import read_obj from '../io/read_obj';
+import { read_obj } from '../io/read_obj';
 import { OBJLoader } from '../io/read_obj';
 import { Graph } from '../models/graph';
-import Context from './context';
-import Menu from './menu';
+import { Context } from './context';
+import { Menu } from './menu';
 
 const examples = (() => {
   const objs = require.context('../../examples', false, /\.(obj)$/);
@@ -32,7 +32,7 @@ const examples = (() => {
   return examples;
 })();
 
-export default class FileMenu extends Menu {
+export class FileMenu extends Menu {
   fileInputButton: any;
   fileInputExampleButton: any;
   fileInput: any;

@@ -3,13 +3,13 @@ import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Intersection, Vector3 } from 'three';
 import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import WiresModel from '../../models/wires_model';
+import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph';
 
 const cyclesColorHover = 0xff8822;
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-export default class CycleCover extends WiresModel {
+export class CycleCover extends WiresModel {
   cycles: Array<Array<HalfEdge>>;
   graph: Graph;
   obj: InstancedMesh;

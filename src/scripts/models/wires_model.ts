@@ -12,4 +12,4 @@ abstract class WiresModel {
   abstract dispose(): void;
 }
 
-export default WiresModel;
+export { WiresModel };

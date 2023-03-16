@@ -1,10 +1,10 @@
-import Context from './context';
+import { Context } from './context';
 
 interface Parameters {
   [name: string]: number | boolean | string;
 }
 
-export default abstract class Menu {
+export abstract class Menu {
   #hotkeyHandlers = new Map();
   title: string;
   elementId: string;
