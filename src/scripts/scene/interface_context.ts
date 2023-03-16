@@ -99,7 +99,7 @@ export default class InterfaceMenu extends Menu {
   reset() {
     this.removeWires(true);
     this.removeMesh(true);
-    this.removeVertexIndices(true);
+    this.removeVertexIndices();
     this.regenerateVisible();
   }
 
@@ -197,7 +197,7 @@ export default class InterfaceMenu extends Menu {
   addVertexIndices() {
     const graph = this.context.graph;
     if (!graph) return;
-    if (this.vertexIndices) this.removeVertexIndices(true); // remove old
+    if (this.vertexIndices) this.removeVertexIndices(); // remove old
     const vertices = graph.getVertices();
 
     const divs = [];
@@ -218,7 +218,7 @@ export default class InterfaceMenu extends Menu {
     this.vertexIndices = { object: indicesObject, divs: divs };
   }
 
-  removeVertexIndices(dispose = false) {
+  removeVertexIndices() {
     if (!this.vertexIndices) return;
     this.scene.remove(this.vertexIndices.object);
     for (const d of this.vertexIndices.divs) d.remove();

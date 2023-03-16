@@ -1,20 +1,17 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
-import { LoadingManager, Matrix4, Quaternion } from 'three';
+import { Matrix4 } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
 import { Vertex } from './graph';
 import { Strand } from './nucleotide_model';
 
-let UID = 0;
-
 const cylinderColour = new THREE.Color(0xffffff);
 const primeColour = new THREE.Color(0xff9999);
 const linkerColour = new THREE.Color(0xff9999);
 
 class Cylinder {
-  id: number;
   scale: number;
   naType: string;
   nucParams: Record<string, any>;
@@ -23,7 +20,7 @@ class Cylinder {
   nor1: Vector3; // direction of the first base of the first strand
   nor2: Vector3; // orientation normal vector
 
-  length: number;
+  length: number; // length in nucleotides
   p1: Vector3; // start point
   p2: Vector3; // end point
 
@@ -40,8 +37,6 @@ class Cylinder {
 
   strand1: Strand;
   strand2: Strand;
-  v1: Vertex;
-  v2: Vertex;
 
   pair: Cylinder; // In case the same vertex pair has two cylinders
 
@@ -52,7 +47,6 @@ class Cylinder {
     scale = 1,
     naType = 'DNA'
   ) {
-    this.id = UID++;
     this.scale = scale;
     this.naType = naType;
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
@@ -95,7 +89,9 @@ class Cylinder {
     this.nor2 = this.dir.clone().cross(this.nor1).normalize();
   }
 
-  translate() {}
+  translate() {
+    console.log('unimplemented');
+  }
 
   getPrimeDir(str: string): Vector3 {
     const primePos = this.getPrimePosition(str).clone();
@@ -192,8 +188,8 @@ class Cylinder {
     return [N, startP, dir, startNormal];
   }
 
-  getPrimePairs(): Array<[Vector3, Vector3]> {
-    const pairs: Array<[Vector3, Vector3]> = [];
+  getPrimePairs(): [Vector3, Vector3][] {
+    const pairs: [Vector3, Vector3][] = [];
     for (const str of _.keys(this.neighbours)) {
       const p1 = this.getPrimePosition(str);
       const p2 = this.getPairPrimePosition(str);
@@ -425,9 +421,13 @@ class CylinderModel {
     return this.calculateTorques();
   }
 
-  selectAll() {}
+  selectAll() {
+    return;
+  }
 
-  deselectAll() {}
+  deselectAll() {
+    return;
+  }
 }
 
 export { CylinderModel, Cylinder };

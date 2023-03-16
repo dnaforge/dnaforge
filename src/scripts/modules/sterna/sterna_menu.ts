@@ -65,7 +65,7 @@ export default class SternaMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    const p = generatePartial(this.nm);
+    generatePartial(this.nm);
   }
 
   downloadPrimary() {

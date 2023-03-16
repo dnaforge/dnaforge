@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import 'metro4/build/css/metro-all.min.css';
 import 'metro4';
 import Context from './scene/context';

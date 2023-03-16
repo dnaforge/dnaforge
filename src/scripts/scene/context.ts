@@ -1,17 +1,14 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; //'three/addons/controls/OrbitControls';
-import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls';
 import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import GLOBALS from '../globals/globals';
 import Controls from '../utils/controls';
 import Menu from './menu';
 import ModuleMenu from '../modules/module_menu';
 import { Graph } from '../models/graph';
-import * as _ from 'lodash';
 
 const canvas = document.querySelector('#canvas');
 
@@ -77,11 +74,11 @@ export default class Context {
     this.render();
   }
 
-  registerMenu(menu: Menu, isGlobal: boolean) {
+  registerMenu(menu: Menu) {
     this.menus.set(menu.elementId, menu);
   }
 
-  setupRenderer() {
+  private setupRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas,
       antialias: true,
@@ -95,7 +92,7 @@ export default class Context {
     document.body.appendChild(this.labelRenderer.domElement);
   }
 
-  render() {
+  private render() {
     const renderT = () => {
       for (const c of this.callbacks) c();
       this.controls.handleInput();
@@ -341,7 +338,7 @@ export default class Context {
     if (menu && !menu.isGlobal) this.switchContext(<ModuleMenu>menu);
   }
 
-  setupEventListeners() {
+  private setupEventListeners() {
     $('#main-tabs').on('tab', (e: any) => {
       (<HTMLElement>document.activeElement).blur();
       const id = e.detail.tab.id.replace('-tab', '');

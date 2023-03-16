@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Vertex, Edge, Graph } from '../models/graph';
+import { Graph } from '../models/graph';
 import { FileLoader, Loader, Vector3 } from 'three';
 
 const _face_vertex_data_separator_pattern = /\s+/;
@@ -54,7 +54,6 @@ export class OBJLoader extends Loader {
       text = text.replace(/\\\n/g, '');
     }
     const lines = text.split('\n');
-    const result = [];
 
     for (let i = 0, l = lines.length; i < l; i++) {
       const line = lines[i].trimStart();

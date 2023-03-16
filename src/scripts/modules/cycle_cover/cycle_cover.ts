@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Intersection, Vector3 } from 'three';
@@ -29,15 +28,16 @@ export default class CycleCover extends WiresModel {
       let curE = e;
       const cycle = [];
       do {
+        let vNeighbours;
         try {
-          var vNeighbours = curE.twin.vertex.getTopoAdjacentHalfEdges();
+          vNeighbours = curE.twin.vertex.getTopoAdjacentHalfEdges();
         } catch {
-          var vNeighbours = this.getNeighbours(curE.twin.vertex);
+          vNeighbours = this.getNeighbours(curE.twin.vertex);
         }
         const idx = vNeighbours.indexOf(curE.twin);
         curE = vNeighbours[(idx + 1) % vNeighbours.length];
         cycle.push(curE);
-        if(visited.has(curE)) return;
+        if (visited.has(curE)) return;
         visited.add(curE);
       } while (curE != e);
       cycles.push(cycle);
@@ -79,7 +79,7 @@ export default class CycleCover extends WiresModel {
     let cur = neighbours[0];
     while (result.length < neighbours.length) {
       for (const t of distances.get(cur)) {
-        const [e, d] = t;
+        const e = t[0];
         if (visited.has(e)) continue;
         result.push(e);
         visited.add(e);
@@ -193,9 +193,13 @@ export default class CycleCover extends WiresModel {
     delete this.obj;
   }
 
-  selectAll(): void {}
+  selectAll(): void {
+    return;
+  }
 
-  deselectAll(): void {}
+  deselectAll(): void {
+    return;
+  }
 }
 
 function graphToWires(
@@ -206,16 +210,15 @@ function graphToWires(
   return cc;
 }
 
-function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex){
+function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
   const offset1 = cm.getVertexOffset(v1, v2);
   const offset2 = cm.getVertexOffset(v2, v1);
   const p1 = v1.coords.clone().add(offset1);
   const p2 = v2.coords.clone().add(offset2);
   const dir = v2.coords.clone().sub(v1.coords).normalize();
   let length =
-    Math.floor(
-      p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)
-    ) + 1;
+    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
+    1;
   if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
   if (length < 1)
     throw `Cylinder length is zero nucleotides. Scale is too small.`;
@@ -226,23 +229,20 @@ function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex){
   return cyl;
 }
 
-function connectCylinder(cyl: Cylinder, nextCyl: Cylinder){
-  if(cyl.neighbours.first3Prime){
-    if(nextCyl.neighbours.first5Prime){
+function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
+  if (cyl.neighbours.first3Prime) {
+    if (nextCyl.neighbours.first5Prime) {
       cyl.neighbours.second3Prime = [nextCyl, 'second5Prime'];
       nextCyl.neighbours.second5Prime = [nextCyl, 'second3Prime'];
-    }
-    else{
+    } else {
       cyl.neighbours.second3Prime = [nextCyl, 'first5Prime'];
       nextCyl.neighbours.first5Prime = [nextCyl, 'second3Prime'];
     }
-  }
-  else{
-    if(nextCyl.neighbours.first5Prime){
+  } else {
+    if (nextCyl.neighbours.first5Prime) {
       cyl.neighbours.first3Prime = [nextCyl, 'second5Prime'];
       nextCyl.neighbours.second5Prime = [nextCyl, 'first3Prime'];
-    }
-    else{
+    } else {
       cyl.neighbours.first3Prime = [nextCyl, 'first5Prime'];
       nextCyl.neighbours.first5Prime = [nextCyl, 'first3Prime'];
     }
@@ -282,11 +282,11 @@ function wiresToCylinders(
       const next = cycle[(i + 1) % cycle.length];
       const cyl = edgeToCyl.get(edge);
       const nextCyl = edgeToCyl.get(next);
-      
+
       connectCylinder(cyl, nextCyl);
     }
   }
-  
+
   return cm;
 }
 

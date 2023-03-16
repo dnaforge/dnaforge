@@ -234,10 +234,6 @@ export default abstract class ModuleMenu extends Menu {
     else this.removeNucleotides();
   }
 
-  callRoutingAlgorithm() {}
-
-  generatePrimary() {}
-
   collectParameters() {
     this.showWires = this.wiresButton[0].checked;
     this.showCylinders = this.cylindersButton[0].checked;

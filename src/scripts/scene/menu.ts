@@ -4,7 +4,7 @@ interface Parameters {
   [name: string]: number | boolean | string;
 }
 
-export default class Menu {
+export default abstract class Menu {
   #hotkeyHandlers = new Map();
   title: string;
   elementId: string;
@@ -29,13 +29,15 @@ export default class Menu {
     this.hotkeys = new Map();
     this.params = {};
 
-    context.registerMenu(this, isGlobal);
+    context.registerMenu(this);
 
     this.setupEventListeners();
     this.setupHotkeys();
   }
 
-  populateHotkeys() {}
+  populateHotkeys() {
+    return;
+  }
 
   setupHotkeys() {
     this.populateHotkeys();
@@ -79,11 +81,19 @@ export default class Menu {
     return false;
   }
 
-  reset() {}
+  reset() {
+    return;
+  }
 
-  regenerateVisible() {}
+  regenerateVisible() {
+    return;
+  }
 
-  collectParameters() {}
+  collectParameters() {
+    return;
+  }
 
-  setupEventListeners() {}
+  setupEventListeners() {
+    return;
+  }
 }

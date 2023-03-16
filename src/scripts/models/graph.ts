@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
-import * as _ from 'lodash';
 import blossom from 'edmonds-blossom-fixed';
 
 const uid = (() => {
@@ -16,7 +15,7 @@ class Vertex {
   graph: Graph;
   coords: THREE.Vector3;
   normal: THREE.Vector3;
-  adjacentEdges = new Set<Edge>();
+  adjacentEdges: Edge[] = [];
 
   constructor(graph: Graph, coords: Vector3, normal = new Vector3(1, 0, 0)) {
     this.id = uid();
@@ -26,11 +25,7 @@ class Vertex {
   }
 
   addNeighbour(edge: Edge) {
-    this.adjacentEdges.add(edge);
-  }
-
-  removeNeighbour(edge: Edge) {
-    this.adjacentEdges.delete(edge);
+    this.adjacentEdges.push(edge);
   }
 
   getNeighbours(): Vertex[] {
@@ -104,11 +99,12 @@ class Vertex {
    * @returns
    */
   getTopoAdjacentEdges(): Edge[] {
+    const adjacentEdges = new Set(this.getAdjacentEdges());
     let prev = this.getAdjacentEdges()[0];
     let prevF = prev.getFaces()[0];
     let nFaces = 0;
     // Find a start edge that has only one face, if it exists:
-    for (const e of this.getAdjacentEdges()) {
+    for (const e of adjacentEdges) {
       const [f1, f2] = e.getFaces();
       if (f1) nFaces++;
       if (f2) nFaces++;
@@ -125,7 +121,7 @@ class Vertex {
       const [f1, f2] = prev.getFaces();
       prevF = f1 != prevF || !f2 ? f1 : f2;
       for (const e of prevF.getEdges()) {
-        if (e != prev && this.adjacentEdges.has(e)) {
+        if (e != prev && adjacentEdges.has(e)) {
           prev = e;
           break;
         }
@@ -150,23 +146,23 @@ class Vertex {
     return edges;
   }
 
-  getAdjacentHalfEdges(): HalfEdge[]{
+  getAdjacentHalfEdges(): HalfEdge[] {
     const edges = this.getAdjacentEdges();
     const halfEdges = [];
-    for(const e of edges){
-      for(const he of e.halfEdges){
-        if(he.vertex == this) halfEdges.push(he);
+    for (const e of edges) {
+      for (const he of e.halfEdges) {
+        if (he.vertex == this) halfEdges.push(he);
       }
     }
     return halfEdges;
   }
 
-  getTopoAdjacentHalfEdges(): HalfEdge[]{
+  getTopoAdjacentHalfEdges(): HalfEdge[] {
     const edges = this.getTopoAdjacentEdges();
     const halfEdges = [];
-    for(const e of edges){
-      for(const he of e.halfEdges){
-        if(he.vertex == this) halfEdges.push(he);
+    for (const e of edges) {
+      for (const he of e.halfEdges) {
+        if (he.vertex == this) halfEdges.push(he);
       }
     }
     return halfEdges;
@@ -192,23 +188,7 @@ class Vertex {
   }
 
   degree() {
-    return this.adjacentEdges.size;
-  }
-
-  split() {
-    //TODO: split based on face information
-    const nV = this.graph.addVertex(
-      this.coords.clone().add(new Vector3(1, 1, 1)),
-      this.normal
-    );
-    const edges = this.getAdjacentEdges().slice(0, 3);
-    for (const e of edges) {
-      const [v1, v2] = e.getVertices();
-      this.graph.removeEdge(e);
-      if (v1.id == this.id) this.graph.addEdge(nV, v2);
-      else this.graph.addEdge(nV, v1);
-    }
-    return this.graph.addEdge(this, nV, this.normal);
+    return this.adjacentEdges.length;
   }
 }
 
@@ -217,7 +197,7 @@ class HalfEdge {
   vertex: Vertex;
   twin: HalfEdge;
 
-  constructor(edge: Edge, vertex: Vertex ){
+  constructor(edge: Edge, vertex: Vertex) {
     this.edge = edge;
     this.vertex = vertex;
   }
@@ -347,11 +327,9 @@ class Face {
 }
 
 class Graph {
-  vertices = new Set<Vertex>(); // this should preserve input order. TODO: make sure of it.
-  edges = new Set<Edge>();
-  faces = new Set<Face>();
-
-  constructor() {}
+  vertices: Vertex[] = [];
+  edges: Edge[] = [];
+  faces: Face[] = [];
 
   // Doesn't work on multigraphs
   //TODO: use some different method to calculate this to deal with multigraphs
@@ -463,13 +441,13 @@ class Graph {
 
   addVertex(coords: Vector3, normal: Vector3 = undefined) {
     const v = new Vertex(this, coords, normal);
-    this.vertices.add(v);
+    this.vertices.push(v);
     return v;
   }
 
   addEdge(v1: Vertex, v2: Vertex, normal: Vector3 = undefined) {
     const edge = new Edge(this, v1, v2, normal);
-    this.edges.add(edge);
+    this.edges.push(edge);
     v1.addNeighbour(edge);
     v2.addNeighbour(edge);
     return edge;
@@ -480,16 +458,9 @@ class Graph {
     return v1.getEdge(v2);
   }
 
-  removeEdge(edge: Edge) {
-    const [v1, v2] = edge.getVertices();
-    v1.removeNeighbour(edge);
-    v2.removeNeighbour(edge);
-    this.edges.delete(edge);
-  }
-
   addFace(edges: Edge[]) {
     const f = new Face(this, edges);
-    this.faces.add(f);
+    this.faces.push(f);
     return f;
   }
 
@@ -518,6 +489,7 @@ class Graph {
       const nv = g.addVertex(v.coords);
       oldVtoNew.set(v, nv);
       nv.normal = v.normal.clone();
+      nv.id = v.id;
     }
     for (const e of this.getEdges()) {
       if (e.twin) twins.push(e);
@@ -525,6 +497,7 @@ class Graph {
       const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2));
       oldEtoNew.set(e, ne);
       ne.normal = e.normal.clone();
+      ne.id = e.id;
     }
     for (const f of this.getFaces()) {
       const edges = f.getEdges().map((e) => {
@@ -532,6 +505,7 @@ class Graph {
       });
       const nf = g.addFace(edges);
       nf.normal = f.normal.clone();
+      nf.id = f.id;
     }
     for (const e of twins) {
       oldEtoNew.get(e).twin = oldEtoNew.get(e.twin);
@@ -585,6 +559,7 @@ class Graph {
   }
 
   makeEulerian() {
+    //TODO: clean this up
     if (this.isEulerian()) return;
     const verts = this.getVertices();
     const idToVert = new Map<number, Vertex>();
@@ -677,11 +652,6 @@ class Graph {
   }
 
   test() {
-    const v1 = this.getVertices()[0];
-    const v2 = this.getVertices()[this.getVertices().length - 1];
-    //const path = this.dijkstra(v1, v2).path;
-    //this.clone();
-    //this.makeEulerian();
     return;
   }
 }

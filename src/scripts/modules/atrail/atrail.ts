@@ -1,17 +1,23 @@
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { Object3D, Vector3 } from 'three';
-import { CylinderModel } from '../../models/cylinder_model';
+import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import WiresModel from '../../models/wires_model';
-import { Edge, Graph, Vertex } from '../../models/graph';
+import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
+
+const MAX_ITERATIONS = 1 * 10 ** 6; // give up after too many steps to prevent the browser from permanently freezing
+enum Direction {
+  LEFT = 0,
+  RIGHT = 1,
+  NONE = -1,
+}
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 class ATrail extends WiresModel {
   graph: Graph;
-  trail: Array<Edge>;
+  trail: Array<HalfEdge>;
 
   obj: THREE.InstancedMesh;
 
@@ -20,7 +26,7 @@ class ATrail extends WiresModel {
     this.graph = graph.clone();
   }
 
-  initialiseGraph() {
+  private initialiseGraph() {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;
     try {
@@ -32,205 +38,205 @@ class ATrail extends WiresModel {
 
   findATrail() {
     this.initialiseGraph();
+    const transitions = new Map<Vertex, number>(); // orentations of vertices
+    const neighbours = this.getNeighbourhoodFunction(transitions);
 
-    const LEFT = 0;
-    const RIGHT = 1;
-    const NONE = -1;
-    const MAX_ITERATIONS = 1 * 10 ** 6; // give up after too many steps to prevent the browser from permanently freezing
+    this.splitAndCheck(transitions, neighbours);
+    let trail = this.getEuler(neighbours);
+    trail = this.fixQuads(trail);
 
-    const transitions = new Map();
+    this.trail = trail;
+    this.validate();
+  }
 
-    const atrail: Array<Edge> = []; // result
-
+  private getNeighbourhoodFunction(
+    transitions: Map<Vertex, number>
+  ): (e: HalfEdge) => Array<HalfEdge> {
     // Neighbourhoods for left-right-orderings:
-    const neighbours = (() => {
-      const vToN = new Map(); // vertex to neighbour, changes depending on the orientation
-      for (const v of this.graph.getVertices()) {
-        const n = {
-          LEFT: new Map(),
-          RIGHT: new Map(),
-          NONE: new Map(),
-        };
-        transitions.set(v, NONE);
-        vToN.set(v, n);
-        const neighbours = v.getTopoAdjacentEdges();
-        for (let i = 0; i < neighbours.length; i++) {
-          const e = neighbours[i];
-          const deg = v.degree();
-          n.LEFT.set(e, neighbours);
-          n.RIGHT.set(e, neighbours);
-          n.NONE.set(e, neighbours);
-          if (deg > 4) {
-            const L = (i + (-1) ** (i % 2) + deg) % deg;
-            const R = (i + (-1) ** ((i + 1) % 2) + deg) % deg;
-            n.LEFT.set(e, [neighbours[L], e]);
-            n.RIGHT.set(e, [neighbours[R], e]);
-          }
-        }
-      }
-      return (curV: Vertex, prevE: Edge) => {
-        if (transitions.get(curV) == RIGHT) {
-          return vToN.get(curV).RIGHT.get(prevE);
-        } else if (transitions.get(curV) == LEFT) {
-          return vToN.get(curV).LEFT.get(prevE);
-        } else if (transitions.get(curV) == NONE) {
-          return vToN.get(curV).NONE.get(prevE);
-        }
+    const vToN = new Map(); // vertex to neighbour, changes depending on the orientation
+    for (const v of this.graph.getVertices()) {
+      const n = {
+        LEFT: new Map(), // left orientation
+        RIGHT: new Map(), // right orientation
+        NONE: new Map(), // fully connected
       };
-    })();
-
-    //Check connectedness:
-    const isConnected = () => {
-      const nEdges = this.graph.getEdges().length;
-      const visited = new Set();
-      const startEdge = this.graph.getEdges()[0];
-      const stack = [startEdge];
-      while (stack.length > 0) {
-        const cur = stack.pop();
-        visited.add(cur);
-        const [v1, v2] = cur.getVertices();
-        const es = neighbours(v1, cur).concat(neighbours(v2, cur));
-        for (const e of es) {
-          if (!visited.has(e)) {
-            stack.push(e);
-            visited.add(e);
-          }
+      transitions.set(v, Direction.NONE);
+      vToN.set(v, n);
+      const neighbours = v.getTopoAdjacentHalfEdges();
+      for (let i = 0; i < neighbours.length; i++) {
+        const e = neighbours[i];
+        const deg = v.degree();
+        n.LEFT.set(e, neighbours);
+        n.RIGHT.set(e, neighbours);
+        n.NONE.set(e, neighbours);
+        if (deg > 4) {
+          const L = (i + (-1) ** (i % 2) + deg) % deg;
+          const R = (i + (-1) ** ((i + 1) % 2) + deg) % deg;
+          n.LEFT.set(e, [neighbours[L], e]);
+          n.RIGHT.set(e, [neighbours[R], e]);
         }
       }
-      if (visited.size == nEdges) return true;
-      else return false;
+    }
+    return (edge: HalfEdge) => {
+      if (transitions.get(edge.vertex) == Direction.RIGHT) {
+        return vToN.get(edge.vertex).RIGHT.get(edge);
+      } else if (transitions.get(edge.vertex) == Direction.LEFT) {
+        return vToN.get(edge.vertex).LEFT.get(edge);
+      } else if (transitions.get(edge.vertex) == Direction.NONE) {
+        return vToN.get(edge.vertex).NONE.get(edge);
+      }
     };
+  }
 
+  private splitAndCheck(
+    transitions: Map<Vertex, number>,
+    neighbours: (e: HalfEdge) => Array<HalfEdge>
+  ) {
     // Split vertices and keep checking:
-    const splitAndCheck = () => {
-      let bigVerts = [];
-      for (const v of this.graph.getVertices()) {
-        if (v.degree() > 4) {
-          let bigNeighbours = 0;
-          for (const v2 of v.getNeighbours()) {
-            bigNeighbours += v2.degree() > 4 ? 1 : 0;
-          }
-          bigVerts.push([v, bigNeighbours]);
+    const bigVertsT: Array<[Vertex, number]> = [];
+    for (const v of this.graph.getVertices()) {
+      if (v.degree() > 4) {
+        let bigNeighbours = 0;
+        for (const v2 of v.getNeighbours()) {
+          bigNeighbours += v2.degree() > 4 ? 1 : 0;
+        }
+        bigVertsT.push([v, bigNeighbours]);
+      }
+    }
+    const bigVerts: Array<Vertex> = bigVertsT
+      .sort((a, b) => {
+        if (a[1] > b[1]) return 1;
+        else return -1;
+      })
+      .map((e) => {
+        return e[0];
+      });
+    let i = 0;
+    const stack = [bigVerts.pop()];
+    while (true) {
+      if (i++ > MAX_ITERATIONS) break;
+      if (i % 10000 == 0) console.log('Split & check...', i);
+      const v = stack[stack.length - 1];
+      const tVal = transitions.get(v);
+
+      if (tVal == Direction.RIGHT) {
+        stack.pop();
+        bigVerts.push(v);
+        transitions.set(v, Direction.NONE);
+        continue;
+      } else if (tVal == Direction.LEFT) transitions.set(v, Direction.RIGHT);
+      else transitions.set(v, Direction.LEFT);
+
+      if (this.isConnected(neighbours)) {
+        if (bigVerts.length == 0) return;
+        stack.push(bigVerts.pop());
+      }
+    }
+    throw 'Could not find an ATrail.';
+  }
+
+  private isConnected(neighbours: (e: HalfEdge) => Array<HalfEdge>) {
+    //Check connectedness:
+    const nEdges = this.graph.getEdges().length;
+    const visited = new Set<Edge>();
+    const startEdge = this.graph.getEdges()[0];
+    const stack = [...startEdge.halfEdges];
+    while (stack.length > 0) {
+      const cur = stack.pop();
+      visited.add(cur.edge);
+      const es = neighbours(cur);
+      for (const e of es) {
+        if (!visited.has(e.edge)) {
+          stack.push(e.twin);
+          visited.add(e.edge);
         }
       }
-      bigVerts = bigVerts
-        .sort((a, b) => {
-          if (a[1] > b[1]) return 1;
-          else return -1;
-        })
-        .map((e) => {
-          return e[0];
-        });
-      let i = 0;
-      const stack = [bigVerts.pop()];
-      while (true) {
-        if (i++ > MAX_ITERATIONS) break;
-        if (i % 10000 == 0) console.log('Split & check...', i);
-        const v = stack[stack.length - 1];
-        const tVal = transitions.get(v);
+    }
+    if (visited.size == nEdges) return true;
+    else return false;
+  }
 
-        if (tVal == RIGHT) {
-          stack.pop();
-          bigVerts.push(v);
-          transitions.set(v, NONE);
-          continue;
-        } else if (tVal == LEFT) transitions.set(v, RIGHT);
-        else transitions.set(v, LEFT);
-
-        if (isConnected()) {
-          if (bigVerts.length == 0) return;
-          stack.push(bigVerts.pop());
-        }
-      }
-      throw 'Could not find an ATrail.';
-    };
-
+  private getEuler(
+    neighbours: (e: HalfEdge) => Array<HalfEdge>
+  ): Array<HalfEdge> {
     //Hierholzer:
-    const getEuler = () => {
-      const visited = new Set();
-      const unvisited = (a: Array<Edge>) => {
-        const _intersection = [];
-        for (const m of a) {
-          if (!visited.has(m)) _intersection.push(m);
-        }
-        return _intersection;
-      };
-      const traverse = (startV: Vertex, startE: Edge) => {
-        const path = [];
-        let curV = startV;
-        let curE = startE;
-        visited.add(startE);
-        path.push(startE);
-        while (true) {
-          const n = unvisited(neighbours(curV, curE));
-          if (n.length == 0) return path;
-          const nextE = n.pop();
-          visited.add(nextE);
-          const nextV = nextE.getOtherVertex(curV);
-          path.push(nextE);
-          curV = nextV;
-          curE = nextE;
-        }
-      };
-      const startEdge = this.graph.getEdges()[0];
-      atrail.push(...traverse(startEdge.getVertices()[1], startEdge));
-      const nEdges = this.graph.getEdges().length;
-      while (visited.size < nEdges) {
-        //TODO: replace with a constant time search for finding an extendable vertex
-        // or maybe don't bother, since the exponential time complexity above already blows this one out of the water
-        for (let i = 0; i < atrail.length; i++) {
-          const e = atrail[i];
-          const [v1, v2] = e.getVertices();
-
-          const t = new Set(
-            atrail[(i - 1 + atrail.length) % atrail.length].getVertices()
-          );
-          const cur = t.has(v1) ? v2 : v1;
-
-          const n = unvisited(neighbours(cur, e));
-          if (n.length > 0) {
-            atrail.splice(i, 1, ...traverse(cur, e));
-            break;
-          }
+    const trail: Array<HalfEdge> = [];
+    const visited = new Set<Edge>();
+    const unvisited = (a: Array<HalfEdge>) => {
+      const _intersection: HalfEdge[] = [];
+      for (const m of a) {
+        if (!visited.has(m.edge)) _intersection.push(m.twin);
+      }
+      return _intersection;
+    };
+    const traverse = (startE: HalfEdge) => {
+      const path = [];
+      let curE = startE;
+      visited.add(startE.edge);
+      path.push(startE);
+      while (true) {
+        const n = unvisited(neighbours(curE));
+        if (n.length == 0) return path;
+        const nextE = n.pop();
+        visited.add(nextE.edge);
+        path.push(nextE);
+        curE = nextE;
+      }
+    };
+    const startEdge = this.graph.getEdges()[0].halfEdges[0];
+    trail.push(...traverse(startEdge));
+    const nEdges = this.graph.getEdges().length;
+    while (visited.size < nEdges) {
+      //TODO: replace with a constant time search for finding an extendable vertex
+      // or maybe don't bother, since the exponential time complexity above already blows this one out of the water
+      for (let i = 0; i < trail.length; i++) {
+        const e = trail[i];
+        const n = unvisited(neighbours(e));
+        if (n.length > 0) {
+          trail.splice(i, 1, ...traverse(e));
+          break;
         }
       }
-      return atrail;
-    };
+    }
+    return trail;
+  }
 
+  private fixQuads(trail: Array<HalfEdge>) {
     // Remove overlaps from degree-4 vertices
-    const fixQuads = () => {
-      let v = atrail[0].getVertices()[0];
-      for (let i = 1; i < atrail.length; i++) {
-        const prevE = atrail[i - 1];
-        const nextE = atrail[i];
-        v = prevE.getOtherVertex(v);
-        if (v.degree() == 4) {
-          const n = v.getTopoAdjacentEdges();
-          const t = n.indexOf(nextE);
-          if (n[(t + 2) % 4] == prevE) {
-            const j1 = atrail.indexOf(n[(t + 1) % 4]);
-            const j2 = atrail.indexOf(n[(t + 3) % 4]);
-            if (j1 == 0 || j2 == 0) var j = atrail.length;
-            else var j = Math.max(j1, j2);
+    for (let i = 0; i < trail.length; i++) {
+      const prevE = trail[i];
+      const nextE = trail[(i + 1) % trail.length].twin;
+      const v = nextE.vertex;
+      if (v.degree() == 4) {
+        const n = v.getTopoAdjacentHalfEdges();
+        const t = n.indexOf(nextE);
+        if (n[(t + 2) % 4] == prevE) {
+          const j1 = trail.indexOf(n[(t + 1) % 4]);
+          const j2 = trail.indexOf(n[(t + 3) % 4]);
 
-            const rev = [...atrail.slice(i, j).reverse()];
-            atrail.splice(i, j - i, ...rev);
-          }
+          let j;
+          if (j1 == 0 || j2 == 0) j = trail.length - 1;
+          else j = Math.max(j1, j2);
+
+          const rev = [
+            ...trail
+              .slice(i + 1, j + 1)
+              .reverse()
+              .map((e) => {
+                return e.twin;
+              }),
+          ];
+          trail.splice(i + 1, j - i, ...rev);
         }
       }
-    };
-
-    splitAndCheck();
-    getEuler();
-    fixQuads();
-
-    this.trail = atrail;
+    }
+    return trail;
   }
 
   setATrail(trail: Array<number>) {
     const vertices = this.graph.getVertices();
     const visited = new Set();
-    const trailEdges = [];
+    const trailEdges: HalfEdge[] = [];
     for (let i = 1; i < trail.length; i++) {
       const cur = vertices[trail[i - 1]];
       const next = vertices[trail[i]];
@@ -246,14 +252,33 @@ class ATrail extends WiresModel {
         } else edge = edge.split();
       }
       visited.add(edge);
-      trailEdges.push(edge);
+
+      if (edge.halfEdges[0].vertex == next) trailEdges.push(edge.halfEdges[0]);
+      else trailEdges.push(edge.halfEdges[1]);
     }
     this.trail = trailEdges;
   }
 
-  length() {}
+  private validate() {
+    let error = false;
+    const halfEdges = new Set<HalfEdge>();
+    const edges = new Set<Edge>();
+    for (const e of this.trail) {
+      if (halfEdges.has(e)) error = true;
+      if (edges.has(e.edge)) error = true;
+      halfEdges.add(e);
+      edges.add(e.edge);
+    }
+    if (edges.size != this.graph.getEdges().length) error = true;
 
-  generateObject(): void {
+    if (error) throw `Invalid Atrail. This is probably a bug.`;
+  }
+
+  length() {
+    return this.trail.length;
+  }
+
+  private generateObject(): void {
     if (!this.trail) return null;
     const color = new THREE.Color(0xffffff);
     const count = this.trail.length;
@@ -261,25 +286,12 @@ class ATrail extends WiresModel {
     const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
     this.obj = lines;
 
-    // Determine whether the starting vertex should be the first or the second vertex of the first edge:
-    let startV = this.trail[0].getVertices()[0];
-    let cur = startV;
+    let co1 = this.trail[0].vertex.coords.clone();
     for (let i = 0; i < this.trail.length; i++) {
-      cur = this.trail[i].getOtherVertex(cur);
-      if (cur == undefined) {
-        startV = this.trail[0].getVertices()[1];
-        break;
-      }
-    }
-
-    let curV = startV;
-    let co1 = curV.coords;
-    for (let i = 0; i < this.trail.length; i++) {
-      const curE = this.trail[i];
-      const nextV = curE.getOtherVertex(curV);
-      curV = nextV;
-      const dir = nextV.coords.clone().sub(co1).normalize();
-      const co2 = nextV.coords.clone().sub(dir.multiplyScalar(0.1));
+      const co2T =
+        this.trail[(i + 1) % this.trail.length].vertex.coords.clone();
+      const dir = co2T.clone().sub(co1).normalize();
+      const co2 = co2T.sub(dir.multiplyScalar(0.1));
 
       const length = co2.clone().sub(co1).length();
       const transform = get2PointTransform(co1, co2).scale(
@@ -307,9 +319,15 @@ class ATrail extends WiresModel {
     delete this.obj;
   }
 
-  selectAll(): void {}
+  selectAll(): void {
+    //TODO:
+    return;
+  }
 
-  deselectAll(): void {}
+  deselectAll(): void {
+    //TODO:
+    return;
+  }
 }
 
 interface Parameters {
@@ -322,68 +340,62 @@ function graphToWires(graph: Graph, params: Parameters) {
   return atrail;
 }
 
+function createCylinder(cm: CylinderModel, he: HalfEdge, visited: boolean) {
+  const v1 = he.twin.vertex;
+  const v2 = he.vertex;
+  const edge = he.edge;
+
+  //TODO: fix offset in case an edge is split multiple times
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  let offset = new Vector3(); // offset for split edges
+  if (edge.twin) {
+    // TODO: choose the normal based on the next edge in the trail.
+    const nor = edge.normal.clone().multiplyScalar((-1) ** (visited ? 1 : 0));
+    offset = nor.multiplyScalar(-cm.scale * cm.nucParams.RADIUS);
+  }
+  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2));
+  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1));
+  const p1 = v1.coords.clone().add(offset1);
+  const p2 = v2.coords.clone().add(offset2);
+  let length =
+    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
+    1;
+  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
+
+  const cyl = cm.addCylinder(p1, dir, length);
+  cyl.setOrientation(edge.normal);
+
+  return cyl;
+}
+
 function wiresToCylinders(atrail: ATrail, params: Parameters) {
+  const trail = atrail.trail;
   const scale = <number>params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
   const visited = new Set<Edge>();
   const vStack = new Map();
+  const cylToV = new Map<Cylinder, Vertex>();
 
-  // Determine whether the starting vertex should be the first or the second vertex of the first edge:
-  let startV = atrail.trail[0].getVertices()[0];
-  let cur = startV;
-  for (let i = 0; i < atrail.trail.length; i++) {
-    cur = atrail.trail[i].getOtherVertex(cur);
-    if (cur == undefined) {
-      startV = atrail.trail[0].getVertices()[1];
-      break;
-    }
-  }
+  for (let i = 0; i < trail.length; i++) {
+    const v1 = trail[i].twin.vertex;
+    const v2 = trail[i].vertex;
+    const edge = trail[i].edge;
 
-  let v1 = startV;
-  for (let i = 0; i < atrail.trail.length; i++) {
-    const edge = atrail.trail[i];
-    const v2 = edge.getOtherVertex(v1);
-
-    //TODO: fix offset in case an edge is split multiple times
-    const dir = v2.coords.clone().sub(v1.coords).normalize();
-    let offset = new Vector3(); // offset for split edges
-    if (edge.twin) {
-      // TODO: choose the normal based on the next edge in the trail.
-      const nor = edge.normal
-        .clone()
-        .multiplyScalar((-1) ** (visited.has(edge.twin) ? 1 : 0));
-      offset = nor.multiplyScalar(-cm.scale * cm.nucParams.RADIUS);
-    }
-    const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2));
-    const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1));
-    const p1 = v1.coords.clone().add(offset1);
-    const p2 = v2.coords.clone().add(offset2);
-    let length =
-      Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
-      1;
-    if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
-
-    const c = cm.addCylinder(p1, dir, length);
-    c.setOrientation(edge.normal);
+    const c = createCylinder(cm, trail[i], visited.has(edge.twin));
 
     visited.add(edge);
 
     // for connecting cylinders:
-    c.v2 = v2;
-    if (!vStack.get(v1)) {
-      vStack.set(v1, []);
-    }
+    cylToV.set(c, v2);
+    if (!vStack.get(v1)) vStack.set(v1, []);
     vStack.get(v1).push(c);
-
-    v1 = v2;
   }
 
   for (let i = 0; i < cm.cylinders.length; i++) {
     const c = cm.cylinders[i];
-    const other =
-      i == cm.cylinders.length - 1 ? cm.cylinders[0] : cm.cylinders[i + 1];
-    const vStackT = vStack.get(c.v2);
+    const other = cm.cylinders[(i + 1) % cm.cylinders.length];
+    const vStackT = vStack.get(cylToV.get(c));
     const prev =
       vStackT[(vStackT.indexOf(other) - 1 + vStackT.length) % vStackT.length];
 

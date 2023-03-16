@@ -122,7 +122,6 @@ function generatePartial(nm: NucleotideModel) {
   const nucleotides = nm.getNucleotides();
   const ps = getStem(nucleotides);
   const pseudos = getPseudoknots(nucleotides);
-  const ss = getSS(nucleotides);
 
   for (let i = 0; i < nucleotides.length; i++)
     if (pseudos[i]) ps[i] = pseudos[i];
@@ -141,6 +140,24 @@ function getComplement(base: string, pair: string) {
   return null;
 }
 
+function getBase(options: string[], gcContent: number): string {
+  const optionsAU = [];
+  const optionsGC = [];
+  for (const c of options) {
+    if (c == 'G' || c == 'C') optionsGC.push(c);
+    else optionsAU.push(c);
+  }
+  let optionsF;
+  if (optionsGC.length <= 0) optionsF = optionsAU;
+  else if (optionsAU.length <= 0) optionsF = optionsGC;
+  else if (Math.random() <= gcContent) optionsF = optionsGC;
+  else optionsF = optionsAU;
+
+  const base = optionsF[Math.floor(Math.random() * optionsF.length)];
+  
+  return base;
+}
+
 function generateRandom(nm: NucleotideModel, gcContent: number) {
   const nucleotides = nm.getNucleotides();
   const pairs = getPairing(nucleotides);
@@ -151,7 +168,7 @@ function generateRandom(nm: NucleotideModel, gcContent: number) {
     const n = nucleotides[i];
     if (pairs.get(i) == i || !visited.has(n.pair)) {
       const options = IUPAC_RNA[n.base];
-      base = options[Math.floor(Math.random() * options.length)];
+      base = getBase(options, gcContent);
     } else {
       base = getComplement(n.base, ps[pairs.get(i)]);
       if (!base)

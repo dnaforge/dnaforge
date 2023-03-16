@@ -86,7 +86,7 @@ class Nucleotide {
   hover = false;
   select = false;
 
-  id: number;
+  id: number; // TODO: maybe make this match the position in a strand or the nucleotide model.
   base: string;
   scale: number;
   naType: string;
@@ -137,14 +137,6 @@ class Nucleotide {
     matrix.multiply(scaleMatrix);
     this.setTransformMatrix(matrix);
   }
-
-  setPosition(pos: Vector3) {}
-
-  getPosition() {}
-
-  setFacing(dir: Vector3) {}
-
-  getFacing() {}
 
   delete() {
     this.next.prev = this.prev;
@@ -389,15 +381,15 @@ class Strand {
   }
 
   addNucleotides(...n: Nucleotide[]) {
-    for (let i = 0; i < arguments.length; i++) {
-      this.nucleotides.push(arguments[i]);
+    for (let i = 0; i < n.length; i++) {
+      this.nucleotides.push(n[i]);
     }
   }
 
   deleteNucleotides(...n: Nucleotide[]) {
-    for (let i = 0; i < arguments.length; i++) {
-      arguments[i].delete();
-      this.nucleotides.splice(this.nucleotides.indexOf(arguments[i]), 1);
+    for (let i = 0; i < n.length; i++) {
+      this.nucleotides.splice(this.nucleotides.indexOf(n[i]), 1);
+      n[i].delete();
     }
   }
 
@@ -502,12 +494,21 @@ class NucleotideModel {
     return i;
   }
 
+  /** Compiles a nucleotide model from a cylinder model where
+   * each cylinder corresponds to a double helix.
+   *
+   * @param cm
+   * @param minLinkers
+   * @param maxLinkers
+   * @param hasScaffold
+   * @returns nucleotideModel
+   */
   static compileFromGenericCylinderModel(
     cm: CylinderModel,
     minLinkers = 3,
     maxLinkers = 3,
     hasScaffold = false
-  ) {
+  ): NucleotideModel {
     const nm = new NucleotideModel(cm.scale, cm.naType);
 
     nm.createStrands(cm, hasScaffold);
@@ -580,8 +581,8 @@ class NucleotideModel {
     }
 
     const reroute = (
-      nucs1: Array<Nucleotide>,
-      nucs2: Array<Nucleotide>,
+      nucs1: Nucleotide[],
+      nucs2: Nucleotide[],
       idx1: number,
       idx2: number
     ) => {
@@ -752,7 +753,7 @@ class NucleotideModel {
     const shortStrands = []; // strands that allow for only one nick
     const visited = new Set<Strand>();
 
-    const addNicksT = (strand: Strand, indices: Array<number>) => {
+    const addNicksT = (strand: Strand, indices: number[]) => {
       if (strand.isScaffold) return;
       const nucs1 = strand.nucleotides;
       for (const i of indices) {
@@ -888,7 +889,6 @@ class NucleotideModel {
 
     let i = 0;
     for (const s of this.strands) {
-      const sn = new Set();
       for (const n of s.nucleotides) {
         n.setObjectInstance(i, meshes);
         instaceToNuc[i] = n;
@@ -908,7 +908,6 @@ class NucleotideModel {
     instaceToNuc: Record<number, Nucleotide>
   ) {
     let lastI = -1;
-    const selectionMode = 'none';
 
     //TODO: Move these somewhere else. Don't just hack them into the existing object3d.
 

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Vector2 } from 'three';
-import { Object3D } from 'three';
 import GLOBALS from '../globals/globals';
 import Context from '../scene/context';
 
@@ -107,7 +106,6 @@ export default class Controls {
   }
 
   handleMouseLeftDown(event: PointerEvent) {
-    const rect = canvas.getBoundingClientRect();
     this.pointerPrev.x = event.pageX;
     this.pointerPrev.y = event.pageY;
   }
@@ -138,12 +136,15 @@ export default class Controls {
     this.context.deselectAll();
   }
 
-  handleMouseRightDown(event: PointerEvent) {}
+  handleMouseRightDown(event: PointerEvent) {
+    return;
+  }
 
-  handleMouseRightUp(event: PointerEvent) {}
+  handleMouseRightUp(event: PointerEvent) {
+    return;
+  }
 
   handleMouseMiddleDown(event: PointerEvent) {
-    const rect = canvas.getBoundingClientRect();
     this.pointerPrev.x = event.pageX;
     this.pointerPrev.y = event.pageY;
   }

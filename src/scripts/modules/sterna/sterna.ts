@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Vector3 } from 'three';
@@ -11,7 +10,7 @@ const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 export default class Sterna {
   graph: Graph;
   st: Set<Edge>;
-  trail: Array<Edge>;
+  trail: Edge[];
 
   obj: InstancedMesh;
 
@@ -22,7 +21,7 @@ export default class Sterna {
   }
 
   getSterna() {
-    const route: Array<Edge> = [];
+    const route: Edge[] = [];
     const startEdge = [...this.st][0];
     let prevV = startEdge.getVertices()[0];
     const stack = [startEdge];
@@ -34,10 +33,11 @@ export default class Sterna {
       if (!this.st.has(curE)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
+        let neighbours;
         try {
-          var neighbours = curV.getTopoAdjacentEdges();
+          neighbours = curV.getTopoAdjacentEdges();
         } catch (error) {
-          var neighbours = this.getNeighbours(curV);
+          neighbours = this.getNeighbours(curV);
         }
         stack.push(curE);
         stack.push(...neighbours.slice(1 + neighbours.indexOf(curE)));
@@ -78,7 +78,7 @@ export default class Sterna {
   }
 
   //TODO: find a more accurate TSP solution
-  getNeighbours(v: Vertex): Array<Edge> {
+  getNeighbours(v: Vertex): Edge[] {
     const neighbours = v.getAdjacentEdges();
     const t_points = new Map();
     const co1 = v.coords;
@@ -111,7 +111,7 @@ export default class Sterna {
     let cur = neighbours[0];
     while (result.length < neighbours.length) {
       for (const t of distances.get(cur)) {
-        const [e, d] = t;
+        const e = t[0];
         if (visited.has(e)) continue;
         result.push(e);
         visited.add(e);
@@ -157,9 +157,13 @@ export default class Sterna {
     delete this.obj;
   }
 
-  selectAll(): void {}
+  selectAll(): void {
+    return;
+  }
 
-  deselectAll(): void {}
+  deselectAll(): void {
+    return;
+  }
 }
 
 function graphToWires(

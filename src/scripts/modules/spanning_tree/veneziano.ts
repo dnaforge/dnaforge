@@ -1,8 +1,7 @@
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
-import { Object3D, Vector3 } from 'three';
-import { CylinderModel } from '../../models/cylinder_model';
+import { Vector3 } from 'three';
+import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
 
@@ -11,7 +10,7 @@ const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 class Veneziano {
   graph: Graph;
   st: Set<Edge>;
-  trail: Array<Edge>;
+  trail: Edge[];
 
   obj: THREE.InstancedMesh;
 
@@ -22,7 +21,7 @@ class Veneziano {
   }
 
   getVeneziano() {
-    const route: Array<Edge> = [];
+    const route: Edge[] = [];
     const startEdge = [...this.st][0];
     let prevV = startEdge.getVertices()[0];
     const stack = [startEdge];
@@ -34,10 +33,11 @@ class Veneziano {
       if (!this.st.has(curE)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
+        let neighbours;
         try {
-          var neighbours = curV.getTopoAdjacentEdges();
+          neighbours = curV.getTopoAdjacentEdges();
         } catch {
-          var neighbours = curV.getAdjacentEdges();
+          neighbours = curV.getAdjacentEdges();
         }
         stack.push(curE);
         stack.push(...neighbours.slice(1 + neighbours.indexOf(curE)));
@@ -52,7 +52,7 @@ class Veneziano {
     const visited = new Set();
     const st: Set<Edge> = new Set();
 
-    const queue: Array<[Edge, number]> = [];
+    const queue: [Edge, number][] = [];
     const enqueue = (e: Edge) => {
       const [c1, c2] = e.getCoords();
       const cost = c1.clone().sub(c2).length();
@@ -148,9 +148,13 @@ class Veneziano {
     delete this.obj;
   }
 
-  selectAll(): void {}
+  selectAll(): void {
+    return;
+  }
 
-  deselectAll(): void {}
+  deselectAll(): void {
+    return;
+  }
 }
 
 function graphToWires(
@@ -178,10 +182,9 @@ function wiresToCylinders(
     const edge = trail[i];
     const v2 = edge.getOtherVertex(v1);
 
-    let offset;
     const dir = v2.coords.clone().sub(v1.coords).normalize();
     const nor = edge.normal.clone().cross(dir);
-    offset = nor.multiplyScalar(-0.5 * cm.scale * cm.nucParams.RADIUS);
+    const offset = nor.multiplyScalar(-0.5 * cm.scale * cm.nucParams.RADIUS);
 
     const offset1 = offset
       .clone()
@@ -248,6 +251,7 @@ function cylindersToNucleotides(
 
   nm.createStrands(cm, true);
 
+  const visited = new Set<Cylinder>();
   for (const cyl of cm.cylinders) {
     const scaffold_next = cyl.neighbours['first3Prime'][0].strand1;
     const staple_next = cyl.neighbours['second3Prime'][0].strand2;
@@ -260,7 +264,8 @@ function cylindersToNucleotides(
     nm.addStrand(scaffold_cur.linkStrand(scaffold_next, 5, 5));
     nm.addStrand(staple_cur.linkStrand(staple_next, 5, 5));
 
-    if (cyl.id < cyl.pair.id) continue;
+    visited.add(cyl);
+    if (visited.has(cyl.pair)) continue;
 
     const nucs_cur = staple_cur.nucleotides;
     const nucs_pair = staple_pair.nucleotides;
@@ -270,8 +275,8 @@ function cylindersToNucleotides(
     const length = nucs_cur.length;
 
     const reroute = (
-      nucs1: Array<Nucleotide>,
-      nucs2: Array<Nucleotide>,
+      nucs1: Nucleotide[],
+      nucs2: Nucleotide[],
       idx1: number,
       idx2: number
     ) => {

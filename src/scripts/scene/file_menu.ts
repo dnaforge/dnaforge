@@ -51,7 +51,9 @@ export default class FileMenu extends Menu {
     }
   }
 
-  regenerateVisible() {}
+  regenerateVisible() {
+    return;
+  }
 
   readFiles(files: FileList) {
     const file = files[0]; // assuming just one file

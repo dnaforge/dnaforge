@@ -45,16 +45,16 @@ export default function dev(context: Context) {
   const shape2 = require('../../resources/shape2.obj');
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
   context.setGraph(graph);
 
   //(<ModuleMenu>context.menus.get('cycle-cover')).addWires();
   //(<ModuleMenu>context.menus.get("cycle-cover")).addCylinders();
-  (<ModuleMenu>context.menus.get("cycle-cover")).addNucleotides();
+  //(<ModuleMenu>context.menus.get("cycle-cover")).addNucleotides();
 
   //(<ModuleMenu>context.menus.get("atrail")).addWires();
   //(<ModuleMenu>context.menus.get("atrail")).addCylinders();
-  //(<ModuleMenu>context.menus.get("atrail")).addNucleotides();
+  (<ModuleMenu>context.menus.get('atrail')).addNucleotides();
 
   //(<ModuleMenu>context.menus.get("spanning-tree")).addWires();
   //(<ModuleMenu>context.menus.get("spanning-tree")).addCylinders();
