@@ -8,6 +8,9 @@ const MIN_DELTA = 3;
 const canvas = $('#canvas')[0];
 const body = $('body')[0];
 
+/**
+ * Handles Mouse and keyboard clicks.
+ */
 export class Controls {
   pointer = new Vector2();
   pointerPrev = new Vector2();
@@ -28,8 +31,10 @@ export class Controls {
     this.setupEventListeners();
   }
 
-  // Gets called once every tick. Other handlers get called once per event.
-  // TODO: This is getting messy. Do something about it.
+  /**
+   *  Gets called once every tick. Other handlers get called once per event.
+   * TODO: This is getting messy. Do something about it
+   */
   handleInput() {
     try {
       if (GLOBALS.hover) {

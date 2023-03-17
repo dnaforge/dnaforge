@@ -7,7 +7,7 @@ import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
 import { MenuParameters } from '../../scene/menu';
 
-const MAX_ITERATIONS = 1 * 10 ** 6; // give up after too many steps to prevent the browser from permanently freezing
+const MAX_TIME = 10000; // milliseconds, give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
   LEFT = 0,
   RIGHT = 1,
@@ -89,11 +89,20 @@ class ATrail extends WiresModel {
     };
   }
 
+  /**
+   * Split vertices and keep checking:
+   *
+   * @param transitions
+   * @param neighbours
+   * @returns
+   */
   private splitAndCheck(
     transitions: Map<Vertex, number>,
     neighbours: (e: HalfEdge) => Array<HalfEdge>
   ) {
-    // Split vertices and keep checking:
+    // only consider vertices of degree 4 or higher, since  vertices of degree 4
+    // or less can be oriented whatever way.Also sort them so that vertices in
+    // densely connected neighbourhoods get the most attention.
     const bigVertsT: Array<[Vertex, number]> = [];
     for (const v of this.graph.getVertices()) {
       if (v.degree() > 4) {
@@ -112,11 +121,14 @@ class ATrail extends WiresModel {
       .map((e) => {
         return e[0];
       });
-    let i = 0;
     const stack = [bigVerts.pop()];
+    const startT = performance.now();
+    let i = 0;
     while (true) {
-      if (i++ > MAX_ITERATIONS) break;
-      if (i % 10000 == 0) console.log('Split & check...', i);
+      if (performance.now() - startT > MAX_TIME)
+        throw `Timed out. Could not find an ATrail`;
+      if (++i % 10000 == 0) console.log('Split & check...', i);
+      if (stack.length == 0) break;
       const v = stack[stack.length - 1];
       const tVal = transitions.get(v);
 
@@ -133,7 +145,7 @@ class ATrail extends WiresModel {
         stack.push(bigVerts.pop());
       }
     }
-    throw 'Could not find an ATrail.';
+    throw 'All options exhausted. Could not find an ATrail.';
   }
 
   private isConnected(neighbours: (e: HalfEdge) => Array<HalfEdge>) {

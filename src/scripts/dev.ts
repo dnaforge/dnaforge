@@ -4,33 +4,9 @@ import { Context } from './scene/context';
 import { ModuleMenu } from './modules/module_menu';
 import { Matrix4, Vector3 } from 'three';
 
-class Nucleotide {
-  instanceId: number;
-  instanceMeshes: Record<string, THREE.InstancedMesh>;
-  hover = false;
-  select = false;
-
-  id: number;
-  base: string;
-  scale: number;
-  naType: string;
-  nucParams: Record<string, any>;
-
-  isLinker = false;
-  isScaffold = false;
-  isPseudo = false;
-
-  prev: Nucleotide;
-  next: Nucleotide;
-  pair: Nucleotide;
-
-  transform: Matrix4;
-  backboneCenter: Vector3;
-  nucleobaseCenter: Vector3;
-  hydrogenFaceDir: Vector3;
-  baseNormal: Vector3;
-}
-
+/**
+ * Used for testing while developing. Does not get compiled to the final product.
+ */
 export function dev(context: Context) {
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
@@ -45,16 +21,17 @@ export function dev(context: Context) {
   const shape2 = require('../../resources/shape2.obj');
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
+  const ct = require('../../resources/cube_torus.obj');
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(ct);
   context.setGraph(graph);
 
   //(<ModuleMenu>context.menus.get('cycle-cover')).addWires();
   //(<ModuleMenu>context.menus.get("cycle-cover")).addCylinders();
   //(<ModuleMenu>context.menus.get("cycle-cover")).addNucleotides();
 
-  //(<ModuleMenu>context.menus.get("atrail")).addWires();
+  (<ModuleMenu>context.menus.get('atrail')).addWires();
   //(<ModuleMenu>context.menus.get("atrail")).addCylinders();
-  (<ModuleMenu>context.menus.get('atrail')).addNucleotides();
+  //(<ModuleMenu>context.menus.get('atrail')).addNucleotides();
 
   //(<ModuleMenu>context.menus.get("spanning-tree")).addWires();
   //(<ModuleMenu>context.menus.get("spanning-tree")).addCylinders();
@@ -66,15 +43,4 @@ export function dev(context: Context) {
   //(<ModuleMenu>context.menus.get("sterna")).downloadPrimary();
   //(<ModuleMenu>context.menus.get("sterna")).generatePartialPrimary();
   //(<ModuleMenu>context.menus.get("sterna")).generatePrimary();
-
-  return;
-  console.log('1');
-
-  let test: Nucleotide[] = [];
-  for (let i = 0; i < 2500000; i++) {
-    const n = new Nucleotide();
-    test.push(n);
-  }
-  console.log(test.length);
-  console.log('2');
 }

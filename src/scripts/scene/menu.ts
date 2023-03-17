@@ -14,6 +14,9 @@ type MenuParameters = {
 
 export { MenuParameters };
 
+/**
+ * The parent class for all menus.
+ */
 export abstract class Menu {
   #hotkeyHandlers = new Map();
   title: string;
@@ -24,6 +27,15 @@ export abstract class Menu {
   params: MenuParameters = {};
   scene: THREE.Scene;
 
+  /**
+   * All menus should inherit from this class. Registers the menu with main context and allows it to be
+   * activated, inactivated, and to handle hotkeys. Also gives it access to the 3d scene.
+   *
+   * @param context main context
+   * @param elementId the id of the html element containing this menu
+   * @param title the name used when referring to this menu
+   * @param isGlobal True if never loses focus. If false, inactivate() is called when losing focus and activate() when gaining it.
+   */
   constructor(
     context: Context,
     elementId: string,
@@ -45,10 +57,30 @@ export abstract class Menu {
     this.setupHotkeys();
   }
 
+  /**
+   * Activate this context.
+   */
+  activate() {
+    return;
+  }
+
+  /**
+   * Inactivate this context.
+   */
+  inactivate() {
+    return;
+  }
+
+  /**
+   * Associates hotkeys with functions or buttons.
+   */
   populateHotkeys() {
     return;
   }
 
+  /**
+   * Sets up the hotkey handler according to the pouplated hotkeys. Also adds HTML hints about the keys.
+   */
   setupHotkeys() {
     this.populateHotkeys();
     const setHotkey = (key: string, target: any) => {
@@ -82,7 +114,13 @@ export abstract class Menu {
     }
   }
 
-  handleHotKey(key: string) {
+  /**
+   * Tries to handle the given hotkey by calling any function or button associated with it.
+   *
+   * @param key
+   * @returns true if the key was handled, false otherwise
+   */
+  handleHotKey(key: string): boolean {
     const handler = this.#hotkeyHandlers.get(key);
     if (handler) {
       handler.call(this);
@@ -91,18 +129,30 @@ export abstract class Menu {
     return false;
   }
 
+  /**
+   * Resets this menu to its original state. Deletes the existing models.
+   */
   reset() {
     return;
   }
 
+  /**
+   * Adds all the visible models to the scene.
+   */
   regenerateVisible() {
     return;
   }
 
+  /**
+   * Collects all the user parameters from the frontend into the params-dictionary.
+   */
   collectParameters() {
     return;
   }
 
+  /**
+   * Connects the HTML elements to this object.
+   */
   setupEventListeners() {
     return;
   }

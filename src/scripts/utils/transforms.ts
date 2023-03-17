@@ -1,6 +1,14 @@
 import { Matrix4, Vector3 } from 'three';
 
-export function get2PointTransform(p1: Vector3, p2: Vector3) {
+/**
+ * Creates a transformation which transforms a Y-oriented unit vector centered at
+ * the origin to a vector that spans from point p1 to p2.
+ *
+ * @param p1 point 1
+ * @param p2 point 2
+ * @returns transformation matrix
+ */
+export function get2PointTransform(p1: Vector3, p2: Vector3): Matrix4 {
   const center = p1.clone().add(p2).multiplyScalar(0.5);
 
   const r1 = new Vector3(Math.random(), Math.random(), Math.random());

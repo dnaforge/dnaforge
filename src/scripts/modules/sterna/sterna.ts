@@ -8,6 +8,9 @@ import { MenuParameters } from '../../scene/menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
+/**
+ * Sterna RNA routing method.
+ */
 export class Sterna {
   graph: Graph;
   st: Set<Edge>;
@@ -21,6 +24,11 @@ export class Sterna {
     this.trail = this.getSterna();
   }
 
+  /**
+   * Route the RNA strand twice around the edges of the spanning tree of the graph.
+   *
+   * @returns route as an ordered list of edges
+   */
   getSterna() {
     const route: Edge[] = [];
     const startEdge = [...this.st][0];
@@ -49,6 +57,11 @@ export class Sterna {
     return route.slice(0, route.length - 1);
   }
 
+  /**
+   * Random spanning tree.
+   *
+   * @returns a set of edges in the spanning tree
+   */
   getRST(): Set<Edge> {
     const edges = this.graph.getEdges();
     const visited = new Set();
@@ -78,7 +91,15 @@ export class Sterna {
     return st;
   }
 
-  //TODO: find a more accurate TSP solution
+  /**
+   * Finds a TSP-path around the adjacent edges of the input vertex. This method allows for the routing algorithm
+   * to find a reasonable path even when a topological ordering of the edges based on face information is unavailabe.
+   *
+   * TODO: find a more accurate TSP solution
+   *
+   * @param v vertex
+   * @returns oredered list of edges
+   */
   getNeighbours(v: Vertex): Edge[] {
     const neighbours = v.getAdjacentEdges();
     const t_points = new Map();
@@ -124,6 +145,11 @@ export class Sterna {
     return result;
   }
 
+  /**
+   * Return the 3d object associated with this route. Generate it if it does not exist.
+   *
+   * @returns 3d object
+   */
   getObject() {
     if (!this.obj) {
       const color = new THREE.Color(0xffffff);
@@ -153,6 +179,9 @@ export class Sterna {
     return this.obj;
   }
 
+  /**
+   * Delete the 3d model and free up the resources.
+   */
   dispose() {
     this.obj.dispose();
     delete this.obj;
@@ -167,11 +196,25 @@ export class Sterna {
   }
 }
 
+/**
+ * Creates a routing model from the input graph.
+ *
+ * @param graph
+ * @param params
+ * @returns
+ */
 function graphToWires(graph: Graph, params: MenuParameters) {
   const sterna = new Sterna(graph);
   return sterna;
 }
 
+/**
+ * Creates a cylinder model from the input routing model.
+ *
+ * @param sterna
+ * @param params
+ * @returns
+ */
 function wiresToCylinders(sterna: Sterna, params: MenuParameters) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'RNA');
@@ -253,6 +296,13 @@ function wiresToCylinders(sterna: Sterna, params: MenuParameters) {
   return cm;
 }
 
+/**
+ * Creates a nucleotide model from the input cylinder model.
+ *
+ * @param cm
+ * @param params
+ * @returns
+ */
 function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   const scale = cm.scale;
   const minLinkers = params.minLinkers;

@@ -6,9 +6,13 @@ import { FileMenu } from './scene/file_menu';
 import { setupModules } from './modules/modules';
 import { dev } from './dev';
 
-const context = new Context();
+let context: Context;
 
+/**
+ * This is the main entry point. Creates the main context and instantiates all the menus
+ */
 $.ready(function () {
+  context = new Context();
   new FileMenu(context);
   new InterfaceMenu(context);
 

@@ -49,6 +49,12 @@ export class FileMenu extends Menu {
     super(context, 'file', 'File', true);
   }
 
+  /**
+   * Tries to handle the given hotkey by calling any function or button associated with it.
+   *
+   * @param key
+   * @returns true if the key was handled, false otherwise
+   */
   handleHotKey(key: string) {
     switch (key) {
       case 'asdf':
@@ -63,6 +69,12 @@ export class FileMenu extends Menu {
     return;
   }
 
+  /**
+   * Reads the input files and calls the appropriate readers to handle them.
+   *
+   * @param files input files
+   * @returns
+   */
   readFiles(files: FileList) {
     const file = files[0]; // assuming just one file
     if (file.name.endsWith('.obj')) {
@@ -74,6 +86,9 @@ export class FileMenu extends Menu {
     this.context.addMessage('Unrecognised file format.', '');
   }
 
+  /**
+   * Connects the HTML elements associated with this object to its functions and adds their event listeners.
+   */
   setupEventListeners() {
     this.fileInputButton = $('#file-input-open');
     this.fileInputExampleButton = $('#file-input-example-open');

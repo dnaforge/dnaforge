@@ -5,14 +5,23 @@ import {
 } from '../../globals/consts';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 
+/**
+ * An iterator for pseudoknots. Returns the primary structure for one pseudoknot pair at a time.
+ */
 function* getPKs(): IterableIterator<[string, string]> {
   for (const pair of RNA_PSEUDOKNOTS) {
     yield pair;
   }
 }
 
-function getPairing(nucleotides: Array<Nucleotide>) {
-  const pairs = new Map();
+/**
+ * Get a dictionary that maps nucleotide indices to their base pairs.
+ *
+ * @param nucleotides
+ * @returns
+ */
+function getPairing(nucleotides: Array<Nucleotide>): Map<number, number> {
+  const pairs = new Map<number, number>();
   const visited = new Set();
   const stack = [];
   for (let i = 0; i < nucleotides.length; i++) {
@@ -28,7 +37,14 @@ function getPairing(nucleotides: Array<Nucleotide>) {
   return pairs;
 }
 
-function getStem(nucleotides: Array<Nucleotide>) {
+/**
+ * Get a primary structure that contains the stem segments of the nucleotide model
+ *
+ * @param nm
+ * @returns primary structure
+ */
+function getStem(nm: NucleotideModel) {
+  const nucleotides = nm.getNucleotides();
   const pairs = getPairing(nucleotides);
   const ps = [];
   let j = 0;
@@ -55,7 +71,14 @@ function getStem(nucleotides: Array<Nucleotide>) {
   return ps;
 }
 
-function getPseudoknots(nucleotides: Array<Nucleotide>) {
+/**
+ * Get a primary structure that contains the pseudoknotted parst of the nucleotide model
+ *
+ * @param nm
+ * @returns primary structure
+ */
+function getPseudoknots(nm: NucleotideModel): string[] {
+  const nucleotides = nm.getNucleotides();
   const pks = getPKs();
   const ps = [];
   const visited = new Set();
@@ -105,24 +128,18 @@ function getPseudoknots(nucleotides: Array<Nucleotide>) {
   return ps;
 }
 
-function getSS(nucleotides: Array<Nucleotide>) {
-  const visited = new Set();
-  const ss = [];
-  for (let i = 0; i < nucleotides.length; i++) {
-    const cur = nucleotides[i];
-    visited.add(cur);
-    if (!cur.pair || cur.isPseudo) ss.push('.');
-    else if (visited.has(cur.pair)) ss.push(')');
-    else ss.push('(');
-  }
-  return ss;
-}
+/**
+ * Generate a partial primary structure by setting up the pseudoknots, linkers, and UG-pairs
+ * that prevent the DNA from having a secondary strucutre.
+ *
+ * @param nm nucleotide model
+ * @returns the generated primary structure
+ */
+function generatePartial(nm: NucleotideModel): string[] {
+  const ps = getStem(nm);
+  const pseudos = getPseudoknots(nm);
 
-function generatePartial(nm: NucleotideModel) {
   const nucleotides = nm.getNucleotides();
-  const ps = getStem(nucleotides);
-  const pseudos = getPseudoknots(nucleotides);
-
   for (let i = 0; i < nucleotides.length; i++)
     if (pseudos[i]) ps[i] = pseudos[i];
 
@@ -130,6 +147,13 @@ function generatePartial(nm: NucleotideModel) {
   return ps;
 }
 
+/**
+ * Returns a complementary base matching to the constraints of the input base and its base pair
+ *
+ * @param base IUPAC codes for the base
+ * @param pair IUPAC codes for the base pair
+ * @returns the base
+ */
 function getComplement(base: string, pair: string) {
   const complement: Record<string, string> = { A: 'U', U: 'A', G: 'C', C: 'G' };
   const wobbleComplement: Record<string, string> = { U: 'G', G: 'U' };
@@ -140,6 +164,13 @@ function getComplement(base: string, pair: string) {
   return null;
 }
 
+/**
+ * Returns a random base matching the constraints set by the options.
+ *
+ * @param options an array of IUPAC base codes
+ * @param gcContent the proportion of G's and C's
+ * @returns the base
+ */
 function getBase(options: string[], gcContent: number): string {
   const optionsAU = [];
   const optionsGC = [];
@@ -158,7 +189,15 @@ function getBase(options: string[], gcContent: number): string {
   return base;
 }
 
-function generateRandom(nm: NucleotideModel, gcContent: number) {
+/**
+ * Generates a random complementary primary structure for the nucleotide model.
+ * Respects previously defined bases.
+ *
+ * @param nm
+ * @param gcContent
+ * @returns the generated primary structure
+ */
+function generateRandom(nm: NucleotideModel, gcContent: number): string[] {
   const nucleotides = nm.getNucleotides();
   const pairs = getPairing(nucleotides);
   const visited = new Set();
@@ -184,7 +223,14 @@ function generateRandom(nm: NucleotideModel, gcContent: number) {
   return ps;
 }
 
-function getPrimary(nucleotides: Array<Nucleotide>) {
+/**
+ * Returns the primary structure of the nucleotide model as an array of base characters
+ *
+ * @param nm
+ * @returns primary structure
+ */
+function getPrimary(nm: NucleotideModel): string[] {
+  const nucleotides = nm.getNucleotides();
   const p = [];
   for (const n of nucleotides) {
     p.push(n.base);
@@ -192,10 +238,35 @@ function getPrimary(nucleotides: Array<Nucleotide>) {
   return p;
 }
 
-function getNP(nm: NucleotideModel) {
+/**
+ * Returns the secondary structure of the nucleotide model as an array of dots and brackets.
+ *
+ * @param nm
+ * @returns secondary structure
+ */
+function getSS(nm: NucleotideModel): string[] {
   const nucleotides = nm.getNucleotides();
-  const ss = getSS(nucleotides);
-  const ps = getPrimary(nucleotides);
+  const visited = new Set();
+  const ss = [];
+  for (let i = 0; i < nucleotides.length; i++) {
+    const cur = nucleotides[i];
+    visited.add(cur);
+    if (!cur.pair || cur.isPseudo) ss.push('.');
+    else if (visited.has(cur.pair)) ss.push(')');
+    else ss.push('(');
+  }
+  return ss;
+}
+
+/**
+ * Get a NUPACK input file for generating the primary structure.
+ *
+ * @param nm
+ * @returns
+ */
+function getNP(nm: NucleotideModel): string {
+  const ss = getSS(nm);
+  const ps = getPrimary(nm);
 
   return RNA_NP_TEMPLATE(ps, ss);
 }

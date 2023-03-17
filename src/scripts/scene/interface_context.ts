@@ -21,6 +21,9 @@ interface CSSOBject {
   divs: HTMLElement[];
 }
 
+/**
+ * Interface menu.
+ */
 export class InterfaceMenu extends Menu {
   cameraLight = new THREE.PointLight(0xffffff, 0.75);
   ambientLight = new THREE.AmbientLight(0xbbbbbb);
@@ -103,6 +106,9 @@ export class InterfaceMenu extends Menu {
     this.regenerateVisible();
   }
 
+  /**
+   * Add the XYZ-axes to the scene.
+   */
   addAxes() {
     if (!this.axes) {
       const origin = new THREE.Vector3(0, 0, 0);
@@ -151,6 +157,9 @@ export class InterfaceMenu extends Menu {
     this.scene.add(this.axes.object);
   }
 
+  /**
+   * Remove the XYZ-axes from the scene.
+   */
   removeAxes() {
     this.scene.remove(this.axes.object);
     for (const d of this.axes.divs) d.remove();
@@ -178,22 +187,37 @@ export class InterfaceMenu extends Menu {
     }
     */
 
+  /**
+   * Adds a light that follows the camera.
+   */
   addCamLight() {
     this.scene.add(this.cameraLight);
   }
 
+  /**
+   * Removes the light that follows the camera.
+   */
   removeCamLight() {
     this.scene.remove(this.cameraLight);
   }
 
+  /**
+   * Adds an ambient light.
+   */
   addAmbLight() {
     this.scene.add(this.ambientLight);
   }
 
+  /**
+   * Removes the ambient light.
+   */
   removeAmbLight() {
     this.scene.remove(this.ambientLight);
   }
 
+  /**
+   * Adds vertex indices to the 3d scene.
+   */
   addVertexIndices() {
     const graph = this.context.graph;
     if (!graph) return;
@@ -218,12 +242,18 @@ export class InterfaceMenu extends Menu {
     this.vertexIndices = { object: indicesObject, divs: divs };
   }
 
+  /**
+   * Remove the vertex indices from the 3d scene.
+   */
   removeVertexIndices() {
     if (!this.vertexIndices) return;
     this.scene.remove(this.vertexIndices.object);
     for (const d of this.vertexIndices.divs) d.remove();
   }
 
+  /**
+   * Generate the mesh wireframe 3d object.
+   */
   generateWires() {
     const graph = this.context.graph;
     if (!graph) return;
@@ -253,11 +283,19 @@ export class InterfaceMenu extends Menu {
     this.wires = lines;
   }
 
+  /**
+   * Add the mesh wireframe to the 3d scene.
+   */
   addWires() {
     if (!this.wires) this.generateWires();
     if (this.wires) this.scene.add(this.wires);
   }
 
+  /**
+   * Remove the mesh wireframe from the 3d scene
+   *
+   * @param dispose delete the object as well
+   */
   removeWires(dispose = false) {
     if (!this.wires) return;
     this.scene.remove(this.wires);
@@ -267,6 +305,9 @@ export class InterfaceMenu extends Menu {
     }
   }
 
+  /**
+   * Generate the mesh 3d model. This mesh only contains the faces.
+   */
   generateMesh() {
     const graph = this.context.graph;
     if (!graph) return;
@@ -318,11 +359,19 @@ export class InterfaceMenu extends Menu {
     this.mesh = mesh;
   }
 
+  /**
+   * Add the mesh 3d model to the 3d scene.
+   */
   addMesh() {
     if (!this.mesh) this.generateMesh();
     if (this.mesh) this.scene.add(this.mesh);
   }
 
+  /**
+   * Remove the mesh 3d model from the 3d scene.
+   *
+   * @param dispose also delete the model
+   */
   removeMesh(dispose = false) {
     if (!this.mesh) return;
     this.scene.remove(this.mesh);
@@ -332,14 +381,23 @@ export class InterfaceMenu extends Menu {
     }
   }
 
+  /**
+   * Adds a fog that causes far away objects in the 3d scene to fade away.
+   */
   addFog() {
     this.scene.fog = fog;
   }
 
+  /**
+   * Removes the fog from the scene.
+   */
   removeFog() {
     this.scene.fog = null;
   }
 
+  /**
+   * Adds a bounding box of the graph to the scene.
+   */
   addBoundingBox() {
     if (!this.boundingBox) {
       const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
@@ -371,10 +429,16 @@ export class InterfaceMenu extends Menu {
     this.scene.add(this.boundingBox);
   }
 
+  /**
+   * Remove the bounding box from the 3d scene.
+   */
   removeBoundingBox() {
     this.scene.remove(this.boundingBox);
   }
 
+  /**
+   * Adds a grid to the 3d scene. The scale factor used in the routing models should match the grid size.
+   */
   addGrid() {
     if (!this.grid) {
       const size = GRID_SIZE + 0.01;
@@ -384,34 +448,52 @@ export class InterfaceMenu extends Menu {
     this.scene.add(this.grid);
   }
 
+  /**
+   * Removes the the grid from the 3d scene.
+   */
   removeGrid() {
     this.scene.remove(this.grid);
   }
 
+  /**
+   * Resets the camera transformations.
+   */
   resetCamera() {
     const val = (this.context.getCamera() as OrthographicCamera)
       .isOrthographicCamera;
     this.context.resetCamera(val);
   }
 
+  /**
+   * Switch the current camera type between orthographic and perspective.
+   */
   switchCameraType() {
     if ((this.context.getCamera() as OrthographicCamera).isOrthographicCamera)
       this.setPerspectiveCamera();
     else this.setOrthographicCamera();
   }
 
+  /**
+   * Sets the current camera to an orthographic one.
+   */
   setOrthographicCamera() {
     this.orthoCameraButton[0].hidden = true;
     this.perspCameraButton[0].hidden = false;
     this.context.setOrthographicCamera();
   }
 
+  /**
+   * Sets the current camera to perspective one.
+   */
   setPerspectiveCamera() {
     this.orthoCameraButton[0].hidden = false;
     this.perspCameraButton[0].hidden = true;
     this.context.setPerspectiveCamera();
   }
 
+  /**
+   * Add all visible objects to the scene and remove all invisible ones.
+   */
   regenerateVisible() {
     if (this.showCamLightButton[0].checked) this.addCamLight();
     else this.removeCamLight();
@@ -437,6 +519,9 @@ export class InterfaceMenu extends Menu {
     else this.removeBoundingBox();
   }
 
+  /**
+   * Connects the HTML elements associated with this object to its functions and adds their event listeners.
+   */
   setupEventListeners() {
     this.showCamLightButton = $('#toggle-camera-light');
     this.showAmbLightButton = $('#toggle-ambient-light');
