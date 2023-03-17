@@ -4,6 +4,7 @@ import { Vector3 } from 'three';
 import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
+import { MenuParameters } from '../../scene/menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -157,19 +158,13 @@ class Veneziano {
   }
 }
 
-function graphToWires(
-  graph: Graph,
-  params: { [name: string]: number | boolean | string }
-) {
+function graphToWires(graph: Graph, params: MenuParameters) {
   const veneziano = new Veneziano(graph);
   return veneziano;
 }
 
-function wiresToCylinders(
-  veneziano: Veneziano,
-  params: { [name: string]: number | boolean | string }
-) {
-  const scale = <number>params.scale;
+function wiresToCylinders(veneziano: Veneziano, params: MenuParameters) {
+  const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
   const trail = veneziano.trail;
@@ -240,12 +235,9 @@ function wiresToCylinders(
   return cm;
 }
 
-function cylindersToNucleotides(
-  cm: CylinderModel,
-  params: { [name: string]: number | boolean | string }
-) {
-  const scale = <number>cm.scale;
-  const scaffoldName = <string>params.scaffold;
+function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  const scale = cm.scale;
+  const scaffoldName = params.scaffold;
 
   const nm = new NucleotideModel(scale);
 

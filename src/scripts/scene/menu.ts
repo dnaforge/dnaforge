@@ -1,8 +1,18 @@
 import { Context } from './context';
 
-interface Parameters {
+type MenuParameters = {
+  scale?: number;
+  minLinkers?: number;
+  maxLinkers?: number;
+  minStrandLength?: number;
+  maxStrandLength?: number;
+  gcContent?: number;
+  addNicks?: boolean;
+  scaffold?: string;
   [name: string]: number | boolean | string;
-}
+};
+
+export { MenuParameters };
 
 export abstract class Menu {
   #hotkeyHandlers = new Map();
@@ -11,7 +21,7 @@ export abstract class Menu {
   isGlobal: boolean;
   context: Context;
   hotkeys = new Map();
-  params: Parameters = {};
+  params: MenuParameters = {};
   scene: THREE.Scene;
 
   constructor(

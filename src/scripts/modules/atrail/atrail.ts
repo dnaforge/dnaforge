@@ -5,6 +5,7 @@ import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
+import { MenuParameters } from '../../scene/menu';
 
 const MAX_ITERATIONS = 1 * 10 ** 6; // give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
@@ -330,11 +331,7 @@ class ATrail extends WiresModel {
   }
 }
 
-interface Parameters {
-  [name: string]: number | boolean | string;
-}
-
-function graphToWires(graph: Graph, params: Parameters) {
+function graphToWires(graph: Graph, params: MenuParameters) {
   const atrail = new ATrail(graph);
   atrail.findATrail();
   return atrail;
@@ -368,9 +365,9 @@ function createCylinder(cm: CylinderModel, he: HalfEdge, visited: boolean) {
   return cyl;
 }
 
-function wiresToCylinders(atrail: ATrail, params: Parameters) {
+function wiresToCylinders(atrail: ATrail, params: MenuParameters) {
   const trail = atrail.trail;
-  const scale = <number>params.scale;
+  const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
   const visited = new Set<Edge>();
@@ -412,13 +409,13 @@ function wiresToCylinders(atrail: ATrail, params: Parameters) {
   return cm;
 }
 
-function cylindersToNucleotides(cm: CylinderModel, params: Parameters) {
-  const minLinkers = <number>params.minLinkers;
-  const maxLinkers = <number>params.maxLinkers;
-  const addNicks = <boolean>params.addNicks;
-  const maxLength = <number>params.maxStrandLength;
-  const minLength = <number>params.minStrandLength;
-  const scaffoldName = <string>params.scaffold;
+function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  const minLinkers = params.minLinkers;
+  const maxLinkers = params.maxLinkers;
+  const addNicks = params.addNicks;
+  const maxLength = params.maxStrandLength;
+  const minLength = params.minStrandLength;
+  const scaffoldName = params.scaffold;
 
   const nm = NucleotideModel.compileFromGenericCylinderModel(
     cm,

@@ -4,6 +4,7 @@ import { InstancedMesh, Vector3 } from 'three';
 import { CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge, Vertex } from '../../models/graph';
+import { MenuParameters } from '../../scene/menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -166,19 +167,13 @@ export class Sterna {
   }
 }
 
-function graphToWires(
-  graph: Graph,
-  params: { [name: string]: number | boolean | string }
-) {
+function graphToWires(graph: Graph, params: MenuParameters) {
   const sterna = new Sterna(graph);
   return sterna;
 }
 
-function wiresToCylinders(
-  sterna: Sterna,
-  params: { [name: string]: number | boolean | string }
-) {
-  const scale = <number>params.scale;
+function wiresToCylinders(sterna: Sterna, params: MenuParameters) {
+  const scale = params.scale;
   const cm = new CylinderModel(scale, 'RNA');
 
   const trail = sterna.trail;
@@ -258,14 +253,11 @@ function wiresToCylinders(
   return cm;
 }
 
-function cylindersToNucleotides(
-  cm: CylinderModel,
-  params: { [name: string]: number | boolean | string }
-) {
-  const scale = <number>cm.scale;
-  const minLinkers = <number>params.minLinkers;
-  const maxLinkers = <number>params.maxLinkers;
-  const addNick = <number>params.addNicks;
+function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  const scale = cm.scale;
+  const minLinkers = params.minLinkers;
+  const maxLinkers = params.maxLinkers;
+  const addNick = params.addNicks;
 
   const nm = new NucleotideModel(scale, 'RNA');
 

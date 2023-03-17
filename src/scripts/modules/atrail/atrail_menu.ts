@@ -11,6 +11,7 @@ import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
+import { MenuParameters } from '../../scene/menu';
 
 export class ATrailMenu extends ModuleMenu {
   scaleInput: any;
@@ -26,17 +27,17 @@ export class ATrailMenu extends ModuleMenu {
     super(context, html);
   }
 
-  graphToWires(graph: Graph, params: typeof this.params) {
+  graphToWires(graph: Graph, params: MenuParameters) {
     const atrail = graphToWires(graph, params);
     this.context.addMessage(`Found an atrail.`, 'info');
     return atrail;
   }
 
-  wiresToCylinders(wires: WiresModel, params: typeof this.params) {
+  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
     return wiresToCylinders(<ATrail>wires, params);
   }
 
-  cylindersToNucleotides(cm: CylinderModel, params: typeof this.params) {
+  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
     return cylindersToNucleotides(cm, params);
   }
 

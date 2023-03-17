@@ -39,6 +39,10 @@ const cameraParams = (() => {
   };
 })();
 
+/**
+ * Main context of the program. This class contains the main loop, scene, and renderer, and keeps track of all the
+ * sub modules and their interface elements etc.
+ */
 export class Context {
   scene: THREE.Scene;
   camera: THREE.Camera;
@@ -74,6 +78,12 @@ export class Context {
     this.render();
   }
 
+  /**
+   * Registers a menu with the main context. Allows it to handle hotkeys and be accessed
+   * from elsewhere in the program. All menus should be registered.
+   *
+   * @param menu
+   */
   registerMenu(menu: Menu) {
     this.menus.set(menu.elementId, menu);
   }
@@ -92,6 +102,9 @@ export class Context {
     document.body.appendChild(this.labelRenderer.domElement);
   }
 
+  /**
+   * Main loop.
+   */
   private render() {
     const renderT = () => {
       for (const c of this.callbacks) c();
@@ -103,6 +116,13 @@ export class Context {
     renderT();
   }
 
+  /**
+   * Handles a hotkey by sending it to the active menu. If the active menu does nothing with it,
+   * the key press is sent to globally active menus. If they do not handle it either, tries to
+   * handle it here. Otherwise the hotkey does nothing.
+   *
+   * @param key
+   */
   handleHotKey(key: string) {
     if (this.activeContext && this.activeContext.handleHotKey(key)) return;
     for (const menu of this.menus.values())
@@ -117,6 +137,11 @@ export class Context {
     }
   }
 
+  /**
+   * Focuses the camera to a point in space.
+   *
+   * @param point
+   */
   focusCamera(point: Vector3) {
     this.cameraControls.target.copy(point);
     const d = this.cameraControls.target
@@ -134,8 +159,13 @@ export class Context {
     this.cameraControls.update();
   }
 
-  // TODO: use current distance to target
+  /**
+   * Sets the camera view to one of three options.
+   *
+   * @param dir direction. front, right, or top
+   */
   setCameraView(dir: string) {
+    // TODO: use current distance to target
     const dist = 20;
     switch (dir) {
       case 'front':
@@ -157,6 +187,11 @@ export class Context {
     this.cameraControls.update();
   }
 
+  /**
+   * Rotates camera by 25 degrees around the y-axis in the given direction.
+   *
+   * @param dir Direction. up, down, left, or right.
+   */
   rotateCameraView(dir: string) {
     switch (dir) {
       case 'up':
@@ -184,6 +219,9 @@ export class Context {
     this.cameraControls.update();
   }
 
+  /**
+   * Flips camera view by 180 degrees.
+   */
   flipCameraView() {
     const cPos = this.camera.position;
     const tPos = this.cameraControls.target;
@@ -208,6 +246,12 @@ export class Context {
     return this.camera;
   }
 
+  /**
+   * Resets camera to its original settings. Either to an orthographic
+   * or to a perspective camera.
+   *
+   * @param toOrthographic Otherwise perspective.
+   */
   resetCamera(toOrthographic: boolean) {
     if (toOrthographic) {
       this.camera = new THREE.OrthographicCamera(
@@ -235,6 +279,10 @@ export class Context {
     this.cameraControls.update();
   }
 
+  /**
+   * Sets the camera to an orthographic camera. Tries to preserve its
+   * current orientation.
+   */
   setOrthographicCamera() {
     const pos = this.camera.position;
     const rot = this.camera.rotation;
@@ -246,6 +294,10 @@ export class Context {
     this.cameraControls.update();
   }
 
+  /**
+   * Sets the camera to a perspective camera. Tries to preserve its
+   * current orientation.
+   */
   setPerspectiveCamera() {
     const pos = this.camera.position;
     const rot = this.camera.rotation;
@@ -257,6 +309,13 @@ export class Context {
     this.cameraControls.update();
   }
 
+  /**
+   * Adds a notification to the scene. Disappears after a while.
+   *
+   * @param message contents of the notification
+   * @param type default, success, info, alert, or warning
+   * @param duration lifetime of the message
+   */
   addMessage(message: string, type: string, duration = 3000) {
     const notify = Metro.notify;
     notify.setup({
@@ -270,12 +329,22 @@ export class Context {
     //Metro.toast.create(message, null, null, null, null);
   }
 
+  /**
+   * Resets the main context. Set the new graph as the given one. Also resets all the menus.
+   *
+   * @param graph
+   */
   reset(graph: Graph) {
     this.graph = graph;
     for (const ctx of this.menus.values()) ctx.reset();
     this.activeContext = null;
   }
 
+  /**
+   * Resets the main context and sets the new graph.
+   *
+   * @param graph
+   */
   setGraph(graph: Graph) {
     this.reset(graph);
     this.addMessage(
@@ -286,14 +355,27 @@ export class Context {
     );
   }
 
+  /**
+   * Select everything selectable in the currently active context.
+   */
   selectAll() {
     this.activeContext && this.activeContext.selectAll();
   }
 
+  /**
+   * Deselect everything selectable in the currently active context.
+   */
   deselectAll() {
     this.activeContext && this.activeContext.deselectAll();
   }
 
+  /**
+   * Sets the tooltip in the 3D scene around the given point. Note that there is only ever this one
+   * tooltip.
+   *
+   * @param point
+   * @param content
+   */
   addTooltip(point: Vector3, content: string) {
     if (!this.tooltip) {
       const td = document.createElement('div');
@@ -310,6 +392,9 @@ export class Context {
     this.tooltip.div.hidden = false;
   }
 
+  /**
+   * Remove the tooltip.
+   */
   removeTooltip() {
     if (!this.tooltip) return;
     this.tooltip.div.hidden = true;
@@ -326,6 +411,12 @@ export class Context {
     document.body.appendChild(t.firstChild);
   }
 
+  /**
+   * Switches context. Set the given context as the active one and inactivates others. Does not inactivate global
+   * contexts.
+   *
+   * @param context
+   */
   switchContext(context: ModuleMenu) {
     this.activeContext && this.activeContext.inactivate();
     context.activate();
@@ -333,11 +424,20 @@ export class Context {
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
   }
 
+  /**
+   * Called when switching to a new menu. If the new menu is not a global one, sets it as active and inactivates the old
+   * one.
+   *
+   * @param id element id of the new menu
+   */
   switchMainTab(id: string) {
     const menu = this.menus.get(id);
     if (menu && !menu.isGlobal) this.switchContext(<ModuleMenu>menu);
   }
 
+  /**
+   * Connects the HTML elements relevant to main context to it. Adds their event listeners.
+   */
   private setupEventListeners() {
     $('#main-tabs').on('tab', (e: any) => {
       (<HTMLElement>document.activeElement).blur();

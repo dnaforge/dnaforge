@@ -5,6 +5,7 @@ import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph';
+import { MenuParameters } from '../../scene/menu';
 
 const cyclesColorHover = 0xff8822;
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -202,10 +203,7 @@ export class CycleCover extends WiresModel {
   }
 }
 
-function graphToWires(
-  graph: Graph,
-  params: { [name: string]: number | boolean | string }
-) {
+function graphToWires(graph: Graph, params: MenuParameters) {
   const cc = new CycleCover(graph);
   return cc;
 }
@@ -249,11 +247,8 @@ function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
   }
 }
 
-function wiresToCylinders(
-  cc: CycleCover,
-  params: { [name: string]: number | boolean | string }
-) {
-  const scale = <number>params.scale;
+function wiresToCylinders(cc: CycleCover, params: MenuParameters) {
+  const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
   const edgeToCyl = new Map<HalfEdge, Cylinder>();
 
@@ -290,15 +285,12 @@ function wiresToCylinders(
   return cm;
 }
 
-function cylindersToNucleotides(
-  cm: CylinderModel,
-  params: { [name: string]: number | boolean | string }
-) {
-  const minLinkers = <number>params.minLinkers;
-  const maxLinkers = <number>params.maxLinkers;
-  const addNicks = <boolean>params.addNicks;
-  const maxLength = <number>params.maxStrandLength;
-  const minLength = <number>params.minStrandLength;
+function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  const minLinkers = params.minLinkers;
+  const maxLinkers = params.maxLinkers;
+  const addNicks = params.addNicks;
+  const maxLength = params.maxStrandLength;
+  const minLength = params.minStrandLength;
 
   const nm = NucleotideModel.compileFromGenericCylinderModel(
     cm,

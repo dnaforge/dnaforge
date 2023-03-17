@@ -5,7 +5,12 @@ import { Graph } from '../models/graph';
 import { Context } from './context';
 import { Menu } from './menu';
 
-const examples = (() => {
+/**
+ * Loads all the example obj-files, converts them to graphs and creates their HTML menu items.
+ *
+ * @returns examples dictionary mapping the menu item ids to the graphs
+ */
+const examples = ((): { [id: string]: Graph } => {
   const objs = require.context('../../examples', false, /\.(obj)$/);
   const examples: { [id: string]: Graph } = {};
   for (const k of objs.keys()) {
@@ -32,6 +37,9 @@ const examples = (() => {
   return examples;
 })();
 
+/**
+ * File tab.
+ */
 export class FileMenu extends Menu {
   fileInputButton: any;
   fileInputExampleButton: any;

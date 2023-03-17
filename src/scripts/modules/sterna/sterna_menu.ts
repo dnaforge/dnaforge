@@ -12,6 +12,7 @@ import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
+import { MenuParameters } from '../../scene/menu';
 
 export class SternaMenu extends ModuleMenu {
   scaleInput: any;
@@ -26,10 +27,7 @@ export class SternaMenu extends ModuleMenu {
     super(context, html);
   }
 
-  graphToWires(
-    graph: Graph,
-    params: { [name: string]: number | boolean | string }
-  ) {
+  graphToWires(graph: Graph, params: MenuParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(
       `Generated a route around the spanning tree with ${wires.trail.length} edges.`,
@@ -38,17 +36,11 @@ export class SternaMenu extends ModuleMenu {
     return wires;
   }
 
-  wiresToCylinders(
-    wires: WiresModel,
-    params: { [name: string]: number | boolean | string }
-  ) {
+  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
     return wiresToCylinders(<Sterna>wires, params);
   }
 
-  cylindersToNucleotides(
-    cm: CylinderModel,
-    params: { [name: string]: number | boolean | string }
-  ) {
+  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
     return cylindersToNucleotides(cm, params);
   }
 
@@ -57,7 +49,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    const p = generateRandom(this.nm, <number>this.params.gcContent);
+    const p = generateRandom(this.nm, this.params.gcContent);
     this.nm.setPrimary(p);
   }
 

@@ -3,7 +3,7 @@ import { Graph } from '../models/graph';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
-import { Menu } from '../scene/menu';
+import { Menu, MenuParameters } from '../scene/menu';
 
 function setupHTML(html: string) {
   const mainData = $('<div>');
@@ -20,6 +20,10 @@ function setupHTML(html: string) {
   return [id, title];
 }
 
+/**
+ * Connects the HTML frontend to a routing algorithm and the wireframe-, cylinder- and nucleotide-models.
+ * The routing algorithm implementations should inherit from this class.
+ */
 export abstract class ModuleMenu extends Menu {
   showWires = false;
   showCylinders = false;
@@ -37,12 +41,21 @@ export abstract class ModuleMenu extends Menu {
   generateCylindersButton: any;
   generateNucleotidesButton: any;
 
+  /**
+   *
+   *
+   * @param context Global context of the program.
+   * @param html The HTML file containing the frontend for this model.
+   */
   constructor(context: Context, html: string) {
     const [id, title] = setupHTML(html);
     super(context, id, title, false);
     this.title = title;
   }
 
+  /**
+   * Assigns keys to functions or buttons.
+   */
   populateHotkeys() {
     this.hotkeys.set('1', this.wiresButton);
     this.hotkeys.set('2', this.cylindersButton);
@@ -53,33 +66,58 @@ export abstract class ModuleMenu extends Menu {
     this.hotkeys.set('space', this.generateWiresButton);
   }
 
-  abstract graphToWires(
-    graph: Graph,
-    params: { [name: string]: number | boolean | string }
-  ): WiresModel;
+  /**
+   * Creates a routing model from the graph.
+   *
+   * @param graph
+   * @param params
+   */
+  abstract graphToWires(graph: Graph, params: MenuParameters): WiresModel;
 
+  /**
+   * Creates a cylinder model from the routing model.
+   *
+   * @param wires
+   * @param params
+   */
   abstract wiresToCylinders(
     wires: WiresModel,
-    params: { [name: string]: number | boolean | string }
+    params: MenuParameters
   ): CylinderModel;
 
+  /**
+   *
+   * Creates a nucleotide model from the cylinder model.
+   *
+   * @param cm
+   * @param params
+   */
   abstract cylindersToNucleotides(
     cm: CylinderModel,
-    params: { [name: string]: number | boolean | string }
+    params: MenuParameters
   ): NucleotideModel;
 
+  /**
+   * Activate this context and unhide the associated models.
+   */
   activate() {
     try {
       this.regenerateVisible();
     } catch {} // regenerating structures should only fail if the input is faulty, so no need to catch anything
   }
 
+  /**
+   * Inactivate this context and hide the associated models.
+   */
   inactivate() {
     this.removeWires(false);
     this.removeCylinders(false);
     this.removeNucleotides(false);
   }
 
+  /**
+   * Resets this context to its original state. Destroys all associated models.
+   */
   reset() {
     this.removeWires(true);
     this.removeCylinders(true);
@@ -91,12 +129,18 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides = false;
   }
 
+  /**
+   * Select all selectable visible models.
+   */
   selectAll() {
     if (this.showWires) this.selectWires();
     if (this.showCylinders) this.selectCylinders();
     if (this.showNucleotides) this.selectNucleotides();
   }
 
+  /**
+   * Deselect all selectable visible models.
+   */
   deselectAll() {
     if (this.showWires) this.deselectWires();
     if (this.showCylinders) this.deselectCylinders();
@@ -127,6 +171,9 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides && this.nm && this.nm.deselectAll();
   }
 
+  /**
+   * Generate a wireframe / routing model based on the current graph and parameters. Remove the previous version.
+   */
   generateWires() {
     // remove old:
     this.removeWires(true);
@@ -140,6 +187,9 @@ export abstract class ModuleMenu extends Menu {
     this.wires = this.graphToWires(graph, this.params);
   }
 
+  /**
+   * Generate a cylinder model based on the current routing model and parameters. Remove the previous version.
+   */
   generateCylinderModel() {
     // remove old:
     this.removeCylinders(true);
@@ -152,6 +202,9 @@ export abstract class ModuleMenu extends Menu {
     this.cm = this.wiresToCylinders(this.wires, this.params);
   }
 
+  /**
+   * Generate a nucleotide model based on the current cylinder model and parameters. Remove the previous version.
+   */
   generateNucleotideModel() {
     // remove old:
     this.removeNucleotides(true);
@@ -167,6 +220,9 @@ export abstract class ModuleMenu extends Menu {
     );
   }
 
+  /**
+   * Relax the cylinder model by rotating its constituent cylinders.
+   */
   relaxCylinders() {
     if (!this.cm) this.generateCylinderModel();
     if (!this.cm) return;
@@ -183,11 +239,19 @@ export abstract class ModuleMenu extends Menu {
     );
   }
 
+  /**
+   * Add the wireframe model to the scene. Generate the model if it does not exist.
+   */
   addWires() {
     if (!this.wires) this.generateWires();
     this.scene.add(this.wires.getObject());
   }
 
+  /**
+   * Remove the wireframe model from the scene.
+   *
+   * @param dispose Delete the model entirely.
+   */
   removeWires(dispose = false) {
     if (!this.wires) return;
     this.scene.remove(this.wires.getObject());
@@ -197,11 +261,19 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
+  /**
+   * Add the cylinder model to the scene. Generate it if it does not exist.
+   */
   addCylinders() {
     if (!this.cm) this.generateCylinderModel();
     if (this.cm) this.scene.add(this.cm.getObject());
   }
 
+  /**
+   * Remove the cylinder model from the scene.
+   *
+   * @param dispose Delete the model entirely.
+   */
   removeCylinders(dispose = false) {
     if (!this.cm) return;
     this.scene.remove(this.cm.getObject());
@@ -211,11 +283,19 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
+  /**
+   * Add the nucleotide model to the scene. Generate it if it does not exist.
+   */
   addNucleotides() {
     if (!this.nm) this.generateNucleotideModel();
     if (this.nm) this.scene.add(this.nm.getObject());
   }
 
+  /**
+   * Remove the nucleotide model from the scene.
+   *
+   * @param dispose Delete the model entirely.
+   */
   removeNucleotides(dispose = false) {
     if (!this.nm) return;
     this.scene.remove(this.nm.getObject());
@@ -225,6 +305,9 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
+  /**
+   * Add all models marked as shown to the scene. Generate them if they do not exist.
+   */
   regenerateVisible() {
     if (this.showWires) this.addWires();
     else this.removeWires();
@@ -234,12 +317,18 @@ export abstract class ModuleMenu extends Menu {
     else this.removeNucleotides();
   }
 
+  /**
+   * Collect all user parameters from the HTML elements.
+   */
   collectParameters() {
     this.showWires = this.wiresButton[0].checked;
     this.showCylinders = this.cylindersButton[0].checked;
     this.showNucleotides = this.nucleotidesButton[0].checked;
   }
 
+  /**
+   * Connect all the HTML elements to this object. Add their event listeners.
+   */
   setupEventListeners() {
     this.wiresButton = $(`#${this.elementId}-toggle-wires`);
     this.cylindersButton = $(`#${this.elementId}-toggle-cylinders`);

@@ -11,6 +11,7 @@ import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
+import { MenuParameters } from '../../scene/menu';
 
 export class CycleCoverMenu extends ModuleMenu {
   scaleInput: any;
@@ -27,26 +28,17 @@ export class CycleCoverMenu extends ModuleMenu {
     super(context, html);
   }
 
-  graphToWires(
-    graph: Graph,
-    params: { [name: string]: number | boolean | string }
-  ) {
+  graphToWires(graph: Graph, params: MenuParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(`Generated ${wires.length()} cycles.`, 'info');
     return wires;
   }
 
-  wiresToCylinders(
-    wires: WiresModel,
-    params: { [name: string]: number | boolean | string }
-  ) {
+  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
     return wiresToCylinders(<CycleCover>wires, params);
   }
 
-  cylindersToNucleotides(
-    cm: CylinderModel,
-    params: { [name: string]: number | boolean | string }
-  ) {
+  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
     return cylindersToNucleotides(cm, params);
   }
 
