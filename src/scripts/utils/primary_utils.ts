@@ -193,7 +193,9 @@ export function setPartialPrimaryRNA(nm: NucleotideModel): string[] {
 }
 
 /**
- * Returns a complementary base matching to the constraints of the input base and its base pair
+ * Returns a complementary base matching to the constraints of the input base and its base pair.
+ * E.g. input base = W and pair = U, output would be A. Note that the pair must be one of the four
+ * actual bases.
  *
  * @param base IUPAC codes for the base
  * @param pair IUPAC codes for the base pair
@@ -210,7 +212,9 @@ function getComplementRNA(base: string, pair: string) {
 }
 
 /**
- * Returns a complementary base matching to the constraints of the input base and its base pair
+ * Returns a complementary base matching to the constraints of the input base and its base pair.
+ * E.g. input base = W and pair = T, output would be A. Note that the pair must be one of the four
+ * actual bases.
  *
  * @param base IUPAC codes for the base
  * @param pair IUPAC codes for the base pair
@@ -226,6 +230,7 @@ function getComplementDNA(base: string, pair: string) {
 
 /**
  * Returns a random base matching the constraints set by the options.
+ * The options have to be any combination of "G", "C", "A" and "U".
  *
  * @param options an array of IUPAC base codes
  * @param gcContent the proportion of G's and C's
@@ -251,6 +256,7 @@ function getBaseRNA(options: string[], gcContent: number): string {
 
 /**
  * Returns a random base matching the constraints set by the options.
+ * The options have to be any combination of "G", "C", "A" and "T".
  *
  * @param options an array of IUPAC base codes
  * @param gcContent the proportion of G's and C's
@@ -340,7 +346,7 @@ function getSS(nm: NucleotideModel): string[] {
  * Get a NUPACK input file for generating the primary structure.
  *
  * @param nm
- * @returns
+ * @returns nupack file contents
  */
 export function getNP(nm: NucleotideModel): string {
   const ss = getSS(nm);

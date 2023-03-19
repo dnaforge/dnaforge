@@ -21,7 +21,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">CylinderModel</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L242">src/scripts/models/cylinder_model.ts:242</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L356">src/scripts/models/cylinder_model.ts:356</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -68,42 +68,44 @@
 <li>
 <h5>scale: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5></li>
 <li>
-<h5>naType: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#39;DNA&#39;</span></h5></li></ul></div>
+<h5>naType: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#39;DNA&#39;</span></h5>
+<div class="tsd-comment tsd-typography"><p>DNA | RNA</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_cylinder_model.CylinderModel.html" class="tsd-signature-type" data-tsd-kind="Class">CylinderModel</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L251">src/scripts/models/cylinder_model.ts:251</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L370">src/scripts/models/cylinder_model.ts:370</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="cylinders" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>cylinders</span><a href="#cylinders" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">cylinders<span class="tsd-signature-symbol">:</span> <a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L243">src/scripts/models/cylinder_model.ts:243</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L357">src/scripts/models/cylinder_model.ts:357</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="meshes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>meshes</span><a href="#meshes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">meshes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">InstancedMesh</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">BufferGeometry</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Material</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Material</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
+<div class="tsd-signature">meshes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CylinderMeshes</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L249">src/scripts/models/cylinder_model.ts:249</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L363">src/scripts/models/cylinder_model.ts:363</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="naType" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>na<wbr/>Type</span><a href="#naType" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">na<wbr/>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L245">src/scripts/models/cylinder_model.ts:245</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L359">src/scripts/models/cylinder_model.ts:359</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="nucParams" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>nuc<wbr/>Params</span><a href="#nucParams" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">nuc<wbr/>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L246">src/scripts/models/cylinder_model.ts:246</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L360">src/scripts/models/cylinder_model.ts:360</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="obj" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>obj</span><a href="#obj" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">obj<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Object3D</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Event</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L248">src/scripts/models/cylinder_model.ts:248</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L362">src/scripts/models/cylinder_model.ts:362</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="scale" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>scale</span><a href="#scale" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">scale<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L244">src/scripts/models/cylinder_model.ts:244</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L358">src/scripts/models/cylinder_model.ts:358</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addCylinder" class="tsd-anchor"></a>
@@ -111,34 +113,52 @@
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="addCylinder.addCylinder-1">add<wbr/>Cylinder<span class="tsd-signature-symbol">(</span>p1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span>, dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span>, length_bp<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a><a href="#addCylinder.addCylinder-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography">
+<h3>Returns</h3><p>the added cylinder</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>p1: <span class="tsd-signature-type">Vector3</span></h5></li>
+<h5>p1: <span class="tsd-signature-type">Vector3</span></h5>
+<div class="tsd-comment tsd-typography"><p>starting point</p>
+</div></li>
 <li>
-<h5>dir: <span class="tsd-signature-type">Vector3</span></h5></li>
+<h5>dir: <span class="tsd-signature-type">Vector3</span></h5>
+<div class="tsd-comment tsd-typography"><p>direction</p>
+</div></li>
 <li>
-<h5>length_bp: <span class="tsd-signature-type">number</span></h5></li></ul></div>
+<h5>length_bp: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>length in bases</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L262">src/scripts/models/cylinder_model.ts:262</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L388">src/scripts/models/cylinder_model.ts:388</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="calculateRelaxScore" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>calculate<wbr/>Relax<wbr/>Score</span><a href="#calculateRelaxScore" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="calculateRelaxScore.calculateRelaxScore-1">calculate<wbr/>Relax<wbr/>Score<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#calculateRelaxScore.calculateRelaxScore-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Calculates a score for how relaxed the current conformation of cylindres is.</p>
+
+<h3>Returns</h3><p>score</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L418">src/scripts/models/cylinder_model.ts:418</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L588">src/scripts/models/cylinder_model.ts:588</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="calculateTorques" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>calculate<wbr/>Torques</span><a href="#calculateTorques" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="calculateTorques.calculateTorques-1">calculate<wbr/>Torques<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#calculateTorques.calculateTorques-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Calculates the torques experienced by each cylinder due to their connections
+to neighbouring cylinders.</p>
+
+<h3>Returns</h3><p>the total torque</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L379">src/scripts/models/cylinder_model.ts:379</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L544">src/scripts/models/cylinder_model.ts:544</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="deselectAll" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>deselect<wbr/>All</span><a href="#deselectAll" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -146,23 +166,27 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L426">src/scripts/models/cylinder_model.ts:426</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L596">src/scripts/models/cylinder_model.ts:596</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="dispose" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>dispose</span><a href="#dispose" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="dispose.dispose-1">dispose<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#dispose.dispose-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Deletes all the objects associated with this cylinder model.</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L350">src/scripts/models/cylinder_model.ts:350</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L502">src/scripts/models/cylinder_model.ts:502</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="generateMesh" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>generate<wbr/>Mesh</span><a href="#generateMesh" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="generateMesh.generateMesh-1">generate<wbr/>Mesh<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#generateMesh.generateMesh-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Generates the 3d object and its meshes.</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L299">src/scripts/models/cylinder_model.ts:299</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L442">src/scripts/models/cylinder_model.ts:442</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getCylinders" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Cylinders</span><a href="#getCylinders" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -170,35 +194,52 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L268">src/scripts/models/cylinder_model.ts:268</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L394">src/scripts/models/cylinder_model.ts:394</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getObject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Object</span><a href="#getObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="getObject.getObject-1">get<wbr/>Object<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Object3D</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Event</span><span class="tsd-signature-symbol">&gt;</span><a href="#getObject.getObject-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns the 3d object assocaited with this cylinder model. Generates it if it
+does not already exist.</p>
+
+<h3>Returns</h3></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Object3D</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Event</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L291">src/scripts/models/cylinder_model.ts:291</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L431">src/scripts/models/cylinder_model.ts:431</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getVertexOffset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Vertex<wbr/>Offset</span><a href="#getVertexOffset" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="getVertexOffset.getVertexOffset-1">get<wbr/>Vertex<wbr/>Offset<span class="tsd-signature-symbol">(</span>v1<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a>, v2<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span><a href="#getVertexOffset.getVertexOffset-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Calculates how much is needed to cut off from a cylinder at vertex 1 so that
+it does not overlap with any other cylinders at that vertex</p>
+
+<h3>Returns</h3><p>offset</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>v1: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5></li>
+<h5>v1: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5>
+<div class="tsd-comment tsd-typography"><p>vertex 1</p>
+</div></li>
 <li>
-<h5>v2: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5></li></ul></div>
+<h5>v2: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5>
+<div class="tsd-comment tsd-typography"><p>vertex 2</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Vector3</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L272">src/scripts/models/cylinder_model.ts:272</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L406">src/scripts/models/cylinder_model.ts:406</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="relax" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>relax</span><a href="#relax" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="relax.relax-1">relax<span class="tsd-signature-symbol">(</span>iterations<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#relax.relax-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Tries to relax the cylinder model by rotating the individual cylinder so that
+the linker strand lengths are minimised.</p>
+
+<h3>Returns</h3></div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
@@ -206,7 +247,7 @@
 <h5>iterations: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1000</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L358">src/scripts/models/cylinder_model.ts:358</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L517">src/scripts/models/cylinder_model.ts:517</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="selectAll" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>select<wbr/>All</span><a href="#selectAll" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -214,15 +255,18 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L422">src/scripts/models/cylinder_model.ts:422</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L592">src/scripts/models/cylinder_model.ts:592</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="updateObject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>update<wbr/>Object</span><a href="#updateObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="updateObject.updateObject-1">update<wbr/>Object<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#updateObject.updateObject-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Updates all the matrices and instance colours of each object associated with
+this cylinder model.</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/cylinder_model.ts#L338">src/scripts/models/cylinder_model.ts:338</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/cylinder_model.ts#L487">src/scripts/models/cylinder_model.ts:487</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

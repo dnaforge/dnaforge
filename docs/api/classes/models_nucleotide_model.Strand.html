@@ -16,12 +16,15 @@
 <li><a href="../modules/models_nucleotide_model.html">models/nucleotide_model</a></li>
 <li><a href="models_nucleotide_model.Strand.html">Strand</a></li></ul>
 <h1>Class Strand</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>A class represeting a strand. Contains nucleotides.</p>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
 <li><span class="target">Strand</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L308">src/scripts/models/nucleotide_model.ts:308</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L354">src/scripts/models/nucleotide_model.ts:354</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -49,7 +52,6 @@
 <a href="models_nucleotide_model.Strand.html#addNucleotides" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>add<wbr/>Nucleotides</span></a>
 <a href="models_nucleotide_model.Strand.html#deleteNucleotides" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>delete<wbr/>Nucleotides</span></a>
 <a href="models_nucleotide_model.Strand.html#generateNucleotides" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>generate<wbr/>Nucleotides</span></a>
-<a href="models_nucleotide_model.Strand.html#getObject" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Object</span></a>
 <a href="models_nucleotide_model.Strand.html#length" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>length</span></a>
 <a href="models_nucleotide_model.Strand.html#linkStrand" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>link<wbr/>Strand</span></a>
 <a href="models_nucleotide_model.Strand.html#toJSON" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>toJSON</span></a>
@@ -69,57 +71,59 @@
 <li>
 <h5>isScaffold: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5></li>
 <li>
-<h5>naType: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#39;DNA&#39;</span></h5></li></ul></div>
+<h5>naType: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#39;DNA&#39;</span></h5>
+<div class="tsd-comment tsd-typography"><p>DNA | RNA</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L321">src/scripts/models/nucleotide_model.ts:321</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L373">src/scripts/models/nucleotide_model.ts:373</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="id" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L309">src/scripts/models/nucleotide_model.ts:309</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L355">src/scripts/models/nucleotide_model.ts:355</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="isLinker" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Linker</span><a href="#isLinker" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">is<wbr/>Linker<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L318">src/scripts/models/nucleotide_model.ts:318</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L364">src/scripts/models/nucleotide_model.ts:364</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="isPseudo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Pseudo</span><a href="#isPseudo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">is<wbr/>Pseudo<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L319">src/scripts/models/nucleotide_model.ts:319</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L365">src/scripts/models/nucleotide_model.ts:365</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="isScaffold" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Scaffold</span><a href="#isScaffold" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">is<wbr/>Scaffold<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L317">src/scripts/models/nucleotide_model.ts:317</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L363">src/scripts/models/nucleotide_model.ts:363</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="naType" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>na<wbr/>Type</span><a href="#naType" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">na<wbr/>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L312">src/scripts/models/nucleotide_model.ts:312</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L358">src/scripts/models/nucleotide_model.ts:358</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="nucParams" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>nuc<wbr/>Params</span><a href="#nucParams" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">nuc<wbr/>Params<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L313">src/scripts/models/nucleotide_model.ts:313</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L359">src/scripts/models/nucleotide_model.ts:359</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="nucleotides" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>nucleotides</span><a href="#nucleotides" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">nucleotides<span class="tsd-signature-symbol">:</span> <a href="models_nucleotide_model.Nucleotide.html" class="tsd-signature-type" data-tsd-kind="Class">Nucleotide</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L310">src/scripts/models/nucleotide_model.ts:310</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L356">src/scripts/models/nucleotide_model.ts:356</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="pair" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pair</span><a href="#pair" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">pair<span class="tsd-signature-symbol">:</span> <a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L315">src/scripts/models/nucleotide_model.ts:315</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L361">src/scripts/models/nucleotide_model.ts:361</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="scale" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>scale</span><a href="#scale" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">scale<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L311">src/scripts/models/nucleotide_model.ts:311</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L357">src/scripts/models/nucleotide_model.ts:357</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addBasePairs" class="tsd-anchor"></a>
@@ -127,6 +131,9 @@
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="addBasePairs.addBasePairs-1">add<wbr/>Base<wbr/>Pairs<span class="tsd-signature-symbol">(</span>strand2<span class="tsd-signature-symbol">: </span><a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#addBasePairs.addBasePairs-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Add base pairs between every nucleotide of this strand
+and every nucleotide of another strand.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
@@ -134,25 +141,31 @@
 <h5>strand2: <a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L356">src/scripts/models/nucleotide_model.ts:356</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L410">src/scripts/models/nucleotide_model.ts:410</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addNucleotides" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Nucleotides</span><a href="#addNucleotides" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="addNucleotides.addNucleotides-1">add<wbr/>Nucleotides<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>n<span class="tsd-signature-symbol">: </span><a href="models_nucleotide_model.Nucleotide.html" class="tsd-signature-type" data-tsd-kind="Class">Nucleotide</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#addNucleotides.addNucleotides-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Adds given nucleotides to this strand.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>n: <a href="models_nucleotide_model.Nucleotide.html" class="tsd-signature-type" data-tsd-kind="Class">Nucleotide</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>n: <a href="models_nucleotide_model.Nucleotide.html" class="tsd-signature-type" data-tsd-kind="Class">Nucleotide</a><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>nucleotides</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L370">src/scripts/models/nucleotide_model.ts:370</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L425">src/scripts/models/nucleotide_model.ts:425</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="deleteNucleotides" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>delete<wbr/>Nucleotides</span><a href="#deleteNucleotides" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="deleteNucleotides.deleteNucleotides-1">delete<wbr/>Nucleotides<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>n<span class="tsd-signature-symbol">: </span><a href="models_nucleotide_model.Nucleotide.html" class="tsd-signature-type" data-tsd-kind="Class">Nucleotide</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#deleteNucleotides.deleteNucleotides-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Delete the given nucleotides from this strand.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
@@ -160,34 +173,24 @@
 <h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>n: <a href="models_nucleotide_model.Nucleotide.html" class="tsd-signature-type" data-tsd-kind="Class">Nucleotide</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L376">src/scripts/models/nucleotide_model.ts:376</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L436">src/scripts/models/nucleotide_model.ts:436</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="generateNucleotides" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>generate<wbr/>Nucleotides</span><a href="#generateNucleotides" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="generateNucleotides.generateNucleotides-1">generate<wbr/>Nucleotides<span class="tsd-signature-symbol">(</span>N<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, start_point<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span>, dir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span>, normal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#generateNucleotides.generateNucleotides-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="generateNucleotides.generateNucleotides-1">generate<wbr/>Nucleotides<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>matrices<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Matrix4</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#generateNucleotides.generateNucleotides-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Generates a new nucleotide for each transformation matrix provided.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>N: <span class="tsd-signature-type">number</span></h5></li>
-<li>
-<h5>start_point: <span class="tsd-signature-type">Vector3</span></h5></li>
-<li>
-<h5>dir: <span class="tsd-signature-type">Vector3</span></h5></li>
-<li>
-<h5>normal: <span class="tsd-signature-type">Vector3</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L330">src/scripts/models/nucleotide_model.ts:330</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getObject" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>get<wbr/>Object</span><a href="#getObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getObject.getObject-1">get<wbr/>Object<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#getObject.getObject-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
+<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>matrices: <span class="tsd-signature-type">Matrix4</span><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>transformation matrices</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L366">src/scripts/models/nucleotide_model.ts:366</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L387">src/scripts/models/nucleotide_model.ts:387</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="length" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>length</span><a href="#length" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -195,29 +198,43 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L428">src/scripts/models/nucleotide_model.ts:428</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L501">src/scripts/models/nucleotide_model.ts:501</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="linkStrand" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>link<wbr/>Strand</span><a href="#linkStrand" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="linkStrand.linkStrand-1">link<wbr/>Strand<span class="tsd-signature-symbol">(</span>next<span class="tsd-signature-symbol">: </span><a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a>, min<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, max<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a><a href="#linkStrand.linkStrand-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Links the 3&#39; of this strand to the 5&#39; of another strand.</p>
+
+<h3>Returns</h3><p>returns the generated strand or nothing</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>next: <a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a></h5></li>
+<h5>next: <a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a></h5>
+<div class="tsd-comment tsd-typography"><p>the other strand</p>
+</div></li>
 <li>
-<h5>min: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></h5></li>
+<h5>min: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></h5>
+<div class="tsd-comment tsd-typography"><p>minimum number of linkers</p>
+</div></li>
 <li>
-<h5>max: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></h5></li></ul></div>
+<h5>max: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></h5>
+<div class="tsd-comment tsd-typography"><p>maximum number of linkers</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_nucleotide_model.Strand.html" class="tsd-signature-type" data-tsd-kind="Class">Strand</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L383">src/scripts/models/nucleotide_model.ts:383</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L451">src/scripts/models/nucleotide_model.ts:451</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="toJSON" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>toJSON</span><a href="#toJSON" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="toJSON.toJSON-1">toJSON<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>chainName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>fivePrimeId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>isScaffold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>naType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>nucleotides<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span>altPositions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>            </span>backboneCenter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>            </span>baseNormal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>            </span>hydrogenFaceDir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>            </span>nucleobaseCenter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>nbAbbrev<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>next<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>pair<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>pdbId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>prev<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>pdbFileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>threePrimeId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#toJSON.toJSON-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns a JSON dictionary of this strand according to the UNF specification</p>
+
+<h3>Returns</h3><p>JSON dictionary</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span>chainName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>fivePrimeId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>isScaffold<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>naType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>nucleotides<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span>altPositions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>            </span>backboneCenter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>            </span>baseNormal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>            </span>hydrogenFaceDir<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>            </span>nucleobaseCenter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>nbAbbrev<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>next<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>pair<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>pdbId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>        </span>prev<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>pdbFileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>threePrimeId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
@@ -239,7 +256,7 @@
 <li class="tsd-parameter">
 <h5>three<wbr/>Prime<wbr/>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5></li></ul><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/24a0538/src/scripts/models/nucleotide_model.ts#L405">src/scripts/models/nucleotide_model.ts:405</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/d203e6e/src/scripts/models/nucleotide_model.ts#L478">src/scripts/models/nucleotide_model.ts:478</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -312,7 +329,6 @@
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#addNucleotides" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>add<wbr/>Nucleotides</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#deleteNucleotides" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>delete<wbr/>Nucleotides</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#generateNucleotides" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>generate<wbr/>Nucleotides</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#getObject" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Object</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#length" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>length</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#linkStrand" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>link<wbr/>Strand</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_nucleotide_model.Strand.html#toJSON" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>toJSON</a></li></ul></li></ul></nav></div></div>

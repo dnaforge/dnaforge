@@ -231,18 +231,18 @@ function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
   if (cyl.neighbours.first3Prime) {
     if (nextCyl.neighbours.first5Prime) {
       cyl.neighbours.second3Prime = [nextCyl, 'second5Prime'];
-      nextCyl.neighbours.second5Prime = [nextCyl, 'second3Prime'];
+      nextCyl.neighbours.second5Prime = [cyl, 'second3Prime'];
     } else {
       cyl.neighbours.second3Prime = [nextCyl, 'first5Prime'];
-      nextCyl.neighbours.first5Prime = [nextCyl, 'second3Prime'];
+      nextCyl.neighbours.first5Prime = [cyl, 'second3Prime'];
     }
   } else {
     if (nextCyl.neighbours.first5Prime) {
       cyl.neighbours.first3Prime = [nextCyl, 'second5Prime'];
-      nextCyl.neighbours.second5Prime = [nextCyl, 'first3Prime'];
+      nextCyl.neighbours.second5Prime = [cyl, 'first3Prime'];
     } else {
       cyl.neighbours.first3Prime = [nextCyl, 'first5Prime'];
-      nextCyl.neighbours.first5Prime = [nextCyl, 'first3Prime'];
+      nextCyl.neighbours.first5Prime = [cyl, 'first3Prime'];
     }
   }
 }
@@ -255,27 +255,27 @@ function wiresToCylinders(cc: CycleCover, params: MenuParameters) {
   // create cylinders
   for (const cycle of cc.cycles) {
     for (let i = 0; i < cycle.length; i++) {
-      const edge = cycle[i];
+      const hEdge = cycle[i];
       const next = cycle[(i + 1) % cycle.length];
-      const twin = edge.twin;
+      const twin = hEdge.twin;
 
       let cyl;
       if (edgeToCyl.get(twin)) {
         cyl = edgeToCyl.get(twin);
       } else {
-        const v1 = edge.vertex;
+        const v1 = hEdge.vertex;
         const v2 = next.vertex;
         cyl = createCylinder(cm, v1, v2);
       }
-      edgeToCyl.set(edge, cyl);
+      edgeToCyl.set(hEdge, cyl);
     }
   }
   // connect cylinders:
   for (const cycle of cc.cycles) {
     for (let i = 0; i < cycle.length; i++) {
-      const edge = cycle[i];
+      const hEdge = cycle[i];
       const next = cycle[(i + 1) % cycle.length];
-      const cyl = edgeToCyl.get(edge);
+      const cyl = edgeToCyl.get(hEdge);
       const nextCyl = edgeToCyl.get(next);
 
       connectCylinder(cyl, nextCyl);

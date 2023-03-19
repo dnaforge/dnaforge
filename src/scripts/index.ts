@@ -21,5 +21,5 @@ $.ready(function () {
 
 window.onload = function () {
   if (!process.env.PRODUCTION) dev(context);
-  console.log(`DNA Forge v. ${process.env.__VERSION__}`);
+  console.log(`DNA Forge v${process.env.__VERSION__}`);
 };

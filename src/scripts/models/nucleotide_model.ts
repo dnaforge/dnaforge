@@ -11,6 +11,13 @@ import { CylinderModel, Cylinder } from './cylinder_model';
 
 let UID = 0;
 
+interface NucleotideMeshes {
+  [key: string]: InstancedMesh;
+  bases: InstancedMesh;
+  nucleotides: InstancedMesh;
+  backbone: InstancedMesh;
+}
+
 const nucleotideColours: Record<string, THREE.Color> = {
   A: new THREE.Color(0x0000ff),
   U: new THREE.Color(0xff0000),
@@ -69,6 +76,9 @@ const nucleotideGeometry = (nucParams: Record<string, any>) => {
   return mergedGeometry;
 };
 
+/**
+ * An individual nucleotide.
+ */
 class Nucleotide {
   instanceId: number;
   instanceMeshes: Record<string, THREE.InstancedMesh>;
@@ -85,6 +95,7 @@ class Nucleotide {
   isScaffold = false;
   isPseudo = false;
 
+  parent: Strand;
   prev: Nucleotide;
   next: Nucleotide;
   pair: Nucleotide;
@@ -95,6 +106,14 @@ class Nucleotide {
   hydrogenFaceDir: Vector3;
   baseNormal: Vector3;
 
+  /**
+   * Constructs a nucleotide at the origin, along a helical axis pointing towards Z-axis,
+   * with the backbone center of mass pointing towrads Y-axis.
+   *
+   * @param scale
+   * @param naType DNA | RNA
+   * @param base IUPAC code
+   */
   constructor(scale = 1, naType = 'DNA', base = 'N') {
     this.id = UID++;
     this.base = base;
@@ -102,37 +121,27 @@ class Nucleotide {
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
 
-    this.setTransformMatrix(new Matrix4());
+    this.setTransform(new Matrix4());
   }
 
-  setTransformMatrix(m: Matrix4) {
+  setTransform(m: Matrix4) {
     this.transform = m.clone();
     this.setNucleotideVectors();
   }
 
-  setTransformFromBasis(
-    helix_center: Vector3,
-    helix_dir: Vector3,
-    base_dir: Vector3
-  ) {
-    const normal2 = helix_dir.clone().cross(base_dir).multiplyScalar(-1);
-    const matrix = new Matrix4().makeBasis(normal2, base_dir, helix_dir);
-    matrix.setPosition(helix_center);
-    const scaleMatrix = new Matrix4().makeScale(
-      this.scale,
-      this.scale,
-      this.scale
-    );
-    matrix.multiply(scaleMatrix);
-    this.setTransformMatrix(matrix);
-  }
-
+  /**
+   * Connects the nucleotide following this one to the one preceding this one and vice versa.
+   * Does not delete the nucleotide elsehwere.
+   */
   delete() {
-    this.next.prev = this.prev;
-    this.prev.next = this.next;
+    if (this.next) this.next.prev = this.prev;
+    if (this.prev) this.prev.next = this.next;
     if (this.pair) this.pair.pair = null;
   }
 
+  /**
+   * Sets the backbone center, base normal etc. based onteh current transformation.
+   */
   setNucleotideVectors() {
     this.backboneCenter = this.nucParams.BACKBONE_CENTER.clone().applyMatrix4(
       this.transform
@@ -149,13 +158,22 @@ class Nucleotide {
       .normalize();
   }
 
-  setObjectInstance(index: number, meshes: Record<string, InstancedMesh>) {
+  /**
+   * Set the object instance transformation matrices and colours
+   *
+   * @param index
+   * @param meshes
+   */
+  setObjectInstance(index: number, meshes: NucleotideMeshes) {
     this.instanceId = index;
     this.instanceMeshes = meshes;
     this.setObjectMatrices();
     this.setObjectColours();
   }
 
+  /**
+   * Set the object instance transformation matrices
+   */
   setObjectMatrices() {
     this.instanceMeshes.bases.setMatrixAt(this.instanceId, this.transform);
     this.instanceMeshes.nucleotides.setMatrixAt(
@@ -176,6 +194,9 @@ class Nucleotide {
     this.instanceMeshes.backbone.setMatrixAt(this.instanceId, bbTransform);
   }
 
+  /**
+   * Set the object instance colours.
+   */
   setObjectColours() {
     let colours;
     if (this.hover)
@@ -204,11 +225,21 @@ class Nucleotide {
       this.instanceMeshes[m].instanceColor.needsUpdate = true;
   }
 
+  /**
+   * Marks this nucleotide as being hovered over.
+   *
+   * @param val
+   */
   setHover(val: boolean) {
     this.hover = val;
     this.setObjectColours();
   }
 
+  /**
+   * Marks this nucleotide as selected.
+   *
+   * @param val
+   */
   setSelect(val: boolean) {
     this.select = val;
     this.setObjectColours();
@@ -218,6 +249,11 @@ class Nucleotide {
     return this.select;
   }
 
+  /**
+   * Returns a JSON dictionary of this nucleotide according to the UNF specification.
+   *
+   * @returns JSON dictionary
+   */
   toJSON() {
     const backboneCenter = this.backboneCenter
       .clone()
@@ -264,7 +300,14 @@ class Nucleotide {
     return t;
   }
 
-  linkNucleotides(other: Nucleotide, N: number) {
+  /**
+   * Link this nucleotide to another with N linker nucleotides.
+   *
+   * @param other
+   * @param N
+   * @returns the generated nucleotides
+   */
+  linkNucleotides(other: Nucleotide, N: number): Nucleotide[] {
     const scale = new Vector3();
     const p1 = new Vector3();
     const q1 = new Quaternion();
@@ -288,7 +331,7 @@ class Nucleotide {
       const nt = new Nucleotide(this.scale, this.naType);
       nt.isLinker = true;
       if (this.isScaffold) nt.isScaffold = true;
-      nt.setTransformMatrix(transform);
+      nt.setTransform(transform);
       linkers.push(nt);
       if (i > 0) {
         linkers[i - 1].next = linkers[i];
@@ -305,6 +348,9 @@ class Nucleotide {
   }
 }
 
+/**
+ * A class represeting a strand. Contains nucleotides.
+ */
 class Strand {
   id: number;
   nucleotides: Nucleotide[] = [];
@@ -318,6 +364,12 @@ class Strand {
   isLinker = false;
   isPseudo = false;
 
+  /**
+   *
+   * @param scale
+   * @param isScaffold
+   * @param naType DNA | RNA
+   */
   constructor(scale = 1, isScaffold = false, naType = 'DNA') {
     this.scale = scale;
     this.isScaffold = isScaffold;
@@ -327,21 +379,18 @@ class Strand {
     this.nucParams = naType == 'DNA' ? DNA : RNA;
   }
 
-  generateNucleotides(
-    N: number,
-    start_point: Vector3,
-    dir: Vector3,
-    normal: Vector3
-  ) {
-    for (let i = 0; i < N; i++) {
-      const pos = start_point
-        .clone()
-        .add(dir.clone().multiplyScalar(i * this.nucParams.RISE * this.scale));
-      const nor = normal.clone().applyAxisAngle(dir, i * this.nucParams.TWIST);
+  /**
+   * Generates a new nucleotide for each transformation matrix provided.
+   *
+   * @param matrices transformation matrices
+   */
+  generateNucleotides(...matrices: Matrix4[]) {
+    for (let i = 0; i < matrices.length; i++) {
       const nuc = new Nucleotide(this.scale, this.naType);
       nuc.isLinker = this.isLinker;
       nuc.isScaffold = this.isScaffold;
-      nuc.setTransformFromBasis(pos, dir, nor);
+
+      nuc.setTransform(matrices[i]);
 
       if (i > 0) {
         nuc.prev = this.nucleotides[i - 1];
@@ -350,9 +399,14 @@ class Strand {
 
       this.nucleotides.push(nuc);
     }
-    return N;
   }
 
+  /**
+   * Add base pairs between every nucleotide of this strand
+   * and every nucleotide of another strand.
+   *
+   * @param strand2
+   */
   addBasePairs(strand2: Strand) {
     const length = this.nucleotides.length;
     for (let i = 0; i < length; i++) {
@@ -363,16 +417,22 @@ class Strand {
     strand2.pair = this;
   }
 
-  getObject() {
-    // Unimplemented. Doing this only on nucleotide model level because of instancing
-  }
-
+  /**
+   * Adds given nucleotides to this strand.
+   *
+   * @param n nucleotides
+   */
   addNucleotides(...n: Nucleotide[]) {
     for (let i = 0; i < n.length; i++) {
       this.nucleotides.push(n[i]);
     }
   }
 
+  /**
+   * Delete the given nucleotides from this strand.
+   *
+   * @param n
+   */
   deleteNucleotides(...n: Nucleotide[]) {
     for (let i = 0; i < n.length; i++) {
       this.nucleotides.splice(this.nucleotides.indexOf(n[i]), 1);
@@ -380,7 +440,15 @@ class Strand {
     }
   }
 
-  linkStrand(next: Strand, min = 3, max = 3) {
+  /**
+   * Links the 3' of this strand to the 5' of another strand.
+   *
+   * @param next the other strand
+   * @param min minimum number of linkers
+   * @param max maximum number of linkers
+   * @returns returns the generated strand or nothing
+   */
+  linkStrand(next: Strand, min = 3, max = 3): Strand | undefined {
     const n1 = this.nucleotides[this.nucleotides.length - 1];
     const n2 = next.nucleotides[0];
 
@@ -402,6 +470,11 @@ class Strand {
     return s;
   }
 
+  /**
+   * Returns a JSON dictionary of this strand according to the UNF specification
+   *
+   * @returns JSON dictionary
+   */
   toJSON() {
     const length = this.nucleotides.length;
     const nucleotidesJSON = [];
@@ -430,6 +503,9 @@ class Strand {
   }
 }
 
+/**
+ * Nucleotide model. Contains strands. Strands contain nucleotides.
+ */
 class NucleotideModel {
   cylToStrands = new Map<Cylinder, [Strand, Strand]>(); // associates each cylinder to two strands
 
@@ -439,8 +515,13 @@ class NucleotideModel {
   nucParams: Record<string, any>;
 
   obj: THREE.Object3D;
-  meshes: Record<string, InstancedMesh>;
+  meshes: NucleotideMeshes;
 
+  /**
+   *
+   * @param scale
+   * @param naType DNA | RNA
+   */
   constructor(scale: number, naType = 'DNA') {
     this.strands = [];
     this.scale = scale;
@@ -448,10 +529,20 @@ class NucleotideModel {
     this.nucParams = naType == 'DNA' ? DNA : RNA;
   }
 
+  /**
+   * Adds the given strand to this model.
+   *
+   * @param strand
+   */
   addStrand(strand: Strand) {
     this.strands.push(strand);
   }
 
+  /**
+   * Returns the total length of this nucleotide model in nucleotides.
+   *
+   * @returns
+   */
   length() {
     let i = 0;
     for (const s of this.strands) {
@@ -463,7 +554,7 @@ class NucleotideModel {
   /** Compiles a nucleotide model from a cylinder model where
    * each cylinder corresponds to a double helix.
    *
-   * @param cm
+   * @param cm cylinder model
    * @param minLinkers
    * @param maxLinkers
    * @param hasScaffold
@@ -484,6 +575,12 @@ class NucleotideModel {
     return nm;
   }
 
+  /**
+   * Creates doouble helices for every cylinder in the cylinder model
+   *
+   * @param cm
+   * @param hasScaffold Marks the first strand of each cylinder as scaffold
+   */
   createStrands(cm: CylinderModel, hasScaffold: boolean) {
     for (let i = 0; i < cm.cylinders.length; i++) {
       const cyl = cm.cylinders[i];
@@ -499,14 +596,22 @@ class NucleotideModel {
         strand2.isPseudo = true;
       }
 
-      strand1.generateNucleotides(...cyl.getStrand1Coords());
-      strand2.generateNucleotides(...cyl.getStrand2Coords());
+      strand1.generateNucleotides(...cyl.getStrand1Matrices());
+      strand2.generateNucleotides(...cyl.getStrand2Matrices());
 
       // base pairs
       strand1.addBasePairs(strand2);
     }
   }
 
+  /**
+   * Links all the strand according to the neighbourhood connections in the
+   * cylinder model.
+   *
+   * @param cm
+   * @param minLinkers
+   * @param maxLinkers
+   */
   linkStrands(cm: CylinderModel, minLinkers: number, maxLinkers: number) {
     const cyls = cm.getCylinders();
     for (let i = 0; i < cyls.length; i++) {
@@ -540,7 +645,8 @@ class NucleotideModel {
   }
 
   /**
-   * Concatenates backbone-connected strands to single continuous strands
+   * Concatenates the backbone-connected strands of this mdodel to
+   * single continuous strands
    */
   concatenateStrands() {
     const newStrands = [];
@@ -572,8 +678,11 @@ class NucleotideModel {
     this.strands = newStrands;
   }
 
+  /**
+   * Resets all the ID's of the strands and nucleotides contained in this model so
+   * that they start from 0.
+   */
   setIDs() {
-    // UNF needs ID's to be somewhat specific for some reason
     let i = 0;
     let j = 0;
     for (const s of this.strands) {
@@ -586,6 +695,11 @@ class NucleotideModel {
     }
   }
 
+  /**
+   * Returns a JSON dictionary of this nucleotide model according to the UNF specification.
+   *
+   * @returns JSON dictionary
+   */
   toJSON() {
     const length = this.strands.length;
     const strandsJSON = [];
@@ -634,6 +748,14 @@ class NucleotideModel {
     return t;
   }
 
+  /**
+   * Tries to add strand gaps in the strands of this nucleotide model so that
+   * two strand overlap by at least minLength and so that no strand is longer
+   * than maxLength
+   *
+   * @param minLength minimum overlap
+   * @param maxLength maximum length
+   */
   addNicks(minLength: number, maxLength: number) {
     const shortStrands = []; // strands that allow for only one nick
     const visited = new Set<Strand>();
@@ -707,6 +829,11 @@ class NucleotideModel {
     }
   }
 
+  /**
+   * Returns a list of all nucleotides in this model.
+   *
+   * @returns
+   */
   getNucleotides() {
     const nucs = [];
     for (const s of this.strands) {
@@ -717,6 +844,11 @@ class NucleotideModel {
     return nucs;
   }
 
+  /**
+   * Return the scaffold strand of this model, if any. There should only be one scaffold.
+   *
+   * @returns
+   */
   getScaffold(): Strand {
     for (let s of this.strands) {
       if (s.isScaffold) {
@@ -725,6 +857,13 @@ class NucleotideModel {
     }
   }
 
+  /**
+   * Set the primary structure to the given one. The primary structure
+   * should be given in the same order as the nucleotides as returned
+   * by getNucleotides.
+   *
+   * @param str
+   */
   setPrimary(str: string | string[]) {
     const nucleotides = this.getNucleotides();
     if (nucleotides.length != str.length)
@@ -737,8 +876,12 @@ class NucleotideModel {
     this.updateObject();
   }
 
-  setPrimaryFromScaffold(scaffold: string) {}
-
+  /**
+   * Returns the 3d object associated with this model. Creates it if it does
+   * not already exist.
+   *
+   * @returns
+   */
   getObject() {
     if (!this.obj) {
       this.generateObject();
@@ -746,6 +889,9 @@ class NucleotideModel {
     return this.obj;
   }
 
+  /**
+   * Generates the 3d object associated with this model.
+   */
   generateObject() {
     const count = this.length();
     const meshBases = new THREE.InstancedMesh(
@@ -787,6 +933,11 @@ class NucleotideModel {
     this.setupEventListeners(meshes, instaceToNuc);
   }
 
+  /**
+   *
+   * @param meshes
+   * @param instaceToNuc
+   */
   setupEventListeners(
     meshes: Record<string, InstancedMesh>,
     instaceToNuc: Record<number, Nucleotide>
@@ -847,6 +998,10 @@ class NucleotideModel {
     }
   }
 
+  /**
+   * Update all the transformation matrices and object colours of all objects
+   * associated with this model.
+   */
   updateObject() {
     if (!this.obj) this.getObject();
     for (const s of this.strands) {
@@ -856,12 +1011,22 @@ class NucleotideModel {
     }
   }
 
+  /**
+   * Deletes all the meshes associated with this model.
+   */
   dispose() {
     for (const k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
     delete this.obj;
   }
 
-  getSelection(target: Nucleotide) {
+  /**
+   * Returns a set of nucleotides according to the selection mode, when the first
+   * selection is the given target nucleotide.
+   *
+   * @param target
+   * @returns
+   */
+  getSelection(target: Nucleotide): Nucleotide[] {
     const selectionMode = GLOBALS.selectionMode;
     let nucs = [target];
     if (selectionMode == 'none') nucs = [];
@@ -902,24 +1067,43 @@ class NucleotideModel {
     return nucs;
   }
 
+  /**
+   * Toggles select of target nucleotide and all its neighbours according to the
+   * selection mode.
+   *
+   * @param target
+   */
   toggleSelect(target: Nucleotide) {
     for (const n of this.getSelection(target)) {
       n.setSelect(!n.isSelected());
     }
   }
 
+  /**
+   * Sets the hover of target nucleotide and all its neighbours according to the
+   * selection mode.
+   *
+   * @param target
+   * @param val
+   */
   setHover(target: Nucleotide, val: boolean) {
     for (const n of this.getSelection(target)) {
       n.setHover(val);
     }
   }
 
+  /**
+   * Marks all nucleotides as selected.
+   */
   selectAll() {
     for (const s of this.strands) {
       for (const n of s.nucleotides) n.setSelect(true);
     }
   }
 
+  /**
+   * Unmarks all nucleotides as selected.
+   */
   deselectAll() {
     for (const s of this.strands) {
       for (const n of s.nucleotides) n.setSelect(false);

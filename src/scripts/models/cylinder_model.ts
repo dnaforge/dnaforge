@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
-import { Matrix4 } from 'three';
+import { InstancedMesh, Matrix4, Object3D } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
@@ -11,6 +11,18 @@ const cylinderColour = new THREE.Color(0xffffff);
 const primeColour = new THREE.Color(0xff9999);
 const linkerColour = new THREE.Color(0xff9999);
 
+interface CylinderMeshes {
+  [key: string]: InstancedMesh;
+  main: InstancedMesh;
+  prime: InstancedMesh;
+  linker: InstancedMesh;
+}
+
+/**
+ * An individual cylinder. Used to create strands and orient them. Note that a
+ * cylinder with an identity transformation matrix is considered to have its base
+ * at the origin and the end one unit along the Z-vector.
+ */
 class Cylinder {
   scale: number;
   naType: string;
@@ -20,8 +32,10 @@ class Cylinder {
   nor1: Vector3; // direction of the first base of the first strand
   nor2: Vector3; // orientation normal vector
 
+  transform: Matrix4;
+
   length: number; // length in nucleotides
-  p1: Vector3; // start point
+  p1: Vector3; // start point. This should always correspond to the 5' projected onto the axis of the cylinder
   p2: Vector3; // end point
 
   neighbours: Record<string, [Cylinder, string]> = {
@@ -37,6 +51,14 @@ class Cylinder {
 
   pair: Cylinder; // In case the same vertex pair has two cylinders
 
+  /**
+   *
+   * @param startP Start point
+   * @param dir  Direction
+   * @param length Length in nucleotides
+   * @param scale
+   * @param naType DNA | RNA
+   */
   constructor(
     startP: Vector3,
     dir: Vector3,
@@ -61,36 +83,90 @@ class Cylinder {
     this.p1 = startP.clone();
     this.p2 = this.p1
       .clone()
+      .add(this.dir.clone().multiplyScalar(this.getLength()));
+    this.calculateTransformMatrix();
+  }
+
+  /**
+   *
+   * @returns The length of one strand of the double helix in nanometers
+   */
+  getLength() {
+    return (this.length - 1) * this.nucParams.RISE * this.scale;
+  }
+
+  /**
+   *
+   * @returns The length of the entire cylinder in nanometers
+   */
+  getCylinderLength() {
+    return (
+      ((this.length - 1) * this.nucParams.RISE -
+        (this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION) *
+      this.scale
+    );
+  }
+
+  /**
+   * Calculates the transformation matrix such that it transforms a cylinder starting from the origin
+   * and pointing towards the z-axis.
+   */
+  calculateTransformMatrix() {
+    const p1 = this.p1
+      .clone()
       .add(
         this.dir
           .clone()
           .multiplyScalar(
-            ((this.length - 1) * this.nucParams.RISE +
-              this.nucParams.INCLINATION) *
+            (this.nucParams.INCLINATION < 0 ? 1 : 0) *
+              this.nucParams.INCLINATION *
               this.scale
           )
       );
+    const transform = new Matrix4()
+      .makeBasis(this.nor1, this.nor2, this.dir)
+      .scale(new Vector3(this.scale, this.scale, this.scale))
+      .setPosition(p1);
+    this.transform = transform;
   }
 
+  /**
+   * Rotates the cylinder along the given axis.
+   *
+   * @param axis
+   * @param angle
+   */
   rotate(axis: Vector3, angle: number) {
     const normAxis = axis.clone().normalize();
 
     this.dir.applyAxisAngle(normAxis, angle);
     this.nor1.applyAxisAngle(normAxis, angle);
     this.nor2.applyAxisAngle(normAxis, angle);
+    this.calculateTransformMatrix();
   }
 
+  /**
+   * Orient the cylinder so that the first base of the first strand points towards dir
+   *
+   * @param dir
+   */
   setOrientation(dir: Vector3) {
-    // orient the cylinder so that the first base of the first strand points towards dir
     this.nor1 = dir.clone().normalize();
     this.nor2 = this.dir.clone().cross(this.nor1).normalize();
+    this.calculateTransformMatrix();
   }
 
   //TODO:
   translate() {
     console.log('unimplemented');
+    this.calculateTransformMatrix();
   }
 
+  /**
+   *
+   * @param str
+   * @returns
+   */
   getPrimeDir(str: string): Vector3 {
     const primePos = this.getPrimePosition(str).clone();
     switch (str) {
@@ -111,81 +187,126 @@ class Cylinder {
     }
   }
 
-  getPrimePosition(str: string): Vector3 {
-    const p1 = this.p1.clone();
-    const p2 = this.p2.clone();
-    const rise = this.dir
-      .clone()
-      .multiplyScalar((this.length - 1) * this.nucParams.RISE * this.scale);
+  /**
+   * Returns the prime position of the untransformed cylinder
+   *
+   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @returns
+   */
+  private _getPrimePosition(str: string): Vector3 {
+    const nor5P1 = this.nucParams.BACKBONE_CENTER.clone();
     const twist = (this.length - 1) * this.nucParams.TWIST;
+    const rise2 = new Vector3(0, 0, (this.length - 1) * this.nucParams.RISE);
+    const inclination = new Vector3(0, 0, this.nucParams.INCLINATION);
+
+    if (this.nucParams.INCLINATION < 0) {
+      // subtracting the inclination when the pair of the 5-prime is actually behind the 5-prime.
+      // otherwise it'd be outside the cylinder
+      nor5P1.sub(inclination);
+    }
+
     switch (str) {
       case 'first5Prime':
-        const nor5P1 = this.nor1.clone();
-        return p1.add(
-          nor5P1.multiplyScalar(this.scale * this.nucParams.RADIUS_BB_CENTER)
-        );
+        return nor5P1;
 
       case 'first3Prime':
-        const nor3P1 = this.nor1.clone().applyAxisAngle(this.dir, twist);
-        return p1
-          .add(rise)
-          .add(
-            nor3P1.multiplyScalar(this.scale * this.nucParams.RADIUS_BB_CENTER)
-          );
+        const nor3P1 = nor5P1
+          .applyAxisAngle(new Vector3(0, 0, 1), twist)
+          .add(rise2);
+        return nor3P1;
 
       case 'second5Prime':
-        const nor5P2 = this.nor1
-          .clone()
-          .applyAxisAngle(this.dir, twist + this.nucParams.AXIS);
-        return p2.add(
-          nor5P2.multiplyScalar(this.scale * this.nucParams.RADIUS_BB_CENTER)
-        );
+        const nor5P2 = nor5P1
+          .applyAxisAngle(new Vector3(0, 0, 1), twist + this.nucParams.AXIS)
+          .add(rise2)
+          .add(inclination);
+        return nor5P2;
 
       case 'second3Prime':
-        const nor3P2 = this.nor1
-          .clone()
-          .applyAxisAngle(this.dir, this.nucParams.AXIS);
-        return p2
-          .sub(rise)
-          .add(
-            nor3P2.multiplyScalar(this.scale * this.nucParams.RADIUS_BB_CENTER)
-          );
+        const nor3P2 = nor5P1
+          .applyAxisAngle(new Vector3(0, 0, 1), this.nucParams.AXIS)
+          .add(inclination);
+        return nor3P2;
 
       default:
         console.error('Invalid cylinder socket identifier: ', str);
     }
   }
 
+  /**
+   * Returns the prime position of the cylinder
+   *
+   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @returns
+   */
+  getPrimePosition(str: string): Vector3 {
+    return this._getPrimePosition(str).applyMatrix4(this.transform);
+  }
+
+  /**
+   * Returns the position of a cylinder's prime paired with this cylinder at prime
+   *
+   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @returns
+   */
   getPairPrimePosition(str: string): Vector3 {
     if (!this.neighbours[str]) return;
     const [cyl, prime] = this.neighbours[str];
     return cyl.getPrimePosition(prime);
   }
 
-  getStrand1Coords(): [number, Vector3, Vector3, Vector3] {
-    const N = this.length;
-    const startP = this.p1;
-    const startNormal = this.nor1.clone().multiplyScalar(-1);
-    const dir = this.dir;
+  /**
+   * Returns a generator for transformation matrices for the first strand of this cylinder,
+   * starting at the first 5'.
+   */
+  *getStrand1Matrices(): IterableIterator<Matrix4> {
+    const inclination =
+      (this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION;
+    for (let i = 0; i < this.length; i++) {
+      const rotation = this.nucParams.TWIST * i;
+      const rise = this.nucParams.RISE * i + inclination;
 
-    return [N, startP, dir, startNormal];
+      const rotHelix = new Matrix4().makeRotationZ(rotation);
+      const transform = new Matrix4()
+        .makeTranslation(0, 0, rise)
+        .multiply(rotHelix);
+
+      yield transform.premultiply(this.transform);
+    }
   }
 
-  getStrand2Coords(): [number, Vector3, Vector3, Vector3] {
-    const N = this.length;
-    const startP = this.p2;
-    const startNormal = this.nor1
-      .clone()
-      .multiplyScalar(-1)
-      .applyAxisAngle(
-        this.dir,
-        (N - 1) * this.nucParams.TWIST + this.nucParams.AXIS
-      );
-    const dir = this.dir.clone().multiplyScalar(-1);
+  /**
+   * Returns a generator for transformation matrices for the second strand of this cylinder,
+   * starting at the second 5'.
+   */
+  *getStrand2Matrices(): IterableIterator<Matrix4> {
+    const rotCyl = new Matrix4().makeRotationX(Math.PI);
+    const inclination =
+      (this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION;
+    for (let i = 1; i < this.length + 1; i++) {
+      const rotation =
+        this.nucParams.TWIST * (this.length - i) +
+        this.nucParams.AXIS +
+        Math.PI;
+      const rise =
+        this.nucParams.RISE * (this.length - i) +
+        this.nucParams.INCLINATION +
+        inclination;
 
-    return [N, startP, dir, startNormal];
+      const rotHelix = new Matrix4().makeRotationZ(rotation).multiply(rotCyl);
+      const transform = new Matrix4()
+        .makeTranslation(0, 0, rise)
+        .multiply(rotHelix);
+
+      yield transform.premultiply(this.transform);
+    }
   }
 
+  /**
+   * Returns a list pairs of primes, one for each prime that is connected to another cylinder
+   *
+   * @returns
+   */
   getPrimePairs(): [Vector3, Vector3][] {
     const pairs: [Vector3, Vector3][] = [];
     for (const str of _.keys(this.neighbours)) {
@@ -196,23 +317,16 @@ class Cylinder {
     return pairs;
   }
 
-  setObjectInstance(
-    index: number,
-    meshes: Record<string, THREE.InstancedMesh>
-  ) {
-    const transform = new Matrix4()
-      .makeBasis(this.nor2, this.dir, this.nor1)
-      .scale(new Vector3(this.scale, this.scale, this.scale));
-
-    const center = this.p1.clone().add(this.p2).multiplyScalar(0.5);
-    let cylLength = this.p2.clone().sub(this.p1).length() / this.scale;
-    if (this.nucParams.INCLINATION < 0)
-      cylLength -= 2 * this.nucParams.INCLINATION;
-
-    const transformMain = transform
+  /**
+   * Sets the istanced mesh transformation matrices and colours.
+   *
+   * @param index
+   * @param meshes
+   */
+  setObjectInstance(index: number, meshes: CylinderMeshes) {
+    const transformMain = this.transform
       .clone()
-      .setPosition(center)
-      .scale(new Vector3(1, cylLength, 1));
+      .scale(new Vector3(1, 1, this.getCylinderLength() / this.scale));
     meshes.main.setMatrixAt(index, transformMain);
     meshes.main.setColorAt(index, cylinderColour); // this needs to be here or prime and linker won't get coloured for some mysterious reason
 
@@ -221,7 +335,7 @@ class Cylinder {
     for (let i = 0; i < 4; i++) {
       const [p1, p2] = primePairs[i];
 
-      const transformPrime = transform.clone().setPosition(p1);
+      const transformPrime = this.transform.clone().setPosition(p1);
       if (p1 && p2) {
         const length = p2.clone().sub(p1).length();
         transformLinker = get2PointTransform(p1, p2).scale(
@@ -246,8 +360,13 @@ class CylinderModel {
   nucParams: Record<string, any>;
 
   obj: THREE.Object3D;
-  meshes: Record<string, THREE.InstancedMesh>;
+  meshes: CylinderMeshes;
 
+  /**
+   *
+   * @param scale
+   * @param naType DNA | RNA
+   */
   constructor(scale = 1, naType = 'DNA') {
     this.scale = scale;
     this.naType = naType;
@@ -259,6 +378,13 @@ class CylinderModel {
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
   }
 
+  /**
+   *
+   * @param p1 starting point
+   * @param dir direction
+   * @param length_bp length in bases
+   * @returns the added cylinder
+   */
   addCylinder(p1: Vector3, dir: Vector3, length_bp: number) {
     const c = new Cylinder(p1, dir, length_bp, this.scale, this.naType);
     this.cylinders.push(c);
@@ -269,7 +395,15 @@ class CylinderModel {
     return this.cylinders;
   }
 
-  getVertexOffset(v1: Vertex, v2: Vertex) {
+  /**
+   * Calculates how much is needed to cut off from a cylinder at vertex 1 so that
+   * it does not overlap with any other cylinders at that vertex
+   *
+   * @param v1 vertex 1
+   * @param v2 vertex 2
+   * @returns offset
+   */
+  getVertexOffset(v1: Vertex, v2: Vertex): Vector3 {
     const neighbours = v1.getNeighbours();
     const dir = v2.coords.clone().sub(v1.coords).normalize();
 
@@ -288,7 +422,13 @@ class CylinderModel {
     return offset;
   }
 
-  getObject() {
+  /**
+   * Returns the 3d object assocaited with this cylinder model. Generates it if it
+   * does not already exist.
+   *
+   * @returns
+   */
+  getObject(): Object3D {
     if (!this.obj) {
       this.generateMesh();
       this.updateObject();
@@ -296,6 +436,9 @@ class CylinderModel {
     return this.obj;
   }
 
+  /**
+   * Generates the 3d object and its meshes.
+   */
   generateMesh() {
     const cylindersMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
 
@@ -305,6 +448,8 @@ class CylinderModel {
       1,
       8
     );
+    cylinderMain.rotateX(Math.PI / 2);
+    cylinderMain.translate(0, 0, 0.5);
     const cylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
     const linker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
@@ -335,6 +480,10 @@ class CylinderModel {
     this.obj = group;
   }
 
+  /**
+   * Updates all the matrices and instance colours of each object associated with
+   * this cylinder model.
+   */
   updateObject() {
     if (!this.obj) this.generateMesh();
     for (let i = 0; i < this.cylinders.length; i++) {
@@ -347,6 +496,9 @@ class CylinderModel {
     }
   }
 
+  /**
+   * Deletes all the objects associated with this cylinder model.
+   */
   dispose() {
     for (const k of _.keys(this.meshes)) {
       const mesh = this.meshes[k];
@@ -355,6 +507,13 @@ class CylinderModel {
     }
   }
 
+  /**
+   * Tries to relax the cylinder model by rotating the individual cylinder so that
+   * the linker strand lengths are minimised.
+   *
+   * @param iterations
+   * @returns
+   */
   async relax(iterations = 1000) {
     // rotations
     for (let i = 0; i < iterations; i++) {
@@ -376,6 +535,12 @@ class CylinderModel {
     return;
   }
 
+  /**
+   * Calculates the torques experienced by each cylinder due to their connections
+   * to neighbouring cylinders.
+   *
+   * @returns the total torque
+   */
   calculateTorques() {
     let sum = 0;
     for (const cyl of this.cylinders) {
@@ -415,6 +580,11 @@ class CylinderModel {
     return sum;
   }
 
+  /**
+   * Calculates a score for how relaxed the current conformation of cylindres is.
+   *
+   * @returns score
+   */
   calculateRelaxScore() {
     return this.calculateTorques();
   }

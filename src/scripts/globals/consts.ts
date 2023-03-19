@@ -27,7 +27,7 @@ const RNA: Record<string, number | Vector3> = {
   INCLINATION: -0.781,
 
   BB_DIST: 1,
-  RADIUS_BB_CENTER: 0.87,
+  RADIUS_BB_CENTER: 0.95,
 
   BACKBONE_CENTER: new Vector3(0, -0.95, 0),
   NUCLEOBASE_CENTER: new Vector3(0.3585695, -0.45913134, -0.3462709957078099),
