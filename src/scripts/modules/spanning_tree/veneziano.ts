@@ -5,6 +5,7 @@ import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
 import { MenuParameters } from '../../scene/menu';
+import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -235,9 +236,13 @@ function wiresToCylinders(veneziano: Veneziano, params: MenuParameters) {
   return cm;
 }
 
+function generatePrimary(scaffoldName: string) {
+  return '';
+}
+
 function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   const scale = cm.scale;
-  const scaffoldName = params.scaffold;
+  const scaffold = params.scaffoldName;
 
   const nm = new NucleotideModel(scale);
 
@@ -245,13 +250,17 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
 
   const visited = new Set<Cylinder>();
   for (const cyl of cm.cylinders) {
-    const scaffold_next = cyl.neighbours['first3Prime'][0].strand1;
-    const staple_next = cyl.neighbours['second3Prime'][0].strand2;
+    const scaffold_next = nm.cylToStrands.get(
+      cyl.neighbours['first3Prime'][0]
+    )[0];
+    const staple_next = nm.cylToStrands.get(
+      cyl.neighbours['second3Prime'][0]
+    )[1];
 
-    const scaffold_cur = cyl.strand1;
-    const scaffold_pair = cyl.pair.strand1;
-    const staple_cur = cyl.strand2;
-    const staple_pair = cyl.pair.strand2;
+    const scaffold_cur = nm.cylToStrands.get(cyl)[0];
+    const scaffold_pair = nm.cylToStrands.get(cyl.pair)[0];
+    const staple_cur = nm.cylToStrands.get(cyl)[1];
+    const staple_pair = nm.cylToStrands.get(cyl.pair)[1];
 
     nm.addStrand(scaffold_cur.linkStrand(scaffold_next, 5, 5));
     nm.addStrand(staple_cur.linkStrand(staple_next, 5, 5));
@@ -320,11 +329,17 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
     }
   }
 
-  nm.connectStrands();
+  nm.concatenateStrands();
   nm.setIDs();
-  nm.generatePrimaryFromScaffold(scaffoldName);
+  setPrimaryFromScaffold(nm, params);
 
   return nm;
 }
 
-export { Veneziano, graphToWires, wiresToCylinders, cylindersToNucleotides };
+export {
+  Veneziano,
+  graphToWires,
+  wiresToCylinders,
+  cylindersToNucleotides,
+  generatePrimary,
+};

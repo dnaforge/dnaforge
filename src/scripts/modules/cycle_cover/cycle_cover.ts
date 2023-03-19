@@ -300,7 +300,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
 
   if (addNicks) {
     nm.addNicks(minLength, maxLength);
-    nm.connectStrands();
+    nm.concatenateStrands();
 
     for (const s of nm.strands) {
       const nucs = s.nucleotides;
@@ -312,7 +312,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
       }
     }
   } else {
-    nm.connectStrands();
+    nm.concatenateStrands();
   }
   return nm;
 }

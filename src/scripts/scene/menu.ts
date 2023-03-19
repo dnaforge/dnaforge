@@ -1,16 +1,18 @@
 import { Context } from './context';
 
-type MenuParameters = {
+interface MenuParameters {
+  naType?: 'DNA' | 'RNA';
   scale?: number;
   minLinkers?: number;
   maxLinkers?: number;
+  linkerOptions?: string;
   minStrandLength?: number;
   maxStrandLength?: number;
   gcContent?: number;
   addNicks?: boolean;
-  scaffold?: string;
-  [name: string]: number | boolean | string;
-};
+  scaffoldName?: string;
+  customScaffold?: string;
+}
 
 export { MenuParameters };
 

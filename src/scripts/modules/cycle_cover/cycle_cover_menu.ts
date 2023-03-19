@@ -12,6 +12,7 @@ import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { MenuParameters } from '../../scene/menu';
+import { setRandomPrimary } from '../../utils/primary_utils';
 
 export class CycleCoverMenu extends ModuleMenu {
   scaleInput: any;
@@ -26,6 +27,7 @@ export class CycleCoverMenu extends ModuleMenu {
 
   constructor(context: Context) {
     super(context, html);
+    this.params.naType = 'DNA';
   }
 
   graphToWires(graph: Graph, params: MenuParameters) {
@@ -47,7 +49,7 @@ export class CycleCoverMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    this.nm.generatePrimaryRandom(<number>this.params.gcContent);
+    setRandomPrimary(this.nm, this.params.gcContent, 'DNA');
   }
 
   downloadCycleCover() {

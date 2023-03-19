@@ -12,15 +12,19 @@ import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { MenuParameters } from '../../scene/menu';
+import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
 export class SpanningTreeMenu extends ModuleMenu {
   scaleInput: any;
   addNicksSwitch: any;
   venezianoScaffold: any;
   downloadButton: any;
+  gcContentInput: any;
 
   constructor(context: Context) {
     super(context, html);
+    this.params.naType = 'DNA';
+    this.params.linkerOptions = 'T';
   }
 
   graphToWires(graph: Graph, params: MenuParameters) {
@@ -45,7 +49,7 @@ export class SpanningTreeMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    this.nm.generatePrimaryFromScaffold(<string>this.params.scaffoldName);
+    setPrimaryFromScaffold(this.nm, this.params);
   }
 
   downloadVeneziano() {
@@ -55,6 +59,11 @@ export class SpanningTreeMenu extends ModuleMenu {
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
+  }
+
+  setCustomScaffold(scaffold: string) {
+    this.params.scaffoldName = 'custom';
+    this.params.customScaffold = scaffold;
   }
 
   regenerateVisible() {
@@ -72,7 +81,8 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.params.scale = 1 / parseFloat(this.scaleInput[0].value);
 
     this.params.addNicks = this.addNicksSwitch[0].checked;
-    this.params.scaffold = this.venezianoScaffold[0].value;
+    this.params.scaffoldName = this.venezianoScaffold[0].value;
+    this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
   }
 
   setupEventListeners() {
@@ -81,7 +91,26 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.scaleInput = $('#veneziano-scale');
     this.addNicksSwitch = $('#veneziano-add-nicks');
     this.venezianoScaffold = $('#veneziano-scaffold');
+    this.gcContentInput = $('#veneziano-gc-content');
     this.downloadButton = $('#download-veneziano');
+
+    this.venezianoScaffold.on('change', () => {
+      if ($('#veneziano-scaffold')[0].value == 'custom') {
+        Metro.dialog.open('#veneziano-scaffold-dialog');
+        $('#veneziano-scaffold-dialog-text').focus();
+      }
+    });
+
+    $('#veneziano-scaffold-dialog-confirm').on('click', () => {
+      try {
+        this.setCustomScaffold(
+          $('#veneziano-scaffold-dialog-text').val().toUpperCase()
+        );
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
 
     this.downloadButton.on('click', () => {
       try {

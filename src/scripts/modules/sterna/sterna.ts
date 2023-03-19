@@ -2,7 +2,11 @@ import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Vector3 } from 'three';
 import { CylinderModel } from '../../models/cylinder_model';
-import { NucleotideModel } from '../../models/nucleotide_model';
+import {
+  Nucleotide,
+  NucleotideModel,
+  Strand,
+} from '../../models/nucleotide_model';
 import { Graph, Edge, Vertex } from '../../models/graph';
 import { MenuParameters } from '../../scene/menu';
 
@@ -296,6 +300,42 @@ function wiresToCylinders(sterna: Sterna, params: MenuParameters) {
   return cm;
 }
 
+function createPseudoknot(strand1: Strand, strand2: Strand) {
+  if (strand1.length() < 13) {
+    throw `An edge is too short for a pseudoknot. ${strand1.length()} < 13. Scale is too small.`;
+  }
+
+  const reroute = (
+    nucs1: Nucleotide[],
+    nucs2: Nucleotide[],
+    idx1: number,
+    idx2: number
+  ) => {
+    nucs1[idx1].next = nucs2[idx2];
+    nucs2[idx2].prev = nucs1[idx1];
+    nucs1[idx1 + 1].prev = nucs2[idx2 - 1];
+    nucs2[idx2 - 1].next = nucs1[idx1 + 1];
+  };
+
+  const idx1 = Math.floor(strand1.length() / 2) - 3;
+  const idx2 = idx1 - (strand1.length() % 2 == 0 ? 1 : 0);
+
+  for (let i = 0; i < 6; i++) {
+    strand1.nucleotides[idx1 + 1 + i].isPseudo = true;
+    strand2.nucleotides[idx2 + 0 + i].isPseudo = true;
+  }
+
+  reroute(strand1.nucleotides, strand2.nucleotides, idx1, idx2);
+
+  strand2.deleteNucleotides(strand1.nucleotides[idx1 - 0].pair);
+  strand1.deleteNucleotides(strand2.nucleotides[idx2 - 1].pair);
+
+  strand1.nucleotides[idx1 - 1].pair.pair = null;
+  strand1.nucleotides[idx1 - 1].pair = null;
+  strand2.nucleotides[idx2 - 2].pair.pair = null;
+  strand2.nucleotides[idx2 - 2].pair = null;
+}
+
 /**
  * Creates a nucleotide model from the input cylinder model.
  *
@@ -312,26 +352,17 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   const nm = new NucleotideModel(scale, 'RNA');
 
   nm.createStrands(cm, false);
+  nm.linkStrands(cm, minLinkers, maxLinkers);
 
   const l = nm.strands.length;
   const visited = new Set();
   for (let i = 0; i < l; i++) {
     const strand = nm.strands[i];
-    if (!strand.nextCylinder) continue;
-    const [next, prime] = strand.nextCylinder;
-    let s;
-    if (prime == 'first5Prime') {
-      s = strand.linkStrand(next.strand1, minLinkers, maxLinkers);
-      if (s) nm.addStrand(s);
-    } else if (prime == 'second5Prime') {
-      s = strand.linkStrand(next.strand2, minLinkers, maxLinkers);
-      if (s) nm.addStrand(s);
-    }
     if (strand.isPseudo && !visited.has(strand) && !visited.has(strand.pair)) {
       visited.add(strand);
       visited.add(strand.pair);
 
-      nm.createPseudoknot(strand, strand.pair);
+      createPseudoknot(strand, strand.pair);
     }
   }
 
@@ -349,7 +380,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
     longest.nucleotides[i].next = null;
   }
   nm.setIDs();
-  nm.connectStrands();
+  nm.concatenateStrands();
 
   return nm;
 }

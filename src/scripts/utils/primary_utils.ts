@@ -2,8 +2,53 @@ import {
   RNA_PSEUDOKNOTS,
   RNA_NP_TEMPLATE,
   IUPAC_RNA,
-} from '../../globals/consts';
-import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
+  IUPAC_DNA,
+} from '../globals/consts';
+import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
+import { DNA_SCAFFOLDS } from '../globals/consts';
+import { MenuParameters } from '../scene/menu';
+
+/**
+ * Sets the primary structure based on the scaffold name. Scaffold name options are "none", "random"
+ * "custom", and the ones defined in consts.
+ *
+ * @param nm
+ * @param params {scaffoldName, customScaffold?, gcContent?, naType?}
+ */
+export function setPrimaryFromScaffold(
+  nm: NucleotideModel,
+  params: MenuParameters
+) {
+  const scaffoldName = params.scaffoldName;
+  const customScaffold = params.customScaffold || '';
+  const gcContent = params.gcContent;
+  const naType = params.naType;
+  const linkerOptions = params.linkerOptions;
+
+  if (scaffoldName == 'none') return;
+  if (scaffoldName != 'random') {
+    const scaffold =
+      scaffoldName == 'custom' ? customScaffold : DNA_SCAFFOLDS[scaffoldName];
+    const scaffoldNucs = nm.getScaffold().nucleotides;
+    if (scaffold.length < scaffoldNucs.length)
+      throw `Scaffold strand is too short for this structure: ${scaffoldNucs.length} > ${scaffold.length}.`;
+    for (let i = 0; i < scaffoldNucs.length; i++) {
+      const nuc = scaffoldNucs[i];
+      const base = scaffold[i];
+      if (
+        (naType == 'DNA' && !(base in IUPAC_DNA)) ||
+        (naType == 'RNA' && !(base in IUPAC_RNA))
+      )
+        throw `Unrecognised base: ${base}`;
+      nuc.base = base;
+    }
+  }
+  for (let n of nm.getNucleotides()) {
+    if (n.isLinker && !n.isScaffold) n.base = linkerOptions;
+  }
+
+  return setRandomPrimary(nm, gcContent, naType); // fill the non-scaffold bases randomly
+}
 
 /**
  * An iterator for pseudoknots. Returns the primary structure for one pseudoknot pair at a time.
@@ -43,7 +88,7 @@ function getPairing(nucleotides: Array<Nucleotide>): Map<number, number> {
  * @param nm
  * @returns primary structure
  */
-function getStem(nm: NucleotideModel) {
+function getRNAStem(nm: NucleotideModel) {
   const nucleotides = nm.getNucleotides();
   const pairs = getPairing(nucleotides);
   const ps = [];
@@ -72,7 +117,7 @@ function getStem(nm: NucleotideModel) {
 }
 
 /**
- * Get a primary structure that contains the pseudoknotted parst of the nucleotide model
+ * Get a primary structure that contains the pseudoknotted parts of the nucleotide model
  *
  * @param nm
  * @returns primary structure
@@ -135,8 +180,8 @@ function getPseudoknots(nm: NucleotideModel): string[] {
  * @param nm nucleotide model
  * @returns the generated primary structure
  */
-function generatePartial(nm: NucleotideModel): string[] {
-  const ps = getStem(nm);
+export function setPartialPrimaryRNA(nm: NucleotideModel): string[] {
+  const ps = getRNAStem(nm);
   const pseudos = getPseudoknots(nm);
 
   const nucleotides = nm.getNucleotides();
@@ -154,7 +199,7 @@ function generatePartial(nm: NucleotideModel): string[] {
  * @param pair IUPAC codes for the base pair
  * @returns the base
  */
-function getComplement(base: string, pair: string) {
+function getComplementRNA(base: string, pair: string) {
   const complement: Record<string, string> = { A: 'U', U: 'A', G: 'C', C: 'G' };
   const wobbleComplement: Record<string, string> = { U: 'G', G: 'U' };
   const options = new Set(IUPAC_RNA[base]);
@@ -165,13 +210,28 @@ function getComplement(base: string, pair: string) {
 }
 
 /**
+ * Returns a complementary base matching to the constraints of the input base and its base pair
+ *
+ * @param base IUPAC codes for the base
+ * @param pair IUPAC codes for the base pair
+ * @returns the base
+ */
+function getComplementDNA(base: string, pair: string) {
+  const complement: Record<string, string> = { A: 'T', T: 'A', G: 'C', C: 'G' };
+  const options = new Set(IUPAC_DNA[base]);
+
+  if (options.has(complement[pair])) return complement[pair];
+  return null;
+}
+
+/**
  * Returns a random base matching the constraints set by the options.
  *
  * @param options an array of IUPAC base codes
  * @param gcContent the proportion of G's and C's
  * @returns the base
  */
-function getBase(options: string[], gcContent: number): string {
+function getBaseRNA(options: string[], gcContent: number): string {
   const optionsAU = [];
   const optionsGC = [];
   for (const c of options) {
@@ -190,6 +250,18 @@ function getBase(options: string[], gcContent: number): string {
 }
 
 /**
+ * Returns a random base matching the constraints set by the options.
+ *
+ * @param options an array of IUPAC base codes
+ * @param gcContent the proportion of G's and C's
+ * @returns the base
+ */
+function getBaseDNA(options: string[], gcContent: number): string {
+  const base = getBaseRNA(options, gcContent).replace('U', 'T');
+  return base;
+}
+
+/**
  * Generates a random complementary primary structure for the nucleotide model.
  * Respects previously defined bases.
  *
@@ -197,29 +269,35 @@ function getBase(options: string[], gcContent: number): string {
  * @param gcContent
  * @returns the generated primary structure
  */
-function generateRandom(nm: NucleotideModel, gcContent: number): string[] {
+export function setRandomPrimary(
+  nm: NucleotideModel,
+  gcContent: number,
+  naType: string
+): string[] {
+  const iupac = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
+  const getBase = naType == 'DNA' ? getBaseDNA : getBaseRNA;
+  const getComplement = naType == 'DNA' ? getComplementDNA : getComplementRNA;
+
   const nucleotides = nm.getNucleotides();
-  const pairs = getPairing(nucleotides);
   const visited = new Set();
   const ps = [];
   for (let i = 0; i < nucleotides.length; i++) {
     let base;
     const n = nucleotides[i];
-    if (pairs.get(i) == i || !visited.has(n.pair)) {
-      const options = IUPAC_RNA[n.base];
+    if (n.isLinker || !visited.has(n.pair)) {
+      const options = iupac[n.base];
       base = getBase(options, gcContent);
     } else {
-      base = getComplement(n.base, ps[pairs.get(i)]);
+      base = getComplement(n.base, n.pair.base);
       if (!base)
-        throw `Impossible base pair. ${i}: ${n.base} - ${pairs.get(i)}: ${
-          ps[pairs.get(i)]
-        }`;
+        throw `Impossible base pair. ${n.id}: ${n.base} - ${n.pair.id}: ${n.pair.base}`;
     }
     visited.add(n);
+    n.base = base;
     ps.push(base);
   }
 
-  nm.setPrimary(ps);
+  nm.updateObject();
   return ps;
 }
 
@@ -264,11 +342,9 @@ function getSS(nm: NucleotideModel): string[] {
  * @param nm
  * @returns
  */
-function getNP(nm: NucleotideModel): string {
+export function getNP(nm: NucleotideModel): string {
   const ss = getSS(nm);
   const ps = getPrimary(nm);
 
   return RNA_NP_TEMPLATE(ps, ss);
 }
-
-export { generatePartial, generateRandom, getNP };

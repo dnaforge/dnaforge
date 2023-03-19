@@ -51,6 +51,7 @@ export abstract class ModuleMenu extends Menu {
     const [id, title] = setupHTML(html);
     super(context, id, title, false);
     this.title = title;
+    this.params.linkerOptions = 'W';
   }
 
   /**

@@ -12,7 +12,8 @@
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
                     <input checked type="checkbox" data-role="switch" data-caption="Wires"
-                        id="spanning-tree-toggle-wires"></li>
+                        id="spanning-tree-toggle-wires">
+                </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
                         data-caption="Cylinders" id="spanning-tree-toggle-cylinders"></li>
@@ -40,6 +41,7 @@
                             <option value="p7704">p7704 (7704)</option>
                             <option value="p8100">p8100 (8100)</option>
                             <option value="random">Random</option>
+                            <option value="custom">Custom</option>
                         </optgroup>
                     </select>
                 </li>
@@ -49,6 +51,10 @@
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
                         id="veneziano-add-nicks">
                 </li>
+                <li hidden data-role="hint" data-hint-position="right"
+                    data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                        type="number" data-role="input" data-default-value="50" data-size="260"
+                        data-prepend="GC-content" data-append="%" id="veneziano-gc-content"></li>
             </ul>
             <span class="title">Parameters</span>
         </div>
@@ -83,5 +89,18 @@
                         nanoscale DNA assemblies programmed from the top down</a></li>
             </ul>
         </div>
+    </div>
+</div>
+<div class="dialog" data-role="dialog" id="veneziano-scaffold-dialog">
+    <div class="dialog-title">Input a custom scaffold</div>
+    <div class="dialog-content">
+        <textarea data-role="textarea" data-chars-counter="#veneziano-chars-counter"
+            data-chars-counter-template="Length $1 bases" id="veneziano-scaffold-dialog-text"
+            data-auto-size="false"></textarea>
+        <p id="veneziano-chars-counter">Length: 0 bases</p>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="veneziano-scaffold-dialog-confirm">Set Scaffold</button>
     </div>
 </div>

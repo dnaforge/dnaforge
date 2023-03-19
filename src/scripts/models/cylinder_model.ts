@@ -35,9 +35,6 @@ class Cylinder {
 
   isPseudo = false; // marks whether this is a cylinder that should form a pseudoknot.
 
-  strand1: Strand;
-  strand2: Strand;
-
   pair: Cylinder; // In case the same vertex pair has two cylinders
 
   constructor(
@@ -89,6 +86,7 @@ class Cylinder {
     this.nor2 = this.dir.clone().cross(this.nor1).normalize();
   }
 
+  //TODO:
   translate() {
     console.log('unimplemented');
   }

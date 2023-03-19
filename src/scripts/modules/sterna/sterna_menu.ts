@@ -4,7 +4,11 @@ import {
   wiresToCylinders,
   cylindersToNucleotides,
 } from './sterna';
-import { getNP, generatePartial, generateRandom } from './sterna_primary';
+import {
+  getNP,
+  setRandomPrimary,
+  setPartialPrimaryRNA,
+} from '../../utils/primary_utils';
 import { downloadTXT } from '../../io/download';
 import html from './menu_sterna.htm';
 import { ModuleMenu } from '../module_menu';
@@ -25,6 +29,7 @@ export class SternaMenu extends ModuleMenu {
 
   constructor(context: Context) {
     super(context, html);
+    this.params.naType = 'RNA';
   }
 
   graphToWires(graph: Graph, params: MenuParameters) {
@@ -49,7 +54,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    const p = generateRandom(this.nm, this.params.gcContent);
+    const p = setRandomPrimary(this.nm, this.params.gcContent, 'RNA');
     this.nm.setPrimary(p);
   }
 
@@ -58,7 +63,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    generatePartial(this.nm);
+    setPartialPrimaryRNA(this.nm);
   }
 
   downloadPrimary() {

@@ -3,6 +3,7 @@ import {
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
+  generatePrimary,
 } from './atrail';
 import { downloadTXT } from '../../io/download';
 import html from './menu_atrail.htm';
@@ -12,6 +13,7 @@ import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { MenuParameters } from '../../scene/menu';
+import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
 export class ATrailMenu extends ModuleMenu {
   scaleInput: any;
@@ -21,10 +23,12 @@ export class ATrailMenu extends ModuleMenu {
   strandLengthMinInput: any;
   addNicksSwitch: any;
   atrailScaffold: any;
+  gcContentInput: any;
   downloadButton: any;
 
   constructor(context: Context) {
     super(context, html);
+    this.params.naType = 'DNA';
   }
 
   graphToWires(graph: Graph, params: MenuParameters) {
@@ -46,7 +50,7 @@ export class ATrailMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    this.nm.generatePrimaryFromScaffold(<string>this.params.scaffoldName);
+    setPrimaryFromScaffold(this.nm, this.params);
   }
 
   downloadATrail() {
@@ -85,6 +89,11 @@ export class ATrailMenu extends ModuleMenu {
     this.wires = atrail;
   }
 
+  setCustomScaffold(scaffold: string) {
+    this.params.scaffoldName = 'custom';
+    this.params.customScaffold = scaffold;
+  }
+
   collectParameters() {
     super.collectParameters();
 
@@ -95,7 +104,8 @@ export class ATrailMenu extends ModuleMenu {
     this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
     this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
     this.params.addNicks = this.addNicksSwitch[0].checked;
-    this.params.scaffold = this.atrailScaffold[0].value;
+    this.params.scaffoldName = this.atrailScaffold[0].value;
+    this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
   }
 
   setupEventListeners() {
@@ -110,11 +120,30 @@ export class ATrailMenu extends ModuleMenu {
     this.addNicksSwitch = $('#atrail-add-nicks');
 
     this.atrailScaffold = $('#atrail-scaffold');
+    this.gcContentInput = $('#atrail-gc-content');
     this.downloadButton = $('#download-atrail');
 
     this.downloadButton.on('click', () => {
       try {
         this.downloadATrail();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    this.atrailScaffold.on('change', () => {
+      if ($('#atrail-scaffold')[0].value == 'custom') {
+        Metro.dialog.open('#atrail-scaffold-dialog');
+        $('#atrail-scaffold-dialog-text').focus();
+      }
+    });
+
+    $('#atrail-scaffold-dialog-confirm').on('click', () => {
+      try {
+        this.setCustomScaffold(
+          $('#atrail-scaffold-dialog-text').val().toUpperCase()
+        );
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

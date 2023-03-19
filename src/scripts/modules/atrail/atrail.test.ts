@@ -1,10 +1,11 @@
+/*
 import { ATrail } from './atrail';
+
 
 test('basic', () => {
   expect(0).toBe(0);
 });
 
-/*
 
 for(let v of this.graph.getVertices()){
   transitions.set(v, Direction.RIGHT);

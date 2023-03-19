@@ -4,7 +4,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { InstancedMesh, Intersection, Matrix4, Quaternion } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
-import { DNA, RNA, DNA_SCAFFOLDS } from '../globals/consts';
+import { DNA, RNA } from '../globals/consts';
 import { randInt } from 'three/src/math/MathUtils';
 import { GLOBALS } from '../globals/globals';
 import { CylinderModel, Cylinder } from './cylinder_model';
@@ -39,17 +39,6 @@ const nucleotideColours: Record<string, THREE.Color> = {
   hover: new THREE.Color(0xff5555),
 };
 
-const colors = new Uint8Array(4);
-for (let c = 0; c <= colors.length; c++) colors[c] = (c / colors.length) * 256;
-colors[0] = 0;
-colors[colors.length - 1] = 255;
-const gradientMap = new THREE.DataTexture(
-  colors,
-  colors.length,
-  1,
-  THREE.RedFormat
-);
-gradientMap.needsUpdate = true;
 const materialNucleotides = new THREE.MeshStandardMaterial({ color: 0xffffff });
 
 const backboneGeometry = new THREE.ConeGeometry(0.15, 1, 6);
@@ -298,6 +287,7 @@ class Nucleotide {
 
       const nt = new Nucleotide(this.scale, this.naType);
       nt.isLinker = true;
+      if (this.isScaffold) nt.isScaffold = true;
       nt.setTransformMatrix(transform);
       linkers.push(nt);
       if (i > 0) {
@@ -315,8 +305,6 @@ class Nucleotide {
   }
 }
 
-//TODO: Get rid of this class. It serves no real purpose and only adds unnecessary complexity
-// Seriously, do it already
 class Strand {
   id: number;
   nucleotides: Nucleotide[] = [];
@@ -326,12 +314,9 @@ class Strand {
 
   pair: Strand;
 
-  isScaffold: boolean;
-  isLinker: boolean;
-  isPseudo: boolean;
-
-  nextCylinder: [Cylinder, string]; // connects this strand to the next cylinder
-  prevCylinder: [Cylinder, string]; // TODO: get rid of these too
+  isScaffold = false;
+  isLinker = false;
+  isPseudo = false;
 
   constructor(scale = 1, isScaffold = false, naType = 'DNA') {
     this.scale = scale;
@@ -354,6 +339,8 @@ class Strand {
         .add(dir.clone().multiplyScalar(i * this.nucParams.RISE * this.scale));
       const nor = normal.clone().applyAxisAngle(dir, i * this.nucParams.TWIST);
       const nuc = new Nucleotide(this.scale, this.naType);
+      nuc.isLinker = this.isLinker;
+      nuc.isScaffold = this.isScaffold;
       nuc.setTransformFromBasis(pos, dir, nor);
 
       if (i > 0) {
@@ -443,30 +430,9 @@ class Strand {
   }
 }
 
-const DNAComplement = (b: string) => {
-  switch (b) {
-    case 'A':
-      return 'T';
-      break;
-
-    case 'G':
-      return 'C';
-      break;
-
-    case 'C':
-      return 'G';
-      break;
-
-    case 'T':
-      return 'A';
-      break;
-
-    default:
-      break;
-  }
-};
-
 class NucleotideModel {
+  cylToStrands = new Map<Cylinder, [Strand, Strand]>(); // associates each cylinder to two strands
+
   strands: Strand[];
   scale: number;
   naType: string;
@@ -512,28 +478,7 @@ class NucleotideModel {
     const nm = new NucleotideModel(cm.scale, cm.naType);
 
     nm.createStrands(cm, hasScaffold);
-
-    const l = nm.strands.length;
-    for (let i = 0; i < l; i++) {
-      const strand = nm.strands[i];
-      if (!strand.nextCylinder) continue;
-      const [next, prime] = strand.nextCylinder;
-      let s;
-      switch (prime) {
-        case 'first5Prime':
-          s = strand.linkStrand(next.strand1, minLinkers, maxLinkers);
-          if (s) nm.addStrand(s);
-          break;
-
-        case 'second5Prime':
-          s = strand.linkStrand(next.strand2, minLinkers, maxLinkers);
-          if (s) nm.addStrand(s);
-          break;
-
-        default:
-          break;
-      }
-    }
+    nm.linkStrands(cm, minLinkers, maxLinkers);
     nm.setIDs();
 
     return nm;
@@ -543,148 +488,88 @@ class NucleotideModel {
     for (let i = 0; i < cm.cylinders.length; i++) {
       const cyl = cm.cylinders[i];
 
-      const s1Coords = cyl.getStrand1Coords();
-      const s2Coords = cyl.getStrand2Coords();
-
       const strand1 = new Strand(this.scale, hasScaffold, this.naType);
       const strand2 = new Strand(this.scale, false, this.naType);
+      this.addStrand(strand1);
+      this.addStrand(strand2);
+      this.cylToStrands.set(cyl, [strand1, strand2]);
 
       if (cyl.isPseudo) {
         strand1.isPseudo = true;
         strand2.isPseudo = true;
       }
 
-      strand1.generateNucleotides(
-        ...(s1Coords as [number, Vector3, Vector3, Vector3])
-      );
-      strand2.generateNucleotides(
-        ...(s2Coords as [number, Vector3, Vector3, Vector3])
-      );
-
-      cyl.strand1 = strand1;
-      cyl.strand2 = strand2;
+      strand1.generateNucleotides(...cyl.getStrand1Coords());
+      strand2.generateNucleotides(...cyl.getStrand2Coords());
 
       // base pairs
       strand1.addBasePairs(strand2);
-
-      strand1.nextCylinder = cyl.neighbours['first3Prime'];
-      strand2.nextCylinder = cyl.neighbours['second3Prime'];
-
-      this.addStrand(strand1);
-      this.addStrand(strand2);
     }
   }
 
-  createPseudoknot(strand1: Strand, strand2: Strand) {
-    if (strand1.length() < 13) {
-      throw `An edge is too short for a pseudoknot. ${strand1.length()} < 13. Scale is too small.`;
-    }
+  linkStrands(cm: CylinderModel, minLinkers: number, maxLinkers: number) {
+    const cyls = cm.getCylinders();
+    for (let i = 0; i < cyls.length; i++) {
+      const cyl = cyls[i];
+      const [strand1, strand2] = this.cylToStrands.get(cyl);
 
-    const reroute = (
-      nucs1: Nucleotide[],
-      nucs2: Nucleotide[],
-      idx1: number,
-      idx2: number
-    ) => {
-      nucs1[idx1].next = nucs2[idx2];
-      nucs2[idx2].prev = nucs1[idx1];
-      nucs1[idx1 + 1].prev = nucs2[idx2 - 1];
-      nucs2[idx2 - 1].next = nucs1[idx1 + 1];
-    };
+      const next1 = cyl.neighbours['first3Prime'];
+      const next2 = cyl.neighbours['second3Prime'];
 
-    const idx1 = Math.floor(strand1.length() / 2) - 3;
-    const idx2 = idx1 - (strand1.length() % 2 == 0 ? 1 : 0);
+      let strand1Next: Strand;
+      let strand2Next: Strand;
 
-    for (let i = 0; i < 6; i++) {
-      strand1.nucleotides[idx1 + 1 + i].isPseudo = true;
-      strand2.nucleotides[idx2 + 0 + i].isPseudo = true;
-    }
+      if (next1[1] == 'first5Prime')
+        strand1Next = this.cylToStrands.get(next1[0])[0];
+      else if (next1[1] == 'second5Prime')
+        strand1Next = this.cylToStrands.get(next1[0])[1];
+      if (next2[1] == 'first5Prime')
+        strand2Next = this.cylToStrands.get(next2[0])[0];
+      else if (next2[1] == 'second5Prime')
+        strand2Next = this.cylToStrands.get(next2[0])[1];
 
-    reroute(strand1.nucleotides, strand2.nucleotides, idx1, idx2);
-
-    strand2.deleteNucleotides(strand1.nucleotides[idx1 - 0].pair);
-    strand1.deleteNucleotides(strand2.nucleotides[idx2 - 1].pair);
-
-    strand1.nucleotides[idx1 - 1].pair.pair = null;
-    strand1.nucleotides[idx1 - 1].pair = null;
-    strand2.nucleotides[idx2 - 2].pair.pair = null;
-    strand2.nucleotides[idx2 - 2].pair = null;
-  }
-
-  generatePrimaryFromScaffold(scaffoldName: string) {
-    //Generate primary structure:
-    if (scaffoldName != 'none') {
-      for (const s of this.strands) {
-        if (s.isScaffold) {
-          if (scaffoldName == 'random') {
-            for (const n of s.nucleotides) n.base = 'ATGC'[randInt(0, 3)];
-            break;
-          }
-          const scaffold = DNA_SCAFFOLDS[scaffoldName];
-          if (s.length() > scaffold.length) {
-            throw `Scaffold strand is too short for this structure: ${s.length()} > ${
-              scaffold.length
-            }.`;
-          }
-          for (let i = 0; i < s.nucleotides.length; i++) {
-            const n = s.nucleotides[i];
-            n.base = scaffold[i];
-          }
-          break;
-        }
+      if (strand1 && strand1Next) {
+        const l1 = strand1.linkStrand(strand1Next, minLinkers, maxLinkers);
+        if (l1) this.addStrand(l1);
       }
-      for (const s of this.strands) {
-        if (!s.isScaffold) {
-          for (const n of s.nucleotides) {
-            if (n.pair) n.base = DNAComplement(n.pair.base);
-            else n.base = 'AT'[randInt(0, 1)];
-          }
-        }
+      if (strand2 && strand2Next) {
+        const l2 = strand2.linkStrand(strand2Next, minLinkers, maxLinkers);
+        if (l2) this.addStrand(l2);
       }
     }
   }
 
-  generatePrimaryRandom(gcContent: number) {
-    const complement = (b: string) => {
-      switch (b) {
-        case 'A':
-          return this.naType == 'DNA' ? 'T' : 'U';
-
-        case 'G':
-          return 'C';
-
-        case 'C':
-          return 'G';
-
-        case 'T':
-          return 'A';
-
-        case 'U':
-          return 'A';
-
-        default:
-          break;
-      }
-    };
-
+  /**
+   * Concatenates backbone-connected strands to single continuous strands
+   */
+  concatenateStrands() {
+    const newStrands = [];
+    const visited = new Set();
     for (const s of this.strands) {
-      for (const n of s.nucleotides) {
-        if (Math.random() < gcContent) n.base = 'GC'[randInt(0, 1)];
-        else n.base = 'AT'[randInt(0, 1)];
-        if (n.pair) n.pair.base = complement(n.base);
+      const nucleotides = s.nucleotides;
+      for (let i = 0; i < nucleotides.length; i++) {
+        let cur = nucleotides[i];
+        if (visited.has(cur)) continue;
+        const start = cur;
+        do {
+          if (cur.next.prev != cur)
+            throw `Inconsistent nucleotide connectivity`;
+          if (cur.prev && cur.prev.next != cur)
+            throw `Inconsistent nucleotide connectivity`;
+
+          if (cur.prev) cur = cur.prev;
+          else break;
+        } while (cur != start);
+        const newStrand = new Strand(this.scale, s.isScaffold, s.naType);
+        newStrands.push(newStrand);
+        do {
+          newStrand.addNucleotides(cur);
+          visited.add(cur);
+          cur = cur.next;
+        } while (cur && !visited.has(cur));
       }
     }
-
-    this.updateObject();
-  }
-
-  updateObject() {
-    if (!this.obj) this.getObject();
-    for (const s of this.strands) {
-      for (const n of s.nucleotides) {
-        n.setObjectColours();
-      }
-    }
+    this.strands = newStrands;
   }
 
   setIDs() {
@@ -822,38 +707,37 @@ class NucleotideModel {
     }
   }
 
-  /**
-   * Concatenates backbone-connected strands to single continuous strands
-   */
-  connectStrands() {
-    const newStrands = [];
-    const visited = new Set();
+  getNucleotides() {
+    const nucs = [];
     for (const s of this.strands) {
-      const nucleotides = s.nucleotides;
-      for (let i = 0; i < nucleotides.length; i++) {
-        let cur = nucleotides[i];
-        if (visited.has(cur)) continue;
-        const start = cur;
-        do {
-          if (cur.next.prev != cur)
-            throw `Inconsistent nucleotide connectivity`;
-          if (cur.prev && cur.prev.next != cur)
-            throw `Inconsistent nucleotide connectivity`;
-
-          if (cur.prev) cur = cur.prev;
-          else break;
-        } while (cur != start);
-        const newStrand = new Strand(this.scale, s.isScaffold, s.naType);
-        newStrands.push(newStrand);
-        do {
-          newStrand.addNucleotides(cur);
-          visited.add(cur);
-          cur = cur.next;
-        } while (cur && !visited.has(cur));
+      for (const n of s.nucleotides) {
+        nucs.push(n);
       }
     }
-    this.strands = newStrands;
+    return nucs;
   }
+
+  getScaffold(): Strand {
+    for (let s of this.strands) {
+      if (s.isScaffold) {
+        return s;
+      }
+    }
+  }
+
+  setPrimary(str: string | string[]) {
+    const nucleotides = this.getNucleotides();
+    if (nucleotides.length != str.length)
+      throw `Input length does not match the nucleotide model.`;
+    const iupac = new Set('ACGTUWSMKRYBDHVN'.split(''));
+    for (const b of str) if (!iupac.has(b)) throw `Unrecognised base ${b}`;
+    for (let i = 0; i < str.length; i++) {
+      nucleotides[i].base = str[i];
+    }
+    this.updateObject();
+  }
+
+  setPrimaryFromScaffold(scaffold: string) {}
 
   getObject() {
     if (!this.obj) {
@@ -963,31 +847,18 @@ class NucleotideModel {
     }
   }
 
+  updateObject() {
+    if (!this.obj) this.getObject();
+    for (const s of this.strands) {
+      for (const n of s.nucleotides) {
+        n.setObjectColours();
+      }
+    }
+  }
+
   dispose() {
     for (const k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
     delete this.obj;
-  }
-
-  getNucleotides() {
-    const nucs = [];
-    for (const s of this.strands) {
-      for (const n of s.nucleotides) {
-        nucs.push(n);
-      }
-    }
-    return nucs;
-  }
-
-  setPrimary(str: string | string[]) {
-    const nucleotides = this.getNucleotides();
-    if (nucleotides.length != str.length)
-      throw `Input length does not match the nucleotide model.`;
-    const iupac = new Set('ACGTUWSMKRYBDHVN'.split(''));
-    for (const b of str) if (!iupac.has(b)) throw `Unrecognised base ${b}`;
-    for (let i = 0; i < str.length; i++) {
-      nucleotides[i].base = str[i];
-    }
-    this.updateObject();
   }
 
   getSelection(target: Nucleotide) {
