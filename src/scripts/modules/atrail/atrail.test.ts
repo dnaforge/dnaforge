@@ -1,62 +1,198 @@
-/*
-import { ATrail } from './atrail';
+var assert = require('assert');
+import * as _ from 'lodash';
+import * as THREE from 'three';
+import { OBJLoader } from '../../io/read_obj';
+import { CylinderModel } from '../../models/cylinder_model';
+import { Graph, HalfEdge } from '../../models/graph';
+import { NucleotideModel } from '../../models/nucleotide_model';
+import { WiresModel } from '../../models/wires_model';
+import { ATrail, cylindersToNucleotides, wiresToCylinders } from './atrail';
 
+describe('Atrail-routing', function () {
+  const x3 = require('../../../test/test_shapes/3x3.obj');
 
-test('basic', () => {
-  expect(0).toBe(0);
+  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+  const x4 = require('../../../test/test_shapes/4x4.obj');
+  const plane = require('../../../test/test_shapes/plane.obj');
+
+  const graphs = [
+    ['tetrahedron', tet],
+    ['4x4', x4],
+    ['plane', plane],
+  ].map((g) => {
+    return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
+  });
+
+  let atrail: ATrail;
+  let graph: Graph;
+  let trail: HalfEdge[];
+
+  beforeEach(function namedFun() {});
+
+  graphs.forEach(function (g: [string, Graph]) {
+    it(`Should be directed: ${g[0]}`, function () {
+      graph = g[1];
+      atrail = new ATrail(graph);
+      trail = atrail.findATrail();
+
+      for (let i = 1; i < trail.length; i++) {
+        assert.notEqual(trail[i - 1].vertex, trail[i].vertex);
+      }
+    });
+
+    it(`Should span all edges once: ${g[0]}`, function () {
+      graph = g[1];
+      atrail = new ATrail(graph);
+      trail = atrail.findATrail();
+
+      const visited = new Set();
+
+      for (let he of trail) {
+        assert.equal(visited.has(he.edge), false);
+        visited.add(he.edge);
+      }
+
+      for (let e of atrail.graph.getEdges()) {
+        assert.equal(visited.has(e), true);
+      }
+    });
+
+    it(`Should start where it ends: ${g[0]}`, function () {
+      graph = g[1];
+      atrail = new ATrail(graph);
+      trail = atrail.findATrail();
+
+      assert.equal(
+        trail[0].twin.vertex == trail[trail.length - 1].vertex,
+        true
+      );
+    });
+
+    it(`Should be non-crossing: ${g[0]}`, function () {
+      graph = g[1];
+      atrail = new ATrail(graph);
+      trail = atrail.findATrail();
+
+      for (let i = 0; i < trail.length; i++) {
+        const incoming = trail[i];
+        const outoing = trail[(i + 1) % trail.length].twin;
+
+        const neighbours = incoming.vertex.getTopoAdjacentHalfEdges();
+        const idxIn = neighbours.indexOf(incoming);
+        const idxOut = neighbours.indexOf(outoing);
+
+        const isRight = idxIn == (idxOut + 1) % neighbours.length;
+        const isLeft =
+          idxIn == (idxOut + neighbours.length - 1) % neighbours.length;
+
+        assert.equal(isRight || isLeft, true);
+      }
+    });
+  });
+
+  it(`Should not have an atrail: 3x3`, function () {
+    graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
+    try {
+      atrail = new ATrail(graph);
+      trail = atrail.findATrail();
+      assert.equal(false, true);
+    } catch {}
+  });
 });
 
+describe('Atrail Cylinder Model', function () {
+  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+  const x4 = require('../../../test/test_shapes/4x4.obj');
+  const plane = require('../../../test/test_shapes/plane.obj');
 
-for(let v of this.graph.getVertices()){
-  transitions.set(v, Direction.RIGHT);
-}
+  const graphs = [
+    ['tetrahedron', tet],
+    ['4x4', x4],
+    ['plane', plane],
+  ].map((g) => {
+    return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
+  });
+  const atrails = graphs.map((g) => {
+    const atrail = new ATrail(g[1]);
+    atrail.findATrail();
+    return [g[0], atrail];
+  });
 
-for(let v of this.graph.getVertices()){
-  const t = new Set<HalfEdge>();
-  for(let he of v.getAdjacentHalfEdges()){
-    for(let he2 of neighbours(he)) t.add(he2);
-  }
-  console.log(v.getAdjacentHalfEdges().length, t.size);
-  
-}
+  let cm: CylinderModel;
 
+  atrails.forEach(function (g: [string, ATrail]) {
+    it(`Should throw error because of small scale: ${g[0]}`, function () {
+      const params = {
+        scale: 100,
+      };
+      try {
+        cm = wiresToCylinders(g[1], params);
+        assert.equal(false, true);
+      } catch {}
+    });
 
+    it(`All cylinders should be fully connected: ${g[0]}`, function () {
+      const params = {
+        scale: 0.1,
+      };
+      cm = wiresToCylinders(g[1], params);
 
-
-
-    for(let v of this.graph.getVertices()){
-      transitions.set(v, Direction.RIGHT);
-    }
-    
-    for(let v of this.graph.getVertices()){
-      console.log("---------");
-      console.log(v.id);
-      const t = new Set<HalfEdge>();
-      const hes = v.getTopoAdjacentHalfEdges();
-      for(let i = 0; i < hes.length; i += 2 ){
-        const he = hes[i];
-        let he2 = neighbours(he)[0];
-        t.add(he2);
-        t.add(he)
-        console.log(he.twin.vertex.id, he2.twin.vertex.id);
+      for (let c of cm.cylinders) {
+        for (let n of _.values(c.neighbours)) {
+          assert.equal(!!n, true);
+        }
       }
-      console.log("--------");
-      
-    }
-    
-    for(let v of this.graph.getVertices()){
-      console.log("---------");
-      console.log(v.id);
-      const t = new Set<HalfEdge>();
-      const hes = v.getTopoAdjacentHalfEdges();
-      for(let i = 1; i < hes.length; i += 2 ){
-        const he = hes[i];
-        let he2 = neighbours(he)[0];
-        t.add(he2);
-        t.add(he)
-        console.log(he.twin.vertex.id, he2.twin.vertex.id);
+    });
+
+    it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
+      const params = {
+        scale: 0.1,
+      };
+      cm = wiresToCylinders(g[1], params);
+
+      for (let c of cm.cylinders) {
+        for (let prime of _.keys(c.neighbours)) {
+          const n = c.neighbours[prime];
+          const prime2 = n[1];
+
+          assert.equal(n[0].neighbours[prime2][0] == c, true);
+        }
       }
-      console.log("--------");
-      
-    }
-*/
+    });
+  });
+});
+
+describe('Atrail Nucleotide Model', function () {
+  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+  const x4 = require('../../../test/test_shapes/4x4.obj');
+  const plane = require('../../../test/test_shapes/plane.obj');
+
+  const graphs = [
+    ['tetrahedron', tet],
+    ['4x4', x4],
+    ['plane', plane],
+  ].map((g) => {
+    return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
+  });
+  const atrails = graphs.map((g) => {
+    const atrail = new ATrail(g[1]);
+    atrail.findATrail();
+    return [g[0], atrail];
+  });
+
+  let cm: CylinderModel;
+  let nm: NucleotideModel;
+
+  atrails.forEach(function (g: [string, ATrail]) {
+    it(`Should generate nucleotides: ${g[0]}`, function () {
+      const params = {
+        scale: 0.5,
+        scaffoldName: 'none',
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      assert.equal(nm.getNucleotides().length > 0, true);
+    });
+  });
+});

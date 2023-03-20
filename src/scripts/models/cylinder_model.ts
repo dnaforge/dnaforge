@@ -261,7 +261,7 @@ class Cylinder {
    */
   *getStrand1Matrices(): IterableIterator<Matrix4> {
     const inclination =
-      (this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION;
+      (this.nucParams.INCLINATION < 0 ? 1 : 0) * -this.nucParams.INCLINATION;
     for (let i = 0; i < this.length; i++) {
       const rotation = this.nucParams.TWIST * i;
       const rise = this.nucParams.RISE * i + inclination;
@@ -282,7 +282,7 @@ class Cylinder {
   *getStrand2Matrices(): IterableIterator<Matrix4> {
     const rotCyl = new Matrix4().makeRotationX(Math.PI);
     const inclination =
-      (this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION;
+      (this.nucParams.INCLINATION < 0 ? 1 : 0) * -this.nucParams.INCLINATION;
     for (let i = 1; i < this.length + 1; i++) {
       const rotation =
         this.nucParams.TWIST * (this.length - i) +

@@ -9,7 +9,7 @@
     "watch": "webpack --watch --config webpack.dev.js",
     "start": "webpack serve --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "prod": "npm run prettier:write; npm run lint; npm run test; npm run docs; npm run build",
+    "production": "npm run prettier:write; npm run lint; npm run test; npm run docs; npm run build",
     "lint": "eslint \"src/**\"",
     "prettier:base": "prettier --parser typescript --single-quote",
     "prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",

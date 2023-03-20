@@ -3,7 +3,6 @@ import {
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
-  generatePrimary,
 } from './atrail';
 import { downloadTXT } from '../../io/download';
 import html from './menu_atrail.htm';

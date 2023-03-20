@@ -49,6 +49,7 @@ class ATrail extends WiresModel {
 
     this.trail = trail;
     this.validate();
+    return trail;
   }
 
   private getNeighbourhoodFunction(
@@ -422,53 +423,12 @@ function wiresToCylinders(atrail: ATrail, params: MenuParameters) {
   return cm;
 }
 
-/*
-
-generatePrimaryFromScaffold(scaffoldName: string) {
-  //Generate primary structure:
-  if (scaffoldName != 'none') {
-    for (const s of this.strands) {
-      if (s.isScaffold) {
-        if (scaffoldName == 'random') {
-          for (const n of s.nucleotides) n.base = 'ATGC'[randInt(0, 3)];
-          break;
-        }
-        const scaffold = DNA_SCAFFOLDS[scaffoldName];
-        if (s.length() > scaffold.length) {
-          throw `Scaffold strand is too short for this structure: ${s.length()} > ${
-            scaffold.length
-          }.`;
-        }
-        for (let i = 0; i < s.nucleotides.length; i++) {
-          const n = s.nucleotides[i];
-          n.base = scaffold[i];
-        }
-        break;
-      }
-    }
-    for (const s of this.strands) {
-      if (!s.isScaffold) {
-        for (const n of s.nucleotides) {
-          if (n.pair) n.base = DNAComplement(n.pair.base);
-          else n.base = 'AT'[randInt(0, 1)];
-        }
-      }
-    }
-  }
-}
-*/
-
-function generatePrimary(scaffoldName: string) {
-  return '';
-}
-
 function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;
   const addNicks = params.addNicks;
   const maxLength = params.maxStrandLength;
   const minLength = params.minStrandLength;
-  const scaffoldName = params.scaffoldName;
 
   const nm = NucleotideModel.compileFromGenericCylinderModel(
     cm,
@@ -500,10 +460,4 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   return nm;
 }
 
-export {
-  ATrail,
-  graphToWires,
-  wiresToCylinders,
-  cylindersToNucleotides,
-  generatePrimary,
-};
+export { ATrail, graphToWires, wiresToCylinders, cylindersToNucleotides };

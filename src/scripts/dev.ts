@@ -30,7 +30,7 @@ export function dev(context: Context) {
   context.setGraph(graph);
 
   //(<CycleCoverMenu>context.menus.get('cycle-cover')).addWires();
-  (<CycleCoverMenu>context.menus.get('cycle-cover')).addCylinders();
+  //(<CycleCoverMenu>context.menus.get('cycle-cover')).addCylinders();
   //(<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
 
   //(<ATrailMenu>context.menus.get('atrail')).addWires();
@@ -43,8 +43,8 @@ export function dev(context: Context) {
   //(<SpanningTreeMenu>context.menus.get('spanning-tree')).generatePrimary();
 
   //(<SternaMenu>context.menus.get("sterna")).addWires();
-  //(<SternaMenu>context.menus.get("sterna")).addCylinders();
-  //(<SternaMenu>context.menus.get("sterna")).addNucleotides();
+  (<SternaMenu>context.menus.get('sterna')).addCylinders();
+  (<SternaMenu>context.menus.get('sterna')).addNucleotides();
   //(<SternaMenu>context.menus.get("sterna")).downloadPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePartialPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePrimary();

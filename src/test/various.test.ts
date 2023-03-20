@@ -2,6 +2,7 @@ var assert = require('assert');
 import { Graph } from '../scripts/models/graph';
 import { ATrail } from '../scripts/modules/atrail/atrail';
 
+/*
 const a = new ATrail(new Graph());
 
 describe('Array', function () {
@@ -19,3 +20,5 @@ describe('Array', function () {
     });
   });
 });
+
+*/
