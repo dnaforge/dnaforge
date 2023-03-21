@@ -19,11 +19,11 @@ export function setPrimaryFromScaffold(
   nm: NucleotideModel,
   params: MenuParameters
 ) {
-  const scaffoldName = params.scaffoldName;
+  const scaffoldName = params.scaffoldName || 'none';
   const customScaffold = params.customScaffold || '';
-  const gcContent = params.gcContent;
-  const naType = params.naType;
-  const linkerOptions = params.linkerOptions;
+  const gcContent = params.gcContent || 0.5;
+  const naType = params.naType || 'DNA';
+  const linkerOptions = params.linkerOptions || 'W';
 
   if (scaffoldName == 'none') return;
   if (scaffoldName != 'random') {

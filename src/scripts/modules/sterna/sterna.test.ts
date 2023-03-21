@@ -3,104 +3,44 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel } from '../../models/cylinder_model';
-import { Graph, HalfEdge } from '../../models/graph';
+import { Edge, Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { MenuParameters } from '../../scene/menu';
-import { ATrail, cylindersToNucleotides, wiresToCylinders } from './atrail';
+import { cylindersToNucleotides, Sterna, wiresToCylinders } from './sterna';
 
-describe('Atrail-routing', function () {
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-
+describe('Spanning tree-routing', function () {
   const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x4 = require('../../../test/test_shapes/4x4.obj');
+  const x3 = require('../../../test/test_shapes/3x3.obj');
   const plane = require('../../../test/test_shapes/plane.obj');
 
   const graphs = [
     ['tetrahedron', tet],
-    ['4x4', x4],
+    ['3x3', x3],
     ['plane', plane],
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
 
-  let atrail: ATrail;
+  let sterna: Sterna;
   let graph: Graph;
-  let trail: HalfEdge[];
-
-  beforeEach(function namedFun() {});
+  let trail: Edge[];
 
   graphs.forEach(function (g: [string, Graph]) {
-    it(`Should be directed: ${g[0]}`, function () {
-      graph = g[1];
-      atrail = new ATrail(graph);
-      trail = atrail.findATrail();
-
-      for (let i = 1; i < trail.length; i++) {
-        assert.notEqual(trail[i - 1].vertex, trail[i].vertex);
-      }
-    });
-
-    it(`Should span all edges once: ${g[0]}`, function () {
-      graph = g[1];
-      atrail = new ATrail(graph);
-      trail = atrail.findATrail();
-
-      const visited = new Set();
-
-      for (let he of trail) {
-        assert.equal(visited.has(he.edge), false);
-        visited.add(he.edge);
-      }
-
-      for (let e of atrail.graph.getEdges()) {
-        assert.equal(visited.has(e), true);
-      }
-    });
-
     it(`Should start where it ends: ${g[0]}`, function () {
       graph = g[1];
-      atrail = new ATrail(graph);
-      trail = atrail.findATrail();
+      sterna = new Sterna(graph);
+      trail = sterna.trail;
 
-      assert.equal(
-        trail[0].twin.vertex == trail[trail.length - 1].vertex,
-        true
-      );
+      const first = trail[0];
+      const last = trail[trail.length - 1];
+
+      assert.equal(!!first.getCommonVertex(last), true);
     });
-
-    it(`Should be non-crossing: ${g[0]}`, function () {
-      graph = g[1];
-      atrail = new ATrail(graph);
-      trail = atrail.findATrail();
-
-      for (let i = 0; i < trail.length; i++) {
-        const incoming = trail[i];
-        const outoing = trail[(i + 1) % trail.length].twin;
-
-        const neighbours = incoming.vertex.getTopoAdjacentHalfEdges();
-        const idxIn = neighbours.indexOf(incoming);
-        const idxOut = neighbours.indexOf(outoing);
-
-        const isRight = idxIn == (idxOut + 1) % neighbours.length;
-        const isLeft =
-          idxIn == (idxOut + neighbours.length - 1) % neighbours.length;
-
-        assert.equal(isRight || isLeft, true);
-      }
-    });
-  });
-
-  it(`Should not have an atrail: 3x3`, function () {
-    graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
-    try {
-      atrail = new ATrail(graph);
-      trail = atrail.findATrail();
-      assert.equal(false, true);
-    } catch {}
   });
 });
 
+/*
 describe('Atrail Cylinder Model', function () {
   const tet = require('../../../test/test_shapes/tetra_dubs.obj');
   const x4 = require('../../../test/test_shapes/4x4.obj');
@@ -129,7 +69,7 @@ describe('Atrail Cylinder Model', function () {
       try {
         cm = wiresToCylinders(g[1], params);
         assert.equal(false, true);
-      } catch {}
+      } catch { }
     });
 
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
@@ -246,6 +186,8 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
+
+
   atrails.forEach(function (g: [string, ATrail]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
       const params: MenuParameters = {
@@ -255,19 +197,19 @@ describe('Atrail Nucleotide Model', function () {
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
-      const complement: Record<string, string> = {
-        A: 'T',
-        T: 'A',
-        G: 'C',
-        C: 'G',
-      };
+      
+
+      const complement: Record<string, string> = {A: "T", T: "A", G: "C", C: "G"}
+
 
       for (let s of nm.strands) {
-        for (let n of s.nucleotides) {
-          if (!n.pair) continue;
+        for(let n of s.nucleotides){
+          if(!n.pair) continue;
           assert.equal(complement[n.base] == n.pair.base, true);
         }
       }
     });
   });
+
 });
+*/
