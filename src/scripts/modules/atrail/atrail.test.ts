@@ -131,7 +131,9 @@ describe('Atrail Cylinder Model', function () {
         assert.equal(false, true);
       } catch {}
     });
+  });
 
+  atrails.forEach(function (g: [string, ATrail]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
       const params = {
         scale: 0.1,
@@ -144,7 +146,9 @@ describe('Atrail Cylinder Model', function () {
         }
       }
     });
+  });
 
+  atrails.forEach(function (g: [string, ATrail]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
       const params = {
         scale: 0.1,

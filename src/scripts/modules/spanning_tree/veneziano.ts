@@ -243,6 +243,7 @@ function generatePrimary(scaffoldName: string) {
 function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   const scale = cm.scale;
   const scaffold = params.scaffoldName;
+  const addNicks = params.addNicks;
 
   const nm = new NucleotideModel(scale);
 
@@ -294,20 +295,12 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
     if (!cyl.isPseudo) {
       //edge staples:
       const N42 = Math.floor((length - 21) / 21);
-      for (let i = 0; i < N42 + 1; i++) {
+      for (let i = 1; i < N42 + 1; i++) {
         const idx1 = 10 + 21 * i;
         const idx2 = length - 10 - 21 * i;
         reroute(nucs_cur, nucs_pair, idx1, idx2);
       }
     } else if (cyl.isPseudo) {
-      // crossover staples:
-      const N42 = Math.floor((length - 21) / 21);
-      for (let i = 0; i < N42 + 1; i++) {
-        const idx1 = 10 + 21 * i;
-        const idx2 = length - 10 - 21 * i;
-        reroute(nucs_cur, nucs_pair, idx1, idx2);
-      }
-
       // scaffold crossover:
       let offset;
       if (length % 2 == 0) {
@@ -319,21 +312,74 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
         if (length % 21 == 0) offset = 5;
         else offset = 0;
       }
-      const idx1 = (length - 21) / 2 - offset + 11;
-      const idx2 = length - (length - 21) / 2 + offset - 10;
-      reroute(nucs_scaffold, nucs_scaffold_pair, idx1, idx2);
+      const idxCo1 = (length - 21) / 2 - offset + 11;
+      const idxCo2 = length - (length - 21) / 2 + offset - 10;
+      reroute(nucs_scaffold, nucs_scaffold_pair, idxCo1, idxCo2);
 
-      //console.log(length, idx1);
+      // crossover staples:
+      const N42 = Math.floor((length - 21) / 21);
+      for (let i = 1; i < N42 + 1; i++) {
+        const idx1 = 10 + 21 * i;
+        const idx2 = length - 10 - 21 * i;
+        if (idx1 > idxCo1 && idx1 < idxCo1 + 15) continue;
+        reroute(nucs_cur, nucs_pair, idx1, idx2);
+      }
     } else {
       throw `Unrecognised cylinder type.`;
     }
   }
 
   nm.concatenateStrands();
+
+  if (addNicks) addStrandGaps(nm);
+
   nm.setIDs();
   setPrimaryFromScaffold(nm, params);
 
   return nm;
+}
+
+function addStrandGaps(nm: NucleotideModel) {
+  const findCrossovers = (nucs: Nucleotide[]) => {
+    const cos = [];
+    let i = 0;
+    let l = nucs.length;
+    for (; i < l; i++) {
+      if (!nucs[i].pair) continue;
+      if (
+        nucs[i].pair.prev != nucs[(i + 1 + l) % l].pair &&
+        !nucs[i].pair.prev.isLinker
+      )
+        cos.push(i);
+    }
+    return cos;
+  };
+
+  for (let s of nm.strands) {
+    if (s.isScaffold) continue;
+    const nucs = s.nucleotides;
+    const cos = findCrossovers(nucs);
+    // Vertices
+    if (nucs.length > 50) {
+      let start;
+      if (cos.length % 2 == 0) start = 1;
+      else if (cos.length == 2) start = 0;
+      else start = 2;
+
+      for (let i = start; i < cos.length; i += 2) {
+        const idx = cos[i];
+        nucs[idx].next.prev = null;
+        nucs[idx].next = null;
+      }
+    }
+    // Edges
+    else if (cos.length == 2) {
+      const idx = cos[0];
+      nucs[idx].next.prev = null;
+      nucs[idx].next = null;
+    }
+  }
+  nm.concatenateStrands();
 }
 
 export {

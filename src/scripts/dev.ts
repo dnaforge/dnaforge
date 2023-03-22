@@ -39,12 +39,12 @@ export function dev(context: Context) {
 
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addWires();
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addCylinders();
-  //(<SpanningTreeMenu>context.menus.get('spanning-tree')).addNucleotides();
+  (<SpanningTreeMenu>context.menus.get('spanning-tree')).addNucleotides();
   //(<SpanningTreeMenu>context.menus.get('spanning-tree')).generatePrimary();
 
   //(<SternaMenu>context.menus.get("sterna")).addWires();
-  (<SternaMenu>context.menus.get('sterna')).addCylinders();
-  (<SternaMenu>context.menus.get('sterna')).addNucleotides();
+  //(<SternaMenu>context.menus.get('sterna')).addCylinders();
+  //(<SternaMenu>context.menus.get('sterna')).addNucleotides();
   //(<SternaMenu>context.menus.get("sterna")).downloadPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePartialPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePrimary();

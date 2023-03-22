@@ -50,28 +50,26 @@ describe('Spanning tree-routing', function () {
   });
 });
 
-/*
-describe('Atrail Cylinder Model', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x4 = require('../../../test/test_shapes/4x4.obj');
+describe('Spanning Tree Cylinder Model', function () {
+  const tet = require('../../../test/test_shapes/tetra.obj');
+  const x3 = require('../../../test/test_shapes/3x3.obj');
   const plane = require('../../../test/test_shapes/plane.obj');
 
   const graphs = [
     ['tetrahedron', tet],
-    ['4x4', x4],
+    ['3x3', x3],
     ['plane', plane],
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
-  const atrails = graphs.map((g) => {
-    const atrail = new ATrail(g[1]);
-    atrail.findATrail();
-    return [g[0], atrail];
+  const sts = graphs.map((g) => {
+    const st = new Veneziano(g[1]);
+    return [g[0], st];
   });
 
   let cm: CylinderModel;
 
-  atrails.forEach(function (g: [string, ATrail]) {
+  sts.forEach(function (g: [string, Veneziano]) {
     it(`Should throw error because of small scale: ${g[0]}`, function () {
       const params = {
         scale: 100,
@@ -79,9 +77,11 @@ describe('Atrail Cylinder Model', function () {
       try {
         cm = wiresToCylinders(g[1], params);
         assert.equal(false, true);
-      } catch { }
+      } catch {}
     });
+  });
 
+  sts.forEach(function (g: [string, Veneziano]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
       const params = {
         scale: 0.1,
@@ -94,7 +94,9 @@ describe('Atrail Cylinder Model', function () {
         }
       }
     });
+  });
 
+  sts.forEach(function (g: [string, Veneziano]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
       const params = {
         scale: 0.1,
@@ -113,31 +115,30 @@ describe('Atrail Cylinder Model', function () {
   });
 });
 
-describe('Atrail Nucleotide Model', function () {
+describe('Spanning Tree Nucleotide Model', function () {
   const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x4 = require('../../../test/test_shapes/4x4.obj');
+  const x3 = require('../../../test/test_shapes/3x3.obj');
   const plane = require('../../../test/test_shapes/plane.obj');
 
   const graphs = [
     ['tetrahedron', tet],
-    ['4x4', x4],
+    ['3x3', x3],
     ['plane', plane],
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
-  const atrails = graphs.map((g) => {
-    const atrail = new ATrail(g[1]);
-    atrail.findATrail();
-    return [g[0], atrail];
+  const sts = graphs.map((g) => {
+    const st = new Veneziano(g[1]);
+    return [g[0], st];
   });
 
   let cm: CylinderModel;
   let nm: NucleotideModel;
 
-  atrails.forEach(function (g: [string, ATrail]) {
+  sts.forEach(function (g: [string, Veneziano]) {
     it(`Should generate nucleotides: ${g[0]}`, function () {
       const params = {
-        scale: 0.5,
+        scale: 0.3,
         scaffoldName: 'none',
       };
       cm = wiresToCylinders(g[1], params);
@@ -147,58 +148,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, ATrail]) {
-    it(`Min strand overlap should be above 5: ${g[0]}`, function () {
-      const params = {
-        scale: 0.2,
-        scaffoldName: 'none',
-        addNicks: true,
-        minStrandLength: 5,
-        maxStrandLength: 100,
-      };
-      cm = wiresToCylinders(g[1], params);
-      nm = cylindersToNucleotides(cm, params);
-
-      const scaffold = nm.getScaffold().nucleotides;
-      let overlap = 0;
-      for (let i = 0; i < scaffold.length; i++) {
-        const nuc = scaffold[i];
-        const pair = nuc.pair;
-        if (!pair) {
-          overlap = 0;
-          continue;
-        }
-        if (!pair.next) {
-          assert.equal(overlap >= 5, true);
-          overlap = 0;
-        }
-        overlap++;
-      }
-    });
-  });
-
-  atrails.forEach(function (g: [string, ATrail]) {
-    it(`Max strand length should be under 100: ${g[0]}`, function () {
-      const params = {
-        scale: 0.2,
-        scaffoldName: 'none',
-        addNicks: true,
-        minStrandLength: 5,
-        maxStrandLength: 100,
-      };
-      cm = wiresToCylinders(g[1], params);
-      nm = cylindersToNucleotides(cm, params);
-
-      for (let s of nm.strands) {
-        if (s.isScaffold) continue;
-        assert.equal(s.nucleotides.length <= 100, true);
-      }
-    });
-  });
-
-
-
-  atrails.forEach(function (g: [string, ATrail]) {
+  sts.forEach(function (g: [string, Veneziano]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
       const params: MenuParameters = {
         scale: 0.2,
@@ -207,19 +157,38 @@ describe('Atrail Nucleotide Model', function () {
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
-      
-
-      const complement: Record<string, string> = {A: "T", T: "A", G: "C", C: "G"}
-
+      const complement: Record<string, string> = {
+        A: 'T',
+        T: 'A',
+        G: 'C',
+        C: 'G',
+      };
 
       for (let s of nm.strands) {
-        for(let n of s.nucleotides){
-          if(!n.pair) continue;
+        for (let n of s.nucleotides) {
+          if (!n.pair) continue;
           assert.equal(complement[n.base] == n.pair.base, true);
         }
       }
     });
   });
 
+  sts.forEach(function (g: [string, Veneziano]) {
+    it(`Staple lengths should be 20, 22, 31, 32, 42, 52, or 78 ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+        scaffoldName: 'random',
+        addNicks: true,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const options = new Set([20, 22, 31, 32, 42, 52, 78]);
+
+      for (let s of nm.strands) {
+        if (s.isScaffold) continue;
+        assert.equal(options.has(s.length()), true);
+      }
+    });
+  });
 });
-*/
