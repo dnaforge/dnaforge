@@ -515,6 +515,7 @@ class CylinderModel {
    * @returns
    */
   async relax(iterations = 1000) {
+    const wait = () => new Promise(resolve => setTimeout(resolve, 1));
     // rotations
     for (let i = 0; i < iterations; i++) {
       this.calculateTorques();
@@ -528,6 +529,12 @@ class CylinderModel {
 
       for (const cyl of this.cylinders) {
         cyl.rotate(cyl.dir, cyl.torque * delta + jitter);
+      }
+
+
+      if(i % 100 == 0){
+        this.updateObject();
+        await wait();
       }
     }
     this.updateObject();

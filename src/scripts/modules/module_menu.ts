@@ -224,15 +224,15 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Relax the cylinder model by rotating its constituent cylinders.
    */
-  relaxCylinders() {
+  async relaxCylinders() {
     if (!this.cm) this.generateCylinderModel();
     if (!this.cm) return;
     const initialScore = Math.round(this.cm.calculateRelaxScore());
-    this.cm.relax();
+    await this.cm.relax();
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.removeNucleotides(true);
-    this.regenerateVisible();
+    if(this.context.activeContext == this) this.regenerateVisible();
 
     this.context.addMessage(
       `Cylinders relaxed.<br>Initial score: ${initialScore}<br>Final score: ${finalScore}`,

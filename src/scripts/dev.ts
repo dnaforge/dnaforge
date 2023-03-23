@@ -31,7 +31,7 @@ export function dev(context: Context) {
 
   //(<CycleCoverMenu>context.menus.get('cycle-cover')).addWires();
   //(<CycleCoverMenu>context.menus.get('cycle-cover')).addCylinders();
-  //(<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
+  (<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
 
   //(<ATrailMenu>context.menus.get('atrail')).addWires();
   //(<ATrailMenu>context.menus.get("atrail")).addCylinders();
@@ -39,7 +39,7 @@ export function dev(context: Context) {
 
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addWires();
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addCylinders();
-  (<SpanningTreeMenu>context.menus.get('spanning-tree')).addNucleotides();
+  //(<SpanningTreeMenu>context.menus.get('spanning-tree')).addNucleotides();
   //(<SpanningTreeMenu>context.menus.get('spanning-tree')).generatePrimary();
 
   //(<SternaMenu>context.menus.get("sterna")).addWires();

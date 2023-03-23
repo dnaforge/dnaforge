@@ -53,22 +53,16 @@ class Veneziano {
   getPrim(): Set<Edge> {
     const visited = new Set();
     const st: Set<Edge> = new Set();
+    const stack: Edge[] = [];
 
-    const queue: [Edge, number][] = [];
-    const enqueue = (e: Edge) => {
-      const [c1, c2] = e.getCoords();
-      const cost = c1.clone().sub(c2).length();
-      let i;
-      for (i = 0; i < queue.length; i++) {
-        if (queue[i][1] < cost) break;
-      }
-      queue.splice(i, 0, [e, cost]);
-    };
-
-    const v0 = this.graph.getVertices()[0];
-    for (const e of v0.getAdjacentEdges()) enqueue(e);
-    while (queue.length > 0) {
-      const edge = queue.pop()[0];
+    let v0 = this.graph.getVertices()[0];
+    for(let v of this.graph.getVertices()){
+      if(v.degree() > v0.degree()) v0 = v;
+    }
+    
+    for (const e of v0.getAdjacentEdges()) stack.push(e);
+    while (stack.length > 0) {
+      const edge = stack.shift();
       const v1 = edge.vertices[0];
       const v2 = edge.vertices[1];
       if (!visited.has(v1) || !visited.has(v2)) {
@@ -81,7 +75,7 @@ class Veneziano {
         const edge2 = neighbours[i];
         const [ev1, ev2] = edge2.getVertices();
         if (!visited.has(ev1) || !visited.has(ev2)) {
-          enqueue(edge2);
+          stack.push(edge2);
         }
       }
     }

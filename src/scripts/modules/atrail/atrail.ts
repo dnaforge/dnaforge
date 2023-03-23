@@ -423,6 +423,7 @@ function wiresToCylinders(atrail: ATrail, params: MenuParameters) {
   return cm;
 }
 
+
 function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;
@@ -460,4 +461,9 @@ function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
   return nm;
 }
 
-export { ATrail, graphToWires, wiresToCylinders, cylindersToNucleotides };
+export {
+  ATrail,
+  graphToWires,
+  wiresToCylinders,
+  cylindersToNucleotides,
+};
