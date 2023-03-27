@@ -52,7 +52,6 @@ const backboneGeometry = new THREE.ConeGeometry(0.15, 1, 6);
 const baseGeometry = (nucParams: Record<string, any>) => {
   const base = new THREE.SphereGeometry(0.2, 16, 8);
   base.scale(1, 0.5, 1);
-  base.rotateX(Math.PI / 2);
   base.translate(...(nucParams.NUCLEOBASE_CENTER as [number, number, number]));
   return base;
 };
@@ -107,8 +106,8 @@ class Nucleotide {
   baseNormal: Vector3;
 
   /**
-   * Constructs a nucleotide at the origin, along a helical axis pointing towards Z-axis,
-   * with the backbone center of mass pointing towrads Y-axis.
+   * Constructs a nucleotide at the origin, along a helical axis pointing towards Y-axis,
+   * with the backbone center of mass pointing towards Z-axis.
    *
    * @param scale
    * @param naType DNA | RNA
@@ -1109,6 +1108,17 @@ class NucleotideModel {
       for (const n of s.nucleotides) n.setSelect(false);
     }
   }
+
+  /**
+   * Select 5 primes
+   */
+  select5p(onlyScaffold = true){
+    if(onlyScaffold) return this.getScaffold().nucleotides[0].setSelect(true);
+    for(let s of this.strands){
+      s.nucleotides[0].setSelect(true);
+    }
+  }
 }
+
 
 export { NucleotideModel, Strand, Nucleotide };

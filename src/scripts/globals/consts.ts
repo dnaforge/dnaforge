@@ -13,10 +13,10 @@ const DNA: Record<string, number | Vector3> = {
   BB_DIST: 1,
   RADIUS_BB_CENTER: 0.8517,
 
-  BACKBONE_CENTER: new Vector3(0, -0.8517, 0),
-  NUCLEOBASE_CENTER: new Vector3(-0.05806632, -0.16015875, 0),
-  BASE_NORMAL: new Vector3(0, 0, -1),
-  HYDROGEN_FACING_DIR: new Vector3(0.34084473, 0.94011961, 0),
+  BACKBONE_CENTER: new Vector3(0, 0, 0.8517),
+  NUCLEOBASE_CENTER: new Vector3(-0.05806632, 0, 0.16015875),
+  BASE_NORMAL: new Vector3(0, -1, 0),
+  HYDROGEN_FACING_DIR: new Vector3(0.34084473, 0, -0.94011961),
 };
 
 const RNA: Record<string, number | Vector3> = {
@@ -29,10 +29,10 @@ const RNA: Record<string, number | Vector3> = {
   BB_DIST: 1,
   RADIUS_BB_CENTER: 0.95,
 
-  BACKBONE_CENTER: new Vector3(0, -0.95, 0),
-  NUCLEOBASE_CENTER: new Vector3(0.3585695, -0.45913134, -0.3462709957078099),
-  BASE_NORMAL: new Vector3(-0.14648469, -0.21646889, -0.96523751),
-  HYDROGEN_FACING_DIR: new Vector3(0.56318111, 0.78393908, -0.26127869),
+  BACKBONE_CENTER: new Vector3(0, 0, 0.95),
+  NUCLEOBASE_CENTER: new Vector3(0.3585695, -0.3462709957078099, 0.45913134),
+  BASE_NORMAL: new Vector3(-0.14648469, -0.96523751, 0.21646889),
+  HYDROGEN_FACING_DIR: new Vector3(0.56318111, -0.26127869, -0.78393908),
 };
 
 const RNA_PSEUDOKNOTS: Array<[string, string]> = [

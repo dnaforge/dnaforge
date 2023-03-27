@@ -65,6 +65,8 @@ export abstract class ModuleMenu extends Menu {
     this.hotkeys.set('alt+a', this.deselectAll);
     this.hotkeys.set('r', this.relaxButton);
     this.hotkeys.set('space', this.generateWiresButton);
+    this.hotkeys.set('c', () => {this.select5p(true)});
+    this.hotkeys.set('shift+c', () => {this.select5p(false)});
   }
 
   /**
@@ -170,6 +172,10 @@ export abstract class ModuleMenu extends Menu {
 
   deselectNucleotides() {
     this.showNucleotides && this.nm && this.nm.deselectAll();
+  }
+
+  select5p(onlyScaffold = true){
+    this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
   }
 
   /**

@@ -21,7 +21,7 @@ interface CylinderMeshes {
 /**
  * An individual cylinder. Used to create strands and orient them. Note that a
  * cylinder with an identity transformation matrix is considered to have its base
- * at the origin and the end one unit along the Z-vector.
+ * at the origin and the end one unit along the Y-vector.
  */
 class Cylinder {
   scale: number;
@@ -29,7 +29,7 @@ class Cylinder {
   nucParams: Record<string, any>;
 
   dir: Vector3; // direction of the cylinder
-  nor1: Vector3; // direction of the first base of the first strand
+  nor1: Vector3; // direction of the first backbone of the first strand
   nor2: Vector3; // orientation normal vector
 
   transform: Matrix4;
@@ -89,7 +89,7 @@ class Cylinder {
 
   /**
    *
-   * @returns The length of one strand of the double helix in nanometers
+   * @returns The length of one strand of the double helix in 3d space units
    */
   getLength() {
     return (this.length - 1) * this.nucParams.RISE * this.scale;
@@ -97,7 +97,7 @@ class Cylinder {
 
   /**
    *
-   * @returns The length of the entire cylinder in nanometers
+   * @returns The length of the entire cylinder in 3d space units
    */
   getCylinderLength() {
     return (
@@ -109,7 +109,7 @@ class Cylinder {
 
   /**
    * Calculates the transformation matrix such that it transforms a cylinder starting from the origin
-   * and pointing towards the z-axis.
+   * and pointing towards the Y-axis.
    */
   calculateTransformMatrix() {
     const p1 = this.p1
@@ -124,11 +124,12 @@ class Cylinder {
           )
       );
     const transform = new Matrix4()
-      .makeBasis(this.nor1, this.nor2, this.dir)
+      .makeBasis(this.nor2, this.dir, this.nor1)
       .scale(new Vector3(this.scale, this.scale, this.scale))
       .setPosition(p1);
     this.transform = transform;
   }
+  
 
   /**
    * Rotates the cylinder along the given axis.
@@ -146,7 +147,7 @@ class Cylinder {
   }
 
   /**
-   * Orient the cylinder so that the first base of the first strand points towards dir
+   * Orient the cylinder so that the first backbone of the first strand points towards dir
    *
    * @param dir
    */
@@ -196,8 +197,8 @@ class Cylinder {
   private _getPrimePosition(str: string): Vector3 {
     const nor5P1 = this.nucParams.BACKBONE_CENTER.clone();
     const twist = (this.length - 1) * this.nucParams.TWIST;
-    const rise2 = new Vector3(0, 0, (this.length - 1) * this.nucParams.RISE);
-    const inclination = new Vector3(0, 0, this.nucParams.INCLINATION);
+    const rise2 = new Vector3(0, (this.length - 1) * this.nucParams.RISE, 0);
+    const inclination = new Vector3(0, this.nucParams.INCLINATION, 0);
 
     if (this.nucParams.INCLINATION < 0) {
       // subtracting the inclination when the pair of the 5-prime is actually behind the 5-prime.
@@ -211,20 +212,20 @@ class Cylinder {
 
       case 'first3Prime':
         const nor3P1 = nor5P1
-          .applyAxisAngle(new Vector3(0, 0, 1), twist)
+          .applyAxisAngle(new Vector3(0, 1, 0), twist)
           .add(rise2);
         return nor3P1;
 
       case 'second5Prime':
         const nor5P2 = nor5P1
-          .applyAxisAngle(new Vector3(0, 0, 1), twist + this.nucParams.AXIS)
+          .applyAxisAngle(new Vector3(0, 1, 0), twist + this.nucParams.AXIS)
           .add(rise2)
           .add(inclination);
         return nor5P2;
 
       case 'second3Prime':
         const nor3P2 = nor5P1
-          .applyAxisAngle(new Vector3(0, 0, 1), this.nucParams.AXIS)
+          .applyAxisAngle(new Vector3(0, 1, 0), this.nucParams.AXIS)
           .add(inclination);
         return nor3P2;
 
@@ -266,9 +267,9 @@ class Cylinder {
       const rotation = this.nucParams.TWIST * i;
       const rise = this.nucParams.RISE * i + inclination;
 
-      const rotHelix = new Matrix4().makeRotationZ(rotation);
+      const rotHelix = new Matrix4().makeRotationY(rotation);
       const transform = new Matrix4()
-        .makeTranslation(0, 0, rise)
+        .makeTranslation(0, rise, 0)
         .multiply(rotHelix);
 
       yield transform.premultiply(this.transform);
@@ -293,9 +294,9 @@ class Cylinder {
         this.nucParams.INCLINATION +
         inclination;
 
-      const rotHelix = new Matrix4().makeRotationZ(rotation).multiply(rotCyl);
+      const rotHelix = new Matrix4().makeRotationY(rotation).multiply(rotCyl);
       const transform = new Matrix4()
-        .makeTranslation(0, 0, rise)
+        .makeTranslation(0, rise, 0)
         .multiply(rotHelix);
 
       yield transform.premultiply(this.transform);
@@ -326,7 +327,7 @@ class Cylinder {
   setObjectInstance(index: number, meshes: CylinderMeshes) {
     const transformMain = this.transform
       .clone()
-      .scale(new Vector3(1, 1, this.getCylinderLength() / this.scale));
+      .scale(new Vector3(1, this.getCylinderLength() / this.scale, 1)); // the transform is already scaled
     meshes.main.setMatrixAt(index, transformMain);
     meshes.main.setColorAt(index, cylinderColour); // this needs to be here or prime and linker won't get coloured for some mysterious reason
 
@@ -448,8 +449,7 @@ class CylinderModel {
       1,
       8
     );
-    cylinderMain.rotateX(Math.PI / 2);
-    cylinderMain.translate(0, 0, 0.5);
+    cylinderMain.translate(0, 0.5, 0);
     const cylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
     const linker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 

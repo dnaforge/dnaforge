@@ -7,6 +7,8 @@ import { SpanningTreeMenu } from './modules/spanning_tree/spanning_tree_menu';
 import { ATrailMenu } from './modules/atrail/atrail_menu';
 import { CycleCoverMenu } from './modules/cycle_cover/cycle_cover_menu';
 import { SternaMenu } from './modules/sterna/sterna_menu';
+import * as _ from 'lodash';
+import { Relaxer } from './models/cylinder_model_physics';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -26,15 +28,15 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(cube);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
   context.setGraph(graph);
 
   //(<CycleCoverMenu>context.menus.get('cycle-cover')).addWires();
   //(<CycleCoverMenu>context.menus.get('cycle-cover')).addCylinders();
-  (<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
+  //(<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
 
   //(<ATrailMenu>context.menus.get('atrail')).addWires();
-  //(<ATrailMenu>context.menus.get("atrail")).addCylinders();
+  (<ATrailMenu>context.menus.get("atrail")).addCylinders();
   //(<ATrailMenu>context.menus.get('atrail')).addNucleotides();
 
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addWires();
@@ -48,4 +50,7 @@ export function dev(context: Context) {
   //(<SternaMenu>context.menus.get("sterna")).downloadPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePartialPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePrimary();
-}
+
+  const r = new Relaxer(context);
+  r.setFromCM((<ATrailMenu>context.menus.get("atrail")).cm);
+}  
