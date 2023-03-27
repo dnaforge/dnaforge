@@ -65,8 +65,12 @@ export abstract class ModuleMenu extends Menu {
     this.hotkeys.set('alt+a', this.deselectAll);
     this.hotkeys.set('r', this.relaxButton);
     this.hotkeys.set('space', this.generateWiresButton);
-    this.hotkeys.set('c', () => {this.select5p(true)});
-    this.hotkeys.set('shift+c', () => {this.select5p(false)});
+    this.hotkeys.set('c', () => {
+      this.select5p(true);
+    });
+    this.hotkeys.set('shift+c', () => {
+      this.select5p(false);
+    });
   }
 
   /**
@@ -174,7 +178,7 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides && this.nm && this.nm.deselectAll();
   }
 
-  select5p(onlyScaffold = true){
+  select5p(onlyScaffold = true) {
     this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
   }
 
@@ -238,7 +242,7 @@ export abstract class ModuleMenu extends Menu {
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.removeNucleotides(true);
-    if(this.context.activeContext == this) this.regenerateVisible();
+    if (this.context.activeContext == this) this.regenerateVisible();
 
     this.context.addMessage(
       `Cylinders relaxed.<br>Initial score: ${initialScore}<br>Final score: ${finalScore}`,

@@ -6,6 +6,7 @@ import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
 import { Vertex } from './graph';
 import { Strand } from './nucleotide_model';
+import { Relaxer } from './cylinder_model_physics';
 
 const cylinderColour = new THREE.Color(0xffffff);
 const primeColour = new THREE.Color(0xff9999);
@@ -129,7 +130,6 @@ class Cylinder {
       .setPosition(p1);
     this.transform = transform;
   }
-  
 
   /**
    * Rotates the cylinder along the given axis.
@@ -194,7 +194,7 @@ class Cylinder {
    * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
    * @returns
    */
-  private _getPrimePosition(str: string): Vector3 {
+  getPrimePositionU(str: string): Vector3 {
     const nor5P1 = this.nucParams.BACKBONE_CENTER.clone();
     const twist = (this.length - 1) * this.nucParams.TWIST;
     const rise2 = new Vector3(0, (this.length - 1) * this.nucParams.RISE, 0);
@@ -241,7 +241,19 @@ class Cylinder {
    * @returns
    */
   getPrimePosition(str: string): Vector3 {
-    return this._getPrimePosition(str).applyMatrix4(this.transform);
+    return this.getPrimePositionU(str).applyMatrix4(this.transform);
+  }
+
+  /**
+   * Returns the untransformed position of a cylinder's prime paired with this cylinder at prime
+   *
+   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @returns
+   */
+  getPairPrimePositionU(str: string): Vector3 {
+    if (!this.neighbours[str]) return;
+    const [cyl, prime] = this.neighbours[str];
+    return cyl.getPrimePositionU(prime);
   }
 
   /**
@@ -514,25 +526,14 @@ class CylinderModel {
    * @param iterations
    * @returns
    */
-  async relax(iterations = 1000) {
-    const wait = () => new Promise(resolve => setTimeout(resolve, 1));
+  async relax(iterations = 400) {
+    const wait = () => new Promise((resolve) => setTimeout(resolve, 1));
+    const relaxer = new Relaxer(this);
     // rotations
     for (let i = 0; i < iterations; i++) {
-      this.calculateTorques();
+      relaxer.step();
 
-      const delta = 0.05 * (1 - i / iterations);
-      const jitter =
-        0.05 *
-        Math.PI *
-        (Math.random() - 0.5) *
-        (1 - Math.min(1, i / iterations));
-
-      for (const cyl of this.cylinders) {
-        cyl.rotate(cyl.dir, cyl.torque * delta + jitter);
-      }
-
-
-      if(i % 100 == 0){
+      if (i % 100 == 0) {
         this.updateObject();
         await wait();
       }

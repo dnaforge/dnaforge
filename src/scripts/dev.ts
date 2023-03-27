@@ -36,8 +36,9 @@ export function dev(context: Context) {
   //(<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
 
   //(<ATrailMenu>context.menus.get('atrail')).addWires();
-  (<ATrailMenu>context.menus.get("atrail")).addCylinders();
+  (<ATrailMenu>context.menus.get('atrail')).addCylinders();
   //(<ATrailMenu>context.menus.get('atrail')).addNucleotides();
+  (<ATrailMenu>context.menus.get('atrail')).relaxCylinders();
 
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addWires();
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addCylinders();
@@ -51,6 +52,5 @@ export function dev(context: Context) {
   //(<SternaMenu>context.menus.get("sterna")).generatePartialPrimary();
   //(<SternaMenu>context.menus.get("sterna")).generatePrimary();
 
-  const r = new Relaxer(context);
-  r.setFromCM((<ATrailMenu>context.menus.get("atrail")).cm);
-}  
+  //const r = new Relaxer((<ATrailMenu>context.menus.get("atrail")).cm);
+}

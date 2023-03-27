@@ -1112,13 +1112,12 @@ class NucleotideModel {
   /**
    * Select 5 primes
    */
-  select5p(onlyScaffold = true){
-    if(onlyScaffold) return this.getScaffold().nucleotides[0].setSelect(true);
-    for(let s of this.strands){
+  select5p(onlyScaffold = true) {
+    if (onlyScaffold) return this.getScaffold().nucleotides[0].setSelect(true);
+    for (let s of this.strands) {
       s.nucleotides[0].setSelect(true);
     }
   }
 }
-
 
 export { NucleotideModel, Strand, Nucleotide };

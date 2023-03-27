@@ -56,10 +56,10 @@ class Veneziano {
     const stack: Edge[] = [];
 
     let v0 = this.graph.getVertices()[0];
-    for(let v of this.graph.getVertices()){
-      if(v.degree() > v0.degree()) v0 = v;
+    for (let v of this.graph.getVertices()) {
+      if (v.degree() > v0.degree()) v0 = v;
     }
-    
+
     for (const e of v0.getAdjacentEdges()) stack.push(e);
     while (stack.length > 0) {
       const edge = stack.shift();
