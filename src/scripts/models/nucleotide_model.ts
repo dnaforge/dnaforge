@@ -5,7 +5,6 @@ import { InstancedMesh, Intersection, Matrix4, Quaternion } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
-import { randInt } from 'three/src/math/MathUtils';
 import { GLOBALS } from '../globals/globals';
 import { CylinderModel, Cylinder } from './cylinder_model';
 
@@ -42,6 +41,7 @@ const nucleotideColours: Record<string, THREE.Color> = {
   nucleotide: new THREE.Color(0xffffff),
   backbone: new THREE.Color(0xffffff),
 
+  active: new THREE.Color(0xbbbbff),
   selection: new THREE.Color(0x5555ff),
   hover: new THREE.Color(0xff5555),
 };
@@ -83,6 +83,7 @@ class Nucleotide {
   instanceMeshes: Record<string, THREE.InstancedMesh>;
   hover = false;
   select = false;
+  active = false;
 
   id: number; // TODO: maybe make this match the position in a strand or the nucleotide model.
   base: string;
@@ -204,6 +205,12 @@ class Nucleotide {
         nucleotideColours.hover,
         nucleotideColours[this.base],
       ];
+    else if (this.active)
+      colours = [
+        nucleotideColours.active,
+        nucleotideColours.active,
+        nucleotideColours[this.base],
+      ];
     else if (this.select)
       colours = [
         nucleotideColours.selection,
@@ -224,28 +231,19 @@ class Nucleotide {
       this.instanceMeshes[m].instanceColor.needsUpdate = true;
   }
 
-  /**
-   * Marks this nucleotide as being hovered over.
-   *
-   * @param val
-   */
-  setHover(val: boolean) {
-    this.hover = val;
-    this.setObjectColours();
-  }
-
-  /**
-   * Marks this nucleotide as selected.
-   *
-   * @param val
-   */
-  setSelect(val: boolean) {
+  markSelect(val: boolean) {
     this.select = val;
     this.setObjectColours();
   }
 
-  isSelected() {
-    return this.select;
+  markActive(val: boolean) {
+    this.active = val;
+    this.setObjectColours();
+  }
+
+  markHover(val: boolean) {
+    this.hover = val;
+    this.setObjectColours();
   }
 
   /**
@@ -515,6 +513,9 @@ class NucleotideModel {
 
   obj: THREE.Object3D;
   meshes: NucleotideMeshes;
+
+  active: Nucleotide = undefined;
+  selection = new Set<Nucleotide>();
 
   /**
    *
@@ -1067,14 +1068,42 @@ class NucleotideModel {
   }
 
   /**
+   * Sets target nucleotide active
+   *
+   * @param target
+   */
+  setActive(target: Nucleotide) {
+    this.clearActive();
+    target.markActive(true);
+    this.active = target;
+  }
+
+  /**
+   * Clears active nucleotide
+   *
+   */
+  clearActive() {
+    if (this.active) this.active.markActive(false);
+    this.active = undefined;
+  }
+
+  /**
    * Toggles select of target nucleotide and all its neighbours according to the
    * selection mode.
    *
    * @param target
    */
   toggleSelect(target: Nucleotide) {
+    this.setActive(target);
     for (const n of this.getSelection(target)) {
-      n.setSelect(!n.isSelected());
+      if (this.selection.has(n)) {
+        this.selection.delete(n);
+        n.markSelect(false);
+        if (n == this.active) this.clearActive();
+      } else {
+        this.selection.add(n);
+        n.markSelect(true);
+      }
     }
   }
 
@@ -1087,7 +1116,7 @@ class NucleotideModel {
    */
   setHover(target: Nucleotide, val: boolean) {
     for (const n of this.getSelection(target)) {
-      n.setHover(val);
+      n.markHover(val);
     }
   }
 
@@ -1096,7 +1125,10 @@ class NucleotideModel {
    */
   selectAll() {
     for (const s of this.strands) {
-      for (const n of s.nucleotides) n.setSelect(true);
+      for (const n of s.nucleotides) {
+        n.markSelect(true);
+        this.selection.add(n);
+      }
     }
   }
 
@@ -1104,8 +1136,12 @@ class NucleotideModel {
    * Unmarks all nucleotides as selected.
    */
   deselectAll() {
+    this.clearActive();
     for (const s of this.strands) {
-      for (const n of s.nucleotides) n.setSelect(false);
+      for (const n of s.nucleotides) {
+        n.markSelect(false);
+        this.selection.delete(n);
+      }
     }
   }
 
@@ -1113,9 +1149,17 @@ class NucleotideModel {
    * Select 5 primes
    */
   select5p(onlyScaffold = true) {
-    if (onlyScaffold) return this.getScaffold().nucleotides[0].setSelect(true);
+    if (onlyScaffold) {
+      const n = this.getScaffold().nucleotides[0];
+      n.markSelect(true);
+      this.selection.add(n);
+      this.setActive(n);
+      return;
+    }
     for (let s of this.strands) {
-      s.nucleotides[0].setSelect(true);
+      const n = s.nucleotides[0];
+      n.markSelect(true);
+      this.selection.add(n);
     }
   }
 }

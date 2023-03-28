@@ -8,7 +8,7 @@ import { ATrailMenu } from './modules/atrail/atrail_menu';
 import { CycleCoverMenu } from './modules/cycle_cover/cycle_cover_menu';
 import { SternaMenu } from './modules/sterna/sterna_menu';
 import * as _ from 'lodash';
-import { Relaxer } from './models/cylinder_model_physics';
+import { Relaxer } from './models/relaxer';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -38,7 +38,7 @@ export function dev(context: Context) {
   //(<ATrailMenu>context.menus.get('atrail')).addWires();
   (<ATrailMenu>context.menus.get('atrail')).addCylinders();
   //(<ATrailMenu>context.menus.get('atrail')).addNucleotides();
-  (<ATrailMenu>context.menus.get('atrail')).relaxCylinders();
+  //(<ATrailMenu>context.menus.get('atrail')).relaxCylinders();
 
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addWires();
   //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addCylinders();

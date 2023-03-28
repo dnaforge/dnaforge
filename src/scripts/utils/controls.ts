@@ -49,6 +49,14 @@ export class Controls {
             this.curMesh = this.intersection.object;
             if (this.curMesh.onMouseOver) break;
           }
+          if (
+            this.prevMesh &&
+            this.prevMesh !== this.curMesh &&
+            this.prevMesh.onMouseOverExit
+          ) {
+            this.prevMesh.onMouseOverExit();
+            this.context.removeTooltip();
+          }
           if (this.curMesh.onMouseOver) {
             this.curMesh.onMouseOver(this.intersection);
           }
@@ -57,14 +65,6 @@ export class Controls {
               this.intersection.point,
               this.curMesh.getTooltip(this.intersection)
             );
-          }
-          if (
-            this.prevMesh &&
-            this.prevMesh !== this.curMesh &&
-            this.prevMesh.onMouseOverExit
-          ) {
-            this.prevMesh.onMouseOverExit();
-            this.context.removeTooltip();
           }
           this.prevMesh = this.curMesh;
         } else {
