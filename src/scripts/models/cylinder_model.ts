@@ -785,6 +785,7 @@ class CylinderModel {
       target.markActive(true);
       this.setActive(target);
     }
+    this.handleSelectionCallback();
   }
 
   /**
@@ -805,6 +806,7 @@ class CylinderModel {
       cyl.markSelect(true);
       this.selection.add(cyl);
     }
+    this.handleSelectionCallback();
   }
 
   /**
@@ -816,6 +818,17 @@ class CylinderModel {
       cyl.markSelect(false);
       this.selection.delete(cyl);
     }
+    this.handleSelectionCallback();
+  }
+
+  handleSelectionCallback() {
+    this.selectionCallback && this.selectionCallback(this);
+  }
+
+  selectionCallback: (cm: CylinderModel) => void;
+
+  bindSelectionCallback(callback: (cm: CylinderModel) => void) {
+    this.selectionCallback = callback;
   }
 }
 

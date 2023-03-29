@@ -1,9 +1,69 @@
-import { CylinderModel } from '../models/cylinder_model';
+import { Cylinder, CylinderModel } from '../models/cylinder_model';
 import { Graph } from '../models/graph';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
 import { Menu, MenuParameters } from '../scene/menu';
+import { createRoot } from 'react-dom/client';
+import * as React from 'react';
+
+class CylinderSelection extends React.Component<{ cm: CylinderModel }, {}> {
+  cm: CylinderModel;
+  suffix = ' ';
+  text = '';
+
+  constructor(props: { cm: CylinderModel }) {
+    super(props);
+    this.cm = props.cm;
+    this.state = { text: this.cylindersToText() };
+  }
+
+  cylindersToText() {
+    const cylinders = this.cm ? Array.from(this.cm.selection) : [];
+    const listItems = cylinders
+      .map((cyl) => {
+        return cyl.instanceId;
+      })
+      .join(' ');
+    return listItems;
+  }
+
+  shouldComponentUpdate(nextProps: { cm: CylinderModel }) {
+    this.cm = nextProps.cm;
+    const text = this.cylindersToText();
+    if ((this.state as any).text != text + this.suffix) {
+      console.log(text);
+      this.setState({ text: text + this.suffix });
+      this.text = text;
+      return true;
+    }
+    return false;
+  }
+
+  updateText = (event: any) => {
+    event.preventDefault();
+    console.log(event);
+    const text = event.target.value;
+    this.cm.selection.clear();
+    const ids = text.split(' ');
+    for (let i = 0; i < ids.length - 1; i++) {
+      const cyl = this.cm.cylinders[ids[i]];
+      cyl && this.cm.selection.add(cyl);
+    }
+
+    this.setState({ text: text });
+  };
+
+  render() {
+    return (
+      <textarea
+        onChange={this.updateText}
+        value={(this.state as any).text}
+        name={'display'}
+      />
+    );
+  }
+}
 
 function setupHTML(html: string) {
   const mainData = $('<div>');
@@ -109,6 +169,7 @@ export abstract class ModuleMenu extends Menu {
    */
   activate() {
     try {
+      this.handleSelection();
       this.regenerateVisible();
     } catch {} // regenerating structures should only fail if the input is faulty, so no need to catch anything
   }
@@ -129,6 +190,8 @@ export abstract class ModuleMenu extends Menu {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
+
+    this.handleSelection();
 
     // Prevents show-function from generating these after reset. TODO: find a better solution.
     this.showWires = false;
@@ -182,6 +245,22 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
   }
 
+  handleSelection(): void;
+  handleSelection(nm: NucleotideModel): void;
+  handleSelection(cm: CylinderModel): void;
+  handleSelection(model?: CylinderModel | NucleotideModel): void {
+    this.selectionMenu.render(<CylinderSelection cm={this.cm} />);
+  }
+
+  createCylinderMenu() {
+    const selection = $('<input>');
+    selection.attr('id', 'selection-cylinders');
+    selection.attr('type', 'text');
+    selection.attr('data-role', 'taginput');
+    this.selectionMenu.append(selection);
+    return selection;
+  }
+
   /**
    * Generate a wireframe / routing model based on the current graph and parameters. Remove the previous version.
    */
@@ -211,6 +290,10 @@ export abstract class ModuleMenu extends Menu {
     if (!this.wires) this.generateWires();
 
     this.cm = this.wiresToCylinders(this.wires, this.params);
+    this.cm &&
+      this.cm.bindSelectionCallback((cm: CylinderModel) => {
+        return this.handleSelection(cm);
+      });
   }
 
   /**
@@ -341,6 +424,8 @@ export abstract class ModuleMenu extends Menu {
    * Connect all the HTML elements to this object. Add their event listeners.
    */
   setupEventListeners() {
+    super.setupEventListeners();
+
     this.wiresButton = $(`#${this.elementId}-toggle-wires`);
     this.cylindersButton = $(`#${this.elementId}-toggle-cylinders`);
     this.nucleotidesButton = $(`#${this.elementId}-toggle-nucleotides`);
@@ -354,7 +439,7 @@ export abstract class ModuleMenu extends Menu {
     );
 
     const blur = () => {
-      (<HTMLElement>document.activeElement).blur();
+      (document.activeElement as HTMLElement).blur();
     };
 
     this.wiresButton.on('click', () => {
