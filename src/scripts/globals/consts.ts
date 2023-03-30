@@ -552,6 +552,41 @@ const RNA_NP_TEMPLATE = (ps: string[], ss: string[]) => {
   );
 };
 
+export type WATSON_CHAR_DNA = 'A' | 'T' | 'G' | 'C';
+export type WATSON_CHAR_RNA = 'A' | 'U' | 'G' | 'C';
+export type IUPAC_CHAR_DNA =
+  | 'A'
+  | 'T'
+  | 'G'
+  | 'C'
+  | 'W'
+  | 'S'
+  | 'M'
+  | 'K'
+  | 'R'
+  | 'Y'
+  | 'B'
+  | 'D'
+  | 'H'
+  | 'V'
+  | 'N';
+export type IUPAC_CHAR_RNA =
+  | 'A'
+  | 'U'
+  | 'G'
+  | 'C'
+  | 'W'
+  | 'S'
+  | 'M'
+  | 'K'
+  | 'R'
+  | 'Y'
+  | 'B'
+  | 'D'
+  | 'H'
+  | 'V'
+  | 'N';
+
 const IUPAC_DNA: Record<string, string[]> = {
   A: ['A'],
   T: ['T'],

@@ -5,7 +5,6 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
 import { Vertex } from './graph';
-import { Strand } from './nucleotide_model';
 import { Relaxer } from './relaxer';
 
 const cylinderColours: Record<string, THREE.Color> = {
@@ -77,7 +76,7 @@ class Cylinder {
 
   isPseudo = false; // marks whether this is a cylinder that should form a pseudoknot.
 
-  pair: Cylinder; // In case the same vertex pair has two cylinders
+  siblings: Cylinder[] = []; // In case the same vertex pair has two cylinders
 
   /**
    *
@@ -485,15 +484,26 @@ class CylinderModel {
   }
 
   /**
+   * Adds the given cylinders to this model. Make sure to dispose the old model
+   * in case it is already generated, since this won't update the models.
+   *
+   * @param cyls
+   */
+  addCylinders(...cyls: Cylinder[]) {
+    for (let c of cyls) this.cylinders.push(c);
+  }
+
+  /**
+   * Creates a cylinder and adds it to this model.
    *
    * @param p1 starting point
    * @param dir direction
    * @param length_bp length in bases
    * @returns the added cylinder
    */
-  addCylinder(p1: Vector3, dir: Vector3, length_bp: number) {
+  createCylinder(p1: Vector3, dir: Vector3, length_bp: number) {
     const c = new Cylinder(p1, dir, length_bp, this.scale, this.naType);
-    this.cylinders.push(c);
+    this.addCylinders(c);
     return c;
   }
 
@@ -529,17 +539,29 @@ class CylinderModel {
   }
 
   /**
-   * Returns the 3d object assocaited with this cylinder model. Generates it if it
-   * does not already exist.
+   * Adds the 3d object associated with this cylinder model to the given scene.
+   * Generates it if it does not already exist.
    *
-   * @returns
+   * @param scene
    */
-  getObject(): Object3D {
+  addToScene(scene: THREE.Scene) {
     if (!this.obj) {
       this.generateObject();
       this.updateObject();
     }
-    return this.obj;
+    scene.add(this.obj);
+  }
+
+  /**
+   * Removes the 3d object associated with this cylinder model from its
+   * parent.
+   *
+   * @param dispose delete the 3d object entirely
+   */
+  removeFromScene(dispose = false) {
+    if (!this.obj) return;
+    if (this.obj.parent) this.obj.parent.remove(this.obj);
+    if (dispose) this.dispose();
   }
 
   /**
@@ -667,8 +689,8 @@ class CylinderModel {
     for (const k of _.keys(this.meshes)) {
       const mesh = this.meshes[k];
       mesh.geometry.dispose();
-      delete this.obj;
     }
+    delete this.obj;
   }
 
   /**

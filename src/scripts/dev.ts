@@ -32,26 +32,35 @@ export function dev(context: Context) {
   const graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
   context.setGraph(graph);
 
-  //(<CycleCoverMenu>context.menus.get('cycle-cover')).addWires();
-  //(<CycleCoverMenu>context.menus.get('cycle-cover')).addCylinders();
-  //(<CycleCoverMenu>context.menus.get("cycle-cover")).addNucleotides();
+  const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
+  //cc.addWires();
+  //cc.addCylinders();
+  //cc.addNucleotides();
 
-  //(<ATrailMenu>context.menus.get('atrail')).addWires();
-  (<ATrailMenu>context.menus.get('atrail')).addCylinders();
-  //(<ATrailMenu>context.menus.get('atrail')).addNucleotides();
-  //(<ATrailMenu>context.menus.get('atrail')).relaxCylinders();
+  const atrail = <ATrailMenu>context.menus.get('atrail');
+  //atrail.addWires();
+  atrail.addCylinders();
+  //atrail.addNucleotides();
+  //atrail.relaxCylinders();
+  const cm = atrail.cm;
+  for (let i = 0; i < cm.cylinders.length; i++) {
+    if (Math.random() > 0.75) cm.toggleSelect(cm.cylinders[i]);
+  }
+  atrail.reinforce();
 
-  //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addWires();
-  //(<SpanningTreeMenu>context.menus.get("spanning-tree")).addCylinders();
-  //(<SpanningTreeMenu>context.menus.get('spanning-tree')).addNucleotides();
-  //(<SpanningTreeMenu>context.menus.get('spanning-tree')).generatePrimary();
+  //const st = (<SpanningTreeMenu>context.menus.get("spanning-tree"));
+  //st.addWires();
+  //st.addCylinders();
+  //st.addNucleotides();
+  //st.generatePrimary();
 
-  //(<SternaMenu>context.menus.get("sterna")).addWires();
-  //(<SternaMenu>context.menus.get('sterna')).addCylinders();
-  //(<SternaMenu>context.menus.get('sterna')).addNucleotides();
-  //(<SternaMenu>context.menus.get("sterna")).downloadPrimary();
-  //(<SternaMenu>context.menus.get("sterna")).generatePartialPrimary();
-  //(<SternaMenu>context.menus.get("sterna")).generatePrimary();
+  //const sterna = (<SternaMenu>context.menus.get("sterna"));
+  //sterna.addWires();
+  //sterna.addCylinders();
+  //sterna.addNucleotides();
+  //sterna.downloadPrimary();
+  //sterna.generatePartialPrimary();
+  //sterna.generatePrimary();
 
-  //const r = new Relaxer((<ATrailMenu>context.menus.get("atrail")).cm);
+  //const r = new Relaxer(cm);
 }

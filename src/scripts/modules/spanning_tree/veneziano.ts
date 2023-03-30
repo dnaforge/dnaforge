@@ -199,11 +199,11 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
       .clone()
       .add(dir.clone().multiplyScalar((length - length_n) / 2));
 
-    const c = cm.addCylinder(p1, dir, length_bp);
+    const c = cm.createCylinder(p1, dir, length_bp);
     c.setOrientation(nor.cross(dir).applyAxisAngle(dir, cm.nucParams.AXIS));
     if (visited.has(edge)) {
-      c.pair = visited.get(edge);
-      visited.get(edge).pair = c;
+      c.siblings.push(visited.get(edge));
+      visited.get(edge).siblings.push(c);
     }
     if (!st.has(edge)) c.isPseudo = true;
 
@@ -220,7 +220,7 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
     prev.neighbours.second5Prime = [cur, 'second3Prime'];
     cur.neighbours.second3Prime = [prev, 'second5Prime'];
 
-    if (cur.isPseudo) prev = cur.pair;
+    if (cur.isPseudo) prev = cur.siblings[0];
     else prev = cur;
 
     if (cur.length < 31) {
@@ -254,15 +254,15 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
     )[1];
 
     const scaffold_cur = nm.cylToStrands.get(cyl)[0];
-    const scaffold_pair = nm.cylToStrands.get(cyl.pair)[0];
+    const scaffold_pair = nm.cylToStrands.get(cyl.siblings[0])[0];
     const staple_cur = nm.cylToStrands.get(cyl)[1];
-    const staple_pair = nm.cylToStrands.get(cyl.pair)[1];
+    const staple_pair = nm.cylToStrands.get(cyl.siblings[0])[1];
 
     nm.addStrand(scaffold_cur.linkStrand(scaffold_next, 5, 5));
     nm.addStrand(staple_cur.linkStrand(staple_next, 5, 5));
 
     visited.add(cyl);
-    if (visited.has(cyl.pair)) continue;
+    if (visited.has(cyl.siblings[0])) continue;
 
     const nucs_cur = staple_cur.nucleotides;
     const nucs_pair = staple_pair.nucleotides;

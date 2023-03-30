@@ -8,30 +8,53 @@ import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
 import { DNA_SCAFFOLDS } from '../globals/consts';
 import { ModuleMenuParameters } from '../modules/module_menu';
 
+interface ScaffoldParams {
+  scaffoldName?: string;
+  customScaffold?: string;
+  gcContent?: number;
+  naType?: 'RNA' | 'DNA';
+  linkerOptions?: string;
+  scaffoldOffset?: number;
+  scaffoldStart?: number;
+}
+
 /**
  * Sets the primary structure based on the scaffold name. Scaffold name options are "none", "random"
  * "custom", and the ones defined in consts.
  *
  * @param nm
- * @param params {scaffoldName, customScaffold?, gcContent?, naType?}
+ * @param params ScaffoldParams
  */
 export function setPrimaryFromScaffold(
   nm: NucleotideModel,
-  params: ModuleMenuParameters
+  params: ScaffoldParams
 ) {
   const scaffoldName = params.scaffoldName || 'none';
   const customScaffold = params.customScaffold || '';
   const gcContent = params.gcContent || 0.5;
   const naType = params.naType || 'DNA';
   const linkerOptions = params.linkerOptions || 'W';
+  const scaffoldOffset = params.scaffoldOffset || 0;
+  const scaffoldStart = params.scaffoldStart || 0;
 
   if (scaffoldName == 'none') return;
   if (scaffoldName != 'random') {
-    const scaffold =
+    let scaffold =
       scaffoldName == 'custom' ? customScaffold : DNA_SCAFFOLDS[scaffoldName];
-    const scaffoldNucs = nm.getScaffold().nucleotides;
+    // offset:
+    scaffold =
+      scaffold.slice(scaffoldOffset, scaffold.length) +
+      scaffold.slice(0, scaffoldOffset);
+    let scaffoldNucs = nm.getScaffold().nucleotides;
     if (scaffold.length < scaffoldNucs.length)
       throw `Scaffold strand is too short for this structure: ${scaffoldNucs.length} > ${scaffold.length}.`;
+    // scaffold start:
+    const idx = scaffoldNucs.indexOf(nm.instaceToNuc[scaffoldStart]);
+    if (idx == -1)
+      throw `Invalid 5' ID. ${scaffoldStart} is not a part of the scaffold`;
+    scaffoldNucs = scaffoldNucs
+      .slice(idx, scaffoldNucs.length)
+      .concat(scaffoldNucs.slice(0, idx));
     for (let i = 0; i < scaffoldNucs.length; i++) {
       const nuc = scaffoldNucs[i];
       const base = scaffold[i];
@@ -47,7 +70,7 @@ export function setPrimaryFromScaffold(
     if (n.isLinker && !n.isScaffold) n.base = linkerOptions;
   }
 
-  return setRandomPrimary(nm, gcContent, naType); // fill the non-scaffold bases randomly
+  return setRandomPrimary(nm, gcContent, naType); // fill the remaining non-scaffold bases randomly
 }
 
 /**
@@ -296,7 +319,7 @@ export function setRandomPrimary(
     } else {
       base = getComplement(n.base, n.pair.base);
       if (!base)
-        throw `Impossible base pair. ${n.id}: ${n.base} - ${n.pair.id}: ${n.pair.base}`;
+        throw `Impossible base pair. ${n.instanceId}: ${n.base} - ${n.pair.instanceId}: ${n.pair.base}`;
     }
     visited.add(n);
     n.base = base;

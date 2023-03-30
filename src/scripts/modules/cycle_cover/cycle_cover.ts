@@ -221,7 +221,7 @@ function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
   if (length < 1)
     throw `Cylinder length is zero nucleotides. Scale is too small.`;
 
-  const cyl = cm.addCylinder(p1, dir, length);
+  const cyl = cm.createCylinder(p1, dir, length);
   cyl.setOrientation(v1.getEdge(v2).normal);
 
   return cyl;

@@ -11,12 +11,11 @@ import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
-import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
 export interface STParameters extends ModuleMenuParameters {
-  scaffoldOffset?: number;
-  scaffoldStart?: number;
+  scaffoldOffset: number;
+  scaffoldStart: number;
 }
 
 export class SpanningTreeMenu extends ModuleMenu {

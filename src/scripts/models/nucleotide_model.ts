@@ -8,8 +8,6 @@ import { DNA, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
 import { CylinderModel, Cylinder } from './cylinder_model';
 
-let UID = 0;
-
 interface NucleotideMeshes {
   [key: string]: InstancedMesh;
   bases: InstancedMesh;
@@ -85,7 +83,6 @@ class Nucleotide {
   select = false;
   active = false;
 
-  id: number; // TODO: maybe make this match the position in a strand or the nucleotide model.
   base: string;
   scale: number;
   naType: string;
@@ -115,7 +112,6 @@ class Nucleotide {
    * @param base IUPAC code
    */
   constructor(scale = 1, naType = 'DNA', base = 'N') {
-    this.id = UID++;
     this.base = base;
     this.scale = scale;
     this.naType = naType;
@@ -261,12 +257,12 @@ class Nucleotide {
     const hydrogenFaceDir = this.hydrogenFaceDir;
     const baseNormal = this.baseNormal;
 
-    const next = this.next ? this.next.id : -1;
-    const prev = this.prev ? this.prev.id : -1;
-    const pair = this.pair ? this.pair.id : -1;
+    const next = this.next ? this.next.instanceId : -1;
+    const prev = this.prev ? this.prev.instanceId : -1;
+    const pair = this.pair ? this.pair.instanceId : -1;
 
     const t = {
-      id: this.id,
+      id: this.instanceId,
       nbAbbrev: this.base,
       pair: pair,
       prev: prev,
@@ -349,7 +345,7 @@ class Nucleotide {
  * A class represeting a strand. Contains nucleotides.
  */
 class Strand {
-  id: number;
+  instanceId: number;
   nucleotides: Nucleotide[] = [];
   scale: number;
   naType: string;
@@ -371,7 +367,6 @@ class Strand {
     this.scale = scale;
     this.isScaffold = isScaffold;
     this.isLinker = false;
-    this.id = UID++;
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
   }
@@ -482,12 +477,12 @@ class Strand {
     }
 
     const t = {
-      id: this.id,
+      id: this.instanceId,
       isScaffold: this.isScaffold,
       naType: this.naType,
       color: '',
-      fivePrimeId: this.nucleotides[0].id,
-      threePrimeId: this.nucleotides[length - 1].id,
+      fivePrimeId: this.nucleotides[0].instanceId,
+      threePrimeId: this.nucleotides[length - 1].instanceId,
       pdbFileId: 0,
       chainName: '',
       nucleotides: nucleotidesJSON,
@@ -505,6 +500,7 @@ class Strand {
  */
 class NucleotideModel {
   cylToStrands = new Map<Cylinder, [Strand, Strand]>(); // associates each cylinder to two strands
+  instaceToNuc: Record<number, Nucleotide> = {}; // maps instance ids to nucleotides
 
   strands: Strand[];
   scale: number;
@@ -679,17 +675,19 @@ class NucleotideModel {
   }
 
   /**
-   * Resets all the ID's of the strands and nucleotides contained in this model so
-   * that they start from 0.
+   * Sets all the ID's of the strands and nucleotides contained in this model so
+   * that they start from 0. Also sets the instanceToNuc dictionary, which is used
+   * for assigning mesh instances to nucleotides.
    */
   setIDs() {
     let i = 0;
     let j = 0;
     for (const s of this.strands) {
-      s.id = j;
+      s.instanceId = j;
       j += 1;
       for (const n of s.nucleotides) {
-        n.id = i;
+        n.instanceId = i;
+        this.instaceToNuc[i] = n;
         i += 1;
       }
     }
@@ -806,19 +804,19 @@ class NucleotideModel {
     for (const strand of shortStrands) {
       if (visited.has(strand)) continue;
       const nuc = strand.nucleotides[0];
-      let startId = nuc.id;
+      let startNuc = nuc;
       let cur = nuc;
       do {
         if (cur.prev) cur = cur.prev;
         else break;
-      } while (cur.id != startId);
-      startId = cur.id;
+      } while (cur != startNuc);
+      startNuc = cur;
       let len = 0;
       do {
         len += 1;
         if (cur.next) cur = cur.next;
         else break;
-      } while (cur.id != startId);
+      } while (cur != startNuc);
       if (len > maxLength) {
         const l = strand.length();
         addNicksT(strand, [Math.ceil(l / 2)]);
@@ -877,16 +875,26 @@ class NucleotideModel {
   }
 
   /**
-   * Returns the 3d object associated with this model. Creates it if it does
-   * not already exist.
+   * Adds the 3d object associated with this nucleotide model to the given scene.
+   * Generates it if it does not already exist.
    *
-   * @returns
+   * @param scene
    */
-  getObject() {
+  addToScene(scene: THREE.Scene) {
     if (!this.obj) {
       this.generateObject();
     }
-    return this.obj;
+    scene.add(this.obj);
+  }
+
+  /**
+   * Removes the 3d object associated with this nucleotide model from its
+   * parent.
+   *
+   */
+  removeFromScene() {
+    if (!this.obj) return;
+    if (this.obj.parent) this.obj.parent.remove(this.obj);
   }
 
   /**
@@ -915,13 +923,13 @@ class NucleotideModel {
       nucleotides: meshNucleotides,
       backbone: meshBackbone,
     };
-    const instaceToNuc: Record<number, Nucleotide> = {};
+    this.instaceToNuc = {};
 
     let i = 0;
     for (const s of this.strands) {
       for (const n of s.nucleotides) {
         n.setObjectInstance(i, meshes);
-        instaceToNuc[i] = n;
+        this.instaceToNuc[i] = n;
         i += 1;
       }
     }
@@ -930,18 +938,14 @@ class NucleotideModel {
     obj_group.add(meshes.bases, meshes.nucleotides, meshes.backbone);
     this.obj = obj_group;
 
-    this.setupEventListeners(meshes, instaceToNuc);
+    this.setupEventListeners(meshes);
   }
 
   /**
    *
    * @param meshes
-   * @param instaceToNuc
    */
-  setupEventListeners(
-    meshes: Record<string, InstancedMesh>,
-    instaceToNuc: Record<number, Nucleotide>
-  ) {
+  setupEventListeners(meshes: Record<string, InstancedMesh>) {
     let lastI = -1;
 
     //TODO: Move these somewhere else. Don't just hack them into the existing object3d.
@@ -953,24 +957,24 @@ class NucleotideModel {
         (intersection.object as any).onMouseOverExit();
 
       lastI = i;
-      this.setHover(instaceToNuc[i], true);
+      this.setHover(this.instaceToNuc[i], true);
     };
 
     const onMouseOverExit = () => {
       if (lastI == -1) return;
-      this.setHover(instaceToNuc[lastI], false);
+      this.setHover(this.instaceToNuc[lastI], false);
       lastI = -1;
     };
 
     const onClick = (intersection: Intersection) => {
       const i = intersection.instanceId;
-      this.setHover(instaceToNuc[i], false);
-      this.toggleSelect(instaceToNuc[i]);
+      this.setHover(this.instaceToNuc[i], false);
+      this.toggleSelect(this.instaceToNuc[i]);
     };
 
     const getTooltip = (intersection: Intersection) => {
       const i = intersection.instanceId;
-      const nuc = instaceToNuc[i];
+      const nuc = this.instaceToNuc[i];
       return `${nuc.base}<br>${i}`;
     };
 
@@ -1003,7 +1007,7 @@ class NucleotideModel {
    * associated with this model.
    */
   updateObject() {
-    if (!this.obj) this.getObject();
+    if (!this.obj) this.generateObject();
     for (const s of this.strands) {
       for (const n of s.nucleotides) {
         n.setObjectColours();
@@ -1017,6 +1021,9 @@ class NucleotideModel {
   dispose() {
     for (const k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
     delete this.obj;
+    this.instaceToNuc = {};
+    this.selection.clear();
+    this.hover.clear();
   }
 
   /**

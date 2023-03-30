@@ -143,7 +143,7 @@ export class Relaxer {
     for (let cyl of this.cm.cylinders) {
       const body1 = this.cylToMesh.get(cyl);
       let cStr = 0.001;
-      if (!visited.has(cyl)) {
+      if (!visited.has(cyl) && cyl.siblings.length < 1) {
         cStr = 2;
         for (let prime of _.keys(cyl.neighbours)) {
           visited.add(cyl.neighbours[prime][0]);

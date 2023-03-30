@@ -20,6 +20,8 @@ export interface ModuleMenuParameters extends MenuParameters {
   addNicks?: boolean;
   scaffoldName?: string;
   customScaffold?: string;
+  scaffoldOffset?: number;
+  scaffoldStart?: number;
 }
 
 class CylinderSelection extends React.Component<{ cm: CylinderModel }, {}> {
@@ -348,7 +350,6 @@ export abstract class ModuleMenu extends Menu {
     this.collectParameters();
 
     if (!this.cm) this.generateCylinderModel();
-    if (!this.cm) return; // generation failed
 
     this.nm = this.cylindersToNucleotides(this.cm, this.params);
     this.nm &&
@@ -365,8 +366,12 @@ export abstract class ModuleMenu extends Menu {
    * Relax the cylinder model by rotating its constituent cylinders.
    */
   async relaxCylinders() {
-    if (!this.cm) this.generateCylinderModel();
-    if (!this.cm) return;
+    try {
+      if (!this.cm) this.generateCylinderModel();
+    } catch (error) {
+      this.context.addMessage(error, 'alert');
+      return;
+    }
     const initialScore = Math.round(this.cm.calculateRelaxScore());
     await this.cm.relax();
     const finalScore = Math.round(this.cm.calculateRelaxScore());
@@ -407,7 +412,7 @@ export abstract class ModuleMenu extends Menu {
    */
   addCylinders() {
     if (!this.cm) this.generateCylinderModel();
-    if (this.cm) this.scene.add(this.cm.getObject());
+    if (this.cm) this.cm.addToScene(this.scene);
   }
 
   /**
@@ -417,7 +422,7 @@ export abstract class ModuleMenu extends Menu {
    */
   removeCylinders(dispose = false) {
     if (!this.cm) return;
-    this.scene.remove(this.cm.getObject());
+    this.cm.removeFromScene();
     if (dispose) {
       this.cm.dispose();
       this.cm = null;
@@ -429,7 +434,7 @@ export abstract class ModuleMenu extends Menu {
    */
   addNucleotides() {
     if (!this.nm) this.generateNucleotideModel();
-    if (this.nm) this.scene.add(this.nm.getObject());
+    if (this.nm) this.nm.addToScene(this.scene);
   }
 
   /**
@@ -439,7 +444,7 @@ export abstract class ModuleMenu extends Menu {
    */
   removeNucleotides(dispose = false) {
     if (!this.nm) return;
-    this.scene.remove(this.nm.getObject());
+    this.nm.removeFromScene();
     if (dispose) {
       this.nm.dispose();
       this.nm = null;

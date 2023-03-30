@@ -250,7 +250,7 @@ function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
         ) + 1;
       if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
 
-      const c = cm.addCylinder(p1, dir, length);
+      const c = cm.createCylinder(p1, dir, length);
       c.setOrientation(nor.cross(dir));
       if (!st.has(edge)) c.isPseudo = true;
 

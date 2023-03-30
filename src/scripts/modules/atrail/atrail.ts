@@ -373,7 +373,7 @@ function createCylinder(cm: CylinderModel, he: HalfEdge, visited: boolean) {
     1;
   if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
 
-  const cyl = cm.addCylinder(p1, dir, length);
+  const cyl = cm.createCylinder(p1, dir, length);
   cyl.setOrientation(edge.normal);
 
   return cyl;
@@ -385,6 +385,7 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
   const cm = new CylinderModel(scale, 'DNA');
 
   const visited = new Set<Edge>();
+  const edgeToCyl = new Map<Edge, Cylinder>();
   const vStack = new Map();
   const cylToV = new Map<Cylinder, Vertex>();
 
@@ -394,6 +395,11 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
     const edge = trail[i].edge;
 
     const c = createCylinder(cm, trail[i], visited.has(edge.twin));
+    if (visited.has(edge.twin)) {
+      c.siblings.push(edgeToCyl.get(edge.twin));
+      edgeToCyl.get(edge.twin).siblings.push(c);
+    }
+    edgeToCyl.set(edge, c);
 
     visited.add(edge);
 
@@ -458,6 +464,41 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
   setPrimaryFromScaffold(nm, params);
 
   return nm;
+}
+
+function reinforceCylinder(cyl: Cylinder) {
+  const reinforce = (cyl: Cylinder, dir: Vector3) => {
+    const offset = dir
+      .clone()
+      .multiplyScalar(2 * cyl.scale * cyl.nucParams.RADIUS);
+    const startP = offset.add(cyl.p1);
+    const n = new Cylinder(startP, cyl.dir, cyl.length, cyl.scale, cyl.naType);
+    for (let s of cyl.siblings) n.siblings.push(s);
+    n.siblings.push(cyl);
+    cyl.siblings.push(n);
+    return n;
+  };
+
+  const cyls: Cylinder[] = [];
+  if (cyl.siblings.length < 1) cyls.push(reinforce(cyl, cyl.nor1));
+  const n1 = reinforce(cyl, cyl.nor2);
+  const n2 = reinforce(cyl.siblings[0], cyl.nor2);
+  n1.siblings.push(n2);
+  n2.siblings.push(n1);
+
+  cyls.push(n1, n2);
+  return cyls;
+}
+
+export function reinforceCylinders(cm: CylinderModel) {
+  for (let c of cm.selection) {
+    if (c.siblings.length < 2) {
+      const cyls = reinforceCylinder(c);
+      cm.addCylinders(...cyls);
+    }
+  }
+
+  return cm;
 }
 
 export { ATrail, graphToWires, wiresToCylinders, cylindersToNucleotides };

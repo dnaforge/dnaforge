@@ -5,9 +5,15 @@ import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import { WiresModel } from '../../models/wires_model';
-import { MenuParameters } from '../../scene/menu';
 import { ATrail, cylindersToNucleotides, wiresToCylinders } from './atrail';
+import { ATrailParameters } from './atrail_menu';
+
+function getParams(): ATrailParameters {
+  return {
+    scaffoldOffset: 0,
+    scaffoldStart: 0,
+  };
+}
 
 describe('Atrail-routing', function () {
   const x3 = require('../../../test/test_shapes/3x3.obj');
@@ -123,9 +129,8 @@ describe('Atrail Cylinder Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`Should throw error because of small scale: ${g[0]}`, function () {
-      const params = {
-        scale: 100,
-      };
+      const params = getParams();
+      params.scale = 100;
       try {
         cm = wiresToCylinders(g[1], params);
         assert.equal(false, true);
@@ -135,9 +140,8 @@ describe('Atrail Cylinder Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
-      const params = {
-        scale: 0.1,
-      };
+      const params = getParams();
+      params.scale = 0.1;
       cm = wiresToCylinders(g[1], params);
 
       for (let c of cm.cylinders) {
@@ -150,9 +154,8 @@ describe('Atrail Cylinder Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
-      const params = {
-        scale: 0.1,
-      };
+      const params = getParams();
+      params.scale = 0.1;
       cm = wiresToCylinders(g[1], params);
 
       for (let c of cm.cylinders) {
@@ -190,10 +193,10 @@ describe('Atrail Nucleotide Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`Should generate nucleotides: ${g[0]}`, function () {
-      const params = {
-        scale: 0.5,
-        scaffoldName: 'none',
-      };
+      const params = getParams();
+      params.scale = 0.5;
+      params.scaffoldName = 'none';
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
@@ -203,13 +206,13 @@ describe('Atrail Nucleotide Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`Min strand overlap should be above 5: ${g[0]}`, function () {
-      const params = {
-        scale: 0.2,
-        scaffoldName: 'none',
-        addNicks: true,
-        minStrandLength: 5,
-        maxStrandLength: 100,
-      };
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'none';
+      params.addNicks = true;
+      params.minStrandLength = 5;
+      params.maxStrandLength = 100;
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
@@ -233,13 +236,13 @@ describe('Atrail Nucleotide Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`Max strand length should be under 100: ${g[0]}`, function () {
-      const params = {
-        scale: 0.2,
-        scaffoldName: 'none',
-        addNicks: true,
-        minStrandLength: 5,
-        maxStrandLength: 100,
-      };
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'none';
+      params.addNicks = true;
+      params.minStrandLength = 5;
+      params.maxStrandLength = 100;
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
@@ -252,10 +255,10 @@ describe('Atrail Nucleotide Model', function () {
 
   atrails.forEach(function (g: [string, ATrail]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
-      const params: MenuParameters = {
-        scale: 0.2,
-        scaffoldName: 'random',
-      };
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 

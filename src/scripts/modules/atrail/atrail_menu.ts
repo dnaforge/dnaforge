@@ -3,6 +3,7 @@ import {
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
+  reinforceCylinders,
 } from './atrail';
 import { downloadTXT } from '../../io/download';
 import html from './atrail_ui.htm';
@@ -11,12 +12,11 @@ import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
 export interface ATrailParameters extends ModuleMenuParameters {
-  scaffoldOffset?: number;
-  scaffoldStart?: number;
+  scaffoldOffset: number;
+  scaffoldStart: number;
 }
 
 export class ATrailMenu extends ModuleMenu {
@@ -33,24 +33,31 @@ export class ATrailMenu extends ModuleMenu {
   scaffoldStartInput: any;
   gcContentInput: any;
   downloadButton: any;
+  reinforceButton: any;
 
   constructor(context: Context) {
     super(context, html);
     this.params.naType = 'DNA';
   }
 
-  graphToWires(graph: Graph, params: MenuParameters) {
+  graphToWires(graph: Graph, params: ATrailParameters) {
     const atrail = graphToWires(graph, params);
     this.context.addMessage(`Found an atrail.`, 'info');
     return atrail;
   }
 
-  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
+  wiresToCylinders(wires: WiresModel, params: ATrailParameters) {
     return wiresToCylinders(<ATrail>wires, params);
   }
 
-  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
     return cylindersToNucleotides(cm, params);
+  }
+
+  reinforce() {
+    reinforceCylinders(this.cm);
+    this.cm.removeFromScene(true); // make sure the old model is deleted
+    this.cm.addToScene(this.scene);
   }
 
   generatePrimary() {
@@ -134,10 +141,20 @@ export class ATrailMenu extends ModuleMenu {
     this.scaffoldStartInput = $('#atrail-scaffold-start');
     this.gcContentInput = $('#atrail-gc-content');
     this.downloadButton = $('#download-atrail');
+    this.reinforceButton = $('#atrail-reinforce-cylinders');
 
     this.downloadButton.on('click', () => {
       try {
         this.downloadATrail();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    this.reinforceButton.on('click', () => {
+      try {
+        this.reinforce();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

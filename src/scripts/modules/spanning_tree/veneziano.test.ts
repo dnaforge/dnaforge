@@ -5,13 +5,19 @@ import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Edge, Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import { WiresModel } from '../../models/wires_model';
 import { STParameters } from './spanning_tree_menu';
 import {
   cylindersToNucleotides,
   Veneziano,
   wiresToCylinders,
 } from './veneziano';
+
+function getParams(): STParameters {
+  return {
+    scaffoldOffset: 0,
+    scaffoldStart: 0,
+  };
+}
 
 describe('Spanning tree-routing', function () {
   const tet = require('../../../test/test_shapes/tetra_dubs.obj');
@@ -71,9 +77,9 @@ describe('Spanning Tree Cylinder Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`Should throw error because of small scale: ${g[0]}`, function () {
-      const params = {
-        scale: 100,
-      };
+      const params = getParams();
+      params.scale = 100;
+
       try {
         cm = wiresToCylinders(g[1], params);
         assert.equal(false, true);
@@ -83,9 +89,9 @@ describe('Spanning Tree Cylinder Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
-      const params = {
-        scale: 0.1,
-      };
+      const params = getParams();
+      params.scale = 0.1;
+
       cm = wiresToCylinders(g[1], params);
 
       for (let c of cm.cylinders) {
@@ -98,9 +104,9 @@ describe('Spanning Tree Cylinder Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
-      const params = {
-        scale: 0.1,
-      };
+      const params = getParams();
+      params.scale = 0.1;
+
       cm = wiresToCylinders(g[1], params);
 
       for (let c of cm.cylinders) {
@@ -137,10 +143,10 @@ describe('Spanning Tree Nucleotide Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`Should generate nucleotides: ${g[0]}`, function () {
-      const params = {
-        scale: 0.3,
-        scaffoldName: 'none',
-      };
+      const params = getParams();
+      params.scale = 0.3;
+      params.scaffoldName = 'none';
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
@@ -150,10 +156,10 @@ describe('Spanning Tree Nucleotide Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
-      const params: STParameters = {
-        scale: 0.2,
-        scaffoldName: 'random',
-      };
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
@@ -175,11 +181,11 @@ describe('Spanning Tree Nucleotide Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`Staple lengths should be 20, 22, 31, 32, 42, 52, or 78 ${g[0]}`, function () {
-      const params: STParameters = {
-        scale: 0.2,
-        scaffoldName: 'random',
-        addNicks: true,
-      };
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+      params.addNicks = true;
+
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
