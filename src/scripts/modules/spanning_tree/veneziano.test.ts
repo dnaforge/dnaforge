@@ -6,7 +6,7 @@ import { CylinderModel } from '../../models/cylinder_model';
 import { Edge, Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
-import { MenuParameters } from '../../scene/menu';
+import { STParameters } from './spanning_tree_menu';
 import {
   cylindersToNucleotides,
   Veneziano,
@@ -150,7 +150,7 @@ describe('Spanning Tree Nucleotide Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
-      const params: MenuParameters = {
+      const params: STParameters = {
         scale: 0.2,
         scaffoldName: 'random',
       };
@@ -175,7 +175,7 @@ describe('Spanning Tree Nucleotide Model', function () {
 
   sts.forEach(function (g: [string, Veneziano]) {
     it(`Staple lengths should be 20, 22, 31, 32, 42, 52, or 78 ${g[0]}`, function () {
-      const params: MenuParameters = {
+      const params: STParameters = {
         scale: 0.2,
         scaffoldName: 'random',
         addNicks: true,

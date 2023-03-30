@@ -6,7 +6,7 @@ import {
 } from '../globals/consts';
 import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
 import { DNA_SCAFFOLDS } from '../globals/consts';
-import { MenuParameters } from '../scene/menu';
+import { ModuleMenuParameters } from '../modules/module_menu';
 
 /**
  * Sets the primary structure based on the scaffold name. Scaffold name options are "none", "random"
@@ -17,7 +17,7 @@ import { MenuParameters } from '../scene/menu';
  */
 export function setPrimaryFromScaffold(
   nm: NucleotideModel,
-  params: MenuParameters
+  params: ModuleMenuParameters
 ) {
   const scaffoldName = params.scaffoldName || 'none';
   const customScaffold = params.customScaffold || '';

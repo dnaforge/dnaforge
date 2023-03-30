@@ -5,8 +5,8 @@ import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
-import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
+import { ATrailParameters } from './atrail_menu';
 
 const MAX_TIME = 10000; // milliseconds, give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
@@ -345,7 +345,7 @@ class ATrail extends WiresModel {
   }
 }
 
-function graphToWires(graph: Graph, params: MenuParameters) {
+function graphToWires(graph: Graph, params: ATrailParameters) {
   const atrail = new ATrail(graph);
   atrail.findATrail();
   return atrail;
@@ -379,7 +379,7 @@ function createCylinder(cm: CylinderModel, he: HalfEdge, visited: boolean) {
   return cyl;
 }
 
-function wiresToCylinders(atrail: ATrail, params: MenuParameters) {
+function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
   const trail = atrail.trail;
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
@@ -423,7 +423,7 @@ function wiresToCylinders(atrail: ATrail, params: MenuParameters) {
   return cm;
 }
 
-function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;
   const addNicks = params.addNicks;

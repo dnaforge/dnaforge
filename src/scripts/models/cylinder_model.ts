@@ -822,12 +822,12 @@ class CylinderModel {
   }
 
   handleSelectionCallback() {
-    this.selectionCallback && this.selectionCallback(this);
+    this.selectionCallback && this.selectionCallback();
   }
 
-  selectionCallback: (cm: CylinderModel) => void;
+  selectionCallback: () => void;
 
-  bindSelectionCallback(callback: (cm: CylinderModel) => void) {
+  bindSelectionCallback(callback: () => void) {
     this.selectionCallback = callback;
   }
 }

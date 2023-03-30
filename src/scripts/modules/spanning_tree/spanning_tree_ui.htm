@@ -1,4 +1,4 @@
-<div class="section" id="spanning-tree" title="Spanning Tree">
+<div class="section" id="spanning-tree" data-title="Spanning Tree">
     <div class="d-flex flex-wrap">
         <div class="group">
             <button class="ribbon-button" id="spanning-tree-generate-wires" data-role="hint" data-hint-position="right"
@@ -47,6 +47,14 @@
                 </li>
             </ul>
             <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                    <input type="number" data-role="input" data-default-value="0" data-size="200"
+                        data-prepend="Offset" id="spanning-tree-scaffold-offset">
+                </li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                    <input type="number" data-role="input" data-default-value="0" data-size="200"
+                        data-prepend="5' ID" id="spanning-tree-scaffold-start">
+                </li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Add strand gaps in linker strands.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
                         id="veneziano-add-nicks">

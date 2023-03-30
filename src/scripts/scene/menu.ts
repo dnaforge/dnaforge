@@ -3,19 +3,7 @@ import { Context } from './context';
 
 const selectionMenu = createRoot($(`#selection-menu`)[0]);
 
-interface MenuParameters {
-  naType?: 'DNA' | 'RNA';
-  scale?: number;
-  minLinkers?: number;
-  maxLinkers?: number;
-  linkerOptions?: string;
-  minStrandLength?: number;
-  maxStrandLength?: number;
-  gcContent?: number;
-  addNicks?: boolean;
-  scaffoldName?: string;
-  customScaffold?: string;
-}
+interface MenuParameters {}
 
 export { MenuParameters };
 

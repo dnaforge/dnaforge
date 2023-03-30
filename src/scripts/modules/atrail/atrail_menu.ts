@@ -5,8 +5,8 @@ import {
   cylindersToNucleotides,
 } from './atrail';
 import { downloadTXT } from '../../io/download';
-import html from './menu_atrail.htm';
-import { ModuleMenu } from '../module_menu';
+import html from './atrail_ui.htm';
+import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
@@ -14,7 +14,14 @@ import { CylinderModel } from '../../models/cylinder_model';
 import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
+export interface ATrailParameters extends ModuleMenuParameters {
+  scaffoldOffset?: number;
+  scaffoldStart?: number;
+}
+
 export class ATrailMenu extends ModuleMenu {
+  params: ATrailParameters;
+
   scaleInput: any;
   linkersMinInput: any;
   linkersMaxInput: any;
@@ -22,6 +29,8 @@ export class ATrailMenu extends ModuleMenu {
   strandLengthMinInput: any;
   addNicksSwitch: any;
   atrailScaffold: any;
+  scaffoldOffsetInput: any;
+  scaffoldStartInput: any;
   gcContentInput: any;
   downloadButton: any;
 
@@ -104,6 +113,8 @@ export class ATrailMenu extends ModuleMenu {
     this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
     this.params.addNicks = this.addNicksSwitch[0].checked;
     this.params.scaffoldName = this.atrailScaffold[0].value;
+    this.params.scaffoldOffset = this.scaffoldOffsetInput[0].value;
+    this.params.scaffoldStart = this.scaffoldStartInput[0].value;
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
   }
 
@@ -119,6 +130,8 @@ export class ATrailMenu extends ModuleMenu {
     this.addNicksSwitch = $('#atrail-add-nicks');
 
     this.atrailScaffold = $('#atrail-scaffold');
+    this.scaffoldOffsetInput = $('#atrail-scaffold-offset');
+    this.scaffoldStartInput = $('#atrail-scaffold-start');
     this.gcContentInput = $('#atrail-gc-content');
     this.downloadButton = $('#download-atrail');
 

@@ -5,8 +5,8 @@ import {
   cylindersToNucleotides,
 } from './veneziano';
 import { downloadTXT } from '../../io/download';
-import html from './menu_veneziano.htm';
-import { ModuleMenu } from '../module_menu';
+import html from './spanning_tree_ui.htm';
+import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../scene/context';
@@ -14,10 +14,19 @@ import { Graph } from '../../models/graph';
 import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 
+export interface STParameters extends ModuleMenuParameters {
+  scaffoldOffset?: number;
+  scaffoldStart?: number;
+}
+
 export class SpanningTreeMenu extends ModuleMenu {
+  params: STParameters;
+
   scaleInput: any;
   addNicksSwitch: any;
   venezianoScaffold: any;
+  scaffoldOffsetInput: any;
+  scaffoldStartInput: any;
   downloadButton: any;
   gcContentInput: any;
 
@@ -27,7 +36,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.params.linkerOptions = 'T';
   }
 
-  graphToWires(graph: Graph, params: MenuParameters) {
+  graphToWires(graph: Graph, params: STParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(
       `Generated a route around the spanning tree with ${wires.trail.length} edges.`,
@@ -36,11 +45,11 @@ export class SpanningTreeMenu extends ModuleMenu {
     return wires;
   }
 
-  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
+  wiresToCylinders(wires: WiresModel, params: STParameters) {
     return wiresToCylinders(<Veneziano>wires, params);
   }
 
-  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
     return cylindersToNucleotides(cm, params);
   }
 
@@ -82,6 +91,8 @@ export class SpanningTreeMenu extends ModuleMenu {
 
     this.params.addNicks = this.addNicksSwitch[0].checked;
     this.params.scaffoldName = this.venezianoScaffold[0].value;
+    this.params.scaffoldOffset = this.scaffoldOffsetInput[0].value;
+    this.params.scaffoldStart = this.scaffoldStartInput[0].value;
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
   }
 
@@ -91,6 +102,8 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.scaleInput = $('#veneziano-scale');
     this.addNicksSwitch = $('#veneziano-add-nicks');
     this.venezianoScaffold = $('#veneziano-scaffold');
+    this.scaffoldOffsetInput = $('#spanning-tree-scaffold-offset');
+    this.scaffoldStartInput = $('#spanning-tree-scaffold-start');
     this.gcContentInput = $('#veneziano-gc-content');
     this.downloadButton = $('#download-veneziano');
 

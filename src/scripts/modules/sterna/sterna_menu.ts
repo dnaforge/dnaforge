@@ -10,13 +10,14 @@ import {
   setPartialPrimaryRNA,
 } from '../../utils/primary_utils';
 import { downloadTXT } from '../../io/download';
-import html from './menu_sterna.htm';
-import { ModuleMenu } from '../module_menu';
+import html from './sterna_ui.htm';
+import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import { MenuParameters } from '../../scene/menu';
+
+export interface SternaParameters extends ModuleMenuParameters {}
 
 export class SternaMenu extends ModuleMenu {
   scaleInput: any;
@@ -32,7 +33,12 @@ export class SternaMenu extends ModuleMenu {
     this.params.naType = 'RNA';
   }
 
-  graphToWires(graph: Graph, params: MenuParameters) {
+  populateHotkeys() {
+    super.populateHotkeys();
+    this.hotkeys.set('shift+r', this.generatePrimaryButton);
+  }
+
+  graphToWires(graph: Graph, params: SternaParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(
       `Generated a route around the spanning tree with ${wires.trail.length} edges.`,
@@ -41,11 +47,11 @@ export class SternaMenu extends ModuleMenu {
     return wires;
   }
 
-  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
+  wiresToCylinders(wires: WiresModel, params: SternaParameters) {
     return wiresToCylinders(<Sterna>wires, params);
   }
 
-  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  cylindersToNucleotides(cm: CylinderModel, params: SternaParameters) {
     return cylindersToNucleotides(cm, params);
   }
 

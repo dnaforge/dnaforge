@@ -63,9 +63,16 @@ export class InterfaceMenu extends Menu {
   }
 
   populateHotkeys() {
+    this.hotkeys.set('z', this.showAxesButton);
+    this.hotkeys.set('shift+z', this.showGridButton);
+    this.hotkeys.set('shift+1', $($('#selection-mode').children()[0]));
+    this.hotkeys.set('shift+2', $($('#selection-mode').children()[1]));
+    this.hotkeys.set('shift+3', $($('#selection-mode').children()[2]));
+    this.hotkeys.set('shift+4', $($('#selection-mode').children()[3]));
     this.hotkeys.set('4', this.wiresButton);
     this.hotkeys.set('5', this.solidButton);
     this.hotkeys.set('6', this.indicesButton);
+    this.hotkeys.set('7', this.boundingBoxButton);
     this.hotkeys.set('q', this.hoverButton);
     this.hotkeys.set('np1', () => {
       this.context.setCameraView('front');

@@ -514,8 +514,8 @@ class NucleotideModel {
   obj: THREE.Object3D;
   meshes: NucleotideMeshes;
 
-  active: Nucleotide = undefined;
   selection = new Set<Nucleotide>();
+  hover = new Set<Nucleotide>();
 
   /**
    *
@@ -1068,43 +1068,22 @@ class NucleotideModel {
   }
 
   /**
-   * Sets target nucleotide active
-   *
-   * @param target
-   */
-  setActive(target: Nucleotide) {
-    this.clearActive();
-    target.markActive(true);
-    this.active = target;
-  }
-
-  /**
-   * Clears active nucleotide
-   *
-   */
-  clearActive() {
-    if (this.active) this.active.markActive(false);
-    this.active = undefined;
-  }
-
-  /**
    * Toggles select of target nucleotide and all its neighbours according to the
    * selection mode.
    *
    * @param target
    */
   toggleSelect(target: Nucleotide) {
-    this.setActive(target);
     for (const n of this.getSelection(target)) {
       if (this.selection.has(n)) {
         this.selection.delete(n);
         n.markSelect(false);
-        if (n == this.active) this.clearActive();
       } else {
         this.selection.add(n);
         n.markSelect(true);
       }
     }
+    this.handleSelectionCallback();
   }
 
   /**
@@ -1115,9 +1094,10 @@ class NucleotideModel {
    * @param val
    */
   setHover(target: Nucleotide, val: boolean) {
-    for (const n of this.getSelection(target)) {
-      n.markHover(val);
-    }
+    for (let n of this.hover) n.markHover(false);
+    this.hover.clear();
+    target.markHover(val);
+    this.hover.add(target);
   }
 
   /**
@@ -1130,19 +1110,20 @@ class NucleotideModel {
         this.selection.add(n);
       }
     }
+    this.handleSelectionCallback();
   }
 
   /**
    * Unmarks all nucleotides as selected.
    */
   deselectAll() {
-    this.clearActive();
     for (const s of this.strands) {
       for (const n of s.nucleotides) {
         n.markSelect(false);
         this.selection.delete(n);
       }
     }
+    this.handleSelectionCallback();
   }
 
   /**
@@ -1153,14 +1134,24 @@ class NucleotideModel {
       const n = this.getScaffold().nucleotides[0];
       n.markSelect(true);
       this.selection.add(n);
-      this.setActive(n);
-      return;
+    } else {
+      for (let s of this.strands) {
+        const n = s.nucleotides[0];
+        n.markSelect(true);
+        this.selection.add(n);
+      }
     }
-    for (let s of this.strands) {
-      const n = s.nucleotides[0];
-      n.markSelect(true);
-      this.selection.add(n);
-    }
+    this.handleSelectionCallback();
+  }
+
+  handleSelectionCallback() {
+    this.selectionCallback && this.selectionCallback();
+  }
+
+  selectionCallback: () => void;
+
+  bindSelectionCallback(callback: () => void) {
+    this.selectionCallback = callback;
   }
 }
 

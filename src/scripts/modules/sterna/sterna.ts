@@ -8,7 +8,7 @@ import {
   Strand,
 } from '../../models/nucleotide_model';
 import { Graph, Edge, Vertex } from '../../models/graph';
-import { MenuParameters } from '../../scene/menu';
+import { SternaParameters } from './sterna_menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -207,7 +207,7 @@ export class Sterna {
  * @param params
  * @returns
  */
-function graphToWires(graph: Graph, params: MenuParameters) {
+function graphToWires(graph: Graph, params: SternaParameters) {
   const sterna = new Sterna(graph);
   return sterna;
 }
@@ -219,7 +219,7 @@ function graphToWires(graph: Graph, params: MenuParameters) {
  * @param params
  * @returns
  */
-function wiresToCylinders(sterna: Sterna, params: MenuParameters) {
+function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'RNA');
 
@@ -343,7 +343,7 @@ function createPseudoknot(strand1: Strand, strand2: Strand) {
  * @param params
  * @returns
  */
-function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+function cylindersToNucleotides(cm: CylinderModel, params: SternaParameters) {
   const scale = cm.scale;
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;

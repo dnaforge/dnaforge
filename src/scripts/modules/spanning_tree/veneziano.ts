@@ -6,6 +6,7 @@ import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
 import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
+import { STParameters } from './spanning_tree_menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -153,12 +154,12 @@ class Veneziano {
   }
 }
 
-function graphToWires(graph: Graph, params: MenuParameters) {
+function graphToWires(graph: Graph, params: STParameters) {
   const veneziano = new Veneziano(graph);
   return veneziano;
 }
 
-function wiresToCylinders(veneziano: Veneziano, params: MenuParameters) {
+function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
@@ -234,7 +235,7 @@ function generatePrimary(scaffoldName: string) {
   return '';
 }
 
-function cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
   const scale = cm.scale;
   const scaffold = params.scaffoldName;
   const addNicks = params.addNicks;

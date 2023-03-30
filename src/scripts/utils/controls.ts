@@ -92,8 +92,11 @@ export class Controls {
 
   handleKeyDown(event: KeyboardEvent) {
     if (event.target != body) return;
-    let keyCode = event.location == 3 ? 'np' + event.key : event.key;
+    let keyCode = event.key;
     if (keyCode == ' ') keyCode = 'space';
+    if (event.code.startsWith('Digit'))
+      keyCode = event.code.replace('Digit', '');
+    if (event.location == 3) keyCode = 'np' + keyCode;
 
     const prefix = [];
     if (event.altKey) prefix.push('alt+');
@@ -103,7 +106,6 @@ export class Controls {
 
     const key = (prefix.join('') + keyCode).toLowerCase();
     this.handleHotKey(key);
-    console.log(key);
   }
 
   handleKeyUp(event: KeyboardEvent) {

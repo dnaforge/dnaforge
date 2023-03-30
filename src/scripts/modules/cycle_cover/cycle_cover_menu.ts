@@ -5,14 +5,15 @@ import {
   cylindersToNucleotides,
 } from './cycle_cover';
 import { downloadTXT } from '../../io/download';
-import html from './menu_cycle_cover.htm';
-import { ModuleMenu } from '../module_menu';
+import html from './cycle_cover_ui.htm';
+import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import { MenuParameters } from '../../scene/menu';
 import { setRandomPrimary } from '../../utils/primary_utils';
+
+export interface CCParameters extends ModuleMenuParameters {}
 
 export class CycleCoverMenu extends ModuleMenu {
   scaleInput: any;
@@ -30,17 +31,22 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
-  graphToWires(graph: Graph, params: MenuParameters) {
+  populateHotkeys() {
+    super.populateHotkeys();
+    this.hotkeys.set('shift+r', this.generatePrimaryButton);
+  }
+
+  graphToWires(graph: Graph, params: CCParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(`Generated ${wires.length()} cycles.`, 'info');
     return wires;
   }
 
-  wiresToCylinders(wires: WiresModel, params: MenuParameters) {
+  wiresToCylinders(wires: WiresModel, params: CCParameters) {
     return wiresToCylinders(<CycleCover>wires, params);
   }
 
-  cylindersToNucleotides(cm: CylinderModel, params: MenuParameters) {
+  cylindersToNucleotides(cm: CylinderModel, params: CCParameters) {
     return cylindersToNucleotides(cm, params);
   }
 
