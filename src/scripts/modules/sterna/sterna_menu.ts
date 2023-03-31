@@ -17,7 +17,7 @@ import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 
-export interface SternaParameters extends ModuleMenuParameters {}
+export type SternaParameters = ModuleMenuParameters;
 
 export class SternaMenu extends ModuleMenu {
   scaleInput: any;

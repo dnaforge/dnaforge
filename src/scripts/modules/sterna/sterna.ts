@@ -379,8 +379,8 @@ function cylindersToNucleotides(cm: CylinderModel, params: SternaParameters) {
     longest.nucleotides[i].next.prev = null;
     longest.nucleotides[i].next = null;
   }
-  nm.setIDs();
   nm.concatenateStrands();
+  nm.setIDs();
 
   return nm;
 }

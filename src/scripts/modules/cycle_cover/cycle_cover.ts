@@ -286,34 +286,8 @@ function wiresToCylinders(cc: CycleCover, params: CCParameters) {
 }
 
 function cylindersToNucleotides(cm: CylinderModel, params: CCParameters) {
-  const minLinkers = params.minLinkers;
-  const maxLinkers = params.maxLinkers;
-  const addNicks = params.addNicks;
-  const maxLength = params.maxStrandLength;
-  const minLength = params.minStrandLength;
+  const nm = NucleotideModel.compileFromGenericCylinderModel(cm, params, false);
 
-  const nm = NucleotideModel.compileFromGenericCylinderModel(
-    cm,
-    minLinkers,
-    maxLinkers
-  );
-
-  if (addNicks) {
-    nm.addNicks(minLength, maxLength);
-    nm.concatenateStrands();
-
-    for (const s of nm.strands) {
-      const nucs = s.nucleotides;
-      if (nucs[0].prev) {
-        throw `Cyclical strands. Edges too short for strand gaps.`;
-      }
-      if (nucs.length > maxLength) {
-        throw `Strand maximum length exceeded: ${nucs.length}.`;
-      }
-    }
-  } else {
-    nm.concatenateStrands();
-  }
   return nm;
 }
 

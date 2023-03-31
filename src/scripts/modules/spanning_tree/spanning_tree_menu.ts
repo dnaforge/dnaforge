@@ -90,8 +90,8 @@ export class SpanningTreeMenu extends ModuleMenu {
 
     this.params.addNicks = this.addNicksSwitch[0].checked;
     this.params.scaffoldName = this.venezianoScaffold[0].value;
-    this.params.scaffoldOffset = this.scaffoldOffsetInput[0].value;
-    this.params.scaffoldStart = this.scaffoldStartInput[0].value;
+    this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
+    this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
   }
 

@@ -13,7 +13,7 @@ import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';
 
-export interface CCParameters extends ModuleMenuParameters {}
+export type CCParameters = ModuleMenuParameters;
 
 export class CycleCoverMenu extends ModuleMenu {
   scaleInput: any;

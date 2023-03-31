@@ -430,36 +430,7 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
 }
 
 function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
-  const minLinkers = params.minLinkers;
-  const maxLinkers = params.maxLinkers;
-  const addNicks = params.addNicks;
-  const maxLength = params.maxStrandLength;
-  const minLength = params.minStrandLength;
-
-  const nm = NucleotideModel.compileFromGenericCylinderModel(
-    cm,
-    minLinkers,
-    maxLinkers,
-    true
-  );
-
-  if (addNicks) {
-    nm.addNicks(minLength, maxLength);
-    nm.concatenateStrands();
-
-    for (const s of nm.strands) {
-      const nucs = s.nucleotides;
-      if (s.isScaffold) continue;
-      if (nucs[0].prev) {
-        throw `Cyclical strands. Edges too short for strand gaps.`;
-      }
-      if (nucs.length > maxLength) {
-        throw `Strand maximum length exceeded: ${nucs.length}.`;
-      }
-    }
-  } else {
-    nm.concatenateStrands();
-  }
+  const nm = NucleotideModel.compileFromGenericCylinderModel(cm, params, true);
 
   setPrimaryFromScaffold(nm, params);
 
@@ -473,7 +444,7 @@ function reinforceCylinder(cyl: Cylinder) {
       .multiplyScalar(2 * cyl.scale * cyl.nucParams.RADIUS);
     const startP = offset.add(cyl.p1);
     const n = new Cylinder(startP, cyl.dir, cyl.length, cyl.scale, cyl.naType);
-    for (let s of cyl.siblings) n.siblings.push(s);
+    for (const s of cyl.siblings) n.siblings.push(s);
     n.siblings.push(cyl);
     cyl.siblings.push(n);
     return n;
@@ -491,7 +462,7 @@ function reinforceCylinder(cyl: Cylinder) {
 }
 
 export function reinforceCylinders(cm: CylinderModel) {
-  for (let c of cm.selection) {
+  for (const c of cm.selection) {
     if (c.siblings.length < 2) {
       const cyls = reinforceCylinder(c);
       cm.addCylinders(...cyls);

@@ -1,4 +1,4 @@
-var assert = require('assert');
+const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
@@ -52,11 +52,11 @@ describe('Sterna routing', function () {
         })
       );
 
-      for (let e of trail) {
+      for (const e of trail) {
         visited.set(e, visited.get(e) + 1);
       }
 
-      for (let e of sterna.graph.getEdges()) {
+      for (const e of sterna.graph.getEdges()) {
         assert.equal(visited.get(e) == 2, true);
       }
     });
@@ -101,8 +101,8 @@ describe('Sterna Cylinder Model', function () {
       };
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let n of _.values(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const n of _.values(c.neighbours)) {
           assert.equal(!!n, true);
         }
       }
@@ -116,8 +116,8 @@ describe('Sterna Cylinder Model', function () {
       };
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let prime of _.keys(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const prime of _.keys(c.neighbours)) {
           const n = c.neighbours[prime];
           const prime2 = n[1];
 
@@ -194,8 +194,8 @@ describe('Sterna Nucleotide Model', function () {
         C: 'G',
       };
 
-      for (let s of nm.strands) {
-        for (let n of s.nucleotides) {
+      for (const s of nm.strands) {
+        for (const n of s.nucleotides) {
           if (!n.pair) continue;
           assert.equal(complement[n.base].includes(n.pair.base), true);
         }

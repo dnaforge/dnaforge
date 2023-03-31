@@ -6,7 +6,6 @@ import {
 } from '../globals/consts';
 import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
 import { DNA_SCAFFOLDS } from '../globals/consts';
-import { ModuleMenuParameters } from '../modules/module_menu';
 
 interface ScaffoldParams {
   scaffoldName?: string;
@@ -45,11 +44,11 @@ export function setPrimaryFromScaffold(
     scaffold =
       scaffold.slice(scaffoldOffset, scaffold.length) +
       scaffold.slice(0, scaffoldOffset);
-    let scaffoldNucs = nm.getScaffold().nucleotides;
+    let scaffoldNucs = [...nm.getScaffold().nucleotides];
     if (scaffold.length < scaffoldNucs.length)
       throw `Scaffold strand is too short for this structure: ${scaffoldNucs.length} > ${scaffold.length}.`;
     // scaffold start:
-    const idx = scaffoldNucs.indexOf(nm.instaceToNuc[scaffoldStart]);
+    const idx = scaffoldNucs.indexOf(nm.instanceToNuc.get(scaffoldStart));
     if (idx == -1)
       throw `Invalid 5' ID. ${scaffoldStart} is not a part of the scaffold`;
     scaffoldNucs = scaffoldNucs
@@ -66,7 +65,7 @@ export function setPrimaryFromScaffold(
       nuc.base = base;
     }
   }
-  for (let n of nm.getNucleotides()) {
+  for (const n of nm.getNucleotides()) {
     if (n.isLinker && !n.isScaffold) n.base = linkerOptions;
   }
 

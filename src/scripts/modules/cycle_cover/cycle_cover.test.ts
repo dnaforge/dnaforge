@@ -1,4 +1,4 @@
-var assert = require('assert');
+const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
@@ -37,7 +37,7 @@ describe('Cycle cover routing', function () {
       cc = new CycleCover(graph);
       cycles = cc.cycles;
 
-      for (let c of cycles) {
+      for (const c of cycles) {
         for (let i = 0; i < c.length; i++) {
           const start = c[0];
           const end = c[c.length - 1];
@@ -60,13 +60,13 @@ describe('Cycle cover routing', function () {
         })
       );
 
-      for (let c of cycles) {
-        for (let he of c) {
+      for (const c of cycles) {
+        for (const he of c) {
           visited.set(he.edge, visited.get(he.edge) + 1);
         }
       }
 
-      for (let e of graph.getEdges()) {
+      for (const e of graph.getEdges()) {
         assert.equal(visited.get(e) == 2, true);
       }
     });
@@ -111,8 +111,8 @@ describe('Cycle Cover Cylinder Model', function () {
       };
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let n of _.values(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const n of _.values(c.neighbours)) {
           assert.equal(!!n, true);
         }
       }
@@ -126,8 +126,8 @@ describe('Cycle Cover Cylinder Model', function () {
       };
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let prime of _.keys(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const prime of _.keys(c.neighbours)) {
           const n = c.neighbours[prime];
           const prime2 = n[1];
 
@@ -183,7 +183,7 @@ describe('Cycle Cover Nucleotide Model', function () {
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
-      for (let strand of nm.strands) {
+      for (const strand of nm.strands) {
         const nucs = strand.nucleotides;
         let overlap = 1;
         for (let i = 0; i < nucs.length; i++) {
@@ -215,7 +215,7 @@ describe('Cycle Cover Nucleotide Model', function () {
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
-      for (let s of nm.strands) {
+      for (const s of nm.strands) {
         if (s.isScaffold) continue;
         assert.equal(s.nucleotides.length <= 100, true);
       }
@@ -240,8 +240,8 @@ describe('Cycle Cover Nucleotide Model', function () {
         C: 'G',
       };
 
-      for (let s of nm.strands) {
-        for (let n of s.nucleotides) {
+      for (const s of nm.strands) {
+        for (const n of s.nucleotides) {
           if (!n.pair) continue;
           assert.equal(complement[n.base] == n.pair.base, true);
         }

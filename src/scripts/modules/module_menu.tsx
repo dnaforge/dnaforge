@@ -1,10 +1,9 @@
-import { Cylinder, CylinderModel } from '../models/cylinder_model';
+import { CylinderModel } from '../models/cylinder_model';
 import { Graph } from '../models/graph';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
 import { Menu, MenuParameters } from '../scene/menu';
-import { createRoot } from 'react-dom/client';
 import * as React from 'react';
 
 //TODO: Get rid of the question marks.
@@ -24,7 +23,10 @@ export interface ModuleMenuParameters extends MenuParameters {
   scaffoldStart?: number;
 }
 
-class CylinderSelection extends React.Component<{ cm: CylinderModel }, {}> {
+class CylinderSelection extends React.Component<
+  { cm: CylinderModel },
+  Record<string, string>
+> {
   cm: CylinderModel;
   text = '';
 
@@ -60,7 +62,10 @@ class CylinderSelection extends React.Component<{ cm: CylinderModel }, {}> {
   }
 }
 
-class NucleotideSelection extends React.Component<{ nm: NucleotideModel }, {}> {
+class NucleotideSelection extends React.Component<
+  { nm: NucleotideModel },
+  Record<string, string>
+> {
   nm: NucleotideModel;
   text = '';
 

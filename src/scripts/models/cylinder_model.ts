@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
-import { InstancedMesh, Intersection, Matrix4, Object3D } from 'three';
+import { InstancedMesh, Intersection, Matrix4 } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
@@ -490,7 +490,7 @@ class CylinderModel {
    * @param cyls
    */
   addCylinders(...cyls: Cylinder[]) {
-    for (let c of cyls) this.cylinders.push(c);
+    for (const c of cyls) this.cylinders.push(c);
   }
 
   /**
@@ -824,7 +824,7 @@ class CylinderModel {
    * Marks all cylinders as selected.
    */
   selectAll() {
-    for (let cyl of this.cylinders) {
+    for (const cyl of this.cylinders) {
       cyl.markSelect(true);
       this.selection.add(cyl);
     }
@@ -836,7 +836,7 @@ class CylinderModel {
    */
   deselectAll() {
     this.clearActive();
-    for (let cyl of this.cylinders) {
+    for (const cyl of this.cylinders) {
       cyl.markSelect(false);
       this.selection.delete(cyl);
     }

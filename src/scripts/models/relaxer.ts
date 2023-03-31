@@ -93,7 +93,7 @@ export class Relaxer {
    * Create springs between each cylinder from prime to prime.
    */
   createSpringConstraints() {
-    for (let cyl of this.cm.cylinders) {
+    for (const cyl of this.cm.cylinders) {
       const body1 = this.cylToMesh.get(cyl);
       const offset1 = new Vector3(
         0,
@@ -101,7 +101,7 @@ export class Relaxer {
         0
       );
 
-      for (let prime of _.keys(cyl.neighbours)) {
+      for (const prime of _.keys(cyl.neighbours)) {
         const cyl2 = cyl.neighbours[prime][0];
 
         const body2 = this.cylToMesh.get(cyl2);
@@ -140,12 +140,12 @@ export class Relaxer {
   createFloorConstraints() {
     const visited = new Set<Cylinder>();
 
-    for (let cyl of this.cm.cylinders) {
+    for (const cyl of this.cm.cylinders) {
       const body1 = this.cylToMesh.get(cyl);
       let cStr = 0.001;
       if (!visited.has(cyl) && cyl.siblings.length < 1) {
         cStr = 2;
-        for (let prime of _.keys(cyl.neighbours)) {
+        for (const prime of _.keys(cyl.neighbours)) {
           visited.add(cyl.neighbours[prime][0]);
         }
       }
@@ -170,7 +170,7 @@ export class Relaxer {
   step() {
     this.world.step(1 / 30);
 
-    for (let s of this.springs) s.applyForce();
+    for (const s of this.springs) s.applyForce();
 
     for (let i = 0; i < this.cm.cylinders.length; i++) {
       const cyl = this.cm.cylinders[i];

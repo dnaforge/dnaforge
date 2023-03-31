@@ -7,6 +7,7 @@ import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
 import { CylinderModel, Cylinder } from './cylinder_model';
+import { ModuleMenuParameters } from '../modules/module_menu';
 
 interface NucleotideMeshes {
   [key: string]: InstancedMesh;
@@ -500,7 +501,7 @@ class Strand {
  */
 class NucleotideModel {
   cylToStrands = new Map<Cylinder, [Strand, Strand]>(); // associates each cylinder to two strands
-  instaceToNuc: Record<number, Nucleotide> = {}; // maps instance ids to nucleotides
+  instanceToNuc = new Map<number, Nucleotide>(); // maps instance ids to nucleotides
 
   strands: Strand[];
   scale: number;
@@ -551,24 +552,53 @@ class NucleotideModel {
    * each cylinder corresponds to a double helix.
    *
    * @param cm cylinder model
-   * @param minLinkers
-   * @param maxLinkers
+   * @param params
    * @param hasScaffold
    * @returns nucleotideModel
    */
   static compileFromGenericCylinderModel(
     cm: CylinderModel,
-    minLinkers = 3,
-    maxLinkers = 3,
+    params: ModuleMenuParameters,
     hasScaffold = false
   ): NucleotideModel {
+    const minLinkers = params.minLinkers || 3;
+    const maxLinkers = params.minLinkers || 3;
+    const addNicks = params.addNicks || false;
+    const maxLength = params.maxStrandLength || 100;
+    const minLength = params.minStrandLength || 10;
+
     const nm = new NucleotideModel(cm.scale, cm.naType);
 
     nm.createStrands(cm, hasScaffold);
     nm.linkStrands(cm, minLinkers, maxLinkers);
+    addNicks && nm.addNicks(minLength, maxLength);
+    nm.concatenateStrands();
     nm.setIDs();
+    nm.validate(addNicks, minLength, maxLength);
 
     return nm;
+  }
+
+  /**
+   * Checks whether this nucleotide model satisfies the input constraints. Throws an error if not.
+   *
+   * @param hasNicks
+   * @param minLength
+   * @param maxLength
+   */
+  validate(hasNicks: boolean, minLength: number, maxLength: number) {
+    if (hasNicks) {
+      for (const s of this.strands) {
+        const nucs = s.nucleotides;
+        if (s.isScaffold) continue;
+        if (nucs[0].prev) {
+          throw `Cyclical strands. Edges too short for strand gaps.`;
+        }
+        if (nucs.length > maxLength) {
+          throw `Strand maximum length exceeded: ${nucs.length}.`;
+        }
+      }
+    }
   }
 
   /**
@@ -682,12 +712,24 @@ class NucleotideModel {
   setIDs() {
     let i = 0;
     let j = 0;
+
+    // set scaffold indices first:
+    const scaffold = this.getScaffold();
+    if (scaffold) {
+      scaffold.instanceId = j++;
+      for (const n of scaffold.nucleotides) {
+        n.instanceId = i;
+        this.instanceToNuc.set(i, n);
+        i += 1;
+      }
+    }
+
     for (const s of this.strands) {
-      s.instanceId = j;
-      j += 1;
+      if (s == scaffold) continue;
+      s.instanceId = j++;
       for (const n of s.nucleotides) {
         n.instanceId = i;
-        this.instaceToNuc[i] = n;
+        this.instanceToNuc.set(i, n);
         i += 1;
       }
     }
@@ -848,7 +890,7 @@ class NucleotideModel {
    * @returns
    */
   getScaffold(): Strand {
-    for (let s of this.strands) {
+    for (const s of this.strands) {
       if (s.isScaffold) {
         return s;
       }
@@ -923,16 +965,9 @@ class NucleotideModel {
       nucleotides: meshNucleotides,
       backbone: meshBackbone,
     };
-    this.instaceToNuc = {};
 
-    let i = 0;
-    for (const s of this.strands) {
-      for (const n of s.nucleotides) {
-        n.setObjectInstance(i, meshes);
-        this.instaceToNuc[i] = n;
-        i += 1;
-      }
-    }
+    for (const i of this.instanceToNuc.keys())
+      this.instanceToNuc.get(i).setObjectInstance(i, meshes);
 
     const obj_group = new THREE.Group();
     obj_group.add(meshes.bases, meshes.nucleotides, meshes.backbone);
@@ -957,24 +992,24 @@ class NucleotideModel {
         (intersection.object as any).onMouseOverExit();
 
       lastI = i;
-      this.setHover(this.instaceToNuc[i], true);
+      this.setHover(this.instanceToNuc.get(i), true);
     };
 
     const onMouseOverExit = () => {
       if (lastI == -1) return;
-      this.setHover(this.instaceToNuc[lastI], false);
+      this.setHover(this.instanceToNuc.get(lastI), false);
       lastI = -1;
     };
 
     const onClick = (intersection: Intersection) => {
       const i = intersection.instanceId;
-      this.setHover(this.instaceToNuc[i], false);
-      this.toggleSelect(this.instaceToNuc[i]);
+      this.setHover(this.instanceToNuc.get(i), false);
+      this.toggleSelect(this.instanceToNuc.get(i));
     };
 
     const getTooltip = (intersection: Intersection) => {
       const i = intersection.instanceId;
-      const nuc = this.instaceToNuc[i];
+      const nuc = this.instanceToNuc.get(i);
       return `${nuc.base}<br>${i}`;
     };
 
@@ -1021,9 +1056,6 @@ class NucleotideModel {
   dispose() {
     for (const k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
     delete this.obj;
-    this.instaceToNuc = {};
-    this.selection.clear();
-    this.hover.clear();
   }
 
   /**
@@ -1101,7 +1133,7 @@ class NucleotideModel {
    * @param val
    */
   setHover(target: Nucleotide, val: boolean) {
-    for (let n of this.hover) n.markHover(false);
+    for (const n of this.hover) n.markHover(false);
     this.hover.clear();
     target.markHover(val);
     this.hover.add(target);
@@ -1142,7 +1174,7 @@ class NucleotideModel {
       n.markSelect(true);
       this.selection.add(n);
     } else {
-      for (let s of this.strands) {
+      for (const s of this.strands) {
         const n = s.nucleotides[0];
         n.markSelect(true);
         this.selection.add(n);

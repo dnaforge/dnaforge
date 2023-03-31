@@ -4,7 +4,6 @@ import { Vector3 } from 'three';
 import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
-import { MenuParameters } from '../../scene/menu';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { STParameters } from './spanning_tree_menu';
 
@@ -57,7 +56,7 @@ class Veneziano {
     const stack: Edge[] = [];
 
     let v0 = this.graph.getVertices()[0];
-    for (let v of this.graph.getVertices()) {
+    for (const v of this.graph.getVertices()) {
       if (v.degree() > v0.degree()) v0 = v;
     }
 
@@ -231,13 +230,8 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
   return cm;
 }
 
-function generatePrimary(scaffoldName: string) {
-  return '';
-}
-
 function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
   const scale = cm.scale;
-  const scaffold = params.scaffoldName;
   const addNicks = params.addNicks;
 
   const nm = new NucleotideModel(scale);
@@ -338,7 +332,7 @@ function addStrandGaps(nm: NucleotideModel) {
   const findCrossovers = (nucs: Nucleotide[]) => {
     const cos = [];
     let i = 0;
-    let l = nucs.length;
+    const l = nucs.length;
     for (; i < l; i++) {
       if (!nucs[i].pair) continue;
       if (
@@ -350,7 +344,7 @@ function addStrandGaps(nm: NucleotideModel) {
     return cos;
   };
 
-  for (let s of nm.strands) {
+  for (const s of nm.strands) {
     if (s.isScaffold) continue;
     const nucs = s.nucleotides;
     const cos = findCrossovers(nucs);
@@ -377,10 +371,4 @@ function addStrandGaps(nm: NucleotideModel) {
   nm.concatenateStrands();
 }
 
-export {
-  Veneziano,
-  graphToWires,
-  wiresToCylinders,
-  cylindersToNucleotides,
-  generatePrimary,
-};
+export { Veneziano, graphToWires, wiresToCylinders, cylindersToNucleotides };

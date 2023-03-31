@@ -1,4 +1,4 @@
-var assert = require('assert');
+const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
@@ -94,8 +94,8 @@ describe('Spanning Tree Cylinder Model', function () {
 
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let n of _.values(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const n of _.values(c.neighbours)) {
           assert.equal(!!n, true);
         }
       }
@@ -109,8 +109,8 @@ describe('Spanning Tree Cylinder Model', function () {
 
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let prime of _.keys(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const prime of _.keys(c.neighbours)) {
           const n = c.neighbours[prime];
           const prime2 = n[1];
 
@@ -170,8 +170,8 @@ describe('Spanning Tree Nucleotide Model', function () {
         C: 'G',
       };
 
-      for (let s of nm.strands) {
-        for (let n of s.nucleotides) {
+      for (const s of nm.strands) {
+        for (const n of s.nucleotides) {
           if (!n.pair) continue;
           assert.equal(complement[n.base] == n.pair.base, true);
         }
@@ -191,7 +191,7 @@ describe('Spanning Tree Nucleotide Model', function () {
 
       const options = new Set([20, 22, 31, 32, 42, 52, 78]);
 
-      for (let s of nm.strands) {
+      for (const s of nm.strands) {
         if (s.isScaffold) continue;
         assert.equal(options.has(s.length()), true);
       }

@@ -1,4 +1,4 @@
-var assert = require('assert');
+const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
@@ -54,12 +54,12 @@ describe('Atrail-routing', function () {
 
       const visited = new Set();
 
-      for (let he of trail) {
+      for (const he of trail) {
         assert.equal(visited.has(he.edge), false);
         visited.add(he.edge);
       }
 
-      for (let e of atrail.graph.getEdges()) {
+      for (const e of atrail.graph.getEdges()) {
         assert.equal(visited.has(e), true);
       }
     });
@@ -144,8 +144,8 @@ describe('Atrail Cylinder Model', function () {
       params.scale = 0.1;
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let n of _.values(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const n of _.values(c.neighbours)) {
           assert.equal(!!n, true);
         }
       }
@@ -158,8 +158,8 @@ describe('Atrail Cylinder Model', function () {
       params.scale = 0.1;
       cm = wiresToCylinders(g[1], params);
 
-      for (let c of cm.cylinders) {
-        for (let prime of _.keys(c.neighbours)) {
+      for (const c of cm.cylinders) {
+        for (const prime of _.keys(c.neighbours)) {
           const n = c.neighbours[prime];
           const prime2 = n[1];
 
@@ -246,7 +246,7 @@ describe('Atrail Nucleotide Model', function () {
       cm = wiresToCylinders(g[1], params);
       nm = cylindersToNucleotides(cm, params);
 
-      for (let s of nm.strands) {
+      for (const s of nm.strands) {
         if (s.isScaffold) continue;
         assert.equal(s.nucleotides.length <= 100, true);
       }
@@ -269,8 +269,8 @@ describe('Atrail Nucleotide Model', function () {
         C: 'G',
       };
 
-      for (let s of nm.strands) {
-        for (let n of s.nucleotides) {
+      for (const s of nm.strands) {
+        for (const n of s.nucleotides) {
           if (!n.pair) continue;
           assert.equal(complement[n.base] == n.pair.base, true);
         }
