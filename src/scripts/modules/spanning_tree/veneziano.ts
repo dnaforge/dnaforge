@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { Vector3 } from 'three';
-import { Cylinder, CylinderModel } from '../../models/cylinder_model';
+import { Cylinder, CylinderBundle, CylinderModel } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
@@ -201,8 +201,7 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
     const c = cm.createCylinder(p1, dir, length_bp);
     c.setOrientation(nor.cross(dir).applyAxisAngle(dir, cm.nucParams.AXIS));
     if (visited.has(edge)) {
-      c.siblings.push(visited.get(edge));
-      visited.get(edge).siblings.push(c);
+      new CylinderBundle(c, visited.get(edge));
     }
     if (!st.has(edge)) c.isPseudo = true;
 
@@ -219,7 +218,7 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
     prev.neighbours.second5Prime = [cur, 'second3Prime'];
     cur.neighbours.second3Prime = [prev, 'second5Prime'];
 
-    if (cur.isPseudo) prev = cur.siblings[0];
+    if (cur.isPseudo) prev = cur.bundle.cylinders[0] == cur ? cur.bundle.cylinders[1] : cur.bundle.cylinders[0];
     else prev = cur;
 
     if (cur.length < 31) {
@@ -247,16 +246,18 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
       cyl.neighbours['second3Prime'][0]
     )[1];
 
+    const otherCyl = cyl.bundle.cylinders[0] == cyl ? cyl.bundle.cylinders[1] : cyl.bundle.cylinders[0];
+
     const scaffold_cur = nm.cylToStrands.get(cyl)[0];
-    const scaffold_pair = nm.cylToStrands.get(cyl.siblings[0])[0];
+    const scaffold_pair = nm.cylToStrands.get(otherCyl)[0];
     const staple_cur = nm.cylToStrands.get(cyl)[1];
-    const staple_pair = nm.cylToStrands.get(cyl.siblings[0])[1];
+    const staple_pair = nm.cylToStrands.get(otherCyl)[1];
 
     nm.addStrand(scaffold_cur.linkStrand(scaffold_next, 5, 5));
     nm.addStrand(staple_cur.linkStrand(staple_next, 5, 5));
 
     visited.add(cyl);
-    if (visited.has(cyl.siblings[0])) continue;
+    if (visited.has(otherCyl)) continue;
 
     const nucs_cur = staple_cur.nucleotides;
     const nucs_pair = staple_pair.nucleotides;

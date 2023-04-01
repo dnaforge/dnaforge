@@ -1,8 +1,9 @@
 import * as CANNON from 'cannon-es';
+import { LockConstraint } from 'cannon-es';
 import * as _ from 'lodash';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import { randFloat } from 'three/src/math/MathUtils';
-import { Cylinder, CylinderModel } from './cylinder_model';
+import { Cylinder, CylinderBundle, CylinderModel } from './cylinder_model';
 
 /**
  * A class for relaxing cylinder models via physics simulation.
@@ -56,6 +57,7 @@ export class Relaxer {
 
     this.createCylinderBodies();
     this.createSpringConstraints();
+    this.createBundleConstraints();
     this.createFloorConstraints();
   }
 
@@ -134,6 +136,23 @@ export class Relaxer {
   }
 
   /**
+   * Create constraints that keep bundled cylinders together
+   */
+  createBundleConstraints() {
+    for (const cyl of this.cm.cylinders) {
+      if(!cyl.bundle) continue;
+      const body1 = this.cylToMesh.get(cyl);
+      for(let cyl2 of cyl.bundle.cylinders){
+        if(cyl == cyl2) continue;
+        const body2 = this.cylToMesh.get(cyl2);
+        
+        const c = new LockConstraint(body1, body2, {maxForce: 2});
+        this.world.addConstraint(c);
+      }
+    }
+  }
+
+  /**
    * Create constraints between the cylinders and the floor to
    * keep the cylinders more or less in place.
    */
@@ -143,7 +162,7 @@ export class Relaxer {
     for (const cyl of this.cm.cylinders) {
       const body1 = this.cylToMesh.get(cyl);
       let cStr = 0.001;
-      if (!visited.has(cyl) && cyl.siblings.length < 1) {
+      if (!visited.has(cyl) && !cyl.bundle) {
         cStr = 2;
         for (const prime of _.keys(cyl.neighbours)) {
           visited.add(cyl.neighbours[prime][0]);

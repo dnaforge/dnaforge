@@ -10,6 +10,7 @@ import { SternaMenu } from './modules/sterna/sterna_menu';
 import * as _ from 'lodash';
 import { Relaxer } from './models/relaxer';
 import { createRoot } from 'react-dom/client';
+import { Cylinder, CylinderBundle } from './models/cylinder_model';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.

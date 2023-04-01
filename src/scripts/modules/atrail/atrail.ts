@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { Object3D, Vector3 } from 'three';
-import { Cylinder, CylinderModel } from '../../models/cylinder_model';
+import { Cylinder, CylinderBundle, CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
@@ -396,8 +396,7 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
 
     const c = createCylinder(cm, trail[i], visited.has(edge.twin));
     if (visited.has(edge.twin)) {
-      c.siblings.push(edgeToCyl.get(edge.twin));
-      edgeToCyl.get(edge.twin).siblings.push(c);
+      new CylinderBundle(c, edgeToCyl.get(edge.twin)).isRigid = false;
     }
     edgeToCyl.set(edge, c);
 
@@ -444,26 +443,26 @@ function reinforceCylinder(cyl: Cylinder) {
       .multiplyScalar(2 * cyl.scale * cyl.nucParams.RADIUS);
     const startP = offset.add(cyl.p1);
     const n = new Cylinder(startP, cyl.dir, cyl.length, cyl.scale, cyl.naType);
-    for (const s of cyl.siblings) n.siblings.push(s);
-    n.siblings.push(cyl);
-    cyl.siblings.push(n);
+    //for (const s of cyl.siblings) n.siblings.push(s);
+    //n.siblings.push(cyl);
+    //cyl.siblings.push(n);
     return n;
   };
 
   const cyls: Cylinder[] = [];
-  if (cyl.siblings.length < 1) cyls.push(reinforce(cyl, cyl.nor1));
-  const n1 = reinforce(cyl, cyl.nor2);
-  const n2 = reinforce(cyl.siblings[0], cyl.nor2);
-  n1.siblings.push(n2);
-  n2.siblings.push(n1);
+  //if (cyl.siblings.length < 1) cyls.push(reinforce(cyl, cyl.nor1));
+  //const n1 = reinforce(cyl, cyl.nor2);
+  //const n2 = reinforce(cyl.siblings[0], cyl.nor2);
+  //n1.siblings.push(n2);
+  //n2.siblings.push(n1);
 
-  cyls.push(n1, n2);
+  //cyls.push(n1, n2);
   return cyls;
 }
 
 export function reinforceCylinders(cm: CylinderModel) {
   for (const c of cm.selection) {
-    if (c.siblings.length < 2) {
+    if (c.bundle.cylinders.length < 2) {
       const cyls = reinforceCylinder(c);
       cm.addCylinders(...cyls);
     }

@@ -39,6 +39,25 @@ const geometryCylinderMain = (nucParams: Record<string, any>) => {
 const geometryCylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
 const geometryLinker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
+
+export class CylinderBundle{
+  isRigid = true;
+  cylinders: Cylinder[] = [];
+  length = 0;
+
+  constructor(...cylinders: Cylinder[]){
+    this.push(...cylinders);
+  }
+
+  push(...cylinders: Cylinder[]){
+    for(let cyl of cylinders){
+      this.cylinders.push(cyl);
+      cyl.bundle = this;
+      this.length++;
+    }
+  }
+}
+
 /**
  * An individual cylinder. Used to create strands and orient them. Note that a
  * cylinder with an identity transformation matrix is considered to have its base
@@ -76,7 +95,7 @@ class Cylinder {
 
   isPseudo = false; // marks whether this is a cylinder that should form a pseudoknot.
 
-  siblings: Cylinder[] = []; // In case the same vertex pair has two cylinders
+  bundle: CylinderBundle = undefined; // In case the same vertex pair has two cylinders
 
   /**
    *
