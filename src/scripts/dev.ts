@@ -40,8 +40,8 @@ export function dev(context: Context) {
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();
-  //atrail.addCylinders();
-  atrail.addNucleotides();
+  atrail.addCylinders();
+  //atrail.addNucleotides();
 
   /*
   const t = atrail.nm.getScaffold();
@@ -52,13 +52,14 @@ export function dev(context: Context) {
   }
   */
   //atrail.relaxCylinders();
-  /*
+  
   const cm = atrail.cm;
+
   for (let i = 0; i < cm.cylinders.length; i++) {
     if (Math.random() > 0.75) cm.toggleSelect(cm.cylinders[i]);
   }
   atrail.reinforce();
-  */
+  
   //const st = (<SpanningTreeMenu>context.menus.get("spanning-tree"));
   //st.addWires();
   //st.addCylinders();

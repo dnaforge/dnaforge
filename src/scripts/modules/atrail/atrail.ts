@@ -436,35 +436,31 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
   return nm;
 }
 
-function reinforceCylinder(cyl: Cylinder) {
+function reinforceCylinder(cm: CylinderModel, cyl: Cylinder) {
   const reinforce = (cyl: Cylinder, dir: Vector3) => {
     const offset = dir
       .clone()
       .multiplyScalar(2 * cyl.scale * cyl.nucParams.RADIUS);
     const startP = offset.add(cyl.p1);
     const n = new Cylinder(startP, cyl.dir, cyl.length, cyl.scale, cyl.naType);
-    //for (const s of cyl.siblings) n.siblings.push(s);
-    //n.siblings.push(cyl);
-    //cyl.siblings.push(n);
-    return n;
+    cyl.bundle.push(n);
+    cm.addCylinders(n);
   };
 
-  const cyls: Cylinder[] = [];
-  //if (cyl.siblings.length < 1) cyls.push(reinforce(cyl, cyl.nor1));
-  //const n1 = reinforce(cyl, cyl.nor2);
-  //const n2 = reinforce(cyl.siblings[0], cyl.nor2);
-  //n1.siblings.push(n2);
-  //n2.siblings.push(n1);
+  if (!cyl.bundle) new CylinderBundle(cyl);
+  if(cyl.bundle.length == 1) reinforce(cyl, cyl.nor1);
+  reinforce(cyl, cyl.nor2);
+  reinforce(cyl.bundle.cylinders[0] == cyl ? cyl.bundle.cylinders[1] : cyl.bundle.cylinders[0], cyl.nor2);
 
-  //cyls.push(n1, n2);
-  return cyls;
+  cyl.bundle.isRigid = true;
 }
 
 export function reinforceCylinders(cm: CylinderModel) {
   for (const c of cm.selection) {
-    if (c.bundle.cylinders.length < 2) {
-      const cyls = reinforceCylinder(c);
-      cm.addCylinders(...cyls);
+    if (!c.bundle || c.bundle.length <= 2) {
+      console.log(c);
+      
+      reinforceCylinder(cm, c);
     }
   }
 

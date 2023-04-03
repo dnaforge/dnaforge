@@ -319,6 +319,7 @@ export abstract class ModuleMenu extends Menu {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
+    this.handleSelection();
 
     this.collectParameters();
 
@@ -334,6 +335,7 @@ export abstract class ModuleMenu extends Menu {
     // remove old:
     this.removeCylinders(true);
     this.removeNucleotides(true);
+    this.handleSelection();
 
     this.collectParameters();
 
@@ -352,6 +354,8 @@ export abstract class ModuleMenu extends Menu {
   generateNucleotideModel() {
     // remove old:
     this.removeNucleotides(true);
+    this.handleSelection();
+    
     this.collectParameters();
 
     if (!this.cm) this.generateCylinderModel();

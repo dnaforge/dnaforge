@@ -647,6 +647,8 @@ class NucleotideModel {
       const next1 = cyl.neighbours['first3Prime'];
       const next2 = cyl.neighbours['second3Prime'];
 
+      if(!next1 || !next2) continue;
+
       let strand1Next: Strand;
       let strand2Next: Strand;
 

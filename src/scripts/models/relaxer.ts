@@ -104,6 +104,7 @@ export class Relaxer {
       );
 
       for (const prime of _.keys(cyl.neighbours)) {
+        if(!cyl.neighbours[prime]) continue;
         const cyl2 = cyl.neighbours[prime][0];
 
         const body2 = this.cylToMesh.get(cyl2);
@@ -140,7 +141,7 @@ export class Relaxer {
    */
   createBundleConstraints() {
     for (const cyl of this.cm.cylinders) {
-      if(!cyl.bundle) continue;
+      if(!cyl.bundle || !cyl.bundle.isRigid) continue;
       const body1 = this.cylToMesh.get(cyl);
       for(let cyl2 of cyl.bundle.cylinders){
         if(cyl == cyl2) continue;
@@ -161,7 +162,7 @@ export class Relaxer {
 
     for (const cyl of this.cm.cylinders) {
       const body1 = this.cylToMesh.get(cyl);
-      let cStr = 0.001;
+      let cStr = 0.005;
       if (!visited.has(cyl) && !cyl.bundle) {
         cStr = 2;
         for (const prime of _.keys(cyl.neighbours)) {
