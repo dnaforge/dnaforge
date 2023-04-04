@@ -57,7 +57,9 @@ export class ATrailMenu extends ModuleMenu {
   reinforce() {
     reinforceCylinders(this.cm);
     this.cm.removeFromScene(true); // make sure the old model is deleted
-    this.cm.addToScene(this.scene);
+    this.removeNucleotides(true);
+
+    this.regenerateVisible();
   }
 
   generatePrimary() {

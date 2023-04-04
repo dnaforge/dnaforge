@@ -1,8 +1,16 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { Object3D, Vector3 } from 'three';
-import { Cylinder, CylinderBundle, CylinderModel } from '../../models/cylinder_model';
-import { NucleotideModel } from '../../models/nucleotide_model';
+import {
+  Cylinder,
+  CylinderBundle,
+  CylinderModel,
+} from '../../models/cylinder_model';
+import {
+  Nucleotide,
+  Strand,
+  NucleotideModel,
+} from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
@@ -429,9 +437,23 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
 }
 
 function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
-  const nm = NucleotideModel.compileFromGenericCylinderModel(cm, params, true);
+  const minLinkers = params.minLinkers;
+  const maxLinkers = params.minLinkers;
+  const addNicks = params.addNicks;
+  const maxLength = params.maxStrandLength;
+  const minLength = params.minStrandLength;
+
+  const nm = new NucleotideModel(cm.scale, cm.naType);
+
+  nm.createStrands(cm, true);
+  nm.linkStrands(cm, minLinkers, maxLinkers);
+  connectReinforcedNucleotides(cm, nm, params); // handle cylinder bundles
+  addNicks && nm.addNicks(minLength, maxLength);
+  nm.concatenateStrands();
+  nm.setIDs();
 
   setPrimaryFromScaffold(nm, params);
+  nm.validate(addNicks, minLength, maxLength);
 
   return nm;
 }
@@ -448,9 +470,9 @@ function reinforceCylinder(cm: CylinderModel, cyl: Cylinder) {
   };
 
   if (!cyl.bundle) new CylinderBundle(cyl);
-  if(cyl.bundle.length == 1) reinforce(cyl, cyl.nor1);
+  if (cyl.bundle.length == 1) reinforce(cyl, cyl.nor1);
   reinforce(cyl, cyl.nor2);
-  reinforce(cyl.bundle.cylinders[0] == cyl ? cyl.bundle.cylinders[1] : cyl.bundle.cylinders[0], cyl.nor2);
+  reinforce(cyl.bundle.cylinders[2], cyl.nor1);
 
   cyl.bundle.isRigid = true;
 }
@@ -458,13 +480,73 @@ function reinforceCylinder(cm: CylinderModel, cyl: Cylinder) {
 export function reinforceCylinders(cm: CylinderModel) {
   for (const c of cm.selection) {
     if (!c.bundle || c.bundle.length <= 2) {
-      console.log(c);
-      
       reinforceCylinder(cm, c);
     }
   }
 
   return cm;
+}
+
+function connectReinforcedNucleotides(
+  cm: CylinderModel,
+  nm: NucleotideModel,
+  params: ATrailParameters
+) {
+  const reroute = (s1: Strand, s2: Strand, idx1: number, idx2: number) => {
+    const nucs1 = s1.nucleotides;
+    const nucs2 = s2.nucleotides;
+    nucs1[idx1].next = nucs2[idx2];
+    nucs2[idx2].prev = nucs1[idx1];
+  };
+
+  const visited = new Set<CylinderBundle>();
+  for (let cyl of cm.cylinders) {
+    const b = cyl.bundle;
+    if (!b || b.length < 4 || visited.has(b)) continue;
+    visited.add(b);
+
+    const c1 = b.cylinders[0];
+    const c2 = b.cylinders[1];
+    const c3 = b.cylinders[2];
+    const c4 = b.cylinders[3];
+
+    const s1a = nm.cylToStrands.get(c1)[0];
+    const s1b = nm.cylToStrands.get(c1)[1];
+    const s2a = nm.cylToStrands.get(c2)[0];
+    const s2b = nm.cylToStrands.get(c2)[1];
+    const s3a = nm.cylToStrands.get(c3)[0];
+    const s3b = nm.cylToStrands.get(c3)[1];
+    const s4a = nm.cylToStrands.get(c4)[0];
+    const s4b = nm.cylToStrands.get(c4)[1];
+
+    s1a.isScaffold = true;
+    s1b.isScaffold = false;
+    s3a.isScaffold = false;
+    s3b.isScaffold = true;
+    s4a.isScaffold = true;
+    s4b.isScaffold = false;
+
+    const mid = Math.floor(s1a.length() / 2);
+
+    reroute(s1a, s3b, mid, mid);
+    reroute(s3b, s1a, mid - 1, mid + 1);
+
+    nm.addStrand(s3b.linkStrand(s4a, 2, 2));
+    nm.addStrand(s4a.linkStrand(s3b, 2, 2));
+
+    if (nm.cylToStrands.get(c2)[0].nucleotides[0].prev) {
+      // double edge
+      s2a.isScaffold = true;
+      s2b.isScaffold = false;
+    } else {
+      // single edge
+      s2a.isScaffold = false;
+      s2b.isScaffold = true;
+
+      s4b.linkStrand(s2a, 2, 2);
+      s2a.linkStrand(s4b, 2, 2);
+    }
+  }
 }
 
 export { ATrail, graphToWires, wiresToCylinders, cylindersToNucleotides };

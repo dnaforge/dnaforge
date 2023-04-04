@@ -104,7 +104,7 @@ export class Relaxer {
       );
 
       for (const prime of _.keys(cyl.neighbours)) {
-        if(!cyl.neighbours[prime]) continue;
+        if (!cyl.neighbours[prime]) continue;
         const cyl2 = cyl.neighbours[prime][0];
 
         const body2 = this.cylToMesh.get(cyl2);
@@ -141,13 +141,13 @@ export class Relaxer {
    */
   createBundleConstraints() {
     for (const cyl of this.cm.cylinders) {
-      if(!cyl.bundle || !cyl.bundle.isRigid) continue;
+      if (!cyl.bundle || !cyl.bundle.isRigid) continue;
       const body1 = this.cylToMesh.get(cyl);
-      for(let cyl2 of cyl.bundle.cylinders){
-        if(cyl == cyl2) continue;
+      for (let cyl2 of cyl.bundle.cylinders) {
+        if (cyl == cyl2) continue;
         const body2 = this.cylToMesh.get(cyl2);
-        
-        const c = new LockConstraint(body1, body2, {maxForce: 2});
+
+        const c = new LockConstraint(body1, body2, { maxForce: 2 });
         this.world.addConstraint(c);
       }
     }

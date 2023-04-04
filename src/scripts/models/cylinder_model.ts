@@ -39,18 +39,17 @@ const geometryCylinderMain = (nucParams: Record<string, any>) => {
 const geometryCylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
 const geometryLinker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
-
-export class CylinderBundle{
+export class CylinderBundle {
   isRigid = true;
   cylinders: Cylinder[] = [];
   length = 0;
 
-  constructor(...cylinders: Cylinder[]){
+  constructor(...cylinders: Cylinder[]) {
     this.push(...cylinders);
   }
 
-  push(...cylinders: Cylinder[]){
-    for(let cyl of cylinders){
+  push(...cylinders: Cylinder[]) {
+    for (let cyl of cylinders) {
       this.cylinders.push(cyl);
       cyl.bundle = this;
       this.length++;

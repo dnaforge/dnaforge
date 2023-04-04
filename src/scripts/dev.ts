@@ -52,14 +52,14 @@ export function dev(context: Context) {
   }
   */
   //atrail.relaxCylinders();
-  
+
   const cm = atrail.cm;
 
   for (let i = 0; i < cm.cylinders.length; i++) {
-    if (Math.random() > 0.75) cm.toggleSelect(cm.cylinders[i]);
+    if (Math.random() > 0) cm.toggleSelect(cm.cylinders[i]);
   }
   atrail.reinforce();
-  
+
   //const st = (<SpanningTreeMenu>context.menus.get("spanning-tree"));
   //st.addWires();
   //st.addCylinders();

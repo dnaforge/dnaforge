@@ -355,7 +355,7 @@ export abstract class ModuleMenu extends Menu {
     // remove old:
     this.removeNucleotides(true);
     this.handleSelection();
-    
+
     this.collectParameters();
 
     if (!this.cm) this.generateCylinderModel();

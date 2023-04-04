@@ -1,7 +1,11 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { Vector3 } from 'three';
-import { Cylinder, CylinderBundle, CylinderModel } from '../../models/cylinder_model';
+import {
+  Cylinder,
+  CylinderBundle,
+  CylinderModel,
+} from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
@@ -218,7 +222,11 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
     prev.neighbours.second5Prime = [cur, 'second3Prime'];
     cur.neighbours.second3Prime = [prev, 'second5Prime'];
 
-    if (cur.isPseudo) prev = cur.bundle.cylinders[0] == cur ? cur.bundle.cylinders[1] : cur.bundle.cylinders[0];
+    if (cur.isPseudo)
+      prev =
+        cur.bundle.cylinders[0] == cur
+          ? cur.bundle.cylinders[1]
+          : cur.bundle.cylinders[0];
     else prev = cur;
 
     if (cur.length < 31) {
@@ -246,7 +254,10 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
       cyl.neighbours['second3Prime'][0]
     )[1];
 
-    const otherCyl = cyl.bundle.cylinders[0] == cyl ? cyl.bundle.cylinders[1] : cyl.bundle.cylinders[0];
+    const otherCyl =
+      cyl.bundle.cylinders[0] == cyl
+        ? cyl.bundle.cylinders[1]
+        : cyl.bundle.cylinders[0];
 
     const scaffold_cur = nm.cylToStrands.get(cyl)[0];
     const scaffold_pair = nm.cylToStrands.get(otherCyl)[0];

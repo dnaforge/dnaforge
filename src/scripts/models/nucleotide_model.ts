@@ -561,11 +561,11 @@ class NucleotideModel {
     params: ModuleMenuParameters,
     hasScaffold = false
   ): NucleotideModel {
-    const minLinkers = params.minLinkers || 3;
-    const maxLinkers = params.minLinkers || 3;
-    const addNicks = params.addNicks || false;
-    const maxLength = params.maxStrandLength || 100;
-    const minLength = params.minStrandLength || 10;
+    const minLinkers = params.minLinkers;
+    const maxLinkers = params.minLinkers;
+    const addNicks = params.addNicks;
+    const maxLength = params.maxStrandLength;
+    const minLength = params.minStrandLength;
 
     const nm = new NucleotideModel(cm.scale, cm.naType);
 
@@ -647,7 +647,7 @@ class NucleotideModel {
       const next1 = cyl.neighbours['first3Prime'];
       const next2 = cyl.neighbours['second3Prime'];
 
-      if(!next1 || !next2) continue;
+      if (!next1 || !next2) continue;
 
       let strand1Next: Strand;
       let strand2Next: Strand;
