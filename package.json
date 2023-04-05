@@ -1,6 +1,6 @@
 {
   "name": "dforge_server",
-  "version": "0.2.",
+  "version": "0.4.",
   "main": "index.js",
   "license": "MIT",
   "scripts": {

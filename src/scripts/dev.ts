@@ -42,31 +42,18 @@ export function dev(context: Context) {
   //atrail.addWires();
   atrail.addCylinders();
   //atrail.addNucleotides();
-
-  /*
-  const t = atrail.nm.getScaffold();
-  for(let n of t.nucleotides) n.markSelect(true);
-  for(let n of atrail.nm.getScaffold().nucleotides){
-    console.log(n.instanceId);
-    
-  }
-  */
   //atrail.relaxCylinders();
-
   const cm = atrail.cm;
-
-  for (let i = 0; i < cm.cylinders.length; i++) {
-    if (Math.random() > 0) cm.toggleSelect(cm.cylinders[i]);
-  }
+  for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   atrail.reinforce();
 
-  //const st = (<SpanningTreeMenu>context.menus.get("spanning-tree"));
+  const st = (<SpanningTreeMenu>context.menus.get("spanning-tree"));
   //st.addWires();
   //st.addCylinders();
   //st.addNucleotides();
   //st.generatePrimary();
 
-  //const sterna = (<SternaMenu>context.menus.get("sterna"));
+  const sterna = (<SternaMenu>context.menus.get("sterna"));
   //sterna.addWires();
   //sterna.addCylinders();
   //sterna.addNucleotides();

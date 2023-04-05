@@ -152,6 +152,10 @@ class Cylinder {
     );
   }
 
+  getP1(){
+    return new Vector3().applyMatrix4(this.transform);
+  }
+
   /**
    * Calculates the transformation matrix such that it transforms a cylinder starting from the origin
    * and pointing towards the Y-axis.
@@ -173,6 +177,7 @@ class Cylinder {
       .scale(new Vector3(this.scale, this.scale, this.scale))
       .setPosition(p1);
     this.transform = transform;
+    
   }
 
   /**
@@ -538,13 +543,17 @@ class CylinderModel {
    * @returns offset
    */
   getVertexOffset(v1: Vertex, v2: Vertex): Vector3 {
-    const neighbours = v1.getNeighbours();
     const dir = v2.coords.clone().sub(v1.coords).normalize();
 
-    let min_angle = 2 * Math.PI;
-    for (let i = 0; i < neighbours.length; i++) {
-      const n = neighbours[i];
-      if (n == v2) continue;
+    // sort neighbours according to their lengths
+    const neighbours2 = v1.getNeighbours().map((v): [Vertex, number] => {
+      const d = v.coords.clone().sub(v1.coords).length();
+      return [v, d];
+    }).sort((a, b) => { return a[1] - b[1] }).map((x) => { return x[0] });
+
+    let min_angle = Math.PI;
+    for(let n of neighbours2){
+      if(n == v2) break;
       const dirN = n.coords.clone().sub(v1.coords);
       let angle = dirN.angleTo(dir);
       if (angle > Math.PI) angle = 2 * Math.PI - angle;

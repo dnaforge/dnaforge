@@ -38,7 +38,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: "DNA Forge",
             template: "src/html/index.html",
-            favicon: "./favicon2.png",
+            favicon: "./favicon.png",
 
             templateParameters: {
                 gitAddress: "https://github.com/Ritkuli/dnaforge",

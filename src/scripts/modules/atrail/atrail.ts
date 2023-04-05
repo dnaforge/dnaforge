@@ -441,7 +441,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
   const maxLinkers = params.minLinkers;
   const addNicks = params.addNicks;
   const maxLength = params.maxStrandLength;
-  const minLength = params.minStrandLength;
+  const minLength = Math.ceil(params.minStrandLength / 2); // single-sided overlap because of scaffold
 
   const nm = new NucleotideModel(cm.scale, cm.naType);
 
@@ -470,9 +470,13 @@ function reinforceCylinder(cm: CylinderModel, cyl: Cylinder) {
   };
 
   if (!cyl.bundle) new CylinderBundle(cyl);
-  if (cyl.bundle.length == 1) reinforce(cyl, cyl.nor1);
-  reinforce(cyl, cyl.nor2);
-  reinforce(cyl.bundle.cylinders[2], cyl.nor1);
+  const r = new THREE.Vector3(Math.random(), Math.random(), Math.random());
+  //const c_dir = 
+  const dir = r.sub(cyl.dir.clone().multiplyScalar(r.dot(cyl.dir))).normalize();
+  if (cyl.bundle.length == 1) reinforce(cyl, dir);
+  const dir2 = cyl.dir.clone().cross(dir).normalize();
+  reinforce(cyl, dir2);
+  reinforce(cyl.bundle.cylinders[2], dir);
 
   cyl.bundle.isRigid = true;
 }
