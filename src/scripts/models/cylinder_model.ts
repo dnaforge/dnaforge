@@ -39,10 +39,16 @@ const geometryCylinderMain = (nucParams: Record<string, any>) => {
 const geometryCylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
 const geometryLinker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
+
+/**
+ * A Cylinder bundle representes a set of cylinders that span across the same
+ * edge. Some models add multiple double helices per edge. In such cases,
+ * the cylinders should be associated with a cylinder bundle.
+ */
 export class CylinderBundle {
-  isRigid = true;
+  isRigid = true; // Affects relaxation. If true, removes all degrees of freedom between the cylinders
   cylinders: Cylinder[] = [];
-  length = 0;
+  length = 0; // number of cylinders in the bundle
 
   constructor(...cylinders: Cylinder[]) {
     this.push(...cylinders);
@@ -73,15 +79,8 @@ class Cylinder {
   naType: string;
   nucParams: Record<string, any>;
 
-  dir: Vector3; // direction of the cylinder
-  nor1: Vector3; // direction of the first backbone of the first strand
-  nor2: Vector3; // orientation normal vector
-
-  transform: Matrix4;
-
   length: number; // length in nucleotides
-  p1: Vector3; // start point. This should always correspond to the 5' projected onto the axis of the cylinder
-  p2: Vector3; // end point
+  transform = new Matrix4();
 
   neighbours: Record<string, [Cylinder, string]> = {
     first5Prime: undefined, // 1st 5'
@@ -90,10 +89,7 @@ class Cylinder {
     second3Prime: undefined, // 2nd 3'
   };
 
-  torque: number; // torque due to connections to neighbouring cylinders
-
   isPseudo = false; // marks whether this is a cylinder that should form a pseudoknot.
-
   bundle: CylinderBundle = undefined; // In case the same vertex pair has two cylinders
 
   /**
@@ -115,21 +111,10 @@ class Cylinder {
     this.naType = naType;
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
 
-    const r1 = new THREE.Vector3(Math.random(), Math.random(), Math.random());
-    this.dir = dir;
-    this.nor1 = r1
-      .sub(this.dir.clone().multiplyScalar(r1.dot(this.dir)))
-      .normalize();
-    this.nor2 = this.dir.clone().cross(this.nor1);
-
     this.length = length; // in nucleotides
     if (length < 0) this.length = 0;
 
-    this.p1 = startP.clone();
-    this.p2 = this.p1
-      .clone()
-      .add(this.dir.clone().multiplyScalar(this.getLength()));
-    this.calculateTransformMatrix();
+    this.initTransformMatrix(startP, dir);
   }
 
   /**
@@ -159,25 +144,37 @@ class Cylinder {
   /**
    * Calculates the transformation matrix such that it transforms a cylinder starting from the origin
    * and pointing towards the Y-axis.
+   * 
+   * @param startP Start point
+   * @param dir Direction
    */
-  calculateTransformMatrix() {
-    const p1 = this.p1
-      .clone()
-      .add(
-        this.dir
-          .clone()
-          .multiplyScalar(
-            (this.nucParams.INCLINATION < 0 ? 1 : 0) *
-              this.nucParams.INCLINATION *
-              this.scale
-          )
-      );
-    const transform = new Matrix4()
-      .makeBasis(this.nor2, this.dir, this.nor1)
-      .scale(new Vector3(this.scale, this.scale, this.scale))
-      .setPosition(p1);
-    this.transform = transform;
+  initTransformMatrix(startP: Vector3, dir: Vector3) {
+    const inclination = dir.clone().multiplyScalar((this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION * this.scale);
+    const p1 = startP.clone().add(inclination);
+    const translation = new Matrix4().makeTranslation(p1.x, p1.y, p1.z);
     
+    const r1 = new THREE.Vector3(Math.random(), Math.random(), Math.random());
+    const nor1 = r1.sub(dir.clone().multiplyScalar(r1.dot(dir))).normalize();
+    const nor2 = dir.clone().cross(nor1);
+    const rotation = new Matrix4().makeBasis(nor2, dir, nor1).scale(new Vector3(this.scale, this.scale, this.scale));
+
+    this.transform = translation.multiply(rotation);
+  }
+
+
+  /**
+   * Orient the cylinder so that the first backbone of the first strand points towards bb
+   *
+   * @param bb backbone direction at first 5'.
+   */
+  setOrientation(bb: Vector3) {
+    const root = new Vector3().applyMatrix4(this.transform);
+    const dir = new Vector3(0,1,0).applyMatrix4(this.transform).sub(root).normalize();
+    const nor1 = bb.clone().sub(dir.clone().multiplyScalar(dir.dot(bb))).normalize();
+    const nor2 = dir.clone().cross(nor1).normalize();
+    const transform = new Matrix4().makeBasis(nor2, dir, nor1).scale(new Vector3(this.scale, this.scale, this.scale)).copyPosition(this.transform);
+    
+    this.transform = transform;
   }
 
   /**
@@ -187,54 +184,12 @@ class Cylinder {
    * @param angle
    */
   rotate(axis: Vector3, angle: number) {
-    const normAxis = axis.clone().normalize();
-
-    this.dir.applyAxisAngle(normAxis, angle);
-    this.nor1.applyAxisAngle(normAxis, angle);
-    this.nor2.applyAxisAngle(normAxis, angle);
-    this.calculateTransformMatrix();
-  }
-
-  /**
-   * Orient the cylinder so that the first backbone of the first strand points towards dir
-   *
-   * @param dir
-   */
-  setOrientation(dir: Vector3) {
-    this.nor1 = dir.clone().normalize();
-    this.nor2 = this.dir.clone().cross(this.nor1).normalize();
-    this.calculateTransformMatrix();
+    console.log('unimplemented');
   }
 
   //TODO:
-  translate() {
+  translate(newPos: Vector3) {
     console.log('unimplemented');
-    this.calculateTransformMatrix();
-  }
-
-  /**
-   *
-   * @param str
-   * @returns
-   */
-  getPrimeDir(str: string): Vector3 {
-    const primePos = this.getPrimePosition(str).clone();
-    switch (str) {
-      case 'first5Prime':
-        return primePos.sub(this.p1);
-
-      case 'first3Prime':
-        return primePos.sub(this.p2);
-
-      case 'second5Prime':
-        return primePos.sub(this.p2.clone()); //.add(this.dir.clone().multiplyScalar(this.nucParams.INCLINATION)));
-
-      case 'second3Prime':
-        return primePos.sub(this.p1.clone()); //.add(this.dir.clone().multiplyScalar(this.nucParams.INCLINATION)));
-
-      default:
-        console.error('Invalid cylinder socket identifier: ', str);
-    }
   }
 
   /**
@@ -745,57 +700,20 @@ class CylinderModel {
   }
 
   /**
-   * Calculates the torques experienced by each cylinder due to their connections
-   * to neighbouring cylinders.
-   *
-   * @returns the total torque
-   */
-  calculateTorques() {
-    let sum = 0;
-    for (const cyl of this.cylinders) {
-      cyl.torque = 0;
-      const dir = cyl.dir;
-      for (const str of _.keys(cyl.neighbours)) {
-        const posPrime = cyl.getPrimePosition(str);
-        const pairPrime = cyl.getPairPrimePosition(str);
-
-        if (!posPrime || !pairPrime) continue;
-
-        const rel1 = posPrime.clone().sub(cyl.p1);
-        const rel2 = pairPrime.clone().sub(cyl.p1);
-
-        const relP1 = rel1
-          .clone()
-          .sub(dir.clone().multiplyScalar(rel1.dot(dir)));
-        const relP2 = rel2
-          .clone()
-          .sub(dir.clone().multiplyScalar(rel2.dot(dir)));
-
-        const exp = 1.5;
-        const alpha =
-          relP1.angleTo(relP2) ** exp *
-          (-1) ** (posPrime.cross(relP2).dot(dir) < 0 ? 1 : 0);
-
-        if (Math.abs(alpha) > Math.PI * 0.8) {
-          if (Math.random() > 0.5) {
-            cyl.torque -= 2 * Math.PI - alpha;
-          } else {
-            cyl.torque += alpha;
-          }
-        }
-        sum += Math.abs(alpha);
-      }
-    }
-    return sum;
-  }
-
-  /**
    * Calculates a score for how relaxed the current conformation of cylindres is.
    *
    * @returns score
    */
   calculateRelaxScore() {
-    return this.calculateTorques();
+    let score = 0;
+    for(let cyl of this.cylinders){
+      const primes = cyl.getPrimePairs();
+      for(let [p1, p2] of primes){
+        if(!p1 || !p2) continue;
+        score += p2.sub(p1).length();
+      }
+    }
+    return score;
   }
 
   /**
