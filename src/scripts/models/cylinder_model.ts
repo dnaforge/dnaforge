@@ -39,7 +39,6 @@ const geometryCylinderMain = (nucParams: Record<string, any>) => {
 const geometryCylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
 const geometryLinker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
-
 /**
  * A Cylinder bundle representes a set of cylinders that span across the same
  * edge. Some models add multiple double helices per edge. In such cases,
@@ -137,30 +136,37 @@ class Cylinder {
     );
   }
 
-  getP1(){
+  getP1() {
     return new Vector3().applyMatrix4(this.transform);
   }
 
   /**
    * Calculates the transformation matrix such that it transforms a cylinder starting from the origin
    * and pointing towards the Y-axis.
-   * 
+   *
    * @param startP Start point
    * @param dir Direction
    */
   initTransformMatrix(startP: Vector3, dir: Vector3) {
-    const inclination = dir.clone().multiplyScalar((this.nucParams.INCLINATION < 0 ? 1 : 0) * this.nucParams.INCLINATION * this.scale);
+    const inclination = dir
+      .clone()
+      .multiplyScalar(
+        (this.nucParams.INCLINATION < 0 ? 1 : 0) *
+          this.nucParams.INCLINATION *
+          this.scale
+      );
     const p1 = startP.clone().add(inclination);
     const translation = new Matrix4().makeTranslation(p1.x, p1.y, p1.z);
-    
+
     const r1 = new THREE.Vector3(Math.random(), Math.random(), Math.random());
     const nor1 = r1.sub(dir.clone().multiplyScalar(r1.dot(dir))).normalize();
     const nor2 = dir.clone().cross(nor1);
-    const rotation = new Matrix4().makeBasis(nor2, dir, nor1).scale(new Vector3(this.scale, this.scale, this.scale));
+    const rotation = new Matrix4()
+      .makeBasis(nor2, dir, nor1)
+      .scale(new Vector3(this.scale, this.scale, this.scale));
 
     this.transform = translation.multiply(rotation);
   }
-
 
   /**
    * Orient the cylinder so that the first backbone of the first strand points towards bb
@@ -169,11 +175,20 @@ class Cylinder {
    */
   setOrientation(bb: Vector3) {
     const root = new Vector3().applyMatrix4(this.transform);
-    const dir = new Vector3(0,1,0).applyMatrix4(this.transform).sub(root).normalize();
-    const nor1 = bb.clone().sub(dir.clone().multiplyScalar(dir.dot(bb))).normalize();
+    const dir = new Vector3(0, 1, 0)
+      .applyMatrix4(this.transform)
+      .sub(root)
+      .normalize();
+    const nor1 = bb
+      .clone()
+      .sub(dir.clone().multiplyScalar(dir.dot(bb)))
+      .normalize();
     const nor2 = dir.clone().cross(nor1).normalize();
-    const transform = new Matrix4().makeBasis(nor2, dir, nor1).scale(new Vector3(this.scale, this.scale, this.scale)).copyPosition(this.transform);
-    
+    const transform = new Matrix4()
+      .makeBasis(nor2, dir, nor1)
+      .scale(new Vector3(this.scale, this.scale, this.scale))
+      .copyPosition(this.transform);
+
     this.transform = transform;
   }
 
@@ -501,14 +516,22 @@ class CylinderModel {
     const dir = v2.coords.clone().sub(v1.coords).normalize();
 
     // sort neighbours according to their lengths
-    const neighbours2 = v1.getNeighbours().map((v): [Vertex, number] => {
-      const d = v.coords.clone().sub(v1.coords).length();
-      return [v, d];
-    }).sort((a, b) => { return a[1] - b[1] }).map((x) => { return x[0] });
+    const neighbours2 = v1
+      .getNeighbours()
+      .map((v): [Vertex, number] => {
+        const d = v.coords.clone().sub(v1.coords).length();
+        return [v, d];
+      })
+      .sort((a, b) => {
+        return a[1] - b[1];
+      })
+      .map((x) => {
+        return x[0];
+      });
 
     let min_angle = Math.PI;
-    for(let n of neighbours2){
-      if(n == v2) break;
+    for (let n of neighbours2) {
+      if (n == v2) break;
       const dirN = n.coords.clone().sub(v1.coords);
       let angle = dirN.angleTo(dir);
       if (angle > Math.PI) angle = 2 * Math.PI - angle;
@@ -706,10 +729,10 @@ class CylinderModel {
    */
   calculateRelaxScore() {
     let score = 0;
-    for(let cyl of this.cylinders){
+    for (let cyl of this.cylinders) {
       const primes = cyl.getPrimePairs();
-      for(let [p1, p2] of primes){
-        if(!p1 || !p2) continue;
+      for (let [p1, p2] of primes) {
+        if (!p1 || !p2) continue;
         score += p2.sub(p1).length();
       }
     }

@@ -16,6 +16,7 @@ import { Cylinder, CylinderBundle } from './models/cylinder_model';
  * Used for testing while developing. Does not get compiled to the final product.
  */
 export function dev(context: Context) {
+  return;
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');
@@ -44,16 +45,17 @@ export function dev(context: Context) {
   //atrail.addNucleotides();
   //atrail.relaxCylinders();
   const cm = atrail.cm;
-  for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
+  for (let i = 0; i < cm.cylinders.length; i++)
+    cm.toggleSelect(cm.cylinders[i]);
   atrail.reinforce();
 
-  const st = (<SpanningTreeMenu>context.menus.get("spanning-tree"));
+  const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();
   //st.addCylinders();
   //st.addNucleotides();
   //st.generatePrimary();
 
-  const sterna = (<SternaMenu>context.menus.get("sterna"));
+  const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.addWires();
   //sterna.addCylinders();
   //sterna.addNucleotides();

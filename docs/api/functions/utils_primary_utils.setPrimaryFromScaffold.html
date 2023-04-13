@@ -18,7 +18,7 @@
 <h1>Function setPrimaryFromScaffold</h1></div>
 <section class="tsd-panel">
 <ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-<li class="tsd-signature tsd-anchor-link" id="setPrimaryFromScaffold">set<wbr/>Primary<wbr/>From<wbr/>Scaffold<span class="tsd-signature-symbol">(</span>nm<span class="tsd-signature-symbol">: </span><a href="../classes/models_nucleotide_model.NucleotideModel.html" class="tsd-signature-type" data-tsd-kind="Class">NucleotideModel</a>, params<span class="tsd-signature-symbol">: </span><a href="../interfaces/scene_menu.MenuParameters.html" class="tsd-signature-type" data-tsd-kind="Interface">MenuParameters</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><a href="#setPrimaryFromScaffold" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="setPrimaryFromScaffold">set<wbr/>Primary<wbr/>From<wbr/>Scaffold<span class="tsd-signature-symbol">(</span>nm<span class="tsd-signature-symbol">: </span><a href="../classes/models_nucleotide_model.NucleotideModel.html" class="tsd-signature-type" data-tsd-kind="Class">NucleotideModel</a>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ScaffoldParams</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><a href="#setPrimaryFromScaffold" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Sets the primary structure based on the scaffold name. Scaffold name options are &quot;none&quot;, &quot;random&quot;
 &quot;custom&quot;, and the ones defined in consts.</p>
@@ -29,12 +29,12 @@
 <li>
 <h5>nm: <a href="../classes/models_nucleotide_model.NucleotideModel.html" class="tsd-signature-type" data-tsd-kind="Class">NucleotideModel</a></h5></li>
 <li>
-<h5>params: <a href="../interfaces/scene_menu.MenuParameters.html" class="tsd-signature-type" data-tsd-kind="Interface">MenuParameters</a></h5>
-<div class="tsd-comment tsd-typography"><p>{scaffoldName, customScaffold?, gcContent?, naType?}</p>
+<h5>params: <span class="tsd-signature-type">ScaffoldParams</span></h5>
+<div class="tsd-comment tsd-typography"><p>ScaffoldParams</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/e18d84b/src/scripts/utils/primary_utils.ts#L18">src/scripts/utils/primary_utils.ts:18</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/utils/primary_utils.ts#L27">src/scripts/utils/primary_utils.ts:27</a></li></ul></aside></li></ul></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -68,9 +68,9 @@
 <li class="tsd-kind-module"><a href="../modules/io_download.html">io/download</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_read_obj.html">io/read_<wbr/>obj</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_cylinder_model.html">models/cylinder_<wbr/>model</a></li>
-<li class="tsd-kind-module"><a href="../modules/models_cylinder_model_physics.html">models/cylinder_<wbr/>model_<wbr/>physics</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_graph.html">models/graph</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_nucleotide_model.html">models/nucleotide_<wbr/>model</a></li>
+<li class="tsd-kind-module"><a href="../modules/models_relaxer.html">models/relaxer</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_wires_model.html">models/wires_<wbr/>model</a></li>
 <li class="tsd-kind-module"><a href="../modules/modules_atrail_atrail.html">modules/atrail/atrail</a></li>
 <li class="tsd-kind-module"><a href="../modules/modules_atrail_atrail_test.html">modules/atrail/atrail.test</a></li>

@@ -441,7 +441,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
   const maxLinkers = params.minLinkers;
   const addNicks = params.addNicks;
   const maxLength = params.maxStrandLength;
-  const minLength = Math.ceil(params.minStrandLength / 2); // single-sided overlap because of scaffold
+  const minLength = Math.ceil(params.minStrandLength);
 
   const nm = new NucleotideModel(cm.scale, cm.naType);
 
@@ -460,7 +460,9 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
 
 function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
   const reinforce = (sCyl: Cylinder, offDir: Vector3) => {
-    const p = new Vector3().applyMatrix4(new Matrix4().copyPosition(sCyl.transform));
+    const p = new Vector3().applyMatrix4(
+      new Matrix4().copyPosition(sCyl.transform)
+    );
     const offset = offDir
       .clone()
       .multiplyScalar(2 * sCyl.scale * sCyl.nucParams.RADIUS);
@@ -471,17 +473,24 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
   };
 
   const cyl = inCyl.bundle ? inCyl.bundle.cylinders[0] : inCyl;
-  const cdir = new Vector3(0,1,0).applyMatrix4(cyl.transform).sub(new Vector3().applyMatrix4(cyl.transform)).normalize();
+  const cdir = new Vector3(0, 1, 0)
+    .applyMatrix4(cyl.transform)
+    .sub(new Vector3().applyMatrix4(cyl.transform))
+    .normalize();
   const r = new THREE.Vector3(Math.random(), Math.random(), Math.random());
   const dir = r.sub(cdir.clone().multiplyScalar(r.dot(cdir))).normalize();
   const dir2 = cdir.clone().cross(dir).normalize();
 
   if (!cyl.bundle) new CylinderBundle(cyl);
   if (cyl.bundle.length == 1) reinforce(cyl, dir);
-  else{
+  else {
     const cyl2 = cyl.bundle.cylinders[1];
-    const p2 = new Vector3().applyMatrix4(new Matrix4().copyPosition(cyl2.transform));
-    const p1 = new Vector3().applyMatrix4(new Matrix4().copyPosition(cyl.transform));
+    const p2 = new Vector3().applyMatrix4(
+      new Matrix4().copyPosition(cyl2.transform)
+    );
+    const p1 = new Vector3().applyMatrix4(
+      new Matrix4().copyPosition(cyl.transform)
+    );
     const t = p2.sub(p1).normalize();
     dir.copy(t.clone().sub(cdir.multiplyScalar(t.dot(cdir)))).normalize();
     dir2.copy(cdir.clone().cross(dir).normalize());
