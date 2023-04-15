@@ -60,7 +60,7 @@ export class CycleCoverMenu extends ModuleMenu {
 
   downloadCycleCover() {
     try {
-      const str = JSON.stringify(this.nm.toJSON());
+      const str = JSON.stringify(this.nm.toUNF());
       downloadTXT('cycle_cover.unf', str);
     } catch (error) {
       throw `Nucleotide model not defined.`;

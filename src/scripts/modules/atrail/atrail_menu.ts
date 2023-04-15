@@ -73,7 +73,7 @@ export class ATrailMenu extends ModuleMenu {
 
   downloadATrail() {
     try {
-      const str = JSON.stringify(this.nm.toJSON());
+      const str = JSON.stringify(this.nm.toUNF());
       downloadTXT('atrail.unf', str);
     } catch (error) {
       throw `Nucleotide model not defined.`;

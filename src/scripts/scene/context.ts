@@ -329,13 +329,27 @@ export class Context {
     //Metro.toast.create(message, null, null, null, null);
   }
 
+  toJSON(): JSONObject{
+    const json: JSONObject = {};
+    json.graph = this.graph.toJSON();
+    for (const menu of this.menus.keys()) json[menu] = this.menus.get(menu).toJSON();
+    return json
+  }
+
+  loadJSON(json: JSONObject){
+    this.graph = new Graph();
+    this.graph.loadJSON(json.graph as JSONObject);
+    this.reset();
+  
+
+
+  }
+
   /**
-   * Resets the main context. Set the new graph as the given one. Also resets all the menus.
+   * Resets the main context. Also resets all the menus.
    *
-   * @param graph
    */
-  reset(graph: Graph) {
-    this.graph = graph;
+  reset() {
     for (const ctx of this.menus.values()) ctx.reset();
     this.activeContext = null;
   }
@@ -346,7 +360,8 @@ export class Context {
    * @param graph
    */
   setGraph(graph: Graph) {
-    this.reset(graph);
+    this.graph = graph;
+    this.reset();
     this.addMessage(
       `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${
         graph.getEdges().length

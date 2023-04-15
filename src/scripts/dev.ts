@@ -16,7 +16,6 @@ import { Cylinder, CylinderBundle } from './models/cylinder_model';
  * Used for testing while developing. Does not get compiled to the final product.
  */
 export function dev(context: Context) {
-  return;
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');
@@ -64,4 +63,7 @@ export function dev(context: Context) {
   //sterna.generatePrimary();
 
   //const r = new Relaxer(cm);
+
+  const json = context.toJSON();
+  context.loadJSON(json);
 }

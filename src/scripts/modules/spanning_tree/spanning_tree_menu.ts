@@ -62,7 +62,7 @@ export class SpanningTreeMenu extends ModuleMenu {
 
   downloadVeneziano() {
     try {
-      const str = JSON.stringify(this.nm.toJSON());
+      const str = JSON.stringify(this.nm.toUNF());
       downloadTXT('spanning_tree_model.unf', str);
     } catch (error) {
       throw `Nucleotide model not defined.`;

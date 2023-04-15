@@ -124,6 +124,14 @@ export abstract class Menu {
     return false;
   }
 
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: JSONObject){
+    return;
+  }
+
   /**
    * Resets this menu to its original state. Deletes the existing models.
    */

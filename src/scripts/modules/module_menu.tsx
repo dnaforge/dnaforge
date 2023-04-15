@@ -481,6 +481,14 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides = this.nucleotidesButton[0].checked;
   }
 
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: JSONObject){
+    return;
+  }
+
   /**
    * Connect all the HTML elements to this object. Add their event listeners.
    */

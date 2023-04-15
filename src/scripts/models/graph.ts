@@ -331,6 +331,15 @@ class Graph {
   edges: Edge[] = [];
   faces: Face[] = [];
 
+
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: JSONObject){
+    return;
+  }
+
   // Doesn't work on multigraphs
   //TODO: use some different method to calculate this to deal with multigraphs
   calculateNormals() {
@@ -562,8 +571,6 @@ class Graph {
     //TODO: clean this up
     if (this.isEulerian()) return;
     const verts = this.getVertices();
-    const idToVert = new Map<number, Vertex>();
-    for (const v of verts) idToVert.set(v.id, v);
 
     // find minimum paths between all the odd vertices
     const minPaths = () => {

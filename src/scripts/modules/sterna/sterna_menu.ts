@@ -86,7 +86,7 @@ export class SternaMenu extends ModuleMenu {
 
   downloadSterna() {
     try {
-      const str = JSON.stringify(this.nm.toJSON());
+      const str = JSON.stringify(this.nm.toUNF());
       downloadTXT('sterna.unf', str);
     } catch (error) {
       throw `Nucleotide model not defined.`;

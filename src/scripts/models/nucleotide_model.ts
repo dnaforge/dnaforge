@@ -248,7 +248,7 @@ class Nucleotide {
    *
    * @returns JSON dictionary
    */
-  toJSON() {
+  toUNF() {
     const backboneCenter = this.backboneCenter
       .clone()
       .multiplyScalar(1 / this.scale);
@@ -468,12 +468,12 @@ class Strand {
    *
    * @returns JSON dictionary
    */
-  toJSON() {
+  toUNF() {
     const length = this.nucleotides.length;
     const nucleotidesJSON = [];
     for (let i = 0; i < length; i++) {
       const n = this.nucleotides[i];
-      const nJSON = n.toJSON();
+      const nJSON = n.toUNF();
       nucleotidesJSON.push(nJSON);
     }
 
@@ -742,12 +742,12 @@ class NucleotideModel {
    *
    * @returns JSON dictionary
    */
-  toJSON() {
+  toUNF() {
     const length = this.strands.length;
     const strandsJSON = [];
     for (let i = 0; i < length; i++) {
       const s = this.strands[i];
-      const sJSON = s.toJSON();
+      const sJSON = s.toUNF();
       strandsJSON.push(sJSON);
     }
     const empty = [] as any;

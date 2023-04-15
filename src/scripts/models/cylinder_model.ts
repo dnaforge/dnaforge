@@ -476,6 +476,14 @@ class CylinderModel {
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
   }
 
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: JSONObject){
+    return;
+  }
+
   /**
    * Adds the given cylinders to this model. Make sure to dispose the old model
    * in case it is already generated, since this won't update the models.
