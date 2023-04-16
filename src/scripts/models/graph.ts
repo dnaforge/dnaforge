@@ -2,24 +2,15 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import blossom from 'edmonds-blossom-fixed';
 
-const uid = (() => {
-  let i = 0;
-  return () => {
-    return i++;
-  };
-})();
-
 // TODO: reimplement the whole graph class, and try not to be retarded next time
 class Vertex {
   id: number;
-  graph: Graph;
   coords: THREE.Vector3;
   normal: THREE.Vector3;
   adjacentEdges: Edge[] = [];
 
-  constructor(graph: Graph, coords: Vector3, normal = new Vector3(1, 0, 0)) {
-    this.id = uid();
-    this.graph = graph;
+  constructor(id: number, coords: Vector3, normal = new Vector3(1, 0, 0)) {
+    this.id = id;
     this.coords = coords;
     this.normal = normal;
   }
@@ -130,11 +121,12 @@ class Vertex {
     }
     // clockwise/counterclockwise:
     // The prevf is the last face, so we must use the last two edges too:
-    const e1 = edges[edges.length - 1];
-    const e2 =
-      e1.twin == edges[edges.length - 2]
-        ? edges[edges.length - 3]
-        : edges[edges.length - 2]; // TODO: fix in case an edge is split more than once
+    const e1 = edges[edges.length - 1]
+    let e2;
+    for(let i = 2; i < edges.length; i++){
+      e2 = edges[edges.length - i];
+      if(e1.getOtherVertex(this) != e2.getOtherVertex(this)) break;
+    }
     const [c11, c12] = e1.getCoords();
     const [c21, c22] = e2.getCoords();
     const common = this.coords;
@@ -172,11 +164,12 @@ class Vertex {
     return [...this.adjacentEdges];
   }
 
-  getEdge(other: Vertex) {
+  getCommonEdges(other: Vertex) {
+    const edges = []
     for (const e of this.getAdjacentEdges()) {
-      if (e.getOtherVertex(this) == other) return e;
+      if (e.getOtherVertex(this) == other) edges.push(e);
     }
-    return null;
+    return edges;
   }
 
   getAdjacentFaces() {
@@ -205,16 +198,13 @@ class HalfEdge {
 
 class Edge {
   id: number;
-  graph: Graph;
   vertices: Vertex[];
   halfEdges: HalfEdge[];
   faces: Face[];
   normal: Vector3;
-  twin: Edge;
 
-  constructor(graph: Graph, v1: Vertex, v2: Vertex, normal: Vector3 = null) {
-    this.graph = graph;
-    this.id = uid();
+  constructor(id: number, v1: Vertex, v2: Vertex, normal: Vector3 = null) {
+    this.id = id;
     this.vertices = [v1, v2];
     this.faces = [];
     this.halfEdges = [new HalfEdge(this, v1), new HalfEdge(this, v2)];
@@ -228,6 +218,13 @@ class Edge {
       const r = new THREE.Vector3(Math.random(), Math.random(), Math.random());
       this.normal = r.sub(dir.clone().multiplyScalar(r.dot(dir))).normalize();
     }
+  }
+
+  isSplit(): boolean{
+    for(let f of this.faces){
+      if(f.isSplit()) return true;
+    }
+    return false
   }
 
   getVertices(): Vertex[] {
@@ -264,35 +261,15 @@ class Edge {
     const [v1, v2] = this.getVertices();
     return v1.coords.clone().sub(v2.coords).length();
   }
-
-  split(): Edge {
-    if (this.twin)
-      throw `Trying to split an edge multiple times. This is probably a bug.`;
-    const newEdge = this.graph.addEdge(this.vertices[0], this.vertices[1]);
-    newEdge.normal = this.normal;
-    this.twin = newEdge; // TODO: replace with an array in case an edge is split multiple times
-    newEdge.twin = this;
-
-    const face = this.faces.pop();
-    if (face) {
-      face.edges.splice(face.edges.indexOf(this), 1, newEdge);
-      newEdge.addFace(face);
-      this.graph.addFace([newEdge, this]);
-    }
-
-    return newEdge;
-  }
 }
 
 class Face {
   id: number;
-  graph: Graph;
   edges: Edge[];
   normal: Vector3;
 
-  constructor(graph: Graph, edges: Edge[], normal: Vector3 = null) {
-    this.id = uid();
-    this.graph = graph;
+  constructor(id: number, edges: Edge[], normal: Vector3 = null) {
+    this.id = id;
     this.edges = edges;
     for (const e of edges) {
       e.addFace(this);
@@ -314,6 +291,13 @@ class Face {
     return this.edges;
   }
 
+  isSplit(): boolean{
+    if(this.edges.length != 2) return false;
+    const [v11, v12] = this.edges[0].getVertices();
+    const [v21, v22] = this.edges[0].getVertices();
+    if(v11 == v21 && v12 == v22 || v11 == v22 && v12 == v21) return true;
+  }
+
   getVertices(): Vertex[] {
     const vertices = [];
     let last;
@@ -327,6 +311,7 @@ class Face {
 }
 
 class Graph {
+
   vertices: Vertex[] = [];
   edges: Edge[] = [];
   faces: Face[] = [];
@@ -449,26 +434,21 @@ class Graph {
   }
 
   addVertex(coords: Vector3, normal: Vector3 = undefined) {
-    const v = new Vertex(this, coords, normal);
+    const v = new Vertex(this.vertices.length + 1, coords, normal);
     this.vertices.push(v);
     return v;
   }
 
   addEdge(v1: Vertex, v2: Vertex, normal: Vector3 = undefined) {
-    const edge = new Edge(this, v1, v2, normal);
+    const edge = new Edge(this.edges.length + 1, v1, v2, normal);
     this.edges.push(edge);
     v1.addNeighbour(edge);
     v2.addNeighbour(edge);
     return edge;
   }
 
-  getEdge(v1: Vertex, v2: Vertex) {
-    // Should only be used if the graph is not a multigraph
-    return v1.getEdge(v2);
-  }
-
   addFace(edges: Edge[]) {
-    const f = new Face(this, edges);
+    const f = new Face(this.faces.length + 1, edges);
     this.faces.push(f);
     return f;
   }
@@ -493,20 +473,16 @@ class Graph {
     const g = new Graph();
     const oldVtoNew = new Map();
     const oldEtoNew = new Map();
-    const twins = [];
     for (const v of this.getVertices()) {
       const nv = g.addVertex(v.coords);
       oldVtoNew.set(v, nv);
       nv.normal = v.normal.clone();
-      nv.id = v.id;
     }
     for (const e of this.getEdges()) {
-      if (e.twin) twins.push(e);
       const [v1, v2] = e.getVertices();
       const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2));
       oldEtoNew.set(e, ne);
       ne.normal = e.normal.clone();
-      ne.id = e.id;
     }
     for (const f of this.getFaces()) {
       const edges = f.getEdges().map((e) => {
@@ -514,10 +490,6 @@ class Graph {
       });
       const nf = g.addFace(edges);
       nf.normal = f.normal.clone();
-      nf.id = f.id;
-    }
-    for (const e of twins) {
-      oldEtoNew.get(e).twin = oldEtoNew.get(e.twin);
     }
     return g;
   }
@@ -552,10 +524,26 @@ class Graph {
     const path = [];
     while (cur != v1) {
       const v = prevs.get(cur);
-      path.push(this.getEdge(cur, v));
+      path.push(cur.getCommonEdges(v)[0]);
       cur = v;
     }
     return { path: path, length: dists.get(v2) };
+  }
+
+
+
+  splitEdge(edge: Edge): Edge {
+    const newEdge = this.addEdge(edge.vertices[0], edge.vertices[1]);
+    newEdge.normal = edge.normal;
+
+    const face = edge.faces.pop();
+    if (face) {
+      face.edges.splice(face.edges.indexOf(edge), 1, newEdge);
+      newEdge.addFace(face);
+      this.addFace([newEdge, edge]);
+    }
+
+    return newEdge;
   }
 
   isEulerian() {
@@ -647,7 +635,7 @@ class Graph {
     const splitEdges = (paths: { path: Edge[]; length: number }[]) => {
       for (const p of paths) {
         for (const e of p.path) {
-          e.split();
+          this.splitEdge(e);
         }
       }
     };

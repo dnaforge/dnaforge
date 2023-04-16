@@ -235,7 +235,7 @@ export class InterfaceMenu extends Menu {
     const indicesObject = new THREE.Group();
     for (let i = 0; i < vertices.length; i++) {
       const td = document.createElement('div');
-      (td as any).textContent = i + 1; // Starting indexing from 1, since obj-files start indexing at 1.
+      (td as any).textContent = vertices[i].id;
       td.style.left = '10px';
       td.style.color = '#000000';
       const tl = new CSS2DObject(td);
@@ -283,7 +283,7 @@ export class InterfaceMenu extends Menu {
       const p2 = v2.coords;
 
       const geometry = new THREE.BufferGeometry().setFromPoints([p1, p2]);
-      const material = edges[i].twin ? materialSplitEdge : materialEdge;
+      const material = edges[i].isSplit() ? materialSplitEdge : materialEdge;
       const line = new THREE.Line(geometry, material);
       lines.add(line);
     }

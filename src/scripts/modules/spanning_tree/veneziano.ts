@@ -5,6 +5,7 @@ import {
   Cylinder,
   CylinderBundle,
   CylinderModel,
+  RoutingStrategy,
 } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge } from '../../models/graph';
@@ -207,7 +208,7 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
     if (visited.has(edge)) {
       new CylinderBundle(c, visited.get(edge));
     }
-    if (!st.has(edge)) c.isPseudo = true;
+    if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
 
     if (st.has(edge)) v1 = v2;
     visited.set(edge, c);
@@ -222,7 +223,7 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
     prev.neighbours.second5Prime = [cur, 'second3Prime'];
     cur.neighbours.second3Prime = [prev, 'second5Prime'];
 
-    if (cur.isPseudo)
+    if (cur.routingStrategy == RoutingStrategy.Pseudoknot)
       prev =
         cur.bundle.cylinders[0] == cur
           ? cur.bundle.cylinders[1]
@@ -293,7 +294,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
     reroute(nucs_cur, nucs_pair, 10, length - 10);
     reroute(nucs_pair, nucs_cur, 10, length - 10);
 
-    if (!cyl.isPseudo) {
+    if (cyl.routingStrategy != RoutingStrategy.Pseudoknot) {
       //edge staples:
       const N42 = Math.floor((length - 21) / 21);
       for (let i = 1; i < N42 + 1; i++) {
@@ -301,7 +302,7 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
         const idx2 = length - 10 - 21 * i;
         reroute(nucs_cur, nucs_pair, idx1, idx2);
       }
-    } else if (cyl.isPseudo) {
+    } else if (cyl.routingStrategy == RoutingStrategy.Pseudoknot) {
       // scaffold crossover:
       let offset;
       if (length % 2 == 0) {

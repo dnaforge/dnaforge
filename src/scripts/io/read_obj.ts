@@ -141,7 +141,6 @@ export class OBJLoader extends Loader {
         vertices[i].sub(com).multiplyScalar(scale),
         normals[i]
       );
-      v.id = i + 1;
       gVertices.push(v);
     }
     //implicit edges:
@@ -163,7 +162,7 @@ export class OBJLoader extends Loader {
       for (let j = 0; j < fVerts.length; j++) {
         const v1 = fVerts[j];
         const v2 = j == fVerts.length - 1 ? fVerts[0] : fVerts[j + 1];
-        const e = graph.getEdge(v1, v2);
+        const e = v1.getCommonEdges(v2)[0];
         fEdges.push(e);
       }
       graph.addFace(fEdges);
@@ -174,8 +173,8 @@ export class OBJLoader extends Loader {
     for (let i = 0; i < edgesE.length; i += 2) {
       const v1 = gVertices[edgesE[i] - 1];
       const v2 = gVertices[edgesE[i + 1] - 1];
-      const t = v1.getEdge(v2);
-      if (t) t.split();
+      const t = v1.getCommonEdges(v2)[0];
+      if (t) graph.splitEdge(t);
       else graph.addEdge(v1, v2);
     }
 

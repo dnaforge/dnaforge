@@ -7,6 +7,12 @@ import { DNA, RNA } from '../globals/consts';
 import { Vertex } from './graph';
 import { Relaxer } from './relaxer';
 
+export enum RoutingStrategy {
+  Normal = 0,
+  Pseudoknot = 1,
+  Reinforced = 2,
+}
+
 const cylinderColours: Record<string, THREE.Color> = {
   cylinder: new THREE.Color(0xffffff),
   prime: new THREE.Color(0xff9999),
@@ -88,7 +94,7 @@ class Cylinder {
     second3Prime: undefined, // 2nd 3'
   };
 
-  isPseudo = false; // marks whether this is a cylinder that should form a pseudoknot.
+  routingStrategy: RoutingStrategy = RoutingStrategy.Normal; //
   bundle: CylinderBundle = undefined; // In case the same vertex pair has two cylinders
 
   /**

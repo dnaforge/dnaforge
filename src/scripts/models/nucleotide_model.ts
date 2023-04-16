@@ -6,7 +6,7 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
-import { CylinderModel, Cylinder } from './cylinder_model';
+import { CylinderModel, Cylinder, RoutingStrategy } from './cylinder_model';
 import { ModuleMenuParameters } from '../modules/module_menu';
 
 interface NucleotideMeshes {
@@ -617,7 +617,7 @@ class NucleotideModel {
       this.addStrand(strand2);
       this.cylToStrands.set(cyl, [strand1, strand2]);
 
-      if (cyl.isPseudo) {
+      if (cyl.routingStrategy == RoutingStrategy.Pseudoknot) {
         strand1.isPseudo = true;
         strand2.isPseudo = true;
       }

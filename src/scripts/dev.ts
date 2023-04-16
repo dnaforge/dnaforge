@@ -64,6 +64,6 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
-  const json = context.toJSON();
-  context.loadJSON(json);
+  //const json = context.toJSON();
+  //context.loadJSON(json);
 }

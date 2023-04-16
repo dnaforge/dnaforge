@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Vector3 } from 'three';
-import { CylinderModel } from '../../models/cylinder_model';
+import { CylinderModel, RoutingStrategy } from '../../models/cylinder_model';
 import {
   Nucleotide,
   NucleotideModel,
@@ -252,7 +252,7 @@ function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
 
       const c = cm.createCylinder(p1, dir, length);
       c.setOrientation(nor.cross(dir));
-      if (!st.has(edge)) c.isPseudo = true;
+      if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
 
       edgeToCyl.set(edge, c);
     }

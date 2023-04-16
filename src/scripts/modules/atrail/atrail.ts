@@ -5,6 +5,7 @@ import {
   Cylinder,
   CylinderBundle,
   CylinderModel,
+  RoutingStrategy,
 } from '../../models/cylinder_model';
 import {
   Nucleotide,
@@ -264,15 +265,16 @@ class ATrail extends WiresModel {
       const cur = vertices[trail[i - 1]];
       const next = vertices[trail[i]];
 
-      let edge = cur.getEdge(next);
-      if (edge == null)
+      let edges = cur.getCommonEdges(next);
+      if (edges.length == 0)
         throw `No such edge: ${[trail[i - 1] + 1, trail[i] + 1]}`;
+
+      let edge;
+      for(edge of edges){
+        if(!visited.has(edge)) break;
+      }
       if (visited.has(edge)) {
-        if (edge.twin) {
-          if (visited.has(edge.twin))
-            throw `Trying to traverse an edge more than twice.`;
-          else edge = edge.twin;
-        } else edge = edge.split();
+        edge = this.graph.splitEdge(edge);
       }
       visited.add(edge);
 
@@ -359,19 +361,11 @@ function graphToWires(graph: Graph, params: ATrailParameters) {
   return atrail;
 }
 
-function createCylinder(cm: CylinderModel, he: HalfEdge, visited: boolean) {
+function createCylinder(cm: CylinderModel, he: HalfEdge, offset = new Vector3()) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
-  const edge = he.edge;
 
-  //TODO: fix offset in case an edge is split multiple times
   const dir = v2.coords.clone().sub(v1.coords).normalize();
-  let offset = new Vector3(); // offset for split edges
-  if (edge.twin) {
-    // TODO: choose the normal based on the next edge in the trail.
-    const nor = edge.normal.clone().multiplyScalar((-1) ** (visited ? 1 : 0));
-    offset = nor.multiplyScalar(-cm.scale * cm.nucParams.RADIUS);
-  }
   const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2));
   const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1));
   const p1 = v1.coords.clone().add(offset1);
@@ -382,33 +376,45 @@ function createCylinder(cm: CylinderModel, he: HalfEdge, visited: boolean) {
   if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
 
   const cyl = cm.createCylinder(p1, dir, length);
-  cyl.setOrientation(edge.normal);
+  cyl.setOrientation(he.edge.normal);
 
   return cyl;
 }
+
 
 function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
   const trail = atrail.trail;
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
-  const visited = new Set<Edge>();
-  const edgeToCyl = new Map<Edge, Cylinder>();
   const vStack = new Map();
   const cylToV = new Map<Cylinder, Vertex>();
+  const edgeToBundle = new Map<Edge, CylinderBundle>();
 
   for (let i = 0; i < trail.length; i++) {
     const v1 = trail[i].twin.vertex;
     const v2 = trail[i].vertex;
     const edge = trail[i].edge;
 
-    const c = createCylinder(cm, trail[i], visited.has(edge.twin));
-    if (visited.has(edge.twin)) {
-      new CylinderBundle(c, edgeToCyl.get(edge.twin)).isRigid = false;
-    }
-    edgeToCyl.set(edge, c);
 
-    visited.add(edge);
+    const offset = new Vector3();
+    let bundle;
+    const ces = v1.getCommonEdges(v2);
+    if (ces.length > 1) {
+      if(!edgeToBundle.get(ces[0])){
+        const b = new CylinderBundle();
+        b.isRigid = false;
+        for(let e of ces){
+          edgeToBundle.set(e, b);
+        }
+      }      
+      bundle = edgeToBundle.get(edge);
+      const nor = edge.normal.clone();
+      offset.copy(nor.multiplyScalar(2 * -cm.scale * cm.nucParams.RADIUS * bundle.length));
+    }
+    const c = createCylinder(cm, trail[i], offset);
+    if(bundle) bundle.push(c);
+
 
     // for connecting cylinders:
     cylToV.set(c, v2);
@@ -499,6 +505,8 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
   reinforce(cyl.bundle.cylinders[2], dir);
 
   cyl.bundle.isRigid = true;
+
+  for(let c of cyl.bundle.cylinders) c.routingStrategy = RoutingStrategy.Reinforced;
 }
 
 export function reinforceCylinders(cm: CylinderModel) {
@@ -526,7 +534,7 @@ function connectReinforcedNucleotides(
   const visited = new Set<CylinderBundle>();
   for (let cyl of cm.cylinders) {
     const b = cyl.bundle;
-    if (!b || b.length < 4 || visited.has(b)) continue;
+    if (!b || visited.has(b) || cyl.routingStrategy != RoutingStrategy.Reinforced) continue;
     visited.add(b);
 
     const c1 = b.cylinders[0];
