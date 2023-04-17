@@ -36,7 +36,9 @@ describe('Sterna routing', function () {
       const first = trail[0];
       const last = trail[trail.length - 1];
 
-      assert.equal(first.vertex == last.vertex, true);
+      if(!sterna.st.has(last.edge)) assert.equal(first.twin.vertex == last.twin.vertex, true);
+      else assert.equal(first.twin.vertex == last.vertex, true);
+
     });
   });
 

@@ -127,7 +127,7 @@ class Vertex {
     // The prevf is the last face, so we must use the last two edges too:
     const e1 = edges[edges.length - 1]
     let e2;
-    for(let i = 2; i < edges.length; i++){
+    for(let i = 2; i <= edges.length; i++){
       e2 = edges[edges.length - i];
       if(e1.getOtherVertex(this) != e2.getOtherVertex(this)) break;
     }
