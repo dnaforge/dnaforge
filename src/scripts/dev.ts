@@ -40,13 +40,12 @@ export function dev(context: Context) {
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();
-  atrail.addCylinders();
+  //atrail.addCylinders();
   //atrail.addNucleotides();
   //atrail.relaxCylinders();
-  const cm = atrail.cm;
-  for (let i = 0; i < cm.cylinders.length; i++)
-    cm.toggleSelect(cm.cylinders[i]);
-  atrail.reinforce();
+  // const cm = atrail.cm;
+  //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
+  //atrail.reinforce();
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();
@@ -56,7 +55,7 @@ export function dev(context: Context) {
 
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.addWires();
-  //sterna.addCylinders();
+  sterna.addCylinders();
   //sterna.addNucleotides();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
@@ -64,6 +63,6 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
-  //const json = context.toJSON();
-  //context.loadJSON(json);
+  //const json = JSON.stringify(context.toJSON());
+  //context.loadJSON(JSON.parse(json));
 }

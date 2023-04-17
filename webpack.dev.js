@@ -4,7 +4,7 @@ const webpack = require('webpack');
 
 
 module.exports = merge(common, {
-    mode: "development",
+    mode: "test",
     devtool: 'inline-source-map',
     devServer: {
         static: './dist',

@@ -166,7 +166,7 @@ export class Relaxer {
       if (!visited.has(cyl) && !cyl.bundle) {
         cStr = 2;
         for (const prime of _.keys(cyl.neighbours)) {
-          visited.add(cyl.neighbours[prime][0]);
+          cyl.neighbours[prime] && visited.add(cyl.neighbours[prime][0]);
         }
       }
 

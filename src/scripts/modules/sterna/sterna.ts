@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Vector3 } from 'three';
-import { CylinderModel, RoutingStrategy } from '../../models/cylinder_model';
+import { Cylinder, CylinderModel, RoutingStrategy } from '../../models/cylinder_model';
 import {
   Nucleotide,
   NucleotideModel,
   Strand,
 } from '../../models/nucleotide_model';
-import { Graph, Edge, Vertex } from '../../models/graph';
+import { Graph, Edge, Vertex, HalfEdge } from '../../models/graph';
 import { SternaParameters } from './sterna_menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -18,7 +18,7 @@ const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 export class Sterna {
   graph: Graph;
   st: Set<Edge>;
-  trail: Edge[];
+  trail: HalfEdge[];
 
   obj: InstancedMesh;
 
@@ -34,29 +34,27 @@ export class Sterna {
    * @returns route as an ordered list of edges
    */
   getSterna() {
-    const route: Edge[] = [];
-    const startEdge = [...this.st][0];
-    let prevV = startEdge.getVertices()[0];
+    const route: HalfEdge[] = [];
+    const startEdge = [...this.st][0].halfEdges[0];
     const stack = [startEdge];
     const visited = new Set();
     while (stack.length > 0) {
       const curE = stack.pop();
-      const curV = curE.getOtherVertex(prevV);
+      const curV = curE.vertex;
       route.push(curE);
-      if (!this.st.has(curE)) continue;
+      if (!this.st.has(curE.edge)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
         let neighbours;
         try {
-          neighbours = curV.getTopoAdjacentEdges();
+          neighbours = curV.getTopoAdjacentHalfEdges();
         } catch (error) {
           neighbours = this.getNeighbours(curV);
         }
-        stack.push(curE);
-        stack.push(...neighbours.slice(1 + neighbours.indexOf(curE)));
-        stack.push(...neighbours.slice(0, neighbours.indexOf(curE)));
+        stack.push(curE.twin);
+        neighbours = neighbours.slice(1 + neighbours.indexOf(curE)).concat(neighbours.slice(0, neighbours.indexOf(curE)));
+        for(let n of neighbours) stack.push(n.twin);
       }
-      prevV = curV;
     }
     return route.slice(0, route.length - 1);
   }
@@ -104,24 +102,16 @@ export class Sterna {
    * @param v vertex
    * @returns oredered list of edges
    */
-  getNeighbours(v: Vertex): Edge[] {
-    const neighbours = v.getAdjacentEdges();
-    const t_points = new Map();
-    const co1 = v.coords;
-    // find positions of neighbours
-    for (const e of neighbours) {
-      const [v1, v2] = e.getVertices();
-      const t_point = v1.coords.clone().add(v2.coords).sub(co1).normalize();
-      t_points.set(e, t_point);
-    }
+  getNeighbours(v: Vertex): Array<HalfEdge> {
+    const neighbours = v.getAdjacentHalfEdges();
     // find pairwise distances
     const distances = new Map();
     for (const e1 of neighbours) {
-      const distsT = [];
-      const tp1 = t_points.get(e1);
+      const distsT: Array<[HalfEdge, number]> = [];
+      const tp1 = e1.twin.vertex.coords.clone();
       for (const e2 of neighbours) {
         if (e1 == e2) continue;
-        const tp2 = t_points.get(e2).clone();
+        const tp2 = e2.twin.vertex.coords.clone();
         distsT.push([e2, tp2.sub(tp1).length()]);
       }
       distances.set(
@@ -212,6 +202,59 @@ function graphToWires(graph: Graph, params: SternaParameters) {
   return sterna;
 }
 
+function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
+  const offset1 = cm.getVertexOffset(v1, v2);
+  const offset2 = cm.getVertexOffset(v2, v1);
+  const p1 = v1.coords.clone().add(offset1);
+  const p2 = v2.coords.clone().add(offset2);
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  let length =
+    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
+    1;
+  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
+  if (length < 1)
+    throw `Cylinder length is zero nucleotides. Scale is too small.`;
+
+  const cyl = cm.createCylinder(p1, dir, length);
+  cyl.setOrientation(v1.getCommonEdges(v2)[0].normal);
+
+  return cyl;
+}
+
+
+function connectCylinders(trail: HalfEdge[], edgeToCyl: Map<Edge, Cylinder>) {
+  const start = edgeToCyl.get(trail[0].edge);
+  for (let i = 0; i < trail.length; i++) {
+    const cyl = edgeToCyl.get(trail[i].edge);
+    const nextCyl = edgeToCyl.get(trail[(i + 1) % trail.length].edge);
+    const isPseudo = cyl.routingStrategy == RoutingStrategy.Pseudoknot;
+
+    let curPrime: [Cylinder, string];
+    let nextPrime: [Cylinder, string];
+
+    if (isPseudo) {
+      if (!cyl.neighbours.second5Prime) curPrime = [cyl, 'second3Prime'];
+      else curPrime = [cyl, 'first3Prime'];
+    }
+    else {
+      if (!cyl.neighbours.first3Prime) curPrime = [cyl, 'first3Prime'];
+      else curPrime = [cyl, 'second3Prime']
+    }
+    if (nextCyl == start) {
+      if (i != trail.length - 1) nextPrime = [nextCyl, 'second5Prime'];
+      else nextPrime = [nextCyl, 'first5Prime'];
+    }
+    else{
+      if (!nextCyl.neighbours.first5Prime) nextPrime = [nextCyl, 'first5Prime'];
+      else nextPrime = [nextCyl, 'second5Prime'];
+    }
+
+
+    cyl.neighbours[curPrime[1]] = nextPrime;
+    nextCyl.neighbours[nextPrime[1]] = curPrime;
+  }
+}
+
 /**
  * Creates a cylinder model from the input routing model.
  *
@@ -225,78 +268,26 @@ function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
 
   const trail = sterna.trail;
   const st = sterna.st;
+  const edgeToCyl = new Map<Edge, Cylinder>();
 
-  const edgeToCyl = new Map();
-
-  let v1 = trail[0].getVertices()[0];
-  if (new Set(trail[1].getVertices()).has(v1)) v1 = trail[0].getVertices()[1];
   for (let i = 0; i < trail.length; i++) {
     const edge = trail[i];
-    const v2 = edge.getOtherVertex(v1);
 
-    if (!edgeToCyl.has(edge)) {
-      const dir = v2.coords.clone().sub(v1.coords).normalize();
-      const nor = edge.normal.clone().cross(dir);
-      //console.log(edge.normal);
-      const offset1 = cm
-        .getVertexOffset(v1, v2)
-        .sub(dir.clone().multiplyScalar(cm.nucParams.INCLINATION * cm.scale));
-      const offset2 = cm.getVertexOffset(v2, v1);
-      const p1 = v1.coords.clone().add(offset1);
-      const p2 = v2.coords.clone().add(offset2);
-      let length =
-        Math.floor(
-          p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)
-        ) + 1;
-      if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
-
-      const c = cm.createCylinder(p1, dir, length);
-      c.setOrientation(nor.cross(dir));
-      if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
-
-      edgeToCyl.set(edge, c);
-    }
-
-    if (st.has(edge)) v1 = v2;
-  }
-
-  const visited = new Set();
-  for (let i = 0; i < trail.length; i++) {
-    const cur = edgeToCyl.get(trail[i]);
-    const next =
-      i == trail.length - 1
-        ? edgeToCyl.get(trail[0])
-        : edgeToCyl.get(trail[i + 1]);
-    if (i == trail.length - 1) visited.delete(edgeToCyl.get(trail[0])); // Connect to the first 5' of the first cylinder
-
-    if (
-      (visited.has(cur) && !cur.isPseudo) ||
-      (!visited.has(cur) && cur.isPseudo)
-    ) {
-      if (visited.has(next)) {
-        next.neighbours.second5Prime = [cur, 'second3Prime'];
-        cur.neighbours.second3Prime = [next, 'second5Prime'];
-      } else {
-        next.neighbours.first5Prime = [cur, 'second3Prime'];
-        cur.neighbours.second3Prime = [next, 'first5Prime'];
-      }
+    let cyl;
+    if (edgeToCyl.get(edge.edge)) {
+      cyl = edgeToCyl.get(edge.edge);
     } else {
-      if (visited.has(next)) {
-        next.neighbours.second5Prime = [cur, 'first3Prime'];
-        cur.neighbours.first3Prime = [next, 'second5Prime'];
-      } else {
-        next.neighbours.first5Prime = [cur, 'first3Prime'];
-        cur.neighbours.first3Prime = [next, 'first5Prime'];
-      }
+      const v1 = trail[i].twin.vertex; // some idiot managed to find the trail in inverse order
+      const v2 = trail[i].vertex;
+      cyl = createCylinder(cm, v1, v2);
     }
 
-    visited.add(cur);
+    if (!st.has(edge.edge)) cyl.routingStrategy = RoutingStrategy.Pseudoknot;
 
-    if (cur.length < 1) {
-      throw `Cylinder length is zero nucleotides. Scale is too small.`;
-    }
+    edgeToCyl.set(edge.edge, cyl);
   }
 
+  connectCylinders(trail, edgeToCyl);
   return cm;
 }
 

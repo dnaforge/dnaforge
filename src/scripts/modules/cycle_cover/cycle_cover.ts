@@ -228,23 +228,15 @@ function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
 }
 
 function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
-  if (cyl.neighbours.first3Prime) {
-    if (nextCyl.neighbours.first5Prime) {
-      cyl.neighbours.second3Prime = [nextCyl, 'second5Prime'];
-      nextCyl.neighbours.second5Prime = [cyl, 'second3Prime'];
-    } else {
-      cyl.neighbours.second3Prime = [nextCyl, 'first5Prime'];
-      nextCyl.neighbours.first5Prime = [cyl, 'second3Prime'];
-    }
-  } else {
-    if (nextCyl.neighbours.first5Prime) {
-      cyl.neighbours.first3Prime = [nextCyl, 'second5Prime'];
-      nextCyl.neighbours.second5Prime = [cyl, 'first3Prime'];
-    } else {
-      cyl.neighbours.first3Prime = [nextCyl, 'first5Prime'];
-      nextCyl.neighbours.first5Prime = [cyl, 'first3Prime'];
-    }
-  }
+  let prime: [Cylinder, string];
+  let nextPrime: [Cylinder, string];
+  if (!cyl.neighbours.first3Prime) prime = [cyl, 'first3Prime'];
+  else prime = [cyl, 'second3Prime'];
+  if (!nextCyl.neighbours.first5Prime) nextPrime = [nextCyl, 'first5Prime'];
+  else nextPrime = [nextCyl, 'second5Prime'];
+
+  cyl.neighbours[prime[1]] = nextPrime;
+  nextCyl.neighbours[nextPrime[1]] = prime;
 }
 
 function wiresToCylinders(cc: CycleCover, params: CCParameters) {
@@ -272,14 +264,20 @@ function wiresToCylinders(cc: CycleCover, params: CCParameters) {
   }
   // connect cylinders:
   for (const cycle of cc.cycles) {
+    // if the cycle visits the first cylinder twice, the one in the middle would connect the first 5' in
+    // the wrong order. FixLast fixes that order.
+    let fixLast;
+    const start = edgeToCyl.get(cycle[0]);
     for (let i = 0; i < cycle.length; i++) {
       const hEdge = cycle[i];
       const next = cycle[(i + 1) % cycle.length];
       const cyl = edgeToCyl.get(hEdge);
       const nextCyl = edgeToCyl.get(next);
 
-      connectCylinder(cyl, nextCyl);
+      if(nextCyl == start && i != cycle.length - 1) fixLast = [cyl, nextCyl]
+      else connectCylinder(cyl, nextCyl);
     }
+    if(fixLast) connectCylinder(fixLast[0], fixLast[1]);
   }
 
   return cm;

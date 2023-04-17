@@ -15,6 +15,10 @@ class Vertex {
     this.normal = normal;
   }
 
+  toString(){
+    return `${this.id}: ${this.coords} - Neighbours: ${[this.getAdjacentHalfEdges().map((e) => {e.vertex.id})]}`;
+  }
+
   addNeighbour(edge: Edge) {
     this.adjacentEdges.push(edge);
   }
@@ -140,6 +144,7 @@ class Vertex {
 
   getAdjacentHalfEdges(): HalfEdge[] {
     const edges = this.getAdjacentEdges();
+    
     const halfEdges = [];
     for (const e of edges) {
       for (const he of e.halfEdges) {
@@ -193,6 +198,10 @@ class HalfEdge {
   constructor(edge: Edge, vertex: Vertex) {
     this.edge = edge;
     this.vertex = vertex;
+  }
+
+  toString(){
+    return `V: ${this.vertex.id} -> ${this.twin.vertex.id}`;
   }
 }
 
@@ -318,11 +327,101 @@ class Graph {
 
 
   toJSON(): JSONObject{
-    return {};
+    const vToI = new Map<Vertex, number>();
+    const eToI = new Map<Edge, number>();
+
+    const vertices = [];
+    const edges = [];
+    const faces = [];
+    for (let i = 0; i < this.vertices.length; i++) {
+      const v = this.vertices[i];
+      const vertex = {
+        coords: [v.coords.x, v.coords.y, v.coords.z],
+        normal: [v.normal.x, v.normal.y, v.normal.z]
+      };
+      vertices.push(vertex);
+      vToI.set(v, i);
+    }
+    for (let i = 0; i < this.edges.length; i++) {
+      const e = this.edges[i];
+      const vid1 = vToI.get(e.getVertices()[0]);
+      const vid2 = vToI.get(e.getVertices()[1]);
+      const edge = {
+        vertices: [vid1, vid2],
+        normal: [e.normal.x, e.normal.y, e.normal.z]
+      };
+      edges.push(edge);
+      eToI.set(e, i);
+    }
+    for (let i = 0; i < this.faces.length; i++) {
+      const f = this.faces[i];
+      const eids = f.getEdges().map((e) => {
+        return eToI.get(e);
+      });
+      const face = {
+        edges: eids,
+        normal: [f.normal.x, f.normal.y, f.normal.z]
+      };
+      faces.push(face);
+    }
+
+    const json:JSONObject =  {
+      vertices: vertices,
+      edges: edges,
+      faces: faces,
+    };
+
+    return json;
   }
 
-  loadJSON(json: JSONObject){
+  loadJSON(json: any){
+    const iToV = new Map<number, Vertex>();
+    const iToE = new Map<number, Edge>();
+
+
+    for(let i = 0; i < json.vertices.length; i++ ){
+      const v = json.vertices[i];
+      const coords = new Vector3(...v.coords);
+      const normal = new Vector3(...v.normal);
+      const vertex = this.addVertex(coords, normal);
+      iToV.set(i, vertex);
+    }
+    for(let i = 0; i < json.edges.length; i++){
+      const e = json.edges[i];
+      const verts = e.vertices.map((vid: number) => {
+        return iToV.get(vid);
+      })
+      const normal = new Vector3(...e.normal);
+      const edge = this.addEdge(verts[0], verts[1], normal);
+      iToE.set(i, edge);
+      console.log(verts[0].id, verts[1].id);
+      
+    }
+    console.log(this);
+    
+    
     return;
+    const g = new Graph();
+    const oldVtoNew = new Map();
+    const oldEtoNew = new Map();
+    for (const v of this.getVertices()) {
+      const nv = g.addVertex(v.coords);
+      oldVtoNew.set(v, nv);
+      nv.normal = v.normal.clone();
+    }
+    for (const e of this.getEdges()) {
+      const [v1, v2] = e.getVertices();
+      const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2));
+      oldEtoNew.set(e, ne);
+      ne.normal = e.normal.clone();
+    }
+    for (const f of this.getFaces()) {
+      const edges = f.getEdges().map((e) => {
+        return oldEtoNew.get(e);
+      });
+      const nf = g.addFace(edges);
+      nf.normal = f.normal.clone();
+    }
   }
 
   // Doesn't work on multigraphs

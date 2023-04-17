@@ -1172,7 +1172,10 @@ class NucleotideModel {
    */
   select5p(onlyScaffold = true) {
     if (onlyScaffold) {
-      const n = this.getScaffold().nucleotides[0];
+      let scaffold = this.getScaffold();
+      if(!scaffold) return;
+      
+      const n = scaffold.nucleotides[0];
       n.markSelect(true);
       this.selection.add(n);
     } else {

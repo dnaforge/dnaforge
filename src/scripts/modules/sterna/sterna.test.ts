@@ -25,7 +25,7 @@ describe('Sterna routing', function () {
 
   let sterna: Sterna;
   let graph: Graph;
-  let trail: Edge[];
+  let trail: HalfEdge[];
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should start where it ends: ${g[0]}`, function () {
@@ -36,7 +36,7 @@ describe('Sterna routing', function () {
       const first = trail[0];
       const last = trail[trail.length - 1];
 
-      assert.equal(!!first.getCommonVertex(last), true);
+      assert.equal(first.vertex == last.vertex, true);
     });
   });
 
@@ -53,7 +53,7 @@ describe('Sterna routing', function () {
       );
 
       for (const e of trail) {
-        visited.set(e, visited.get(e) + 1);
+        visited.set(e.edge, visited.get(e.edge) + 1);
       }
 
       for (const e of sterna.graph.getEdges()) {
