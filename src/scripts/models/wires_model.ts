@@ -1,11 +1,11 @@
 import { Object3D } from 'three';
 
-abstract class WiresModel {
+abstract class WiresModel{
   obj: Object3D;
 
   abstract toJSON(): JSONObject;
 
-  abstract loadJSON(json: any): void;
+  //abstract static loadJSON(json: any): WiresModel; // Typescript does not support abstract static, but all wires models should implement this.
 
   abstract selectAll(): void;
 

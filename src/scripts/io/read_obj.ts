@@ -15,25 +15,14 @@ export class OBJLoader extends Loader {
     onProgress: (e: Event) => void,
     onError: (e: Event) => void
   ) {
-    const scope = this;
-
     const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setRequestHeader(this.requestHeader);
     loader.setWithCredentials(this.withCredentials);
     loader.load(
       url,
-      function (text) {
-        try {
-          onLoad(scope.parse(<string>text));
-        } catch (e) {
-          if (onError) {
-            onError(e);
-          } else {
-            console.error(e);
-          }
-          scope.manager.itemError(url);
-        }
+      (text) => {
+        onLoad(this.parse(<string>text));
       },
       onProgress,
       onError

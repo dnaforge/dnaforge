@@ -531,7 +531,7 @@ class NucleotideModel {
   }
 
   static loadJSON(json: any){
-    return new CylinderModel();
+    return new NucleotideModel(json.scale);
   }
 
   /**

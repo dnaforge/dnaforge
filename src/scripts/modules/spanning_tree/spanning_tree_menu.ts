@@ -34,6 +34,24 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.params.linkerOptions = 'T';
   }
 
+  toJSON(): JSONObject{
+    const wires = this.wires && this.wires.toJSON();
+    const cm = this.cm && this.cm.toJSON();
+    const nm = this.nm && this.nm.toJSON();
+    
+    return {wires: wires, cm: cm, nm: nm};
+  }
+
+  loadJSON(json: any){
+    this.removeWires();
+    this.removeCylinders();
+    this.removeNucleotides();
+
+    this.cm = CylinderModel.loadJSON(json.cylinder_model);
+    
+    return;
+  }
+
   graphToWires(graph: Graph, params: STParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(

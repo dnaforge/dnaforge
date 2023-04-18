@@ -13,6 +13,7 @@ import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
+import { NucleotideModel } from '../../models/nucleotide_model';
 
 export interface ATrailParameters extends ModuleMenuParameters {
   scaffoldOffset: number;
@@ -37,6 +38,26 @@ export class ATrailMenu extends ModuleMenu {
   constructor(context: Context) {
     super(context, html);
     this.params.naType = 'DNA';
+  }
+
+  toJSON(): JSONObject{
+    const wires = this.wires && this.wires.toJSON();
+    const cm = this.cm && this.cm.toJSON();
+    const nm = this.nm && this.nm.toJSON();
+    
+    return {wires: wires, cm: cm, nm: nm};
+  }
+
+  loadJSON(json: any){
+    this.removeWires(true);
+    this.removeCylinders(true);
+    this.removeNucleotides(true);
+
+    this.wires = json.wires && ATrail.loadJSON(this.context.graph, json.wires);
+    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
+    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
+    
+    this.collectParameters();
   }
 
   graphToWires(graph: Graph, params: ATrailParameters) {

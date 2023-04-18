@@ -30,6 +30,24 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
+  toJSON(): JSONObject{
+    const wires = this.wires && this.wires.toJSON();
+    const cm = this.cm && this.cm.toJSON();
+    const nm = this.nm && this.nm.toJSON();
+    
+    return {wires: wires, cm: cm, nm: nm};
+  }
+
+  loadJSON(json: any){
+    this.removeWires();
+    this.removeCylinders();
+    this.removeNucleotides();
+
+    this.cm = CylinderModel.loadJSON(json.cylinder_model);
+    
+    return;
+  }
+
   populateHotkeys() {
     super.populateHotkeys();
     this.hotkeys.set('shift+r', this.generatePrimaryButton);

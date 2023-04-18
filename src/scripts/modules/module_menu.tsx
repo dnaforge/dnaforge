@@ -204,6 +204,10 @@ export abstract class ModuleMenu extends Menu {
     params: ModuleMenuParameters
   ): NucleotideModel;
 
+  abstract toJSON(): JSONObject;
+
+  abstract loadJSON(json: any): void;
+
   /**
    * Activate this context and unhide the associated models.
    */
@@ -481,25 +485,6 @@ export abstract class ModuleMenu extends Menu {
     this.showWires = this.wiresButton[0].checked;
     this.showCylinders = this.cylindersButton[0].checked;
     this.showNucleotides = this.nucleotidesButton[0].checked;
-  }
-
-  toJSON(): JSONObject{
-    const wires = this.wires && this.wires.toJSON();
-    const cm = this.cm && this.cm.toJSON();
-    const nm = this.nm && this.nm.toJSON();
-    
-    return {wires: wires, cm: cm, nm: nm};
-  }
-
-  loadJSON(json: any){
-    console.log(json);
-    this.removeWires();
-    this.removeCylinders();
-    this.removeNucleotides();
-
-    this.cm = CylinderModel.loadJSON(json.cylinder_model);
-    
-    return;
   }
 
   download() {

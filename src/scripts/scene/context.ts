@@ -339,8 +339,11 @@ export class Context {
   loadJSON(json: any){
     this.graph = new Graph();
     this.graph.loadJSON(json.graph);
-    this.reset();
-    for (const menu of this.menus.keys()) this.menus.get(menu).loadJSON(json[menu]);
+    for (const menu of this.menus.keys()){
+      this.menus.get(menu).reset();
+      this.menus.get(menu).loadJSON(json[menu]);
+    }
+    this.activeContext && this.activeContext.regenerateVisible();
   }
 
   /**

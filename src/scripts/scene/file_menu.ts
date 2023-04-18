@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { downloadTXT } from '../io/download';
+import { read_json } from '../io/read_json';
 import { read_obj } from '../io/read_obj';
 import { OBJLoader } from '../io/read_obj';
 import { Graph } from '../models/graph';
@@ -44,6 +46,7 @@ export class FileMenu extends Menu {
   fileInputButton: any;
   fileInputExampleButton: any;
   fileInput: any;
+  downloadJSONButton: any;
 
   constructor(context: Context) {
     super(context, 'file', 'File', true);
@@ -81,9 +84,24 @@ export class FileMenu extends Menu {
       read_obj(URL.createObjectURL(file), (graph: Graph) => {
         this.context.setGraph(graph);
       });
-      return;
     }
-    this.context.addMessage('Unrecognised file format.', '');
+    else if(file.name.endsWith('.json')){
+      read_json(URL.createObjectURL(file), (json: JSONObject) => {
+        this.context.loadJSON(json);
+      });
+    }
+    else{
+      this.context.addMessage('Unrecognised file format.', '');
+    }
+  }
+
+  downloadJSON() {
+    try {
+      const str = JSON.stringify(this.context.toJSON());
+      downloadTXT(`dnaforge.json`, str);
+    } catch (error) {
+      throw `Error downloading JSON.`;
+    }
   }
 
   /**
@@ -93,6 +111,15 @@ export class FileMenu extends Menu {
     this.fileInputButton = $('#file-input-open');
     this.fileInputExampleButton = $('#file-input-example-open');
     this.fileInput = $('#file-input');
+    this.downloadJSONButton = $(`#file-download-json`);
+
+    this.downloadJSONButton.on('click', () => {
+      try {
+        this.downloadJSON();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+      }
+    });
 
     this.fileInputButton.on('click', () => {
       const files = (<HTMLInputElement>this.fileInput[0]).files;

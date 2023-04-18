@@ -39,12 +39,19 @@ class ATrail extends WiresModel {
 
 
   toJSON(): JSONObject{
-    console.log(this.trail);
+    const trail = [this.trail[0].twin.vertex.id];
+    for(let he of this.trail){
+      trail.push(he.vertex.id);
+    }
+    console.log(trail);
     
-    return {};
+    return {trail: trail};
   }
 
-  loadJSON(json: any){
+  static loadJSON(graph: Graph, json: any){
+    const atrail = new ATrail(graph);
+    atrail.setATrail(json.trail);
+    return atrail;
   }
 
   private initialiseGraph() {
@@ -272,12 +279,12 @@ class ATrail extends WiresModel {
     const visited = new Set();
     const trailEdges: HalfEdge[] = [];
     for (let i = 1; i < trail.length; i++) {
-      const cur = vertices[trail[i - 1]];
-      const next = vertices[trail[i]];
+      const cur = vertices[trail[i - 1] - 1];
+      const next = vertices[trail[i] - 1];
 
       let edges = cur.getCommonEdges(next);
       if (edges.length == 0)
-        throw `No such edge: ${[trail[i - 1] + 1, trail[i] + 1]}`;
+        throw `No such edge: ${[trail[i - 1], trail[i]]}`;
 
       let edge;
       for(edge of edges){
