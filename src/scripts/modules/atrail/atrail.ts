@@ -37,6 +37,16 @@ class ATrail extends WiresModel {
     this.graph = graph.clone();
   }
 
+
+  toJSON(): JSONObject{
+    console.log(this.trail);
+    
+    return {};
+  }
+
+  loadJSON(json: any){
+  }
+
   private initialiseGraph() {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;

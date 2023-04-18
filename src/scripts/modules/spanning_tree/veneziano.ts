@@ -27,6 +27,14 @@ class Veneziano {
     this.trail = this.getVeneziano();
   }
 
+
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: any){
+  }
+
   getVeneziano() {
     const route: Edge[] = [];
     const startEdge = [...this.st][0];

@@ -32,7 +32,6 @@ export class ATrailMenu extends ModuleMenu {
   scaffoldOffsetInput: any;
   scaffoldStartInput: any;
   gcContentInput: any;
-  downloadButton: any;
   reinforceButton: any;
 
   constructor(context: Context) {
@@ -69,15 +68,6 @@ export class ATrailMenu extends ModuleMenu {
     this.collectParameters();
 
     setPrimaryFromScaffold(this.nm, this.params);
-  }
-
-  downloadATrail() {
-    try {
-      const str = JSON.stringify(this.nm.toUNF());
-      downloadTXT('atrail.unf', str);
-    } catch (error) {
-      throw `Nucleotide model not defined.`;
-    }
   }
 
   uploadATrail(str: string) {
@@ -143,17 +133,7 @@ export class ATrailMenu extends ModuleMenu {
     this.scaffoldOffsetInput = $('#atrail-scaffold-offset');
     this.scaffoldStartInput = $('#atrail-scaffold-start');
     this.gcContentInput = $('#atrail-gc-content');
-    this.downloadButton = $('#download-atrail');
     this.reinforceButton = $('#atrail-reinforce-cylinders');
-
-    this.downloadButton.on('click', () => {
-      try {
-        this.downloadATrail();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
 
     this.reinforceButton.on('click', () => {
       try {

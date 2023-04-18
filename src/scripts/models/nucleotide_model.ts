@@ -526,6 +526,14 @@ class NucleotideModel {
     this.nucParams = naType == 'DNA' ? DNA : RNA;
   }
 
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  static loadJSON(json: any){
+    return new CylinderModel();
+  }
+
   /**
    * Adds the given strand to this model.
    *

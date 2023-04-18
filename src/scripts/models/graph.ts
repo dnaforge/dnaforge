@@ -336,6 +336,7 @@ class Graph {
     for (let i = 0; i < this.vertices.length; i++) {
       const v = this.vertices[i];
       const vertex = {
+        id: v.id,
         coords: [v.coords.x, v.coords.y, v.coords.z],
         normal: [v.normal.x, v.normal.y, v.normal.z]
       };
@@ -347,6 +348,7 @@ class Graph {
       const vid1 = vToI.get(e.getVertices()[0]);
       const vid2 = vToI.get(e.getVertices()[1]);
       const edge = {
+        id: e.id,
         vertices: [vid1, vid2],
         normal: [e.normal.x, e.normal.y, e.normal.z]
       };
@@ -359,6 +361,7 @@ class Graph {
         return eToI.get(e);
       });
       const face = {
+        id: f.id,
         edges: eids,
         normal: [f.normal.x, f.normal.y, f.normal.z]
       };
@@ -381,27 +384,30 @@ class Graph {
 
     for(let i = 0; i < json.vertices.length; i++ ){
       const v = json.vertices[i];
+      const id = v.id;
       const coords = new Vector3(...v.coords);
       const normal = new Vector3(...v.normal);
-      const vertex = this.addVertex(coords, normal);
+      const vertex = this.addVertex(coords, normal, id);
       iToV.set(i, vertex);
     }
     for(let i = 0; i < json.edges.length; i++){
       const e = json.edges[i];
+      const id = e.id;
       const verts = e.vertices.map((vid: number) => {
         return iToV.get(vid);
       });
       const normal = new Vector3(...e.normal);
-      const edge = this.addEdge(verts[0], verts[1], normal);
+      const edge = this.addEdge(verts[0], verts[1], normal, id);
       iToE.set(i, edge);
     }
     for (let i = 0; i < json.faces.length; i++) {
       const f = json.faces[i];
+      const id = f.id;
       const edges = f.edges.map((eid: number) => {
         return iToE.get(eid);
       });      
       const normal = new Vector3(...f.normal);
-      const face = this.addFace(edges, normal);
+      this.addFace(edges, normal, id);
     }
   }
 
@@ -513,22 +519,22 @@ class Graph {
     return [...this.faces];
   }
 
-  addVertex(coords: Vector3, normal: Vector3 = undefined) {
-    const v = new Vertex(this.vertices.length + 1, coords, normal);
+  addVertex(coords: Vector3, normal: Vector3 = undefined, id = this.vertices.length + 1) {
+    const v = new Vertex(id, coords, normal);
     this.vertices.push(v);
     return v;
   }
 
-  addEdge(v1: Vertex, v2: Vertex, normal: Vector3 = undefined) {
-    const edge = new Edge(this.edges.length + 1, v1, v2, normal);
+  addEdge(v1: Vertex, v2: Vertex, normal: Vector3 = undefined, id = this.edges.length + 1) {
+    const edge = new Edge(id, v1, v2, normal);
     this.edges.push(edge);
     v1.addNeighbour(edge);
     v2.addNeighbour(edge);
     return edge;
   }
 
-  addFace(edges: Edge[], normal: Vector3 = undefined) {
-    const f = new Face(this.faces.length + 1, edges, normal);
+  addFace(edges: Edge[], normal: Vector3 = undefined, id = this.faces.length + 1) {
+    const f = new Face(id, edges, normal);
     this.faces.push(f);
     return f;
   }

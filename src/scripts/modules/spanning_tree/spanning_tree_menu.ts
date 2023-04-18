@@ -26,7 +26,6 @@ export class SpanningTreeMenu extends ModuleMenu {
   venezianoScaffold: any;
   scaffoldOffsetInput: any;
   scaffoldStartInput: any;
-  downloadButton: any;
   gcContentInput: any;
 
   constructor(context: Context) {
@@ -58,15 +57,6 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.collectParameters();
 
     setPrimaryFromScaffold(this.nm, this.params);
-  }
-
-  downloadVeneziano() {
-    try {
-      const str = JSON.stringify(this.nm.toUNF());
-      downloadTXT('spanning_tree_model.unf', str);
-    } catch (error) {
-      throw `Nucleotide model not defined.`;
-    }
   }
 
   setCustomScaffold(scaffold: string) {
@@ -104,7 +94,6 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.scaffoldOffsetInput = $('#spanning-tree-scaffold-offset');
     this.scaffoldStartInput = $('#spanning-tree-scaffold-start');
     this.gcContentInput = $('#veneziano-gc-content');
-    this.downloadButton = $('#download-veneziano');
 
     this.venezianoScaffold.on('change', () => {
       if ($('#veneziano-scaffold')[0].value == 'custom') {
@@ -118,15 +107,6 @@ export class SpanningTreeMenu extends ModuleMenu {
         this.setCustomScaffold(
           $('#veneziano-scaffold-dialog-text').val().toUpperCase()
         );
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    this.downloadButton.on('click', () => {
-      try {
-        this.downloadVeneziano();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

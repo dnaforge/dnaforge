@@ -24,7 +24,6 @@ export class CycleCoverMenu extends ModuleMenu {
   strandLengthMinInput: any;
   addNicksSwitch: any;
   generatePrimaryButton: any;
-  downloadButton: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -58,15 +57,6 @@ export class CycleCoverMenu extends ModuleMenu {
     setRandomPrimary(this.nm, this.params.gcContent, 'DNA');
   }
 
-  downloadCycleCover() {
-    try {
-      const str = JSON.stringify(this.nm.toUNF());
-      downloadTXT('cycle_cover.unf', str);
-    } catch (error) {
-      throw `Nucleotide model not defined.`;
-    }
-  }
-
   collectParameters() {
     super.collectParameters();
 
@@ -92,16 +82,8 @@ export class CycleCoverMenu extends ModuleMenu {
 
     this.addNicksSwitch = $('#cycle-cover-add-nicks');
     this.generatePrimaryButton = $('#generate-cycle-cover-primary');
-    this.downloadButton = $('#download-cycle-cover');
 
-    this.downloadButton.on('click', () => {
-      try {
-        this.downloadCycleCover();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-      }
-    });
-
+    
     this.generatePrimaryButton.on('click', () => {
       try {
         this.generatePrimary();

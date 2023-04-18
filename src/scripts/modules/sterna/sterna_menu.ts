@@ -26,7 +26,6 @@ export class SternaMenu extends ModuleMenu {
   gcContentInput: any;
   addNicksSwitch: any;
   generatePrimaryButton: any;
-  downloadButton: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -84,15 +83,6 @@ export class SternaMenu extends ModuleMenu {
     this.context.addMessage(`Primary structure changed.`, 'info');
   }
 
-  downloadSterna() {
-    try {
-      const str = JSON.stringify(this.nm.toUNF());
-      downloadTXT('sterna.unf', str);
-    } catch (error) {
-      throw `Nucleotide model not defined.`;
-    }
-  }
-
   collectParameters() {
     super.collectParameters();
 
@@ -115,22 +105,10 @@ export class SternaMenu extends ModuleMenu {
     this.addNicksSwitch = $('#sterna-add-nicks');
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
-
-    this.downloadButton = $('#download-sterna');
-
     this.generatePrimaryButton.on('click', () => {
       try {
         this.generatePrimary();
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    this.downloadButton.on('click', () => {
-      try {
-        this.downloadSterna();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

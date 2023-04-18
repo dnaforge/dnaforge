@@ -28,6 +28,14 @@ export class Sterna {
     this.trail = this.getSterna();
   }
 
+
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: any){
+  }
+
   /**
    * Route the RNA strand twice around the edges of the spanning tree of the graph.
    *

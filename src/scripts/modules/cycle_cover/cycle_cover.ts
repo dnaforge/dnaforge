@@ -21,6 +21,14 @@ export class CycleCover extends WiresModel {
     this.cycles = this.getCycleCover();
   }
 
+
+  toJSON(): JSONObject{
+    return {};
+  }
+
+  loadJSON(json: any){
+  }
+
   getCycleCover(): Array<Array<HalfEdge>> {
     const graph = this.graph;
     const visited = new Set<HalfEdge>();

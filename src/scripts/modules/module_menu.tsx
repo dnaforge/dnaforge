@@ -5,6 +5,7 @@ import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
 import { Menu, MenuParameters } from '../scene/menu';
 import * as React from 'react';
+import { downloadTXT } from '../io/download';
 
 //TODO: Get rid of the question marks.
 export interface ModuleMenuParameters extends MenuParameters {
@@ -138,6 +139,7 @@ export abstract class ModuleMenu extends Menu {
   generateWiresButton: any;
   generateCylindersButton: any;
   generateNucleotidesButton: any;
+  downloadButton: any;
 
   /**
    *
@@ -482,15 +484,31 @@ export abstract class ModuleMenu extends Menu {
   }
 
   toJSON(): JSONObject{
-    console.log("asdf");
+    const wires = this.wires && this.wires.toJSON();
+    const cm = this.cm && this.cm.toJSON();
+    const nm = this.nm && this.nm.toJSON();
     
-    return {a: "asdf"};
+    return {wires: wires, cm: cm, nm: nm};
   }
 
   loadJSON(json: any){
     console.log(json);
+    this.removeWires();
+    this.removeCylinders();
+    this.removeNucleotides();
+
+    this.cm = CylinderModel.loadJSON(json.cylinder_model);
     
     return;
+  }
+
+  download() {
+    try {
+      const str = JSON.stringify(this.nm.toUNF());
+      downloadTXT(`${this.elementId}.unf`, str);
+    } catch (error) {
+      throw `Nucleotide model not defined.`;
+    }
   }
 
   /**
@@ -510,10 +528,19 @@ export abstract class ModuleMenu extends Menu {
     this.generateNucleotidesButton = $(
       `#${this.elementId}-generate-nucleotides`
     );
+    this.downloadButton = $(`#${this.elementId}-download`);
 
     const blur = () => {
       (document.activeElement as HTMLElement).blur();
     };
+
+    this.downloadButton.on('click', () => {
+      try {
+        this.download();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+      }
+    });
 
     this.wiresButton.on('click', () => {
       try {

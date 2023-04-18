@@ -486,8 +486,8 @@ class CylinderModel {
     return {};
   }
 
-  loadJSON(json: JSONObject){
-    return;
+  static loadJSON(json: any){
+    return new CylinderModel();
   }
 
   /**
