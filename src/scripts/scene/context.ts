@@ -336,13 +336,11 @@ export class Context {
     return json
   }
 
-  loadJSON(json: JSONObject){
+  loadJSON(json: any){
     this.graph = new Graph();
-    this.graph.loadJSON(json.graph as JSONObject);
+    this.graph.loadJSON(json.graph);
     this.reset();
-  
-
-
+    for (const menu of this.menus.keys()) this.menus.get(menu).loadJSON(json[menu]);
   }
 
   /**

@@ -482,10 +482,14 @@ export abstract class ModuleMenu extends Menu {
   }
 
   toJSON(): JSONObject{
-    return {};
+    console.log("asdf");
+    
+    return {a: "asdf"};
   }
 
-  loadJSON(json: JSONObject){
+  loadJSON(json: any){
+    console.log(json);
+    
     return;
   }
 

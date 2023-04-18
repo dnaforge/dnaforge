@@ -30,7 +30,7 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(plane);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
   context.setGraph(graph);
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
@@ -63,6 +63,6 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
-  //const json = JSON.stringify(context.toJSON());
-  //context.loadJSON(JSON.parse(json));
+  const json = JSON.stringify(context.toJSON());
+  context.loadJSON(JSON.parse(json));
 }

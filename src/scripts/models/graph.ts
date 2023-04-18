@@ -390,37 +390,18 @@ class Graph {
       const e = json.edges[i];
       const verts = e.vertices.map((vid: number) => {
         return iToV.get(vid);
-      })
+      });
       const normal = new Vector3(...e.normal);
       const edge = this.addEdge(verts[0], verts[1], normal);
       iToE.set(i, edge);
-      console.log(verts[0].id, verts[1].id);
-      
     }
-    console.log(this);
-    
-    
-    return;
-    const g = new Graph();
-    const oldVtoNew = new Map();
-    const oldEtoNew = new Map();
-    for (const v of this.getVertices()) {
-      const nv = g.addVertex(v.coords);
-      oldVtoNew.set(v, nv);
-      nv.normal = v.normal.clone();
-    }
-    for (const e of this.getEdges()) {
-      const [v1, v2] = e.getVertices();
-      const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2));
-      oldEtoNew.set(e, ne);
-      ne.normal = e.normal.clone();
-    }
-    for (const f of this.getFaces()) {
-      const edges = f.getEdges().map((e) => {
-        return oldEtoNew.get(e);
-      });
-      const nf = g.addFace(edges);
-      nf.normal = f.normal.clone();
+    for (let i = 0; i < json.faces.length; i++) {
+      const f = json.faces[i];
+      const edges = f.edges.map((eid: number) => {
+        return iToE.get(eid);
+      });      
+      const normal = new Vector3(...f.normal);
+      const face = this.addFace(edges, normal);
     }
   }
 
@@ -546,8 +527,8 @@ class Graph {
     return edge;
   }
 
-  addFace(edges: Edge[]) {
-    const f = new Face(this.faces.length + 1, edges);
+  addFace(edges: Edge[], normal: Vector3 = undefined) {
+    const f = new Face(this.faces.length + 1, edges, normal);
     this.faces.push(f);
     return f;
   }
