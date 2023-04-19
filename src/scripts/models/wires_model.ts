@@ -1,6 +1,6 @@
 import { Object3D } from 'three';
 
-abstract class WiresModel{
+abstract class WiresModel {
   obj: Object3D;
 
   abstract toJSON(): JSONObject;

@@ -2,7 +2,7 @@ const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
-import { CylinderModel } from '../../models/cylinder_model';
+import { CylinderModel, PrimePos } from '../../models/cylinder_model';
 import { Edge, Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { STParameters } from './spanning_tree_menu';
@@ -110,7 +110,7 @@ describe('Spanning Tree Cylinder Model', function () {
       cm = wiresToCylinders(g[1], params);
 
       for (const c of cm.cylinders) {
-        for (const prime of _.keys(c.neighbours)) {
+        for (const prime of Object.values(PrimePos)) {
           const n = c.neighbours[prime];
           const prime2 = n[1];
 

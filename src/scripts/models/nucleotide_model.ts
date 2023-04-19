@@ -6,7 +6,12 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
-import { CylinderModel, Cylinder, RoutingStrategy } from './cylinder_model';
+import {
+  CylinderModel,
+  Cylinder,
+  RoutingStrategy,
+  PrimePos,
+} from './cylinder_model';
 import { ModuleMenuParameters } from '../modules/module_menu';
 
 interface NucleotideMeshes {
@@ -526,11 +531,11 @@ class NucleotideModel {
     this.nucParams = naType == 'DNA' ? DNA : RNA;
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     return {};
   }
 
-  static loadJSON(json: any){
+  static loadJSON(json: any) {
     return new NucleotideModel(json.scale);
   }
 
@@ -652,21 +657,21 @@ class NucleotideModel {
       const cyl = cyls[i];
       const [strand1, strand2] = this.cylToStrands.get(cyl);
 
-      const next1 = cyl.neighbours['first3Prime'];
-      const next2 = cyl.neighbours['second3Prime'];
+      const next1 = cyl.neighbours[PrimePos.first3];
+      const next2 = cyl.neighbours[PrimePos.second3];
 
       if (!next1 || !next2) continue;
 
       let strand1Next: Strand;
       let strand2Next: Strand;
 
-      if (next1[1] == 'first5Prime')
+      if (next1[1] == PrimePos.first5)
         strand1Next = this.cylToStrands.get(next1[0])[0];
-      else if (next1[1] == 'second5Prime')
+      else if (next1[1] == PrimePos.second5)
         strand1Next = this.cylToStrands.get(next1[0])[1];
-      if (next2[1] == 'first5Prime')
+      if (next2[1] == PrimePos.first5)
         strand2Next = this.cylToStrands.get(next2[0])[0];
-      else if (next2[1] == 'second5Prime')
+      else if (next2[1] == PrimePos.second5)
         strand2Next = this.cylToStrands.get(next2[0])[1];
 
       if (strand1 && strand1Next) {
@@ -1181,8 +1186,8 @@ class NucleotideModel {
   select5p(onlyScaffold = true) {
     if (onlyScaffold) {
       let scaffold = this.getScaffold();
-      if(!scaffold) return;
-      
+      if (!scaffold) return;
+
       const n = scaffold.nucleotides[0];
       n.markSelect(true);
       this.selection.add(n);

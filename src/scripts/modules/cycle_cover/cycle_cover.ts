@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Intersection, Vector3 } from 'three';
-import { Cylinder, CylinderModel } from '../../models/cylinder_model';
+import { Cylinder, CylinderModel, PrimePos } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph';
@@ -21,13 +21,11 @@ export class CycleCover extends WiresModel {
     this.cycles = this.getCycleCover();
   }
 
-
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     return {};
   }
 
-  loadJSON(json: any){
-  }
+  loadJSON(json: any) {}
 
   getCycleCover(): Array<Array<HalfEdge>> {
     const graph = this.graph;
@@ -236,12 +234,13 @@ function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
 }
 
 function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
-  let prime: [Cylinder, string];
-  let nextPrime: [Cylinder, string];
-  if (!cyl.neighbours.first3Prime) prime = [cyl, 'first3Prime'];
-  else prime = [cyl, 'second3Prime'];
-  if (!nextCyl.neighbours.first5Prime) nextPrime = [nextCyl, 'first5Prime'];
-  else nextPrime = [nextCyl, 'second5Prime'];
+  let prime: [Cylinder, PrimePos];
+  let nextPrime: [Cylinder, PrimePos];
+  if (!cyl.neighbours[PrimePos.first3]) prime = [cyl, PrimePos.first3];
+  else prime = [cyl, PrimePos.second3];
+  if (!nextCyl.neighbours[PrimePos.first5])
+    nextPrime = [nextCyl, PrimePos.first5];
+  else nextPrime = [nextCyl, PrimePos.second5];
 
   cyl.neighbours[prime[1]] = nextPrime;
   nextCyl.neighbours[nextPrime[1]] = prime;
@@ -282,10 +281,10 @@ function wiresToCylinders(cc: CycleCover, params: CCParameters) {
       const cyl = edgeToCyl.get(hEdge);
       const nextCyl = edgeToCyl.get(next);
 
-      if(nextCyl == start && i != cycle.length - 1) fixLast = [cyl, nextCyl]
+      if (nextCyl == start && i != cycle.length - 1) fixLast = [cyl, nextCyl];
       else connectCylinder(cyl, nextCyl);
     }
-    if(fixLast) connectCylinder(fixLast[0], fixLast[1]);
+    if (fixLast) connectCylinder(fixLast[0], fixLast[1]);
   }
 
   return cm;

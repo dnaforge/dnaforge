@@ -30,21 +30,21 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     const wires = this.wires && this.wires.toJSON();
     const cm = this.cm && this.cm.toJSON();
     const nm = this.nm && this.nm.toJSON();
-    
-    return {wires: wires, cm: cm, nm: nm};
+
+    return { wires: wires, cm: cm, nm: nm };
   }
 
-  loadJSON(json: any){
+  loadJSON(json: any) {
     this.removeWires();
     this.removeCylinders();
     this.removeNucleotides();
 
     this.cm = CylinderModel.loadJSON(json.cylinder_model);
-    
+
     return;
   }
 
@@ -101,7 +101,6 @@ export class CycleCoverMenu extends ModuleMenu {
     this.addNicksSwitch = $('#cycle-cover-add-nicks');
     this.generatePrimaryButton = $('#generate-cycle-cover-primary');
 
-    
     this.generatePrimaryButton.on('click', () => {
       try {
         this.generatePrimary();

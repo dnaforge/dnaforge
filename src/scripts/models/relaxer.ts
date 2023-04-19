@@ -3,7 +3,12 @@ import { LockConstraint } from 'cannon-es';
 import * as _ from 'lodash';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import { randFloat } from 'three/src/math/MathUtils';
-import { Cylinder, CylinderBundle, CylinderModel } from './cylinder_model';
+import {
+  Cylinder,
+  CylinderBundle,
+  CylinderModel,
+  PrimePos,
+} from './cylinder_model';
 
 /**
  * A class for relaxing cylinder models via physics simulation.
@@ -103,7 +108,7 @@ export class Relaxer {
         0
       );
 
-      for (const prime of _.keys(cyl.neighbours)) {
+      for (const prime of Object.values(PrimePos)) {
         if (!cyl.neighbours[prime]) continue;
         const cyl2 = cyl.neighbours[prime][0];
 
@@ -165,7 +170,7 @@ export class Relaxer {
       let cStr = 0.005;
       if (!visited.has(cyl) && !cyl.bundle) {
         cStr = 2;
-        for (const prime of _.keys(cyl.neighbours)) {
+        for (const prime of Object.values(PrimePos)) {
           cyl.neighbours[prime] && visited.add(cyl.neighbours[prime][0]);
         }
       }

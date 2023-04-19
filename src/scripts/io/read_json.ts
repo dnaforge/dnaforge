@@ -12,7 +12,6 @@ export class JSONLoader extends Loader {
     onProgress: (e: Event) => void,
     onError: (e: Event) => void
   ) {
-
     const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setRequestHeader(this.requestHeader);

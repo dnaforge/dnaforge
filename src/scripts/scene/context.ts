@@ -329,17 +329,18 @@ export class Context {
     //Metro.toast.create(message, null, null, null, null);
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     const json: JSONObject = {};
     json.graph = this.graph.toJSON();
-    for (const menu of this.menus.keys()) json[menu] = this.menus.get(menu).toJSON();
-    return json
+    for (const menu of this.menus.keys())
+      json[menu] = this.menus.get(menu).toJSON();
+    return json;
   }
 
-  loadJSON(json: any){
+  loadJSON(json: any) {
     this.graph = new Graph();
     this.graph.loadJSON(json.graph);
-    for (const menu of this.menus.keys()){
+    for (const menu of this.menus.keys()) {
       this.menus.get(menu).reset();
       this.menus.get(menu).loadJSON(json[menu]);
     }

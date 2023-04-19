@@ -124,11 +124,11 @@ export abstract class Menu {
     return false;
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     return {};
   }
 
-  loadJSON(json: JSONObject){
+  loadJSON(json: JSONObject) {
     return;
   }
 

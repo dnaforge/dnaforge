@@ -84,13 +84,11 @@ export class FileMenu extends Menu {
       read_obj(URL.createObjectURL(file), (graph: Graph) => {
         this.context.setGraph(graph);
       });
-    }
-    else if(file.name.endsWith('.json')){
+    } else if (file.name.endsWith('.json')) {
       read_json(URL.createObjectURL(file), (json: JSONObject) => {
         this.context.loadJSON(json);
       });
-    }
-    else{
+    } else {
       this.context.addMessage('Unrecognised file format.', '');
     }
   }

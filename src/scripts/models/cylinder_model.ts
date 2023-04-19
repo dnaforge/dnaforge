@@ -13,6 +13,13 @@ export enum RoutingStrategy {
   Reinforced = 2,
 }
 
+export enum PrimePos {
+  first5 = 'f5', // first 5'
+  second5 = 's5', // second 5'
+  first3 = 'f3', // first 3'
+  second3 = 's3', // second 3'
+} // using string enums because enumerating the values with them is easier because typescript
+
 const cylinderColours: Record<string, THREE.Color> = {
   cylinder: new THREE.Color(0xffffff),
   prime: new THREE.Color(0xff9999),
@@ -75,27 +82,26 @@ export class CylinderBundle {
  */
 class Cylinder {
   instanceId: number;
-  instanceMeshes: Record<string, THREE.InstancedMesh>;
-  select = false;
-  active = false;
-  hover = false;
-
   scale: number;
   naType: string;
-  nucParams: Record<string, any>;
 
   length: number; // length in nucleotides
   transform = new Matrix4();
+  routingStrategy: RoutingStrategy = RoutingStrategy.Normal; //
+  bundle: CylinderBundle = undefined; // In case the same vertex pair has two or more cylinders
 
-  neighbours: Record<string, [Cylinder, string]> = {
-    first5Prime: undefined, // 1st 5'
-    first3Prime: undefined, // 1st 3'
-    second5Prime: undefined, // 2nd 5'
-    second3Prime: undefined, // 2nd 3'
+  neighbours: Record<PrimePos, [Cylinder, PrimePos]> = {
+    [PrimePos.first5]: undefined, // 1st 5'
+    [PrimePos.first3]: undefined, // 1st 3'
+    [PrimePos.second5]: undefined, // 2nd 5'
+    [PrimePos.second3]: undefined, // 2nd 3'
   };
 
-  routingStrategy: RoutingStrategy = RoutingStrategy.Normal; //
-  bundle: CylinderBundle = undefined; // In case the same vertex pair has two cylinders
+  instanceMeshes: CylinderMeshes;
+  nucParams: Record<string, any>;
+  select = false;
+  active = false;
+  hover = false;
 
   /**
    *
@@ -106,12 +112,14 @@ class Cylinder {
    * @param naType DNA | RNA
    */
   constructor(
+    id: number,
     startP: Vector3,
     dir: Vector3,
     length: number,
     scale = 1,
     naType = 'DNA'
   ) {
+    this.instanceId = id;
     this.scale = scale;
     this.naType = naType;
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
@@ -216,10 +224,10 @@ class Cylinder {
   /**
    * Returns the prime position of the untransformed cylinder
    *
-   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @param ps PrimePos
    * @returns
    */
-  getPrimePositionU(str: string): Vector3 {
+  getPrimePositionU(ps: PrimePos): Vector3 {
     const nor5P1 = this.nucParams.BACKBONE_CENTER.clone();
     const twist = (this.length - 1) * this.nucParams.TWIST;
     const rise2 = new Vector3(0, (this.length - 1) * this.nucParams.RISE, 0);
@@ -231,65 +239,65 @@ class Cylinder {
       nor5P1.sub(inclination);
     }
 
-    switch (str) {
-      case 'first5Prime':
+    switch (ps) {
+      case PrimePos.first5:
         return nor5P1;
 
-      case 'first3Prime':
+      case PrimePos.first3:
         const nor3P1 = nor5P1
           .applyAxisAngle(new Vector3(0, 1, 0), twist)
           .add(rise2);
         return nor3P1;
 
-      case 'second5Prime':
+      case PrimePos.second5:
         const nor5P2 = nor5P1
           .applyAxisAngle(new Vector3(0, 1, 0), twist + this.nucParams.AXIS)
           .add(rise2)
           .add(inclination);
         return nor5P2;
 
-      case 'second3Prime':
+      case PrimePos.second3:
         const nor3P2 = nor5P1
           .applyAxisAngle(new Vector3(0, 1, 0), this.nucParams.AXIS)
           .add(inclination);
         return nor3P2;
 
       default:
-        console.error('Invalid cylinder socket identifier: ', str);
+        console.error('Invalid cylinder socket identifier: ', ps);
     }
   }
 
   /**
    * Returns the prime position of the cylinder
    *
-   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @param pp PrimePos
    * @returns
    */
-  getPrimePosition(str: string): Vector3 {
-    return this.getPrimePositionU(str).applyMatrix4(this.transform);
+  getPrimePosition(pp: PrimePos): Vector3 {
+    return this.getPrimePositionU(pp).applyMatrix4(this.transform);
   }
 
   /**
    * Returns the untransformed position of a cylinder's prime paired with this cylinder at prime
    *
-   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @param pp PrimePos
    * @returns
    */
-  getPairPrimePositionU(str: string): Vector3 {
-    if (!this.neighbours[str]) return;
-    const [cyl, prime] = this.neighbours[str];
+  getPairPrimePositionU(pp: PrimePos): Vector3 {
+    if (!this.neighbours[pp]) return;
+    const [cyl, prime] = this.neighbours[pp];
     return cyl.getPrimePositionU(prime);
   }
 
   /**
    * Returns the position of a cylinder's prime paired with this cylinder at prime
    *
-   * @param str "first5Prime" | "first3Prime" | "second5Prime" | "second3Prime"
+   * @param pp PrimePos
    * @returns
    */
-  getPairPrimePosition(str: string): Vector3 {
-    if (!this.neighbours[str]) return;
-    const [cyl, prime] = this.neighbours[str];
+  getPairPrimePosition(pp: PrimePos): Vector3 {
+    if (!this.neighbours[pp]) return;
+    const [cyl, prime] = this.neighbours[pp];
     return cyl.getPrimePosition(prime);
   }
 
@@ -347,9 +355,9 @@ class Cylinder {
    */
   getPrimePairs(): [Vector3, Vector3][] {
     const pairs: [Vector3, Vector3][] = [];
-    for (const str of _.keys(this.neighbours)) {
-      const p1 = this.getPrimePosition(str);
-      const p2 = this.getPairPrimePosition(str);
+    for (let pp of Object.values(PrimePos)) {
+      const p1 = this.getPrimePosition(pp);
+      const p2 = this.getPairPrimePosition(pp);
       pairs.push([p1, p2]);
     }
     return pairs;
@@ -361,8 +369,7 @@ class Cylinder {
    * @param index
    * @param meshes
    */
-  setObjectInstance(index: number, meshes: CylinderMeshes) {
-    this.instanceId = index;
+  setObjectInstance(meshes: CylinderMeshes) {
     this.instanceMeshes = meshes;
     this.setObjectMatrices();
     this.setObjectColours();
@@ -482,11 +489,21 @@ class CylinderModel {
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
   }
 
-  toJSON(): JSONObject{
-    return {};
+  toJSON(): JSONObject {
+    const cylinders = [];
+    for (let cyl of this.cylinders) {
+      const id = cyl.instanceId;
+      const transform = cyl.transform;
+      cylinders.push({});
+    }
+    return {
+      scale: this.scale,
+      naType: this.naType,
+      cylinders: cylinders,
+    };
   }
 
-  static loadJSON(json: any){
+  static loadJSON(json: any) {
     return new CylinderModel();
   }
 
@@ -509,7 +526,15 @@ class CylinderModel {
    * @returns the added cylinder
    */
   createCylinder(p1: Vector3, dir: Vector3, length_bp: number) {
-    const c = new Cylinder(p1, dir, length_bp, this.scale, this.naType);
+    //TODO: use different indexing scheme if deleting cylinders is made possible
+    const c = new Cylinder(
+      this.cylinders.length,
+      p1,
+      dir,
+      length_bp,
+      this.scale,
+      this.naType
+    );
     this.addCylinders(c);
     return c;
   }
@@ -693,7 +718,7 @@ class CylinderModel {
     if (!this.obj) this.generateObject();
     for (let i = 0; i < this.cylinders.length; i++) {
       const c = this.cylinders[i];
-      c.setObjectInstance(i, this.meshes);
+      c.setObjectInstance(this.meshes);
     }
     for (const k of _.keys(this.meshes)) {
       this.meshes[k].instanceColor.needsUpdate = true;

@@ -15,8 +15,12 @@ class Vertex {
     this.normal = normal;
   }
 
-  toString(){
-    return `${this.id}: ${this.coords} - Neighbours: ${[this.getAdjacentHalfEdges().map((e) => {e.vertex.id})]}`;
+  toString() {
+    return `${this.id}: ${this.coords} - Neighbours: ${[
+      this.getAdjacentHalfEdges().map((e) => {
+        e.vertex.id;
+      }),
+    ]}`;
   }
 
   addNeighbour(edge: Edge) {
@@ -125,11 +129,11 @@ class Vertex {
     }
     // clockwise/counterclockwise:
     // The prevf is the last face, so we must use the last two edges too:
-    const e1 = edges[edges.length - 1]
+    const e1 = edges[edges.length - 1];
     let e2;
-    for(let i = 2; i <= edges.length; i++){
+    for (let i = 2; i <= edges.length; i++) {
       e2 = edges[edges.length - i];
-      if(e1.getOtherVertex(this) != e2.getOtherVertex(this)) break;
+      if (e1.getOtherVertex(this) != e2.getOtherVertex(this)) break;
     }
     const [c11, c12] = e1.getCoords();
     const [c21, c22] = e2.getCoords();
@@ -144,7 +148,7 @@ class Vertex {
 
   getAdjacentHalfEdges(): HalfEdge[] {
     const edges = this.getAdjacentEdges();
-    
+
     const halfEdges = [];
     for (const e of edges) {
       for (const he of e.halfEdges) {
@@ -170,7 +174,7 @@ class Vertex {
   }
 
   getCommonEdges(other: Vertex) {
-    const edges = []
+    const edges = [];
     for (const e of this.getAdjacentEdges()) {
       if (e.getOtherVertex(this) == other) edges.push(e);
     }
@@ -200,7 +204,7 @@ class HalfEdge {
     this.vertex = vertex;
   }
 
-  toString(){
+  toString() {
     return `V: ${this.vertex.id} -> ${this.twin.vertex.id}`;
   }
 }
@@ -229,11 +233,11 @@ class Edge {
     }
   }
 
-  isSplit(): boolean{
-    for(let f of this.faces){
-      if(f.isSplit()) return true;
+  isSplit(): boolean {
+    for (let f of this.faces) {
+      if (f.isSplit()) return true;
     }
-    return false
+    return false;
   }
 
   getVertices(): Vertex[] {
@@ -300,11 +304,11 @@ class Face {
     return this.edges;
   }
 
-  isSplit(): boolean{
-    if(this.edges.length != 2) return false;
+  isSplit(): boolean {
+    if (this.edges.length != 2) return false;
     const [v11, v12] = this.edges[0].getVertices();
     const [v21, v22] = this.edges[0].getVertices();
-    if(v11 == v21 && v12 == v22 || v11 == v22 && v12 == v21) return true;
+    if ((v11 == v21 && v12 == v22) || (v11 == v22 && v12 == v21)) return true;
   }
 
   getVertices(): Vertex[] {
@@ -320,13 +324,11 @@ class Face {
 }
 
 class Graph {
-
   vertices: Vertex[] = [];
   edges: Edge[] = [];
   faces: Face[] = [];
 
-
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     const vToI = new Map<Vertex, number>();
     const eToI = new Map<Edge, number>();
 
@@ -338,7 +340,7 @@ class Graph {
       const vertex = {
         id: v.id,
         coords: [v.coords.x, v.coords.y, v.coords.z],
-        normal: [v.normal.x, v.normal.y, v.normal.z]
+        normal: [v.normal.x, v.normal.y, v.normal.z],
       };
       vertices.push(vertex);
       vToI.set(v, i);
@@ -350,7 +352,7 @@ class Graph {
       const edge = {
         id: e.id,
         vertices: [vid1, vid2],
-        normal: [e.normal.x, e.normal.y, e.normal.z]
+        normal: [e.normal.x, e.normal.y, e.normal.z],
       };
       edges.push(edge);
       eToI.set(e, i);
@@ -363,12 +365,12 @@ class Graph {
       const face = {
         id: f.id,
         edges: eids,
-        normal: [f.normal.x, f.normal.y, f.normal.z]
+        normal: [f.normal.x, f.normal.y, f.normal.z],
       };
       faces.push(face);
     }
 
-    const json:JSONObject =  {
+    const json: JSONObject = {
       vertices: vertices,
       edges: edges,
       faces: faces,
@@ -377,12 +379,11 @@ class Graph {
     return json;
   }
 
-  loadJSON(json: any){
+  loadJSON(json: any) {
     const iToV = new Map<number, Vertex>();
     const iToE = new Map<number, Edge>();
 
-
-    for(let i = 0; i < json.vertices.length; i++ ){
+    for (let i = 0; i < json.vertices.length; i++) {
       const v = json.vertices[i];
       const id = v.id;
       const coords = new Vector3(...v.coords);
@@ -390,7 +391,7 @@ class Graph {
       const vertex = this.addVertex(coords, normal, id);
       iToV.set(i, vertex);
     }
-    for(let i = 0; i < json.edges.length; i++){
+    for (let i = 0; i < json.edges.length; i++) {
       const e = json.edges[i];
       const id = e.id;
       const verts = e.vertices.map((vid: number) => {
@@ -405,7 +406,7 @@ class Graph {
       const id = f.id;
       const edges = f.edges.map((eid: number) => {
         return iToE.get(eid);
-      });      
+      });
       const normal = new Vector3(...f.normal);
       this.addFace(edges, normal, id);
     }
@@ -519,13 +520,22 @@ class Graph {
     return [...this.faces];
   }
 
-  addVertex(coords: Vector3, normal: Vector3 = undefined, id = this.vertices.length + 1) {
+  addVertex(
+    coords: Vector3,
+    normal: Vector3 = undefined,
+    id = this.vertices.length + 1
+  ) {
     const v = new Vertex(id, coords, normal);
     this.vertices.push(v);
     return v;
   }
 
-  addEdge(v1: Vertex, v2: Vertex, normal: Vector3 = undefined, id = this.edges.length + 1) {
+  addEdge(
+    v1: Vertex,
+    v2: Vertex,
+    normal: Vector3 = undefined,
+    id = this.edges.length + 1
+  ) {
     const edge = new Edge(id, v1, v2, normal);
     this.edges.push(edge);
     v1.addNeighbour(edge);
@@ -533,7 +543,11 @@ class Graph {
     return edge;
   }
 
-  addFace(edges: Edge[], normal: Vector3 = undefined, id = this.faces.length + 1) {
+  addFace(
+    edges: Edge[],
+    normal: Vector3 = undefined,
+    id = this.faces.length + 1
+  ) {
     const f = new Face(id, edges, normal);
     this.faces.push(f);
     return f;
@@ -615,8 +629,6 @@ class Graph {
     }
     return { path: path, length: dists.get(v2) };
   }
-
-
 
   splitEdge(edge: Edge): Edge {
     const newEdge = this.addEdge(edge.vertices[0], edge.vertices[1]);

@@ -1,7 +1,12 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
 import { InstancedMesh, Vector3 } from 'three';
-import { Cylinder, CylinderModel, RoutingStrategy } from '../../models/cylinder_model';
+import {
+  Cylinder,
+  CylinderModel,
+  PrimePos,
+  RoutingStrategy,
+} from '../../models/cylinder_model';
 import {
   Nucleotide,
   NucleotideModel,
@@ -28,13 +33,11 @@ export class Sterna {
     this.trail = this.getSterna();
   }
 
-
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     return {};
   }
 
-  loadJSON(json: any){
-  }
+  loadJSON(json: any) {}
 
   /**
    * Route the RNA strand twice around the edges of the spanning tree of the graph.
@@ -60,8 +63,10 @@ export class Sterna {
           neighbours = this.getNeighbours(curV);
         }
         stack.push(curE.twin);
-        neighbours = neighbours.slice(1 + neighbours.indexOf(curE)).concat(neighbours.slice(0, neighbours.indexOf(curE)));
-        for(let n of neighbours) stack.push(n.twin);
+        neighbours = neighbours
+          .slice(1 + neighbours.indexOf(curE))
+          .concat(neighbours.slice(0, neighbours.indexOf(curE)));
+        for (let n of neighbours) stack.push(n.twin);
       }
     }
     return route.slice(0, route.length - 1);
@@ -229,7 +234,6 @@ function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
   return cyl;
 }
 
-
 function connectCylinders(trail: HalfEdge[], edgeToCyl: Map<Edge, Cylinder>) {
   const start = edgeToCyl.get(trail[0].edge);
   for (let i = 0; i < trail.length; i++) {
@@ -237,26 +241,24 @@ function connectCylinders(trail: HalfEdge[], edgeToCyl: Map<Edge, Cylinder>) {
     const nextCyl = edgeToCyl.get(trail[(i + 1) % trail.length].edge);
     const isPseudo = cyl.routingStrategy == RoutingStrategy.Pseudoknot;
 
-    let curPrime: [Cylinder, string];
-    let nextPrime: [Cylinder, string];
+    let curPrime: [Cylinder, PrimePos];
+    let nextPrime: [Cylinder, PrimePos];
 
     if (isPseudo) {
-      if (!cyl.neighbours.second5Prime) curPrime = [cyl, 'second3Prime'];
-      else curPrime = [cyl, 'first3Prime'];
-    }
-    else {
-      if (!cyl.neighbours.first3Prime) curPrime = [cyl, 'first3Prime'];
-      else curPrime = [cyl, 'second3Prime']
+      if (!cyl.neighbours[PrimePos.second5]) curPrime = [cyl, PrimePos.second3];
+      else curPrime = [cyl, PrimePos.first3];
+    } else {
+      if (!cyl.neighbours[PrimePos.first3]) curPrime = [cyl, PrimePos.first3];
+      else curPrime = [cyl, PrimePos.second3];
     }
     if (nextCyl == start) {
-      if (i != trail.length - 1) nextPrime = [nextCyl, 'second5Prime'];
-      else nextPrime = [nextCyl, 'first5Prime'];
+      if (i != trail.length - 1) nextPrime = [nextCyl, PrimePos.second5];
+      else nextPrime = [nextCyl, PrimePos.first5];
+    } else {
+      if (!nextCyl.neighbours[PrimePos.first5])
+        nextPrime = [nextCyl, PrimePos.first5];
+      else nextPrime = [nextCyl, PrimePos.second5];
     }
-    else{
-      if (!nextCyl.neighbours.first5Prime) nextPrime = [nextCyl, 'first5Prime'];
-      else nextPrime = [nextCyl, 'second5Prime'];
-    }
-
 
     cyl.neighbours[curPrime[1]] = nextPrime;
     nextCyl.neighbours[nextPrime[1]] = curPrime;

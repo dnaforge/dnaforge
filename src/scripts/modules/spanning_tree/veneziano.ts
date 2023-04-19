@@ -5,6 +5,7 @@ import {
   Cylinder,
   CylinderBundle,
   CylinderModel,
+  PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
 import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
@@ -27,13 +28,11 @@ class Veneziano {
     this.trail = this.getVeneziano();
   }
 
-
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     return {};
   }
 
-  loadJSON(json: any){
-  }
+  loadJSON(json: any) {}
 
   getVeneziano() {
     const route: Edge[] = [];
@@ -226,10 +225,10 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
   for (let i = 1; i < cm.cylinders.length + 1; i++) {
     const cur = i == cm.cylinders.length ? cm.cylinders[0] : cm.cylinders[i];
 
-    prev.neighbours.first3Prime = [cur, 'first5Prime'];
-    cur.neighbours.first5Prime = [prev, 'first3Prime'];
-    prev.neighbours.second5Prime = [cur, 'second3Prime'];
-    cur.neighbours.second3Prime = [prev, 'second5Prime'];
+    prev.neighbours[PrimePos.first3] = [cur, PrimePos.first5];
+    cur.neighbours[PrimePos.first5] = [prev, PrimePos.first3];
+    prev.neighbours[PrimePos.second5] = [cur, PrimePos.second3];
+    cur.neighbours[PrimePos.second3] = [prev, PrimePos.second5];
 
     if (cur.routingStrategy == RoutingStrategy.Pseudoknot)
       prev =
@@ -257,10 +256,10 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
   const visited = new Set<Cylinder>();
   for (const cyl of cm.cylinders) {
     const scaffold_next = nm.cylToStrands.get(
-      cyl.neighbours['first3Prime'][0]
+      cyl.neighbours[PrimePos.first3][0]
     )[0];
     const staple_next = nm.cylToStrands.get(
-      cyl.neighbours['second3Prime'][0]
+      cyl.neighbours[PrimePos.second3][0]
     )[1];
 
     const otherCyl =

@@ -5,6 +5,7 @@ import {
   Cylinder,
   CylinderBundle,
   CylinderModel,
+  PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
 import {
@@ -37,18 +38,17 @@ class ATrail extends WiresModel {
     this.graph = graph.clone();
   }
 
-
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     const trail = [this.trail[0].twin.vertex.id];
-    for(let he of this.trail){
+    for (let he of this.trail) {
       trail.push(he.vertex.id);
     }
     console.log(trail);
-    
-    return {trail: trail};
+
+    return { trail: trail };
   }
 
-  static loadJSON(graph: Graph, json: any){
+  static loadJSON(graph: Graph, json: any) {
     const atrail = new ATrail(graph);
     atrail.setATrail(json.trail);
     return atrail;
@@ -283,12 +283,11 @@ class ATrail extends WiresModel {
       const next = vertices[trail[i] - 1];
 
       let edges = cur.getCommonEdges(next);
-      if (edges.length == 0)
-        throw `No such edge: ${[trail[i - 1], trail[i]]}`;
+      if (edges.length == 0) throw `No such edge: ${[trail[i - 1], trail[i]]}`;
 
       let edge;
-      for(edge of edges){
-        if(!visited.has(edge)) break;
+      for (edge of edges) {
+        if (!visited.has(edge)) break;
       }
       if (visited.has(edge)) {
         edge = this.graph.splitEdge(edge);
@@ -378,7 +377,11 @@ function graphToWires(graph: Graph, params: ATrailParameters) {
   return atrail;
 }
 
-function createCylinder(cm: CylinderModel, he: HalfEdge, offset = new Vector3()) {
+function createCylinder(
+  cm: CylinderModel,
+  he: HalfEdge,
+  offset = new Vector3()
+) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
 
@@ -398,7 +401,6 @@ function createCylinder(cm: CylinderModel, he: HalfEdge, offset = new Vector3())
   return cyl;
 }
 
-
 function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
   const trail = atrail.trail;
   const scale = params.scale;
@@ -413,25 +415,25 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
     const v2 = trail[i].vertex;
     const edge = trail[i].edge;
 
-
     const offset = new Vector3();
     let bundle;
     const ces = v1.getCommonEdges(v2);
     if (ces.length > 1) {
-      if(!edgeToBundle.get(ces[0])){
+      if (!edgeToBundle.get(ces[0])) {
         const b = new CylinderBundle();
         b.isRigid = false;
-        for(let e of ces){
+        for (let e of ces) {
           edgeToBundle.set(e, b);
         }
-      }      
+      }
       bundle = edgeToBundle.get(edge);
       const nor = edge.normal.clone();
-      offset.copy(nor.multiplyScalar(2 * -cm.scale * cm.nucParams.RADIUS * bundle.length));
+      offset.copy(
+        nor.multiplyScalar(2 * -cm.scale * cm.nucParams.RADIUS * bundle.length)
+      );
     }
     const c = createCylinder(cm, trail[i], offset);
-    if(bundle) bundle.push(c);
-
+    if (bundle) bundle.push(c);
 
     // for connecting cylinders:
     cylToV.set(c, v2);
@@ -446,10 +448,10 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
     const prev =
       vStackT[(vStackT.indexOf(other) - 1 + vStackT.length) % vStackT.length];
 
-    c.neighbours.first3Prime = [other, 'first5Prime']; //
-    other.neighbours.first5Prime = [c, 'first3Prime']; // The first strand is the scaffold
-    c.neighbours.second5Prime = [prev, 'second3Prime'];
-    prev.neighbours.second3Prime = [c, 'second5Prime'];
+    c.neighbours[PrimePos.first3] = [other, PrimePos.first5]; //
+    other.neighbours[PrimePos.first5] = [c, PrimePos.first3]; // The first strand is the scaffold
+    c.neighbours[PrimePos.second5] = [prev, PrimePos.second3];
+    prev.neighbours[PrimePos.second3] = [c, PrimePos.second5];
 
     if (c.length < 1) {
       throw `Cylinder length is zero nucleotides. Scale is too small.`;
@@ -490,7 +492,7 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
       .clone()
       .multiplyScalar(2 * sCyl.scale * sCyl.nucParams.RADIUS);
     const startP = offset.add(p);
-    const n = new Cylinder(startP, cdir, sCyl.length, sCyl.scale, sCyl.naType);
+    const n = cm.createCylinder(startP, cdir, sCyl.length);
     sCyl.bundle.push(n);
     cm.addCylinders(n);
   };
@@ -523,7 +525,8 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
 
   cyl.bundle.isRigid = true;
 
-  for(let c of cyl.bundle.cylinders) c.routingStrategy = RoutingStrategy.Reinforced;
+  for (let c of cyl.bundle.cylinders)
+    c.routingStrategy = RoutingStrategy.Reinforced;
 }
 
 export function reinforceCylinders(cm: CylinderModel) {
@@ -551,7 +554,12 @@ function connectReinforcedNucleotides(
   const visited = new Set<CylinderBundle>();
   for (let cyl of cm.cylinders) {
     const b = cyl.bundle;
-    if (!b || visited.has(b) || cyl.routingStrategy != RoutingStrategy.Reinforced) continue;
+    if (
+      !b ||
+      visited.has(b) ||
+      cyl.routingStrategy != RoutingStrategy.Reinforced
+    )
+      continue;
     visited.add(b);
 
     const c1 = b.cylinders[0];

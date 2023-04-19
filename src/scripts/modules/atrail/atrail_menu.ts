@@ -40,15 +40,15 @@ export class ATrailMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     const wires = this.wires && this.wires.toJSON();
     const cm = this.cm && this.cm.toJSON();
     const nm = this.nm && this.nm.toJSON();
-    
-    return {wires: wires, cm: cm, nm: nm};
+
+    return { wires: wires, cm: cm, nm: nm };
   }
 
-  loadJSON(json: any){
+  loadJSON(json: any) {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
@@ -56,7 +56,7 @@ export class ATrailMenu extends ModuleMenu {
     this.wires = json.wires && ATrail.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
-    
+
     this.collectParameters();
   }
 
