@@ -494,7 +494,6 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
     const startP = offset.add(p);
     const n = cm.createCylinder(startP, cdir, sCyl.length);
     sCyl.bundle.push(n);
-    cm.addCylinders(n);
   };
 
   const cyl = inCyl.bundle ? inCyl.bundle.cylinders[0] : inCyl;

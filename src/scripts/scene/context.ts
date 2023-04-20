@@ -270,12 +270,13 @@ export class Context {
         cameraParams.far
       );
     }
-    this.camera.position.z = 10;
     this.cameraControls && this.cameraControls.dispose();
     this.cameraControls = new OrbitControls(
       this.camera,
       document.querySelector('#canvas')
     );
+    this.camera.position.copy(new Vector3(0, 5, 20));
+    this.cameraControls.target = new Vector3(0, 5, 0);
     this.cameraControls.update();
   }
 

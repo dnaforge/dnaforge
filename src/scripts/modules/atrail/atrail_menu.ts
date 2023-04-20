@@ -104,9 +104,9 @@ export class ATrailMenu extends ModuleMenu {
     const t = str.trim().split(' ');
     const trail = [];
     for (const n of t) {
-      const num = Number(n) - 1;
+      const num = Number(n);
       trail.push(num);
-      if (num < 0 || isNaN(num) || num >= graph.getVertices().length)
+      if (num < 0 || isNaN(num) || num > graph.getVertices().length)
         throw `Unrecognised index`;
     }
     if (trail.length <= 1) throw `Route too short.`;
