@@ -12,6 +12,7 @@ import { Graph } from '../../models/graph';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';
+import { NucleotideModel } from '../../models/nucleotide_model';
 
 export type CCParameters = ModuleMenuParameters;
 
@@ -43,9 +44,11 @@ export class CycleCoverMenu extends ModuleMenu {
     this.removeCylinders();
     this.removeNucleotides();
 
-    this.cm = CylinderModel.loadJSON(json.cylinder_model);
+    this.wires = json.wires && CycleCover.loadJSON(this.context.graph, json.wires);
+    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
+    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    return;
+    this.collectParameters();
   }
 
   populateHotkeys() {

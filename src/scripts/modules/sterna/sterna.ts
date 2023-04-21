@@ -37,7 +37,9 @@ export class Sterna {
     return {};
   }
 
-  loadJSON(json: any) {}
+  static loadJSON(graph: Graph, json: any) {
+    return new Sterna(graph);
+  }
 
   /**
    * Route the RNA strand twice around the edges of the spanning tree of the graph.

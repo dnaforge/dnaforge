@@ -19,7 +19,7 @@ interface NucleotideMeshes {
   bases: InstancedMesh;
   nucleotides: InstancedMesh;
   backbone: InstancedMesh;
-}
+};
 
 const nucleotideColours: Record<string, THREE.Color> = {
   A: new THREE.Color(0x0000ff),

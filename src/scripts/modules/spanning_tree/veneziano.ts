@@ -32,7 +32,9 @@ class Veneziano {
     return {};
   }
 
-  loadJSON(json: any) {}
+  static loadJSON(graph: Graph, json: any) {
+    return new Veneziano(graph);
+  }
 
   getVeneziano() {
     const route: Edge[] = [];

@@ -25,7 +25,9 @@ export class CycleCover extends WiresModel {
     return {};
   }
 
-  loadJSON(json: any) {}
+  static loadJSON(graph: Graph, json: any) {
+    return new CycleCover(graph);
+  }
 
   getCycleCover(): Array<Array<HalfEdge>> {
     const graph = this.graph;

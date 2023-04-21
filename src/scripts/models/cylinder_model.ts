@@ -20,6 +20,13 @@ export enum PrimePos {
   second3 = 's3', // second 3'
 } // using string enums because enumerating the values with them is easier because typescript
 
+interface CylinderMeshes {
+  [key: string]: InstancedMesh;
+  main: InstancedMesh;
+  prime: InstancedMesh;
+  linker: InstancedMesh;
+}
+
 const cylinderColours: Record<string, THREE.Color> = {
   cylinder: new THREE.Color(0xffffff),
   prime: new THREE.Color(0xff9999),
@@ -29,13 +36,6 @@ const cylinderColours: Record<string, THREE.Color> = {
   select: new THREE.Color(0x5555ff),
   hover: new THREE.Color(0xff5555),
 };
-
-interface CylinderMeshes {
-  [key: string]: InstancedMesh;
-  main: InstancedMesh;
-  prime: InstancedMesh;
-  linker: InstancedMesh;
-}
 
 const materialCylinders = new THREE.MeshPhongMaterial({ color: 0xffffff });
 
@@ -53,9 +53,9 @@ const geometryCylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
 const geometryLinker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
 /**
- * A Cylinder bundle representes a set of cylinders that span across the same
- * edge. Some models add multiple double helices per edge. In such cases,
- * the cylinders should be associated with a cylinder bundle.
+ * A Cylinder bundle representes a set of cylinders. Some models add multiple double helices 
+ * per edge and use a non-standard strand routing across them. In such cases, the cylinders should 
+ * be associated with a cylinder bundle.
  */
 export class CylinderBundle {
   isRigid = true; // Affects relaxation. If true, removes all degrees of freedom between the cylinders
@@ -73,6 +73,13 @@ export class CylinderBundle {
       this.length++;
     }
   }
+
+  toJSON(): JSONObject{
+    return {
+      isRigid: this.isRigid,
+      cylinders: this.cylinders.map((c) => {return c.instanceId})
+    }
+  }
 }
 
 /**
@@ -87,7 +94,7 @@ class Cylinder {
 
   length: number; // length in nucleotides
   transform = new Matrix4();
-  routingStrategy: RoutingStrategy = RoutingStrategy.Normal; //
+  routingStrategy: RoutingStrategy; // RoutingStrategy
   bundle: CylinderBundle = undefined; // In case the same vertex pair has two or more cylinders
 
   neighbours: Record<PrimePos, [Cylinder, PrimePos]> = {
@@ -104,30 +111,45 @@ class Cylinder {
   hover = false;
 
   /**
-   *
-   * @param startP Start point
-   * @param dir  Direction
+   * @param id 
    * @param length Length in nucleotides
-   * @param scale
-   * @param naType DNA | RNA
+   * @param scale 
+   * @param naType DNA | RNA 
+   * @param routingStrategy 
    */
   constructor(
     id: number,
-    startP: Vector3,
-    dir: Vector3,
     length: number,
     scale = 1,
-    naType = 'DNA'
+    naType = 'DNA',
+    routingStrategy = RoutingStrategy.Normal,
   ) {
     this.instanceId = id;
     this.scale = scale;
     this.naType = naType;
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
-
+    this.routingStrategy = routingStrategy;
     this.length = length; // in nucleotides
     if (length < 0) this.length = 0;
+  }
 
-    this.initTransformMatrix(startP, dir);
+  toJSON(): JSONObject{
+    const transform = this.transform.elements;
+    const neighbours: Partial<Record<PrimePos, [number, PrimePos]>> = {};
+    for(const key of Object.values(PrimePos)){
+      if(this.neighbours[key]) neighbours[key] = [this.neighbours[key][0].instanceId, this.neighbours[key][1]];
+    }    
+    
+    return { 
+      id: this.instanceId,
+      length: this.length,
+      scale: this.scale,
+      naType: this.naType,
+      transform: transform, 
+      routingStrategy: this.routingStrategy,
+      bundle: this.bundle && this.bundle.toJSON(),
+      neighbours: neighbours 
+    };
   }
 
   /**
@@ -176,10 +198,10 @@ class Cylinder {
     const nor1 = r1.sub(dir.clone().multiplyScalar(r1.dot(dir))).normalize();
     const nor2 = dir.clone().cross(nor1);
     const rotation = new Matrix4()
-      .makeBasis(nor2, dir, nor1)
-      .scale(new Vector3(this.scale, this.scale, this.scale));
+      .makeBasis(nor2, dir, nor1);
+    const scale = new Matrix4().scale(new Vector3(this.scale, this.scale, this.scale));
 
-    this.transform = translation.multiply(rotation);
+    this.transform = translation.multiply(rotation).multiply(scale);
   }
 
   /**
@@ -200,10 +222,10 @@ class Cylinder {
     const nor2 = dir.clone().cross(nor1).normalize();
     const transform = new Matrix4()
       .makeBasis(nor2, dir, nor1)
-      .scale(new Vector3(this.scale, this.scale, this.scale))
       .copyPosition(this.transform);
+    const scale = new Matrix4().scale(new Vector3(this.scale, this.scale, this.scale));
 
-    this.transform = transform;
+    this.transform = transform.multiply(scale);
   }
 
   /**
@@ -490,21 +512,34 @@ class CylinderModel {
   }
 
   toJSON(): JSONObject {
-    const cylinders = [];
-    for (let cyl of this.cylinders) {
-      const id = cyl.instanceId;
-      const transform = cyl.transform;
-      cylinders.push({});
-    }
     return {
       scale: this.scale,
       naType: this.naType,
-      cylinders: cylinders,
+      cylinders: this.cylinders.map((cyl) => {return cyl.toJSON()}),
     };
   }
 
   static loadJSON(json: any) {
-    return new CylinderModel();
+    const indexToCyl = new Map<number, Cylinder>();
+    const cm = new CylinderModel(json.scale, json.naType);
+    for(let c of json.cylinders){
+      const id = c.id;
+      const cyl = new Cylinder(id, c.length, c.scale, c.naType, c.routingStrategy);
+      const transform = new Matrix4().fromArray(c.transform);
+      cyl.transform = transform;
+      cm.addCylinders(cyl);
+      indexToCyl.set(id, cyl);
+      
+      for(const prime of Object.keys(c.neighbours)){
+        const cyl2 = indexToCyl.get(c.neighbours[prime][0]);
+        if(cyl2){
+          const prime2 = c.neighbours[prime][1];
+          cyl.neighbours[<PrimePos>prime] = [cyl2, prime2];
+          cyl2.neighbours[<PrimePos>prime2] = [cyl, <PrimePos>prime];
+        }
+      }
+    }
+    return cm;
   }
 
   /**
@@ -520,21 +555,20 @@ class CylinderModel {
   /**
    * Creates a cylinder and adds it to this model.
    *
-   * @param p1 starting point
+   * @param startP starting point
    * @param dir direction
    * @param length_bp length in bases
    * @returns the added cylinder
    */
-  createCylinder(p1: Vector3, dir: Vector3, length_bp: number) {
+  createCylinder(startP: Vector3, dir: Vector3, length_bp: number) {
     //TODO: use different indexing scheme if deleting cylinders is made possible
     const c = new Cylinder(
       this.cylinders.length,
-      p1,
-      dir,
       length_bp,
       this.scale,
       this.naType
     );
+    c.initTransformMatrix(startP, dir);
     this.addCylinders(c);
     return c;
   }
