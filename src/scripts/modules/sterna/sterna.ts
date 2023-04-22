@@ -212,9 +212,97 @@ export class Sterna {
  * @param params
  * @returns
  */
-function graphToWires(graph: Graph, params: SternaParameters) {
+export function graphToWires(graph: Graph, params: SternaParameters) {
   const sterna = new Sterna(graph);
   return sterna;
+}
+
+/**
+ * Creates a cylinder model from the input routing model.
+ *
+ * @param sterna
+ * @param params
+ * @returns
+ */
+export function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
+  const scale = params.scale;
+  const cm = new CylinderModel(scale, 'RNA');
+
+  const trail = sterna.trail;
+  const st = sterna.st;
+  const edgeToCyl = new Map<Edge, Cylinder>();
+
+  for (let i = 0; i < trail.length; i++) {
+    const edge = trail[i];
+
+    let cyl;
+    if (edgeToCyl.get(edge.edge)) {
+      cyl = edgeToCyl.get(edge.edge);
+    } else {
+      const v1 = trail[i].twin.vertex; // some idiot managed to find the trail in inverse order
+      const v2 = trail[i].vertex;
+      cyl = createCylinder(cm, v1, v2);
+    }
+
+    if (!st.has(edge.edge)) cyl.routingStrategy = RoutingStrategy.Pseudoknot;
+
+    edgeToCyl.set(edge.edge, cyl);
+  }
+
+  connectCylinders(trail, edgeToCyl);
+  return cm;
+}
+
+/**
+ * Creates a nucleotide model from the input cylinder model.
+ *
+ * @param cm
+ * @param params
+ * @returns
+ */
+export function cylindersToNucleotides(
+  cm: CylinderModel,
+  params: SternaParameters
+) {
+  const scale = cm.scale;
+  const minLinkers = params.minLinkers;
+  const maxLinkers = params.maxLinkers;
+  const addNick = params.addNicks;
+
+  const nm = new NucleotideModel(scale, 'RNA');
+
+  const cylToStrands = nm.createStrands(cm, false);
+  nm.linkStrands(cm, cylToStrands, minLinkers, maxLinkers);
+
+  const l = nm.strands.length;
+  const visited = new Set();
+  for (let i = 0; i < l; i++) {
+    const strand = nm.strands[i];
+    if (strand.isPseudo && !visited.has(strand) && !visited.has(strand.pair)) {
+      visited.add(strand);
+      visited.add(strand.pair);
+
+      createPseudoknot(strand, strand.pair);
+    }
+  }
+
+  if (addNick) {
+    let len = 0;
+    let longest;
+    for (const s of nm.strands) {
+      if (s.length() > len && !s.isLinker && !s.isPseudo) {
+        longest = s;
+        len = s.length();
+      }
+    }
+    const i = Math.round(len / 2) - 1;
+    longest.nucleotides[i].next.prev = null;
+    longest.nucleotides[i].next = null;
+  }
+  nm.concatenateStrands();
+  nm.setIDs();
+
+  return nm;
 }
 
 function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
@@ -267,42 +355,6 @@ function connectCylinders(trail: HalfEdge[], edgeToCyl: Map<Edge, Cylinder>) {
   }
 }
 
-/**
- * Creates a cylinder model from the input routing model.
- *
- * @param sterna
- * @param params
- * @returns
- */
-function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
-  const scale = params.scale;
-  const cm = new CylinderModel(scale, 'RNA');
-
-  const trail = sterna.trail;
-  const st = sterna.st;
-  const edgeToCyl = new Map<Edge, Cylinder>();
-
-  for (let i = 0; i < trail.length; i++) {
-    const edge = trail[i];
-
-    let cyl;
-    if (edgeToCyl.get(edge.edge)) {
-      cyl = edgeToCyl.get(edge.edge);
-    } else {
-      const v1 = trail[i].twin.vertex; // some idiot managed to find the trail in inverse order
-      const v2 = trail[i].vertex;
-      cyl = createCylinder(cm, v1, v2);
-    }
-
-    if (!st.has(edge.edge)) cyl.routingStrategy = RoutingStrategy.Pseudoknot;
-
-    edgeToCyl.set(edge.edge, cyl);
-  }
-
-  connectCylinders(trail, edgeToCyl);
-  return cm;
-}
-
 function createPseudoknot(strand1: Strand, strand2: Strand) {
   if (strand1.length() < 13) {
     throw `An edge is too short for a pseudoknot. ${strand1.length()} < 13. Scale is too small.`;
@@ -338,54 +390,3 @@ function createPseudoknot(strand1: Strand, strand2: Strand) {
   strand2.nucleotides[idx2 - 2].pair.pair = null;
   strand2.nucleotides[idx2 - 2].pair = null;
 }
-
-/**
- * Creates a nucleotide model from the input cylinder model.
- *
- * @param cm
- * @param params
- * @returns
- */
-function cylindersToNucleotides(cm: CylinderModel, params: SternaParameters) {
-  const scale = cm.scale;
-  const minLinkers = params.minLinkers;
-  const maxLinkers = params.maxLinkers;
-  const addNick = params.addNicks;
-
-  const nm = new NucleotideModel(scale, 'RNA');
-
-  nm.createStrands(cm, false);
-  nm.linkStrands(cm, minLinkers, maxLinkers);
-
-  const l = nm.strands.length;
-  const visited = new Set();
-  for (let i = 0; i < l; i++) {
-    const strand = nm.strands[i];
-    if (strand.isPseudo && !visited.has(strand) && !visited.has(strand.pair)) {
-      visited.add(strand);
-      visited.add(strand.pair);
-
-      createPseudoknot(strand, strand.pair);
-    }
-  }
-
-  if (addNick) {
-    let len = 0;
-    let longest;
-    for (const s of nm.strands) {
-      if (s.length() > len && !s.isLinker && !s.isPseudo) {
-        longest = s;
-        len = s.length();
-      }
-    }
-    const i = Math.round(len / 2) - 1;
-    longest.nucleotides[i].next.prev = null;
-    longest.nucleotides[i].next = null;
-  }
-  nm.concatenateStrands();
-  nm.setIDs();
-
-  return nm;
-}
-
-export { graphToWires, wiresToCylinders, cylindersToNucleotides };

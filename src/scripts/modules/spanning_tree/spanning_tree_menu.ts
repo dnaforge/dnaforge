@@ -48,7 +48,8 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.removeCylinders();
     this.removeNucleotides();
 
-    this.wires = json.wires && Veneziano.loadJSON(this.context.graph, json.wires);
+    this.wires =
+      json.wires && Veneziano.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 

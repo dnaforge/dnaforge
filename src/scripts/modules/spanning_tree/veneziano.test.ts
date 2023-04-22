@@ -34,7 +34,7 @@ describe('Spanning tree-routing', function () {
 
   let st: Veneziano;
   let graph: Graph;
-  let trail: Edge[];
+  let trail: HalfEdge[];
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should start where it ends: ${g[0]}`, function () {
@@ -45,7 +45,9 @@ describe('Spanning tree-routing', function () {
       const first = trail[0];
       const last = trail[trail.length - 1];
 
-      assert.equal(!!first.getCommonVertex(last), true);
+      if (!st.st.has(last.edge))
+        assert.equal(first.twin.vertex == last.twin.vertex, true);
+      else assert.equal(first.twin.vertex == last.vertex, true);
     });
 
     it(`Should span all edges twice: ${g[0]}`, function () {

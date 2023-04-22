@@ -211,44 +211,26 @@ export class CycleCover extends WiresModel {
   }
 }
 
-function graphToWires(graph: Graph, params: CCParameters) {
+/**
+ * Creates a routing model from the input graph.
+ *
+ * @param graph
+ * @param params
+ * @returns
+ */
+export function graphToWires(graph: Graph, params: CCParameters) {
   const cc = new CycleCover(graph);
   return cc;
 }
 
-function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
-  const offset1 = cm.getVertexOffset(v1, v2);
-  const offset2 = cm.getVertexOffset(v2, v1);
-  const p1 = v1.coords.clone().add(offset1);
-  const p2 = v2.coords.clone().add(offset2);
-  const dir = v2.coords.clone().sub(v1.coords).normalize();
-  let length =
-    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
-    1;
-  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
-  if (length < 1)
-    throw `Cylinder length is zero nucleotides. Scale is too small.`;
-
-  const cyl = cm.createCylinder(p1, dir, length);
-  cyl.setOrientation(v1.getCommonEdges(v2)[0].normal);
-
-  return cyl;
-}
-
-function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
-  let prime: [Cylinder, PrimePos];
-  let nextPrime: [Cylinder, PrimePos];
-  if (!cyl.neighbours[PrimePos.first3]) prime = [cyl, PrimePos.first3];
-  else prime = [cyl, PrimePos.second3];
-  if (!nextCyl.neighbours[PrimePos.first5])
-    nextPrime = [nextCyl, PrimePos.first5];
-  else nextPrime = [nextCyl, PrimePos.second5];
-
-  cyl.neighbours[prime[1]] = nextPrime;
-  nextCyl.neighbours[nextPrime[1]] = prime;
-}
-
-function wiresToCylinders(cc: CycleCover, params: CCParameters) {
+/**
+ * Creates a cylinder model from the input routing model.
+ *
+ * @param sterna
+ * @param params
+ * @returns
+ */
+export function wiresToCylinders(cc: CycleCover, params: CCParameters) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
   const edgeToCyl = new Map<HalfEdge, Cylinder>();
@@ -292,10 +274,50 @@ function wiresToCylinders(cc: CycleCover, params: CCParameters) {
   return cm;
 }
 
-function cylindersToNucleotides(cm: CylinderModel, params: CCParameters) {
+/**
+ * Creates a nucleotide model from the input cylinder model.
+ *
+ * @param cm
+ * @param params
+ * @returns
+ */
+export function cylindersToNucleotides(
+  cm: CylinderModel,
+  params: CCParameters
+) {
   const nm = NucleotideModel.compileFromGenericCylinderModel(cm, params, false);
 
   return nm;
 }
 
-export { graphToWires, wiresToCylinders, cylindersToNucleotides };
+function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
+  const offset1 = cm.getVertexOffset(v1, v2);
+  const offset2 = cm.getVertexOffset(v2, v1);
+  const p1 = v1.coords.clone().add(offset1);
+  const p2 = v2.coords.clone().add(offset2);
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  let length =
+    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
+    1;
+  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
+  if (length < 1)
+    throw `Cylinder length is zero nucleotides. Scale is too small.`;
+
+  const cyl = cm.createCylinder(p1, dir, length);
+  cyl.setOrientation(v1.getCommonEdges(v2)[0].normal);
+
+  return cyl;
+}
+
+function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
+  let prime: [Cylinder, PrimePos];
+  let nextPrime: [Cylinder, PrimePos];
+  if (!cyl.neighbours[PrimePos.first3]) prime = [cyl, PrimePos.first3];
+  else prime = [cyl, PrimePos.second3];
+  if (!nextCyl.neighbours[PrimePos.first5])
+    nextPrime = [nextCyl, PrimePos.first5];
+  else nextPrime = [nextCyl, PrimePos.second5];
+
+  cyl.neighbours[prime[1]] = nextPrime;
+  nextCyl.neighbours[nextPrime[1]] = prime;
+}

@@ -53,8 +53,8 @@ const geometryCylinderTips = new THREE.DodecahedronGeometry(0.4, 0);
 const geometryLinker = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
 
 /**
- * A Cylinder bundle representes a set of cylinders. Some models add multiple double helices 
- * per edge and use a non-standard strand routing across them. In such cases, the cylinders should 
+ * A Cylinder bundle representes a set of cylinders. Some models add multiple double helices
+ * per edge and use a non-standard strand routing across them. In such cases, the cylinders should
  * be associated with a cylinder bundle.
  */
 export class CylinderBundle {
@@ -74,11 +74,13 @@ export class CylinderBundle {
     }
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     return {
       isRigid: this.isRigid,
-      cylinders: this.cylinders.map((c) => {return c.instanceId})
-    }
+      cylinders: this.cylinders.map((c) => {
+        return c.instanceId;
+      }),
+    };
   }
 }
 
@@ -111,18 +113,18 @@ class Cylinder {
   hover = false;
 
   /**
-   * @param id 
+   * @param id
    * @param length Length in nucleotides
-   * @param scale 
-   * @param naType DNA | RNA 
-   * @param routingStrategy 
+   * @param scale
+   * @param naType DNA | RNA
+   * @param routingStrategy
    */
   constructor(
     id: number,
     length: number,
     scale = 1,
     naType = 'DNA',
-    routingStrategy = RoutingStrategy.Normal,
+    routingStrategy = RoutingStrategy.Normal
   ) {
     this.instanceId = id;
     this.scale = scale;
@@ -133,22 +135,26 @@ class Cylinder {
     if (length < 0) this.length = 0;
   }
 
-  toJSON(): JSONObject{
+  toJSON(): JSONObject {
     const transform = this.transform.elements;
     const neighbours: Partial<Record<PrimePos, [number, PrimePos]>> = {};
-    for(const key of Object.values(PrimePos)){
-      if(this.neighbours[key]) neighbours[key] = [this.neighbours[key][0].instanceId, this.neighbours[key][1]];
-    }    
-    
-    return { 
+    for (const key of Object.values(PrimePos)) {
+      if (this.neighbours[key])
+        neighbours[key] = [
+          this.neighbours[key][0].instanceId,
+          this.neighbours[key][1],
+        ];
+    }
+
+    return {
       id: this.instanceId,
       length: this.length,
       scale: this.scale,
       naType: this.naType,
-      transform: transform, 
+      transform: transform,
       routingStrategy: this.routingStrategy,
       bundle: this.bundle && this.bundle.toJSON(),
-      neighbours: neighbours 
+      neighbours: neighbours,
     };
   }
 
@@ -197,9 +203,10 @@ class Cylinder {
     const r1 = new THREE.Vector3(Math.random(), Math.random(), Math.random());
     const nor1 = r1.sub(dir.clone().multiplyScalar(r1.dot(dir))).normalize();
     const nor2 = dir.clone().cross(nor1);
-    const rotation = new Matrix4()
-      .makeBasis(nor2, dir, nor1);
-    const scale = new Matrix4().scale(new Vector3(this.scale, this.scale, this.scale));
+    const rotation = new Matrix4().makeBasis(nor2, dir, nor1);
+    const scale = new Matrix4().scale(
+      new Vector3(this.scale, this.scale, this.scale)
+    );
 
     this.transform = translation.multiply(rotation).multiply(scale);
   }
@@ -223,7 +230,9 @@ class Cylinder {
     const transform = new Matrix4()
       .makeBasis(nor2, dir, nor1)
       .copyPosition(this.transform);
-    const scale = new Matrix4().scale(new Vector3(this.scale, this.scale, this.scale));
+    const scale = new Matrix4().scale(
+      new Vector3(this.scale, this.scale, this.scale)
+    );
 
     this.transform = transform.multiply(scale);
   }
@@ -515,24 +524,32 @@ class CylinderModel {
     return {
       scale: this.scale,
       naType: this.naType,
-      cylinders: this.cylinders.map((cyl) => {return cyl.toJSON()}),
+      cylinders: this.cylinders.map((cyl) => {
+        return cyl.toJSON();
+      }),
     };
   }
 
   static loadJSON(json: any) {
     const indexToCyl = new Map<number, Cylinder>();
     const cm = new CylinderModel(json.scale, json.naType);
-    for(let c of json.cylinders){
+    for (let c of json.cylinders) {
       const id = c.id;
-      const cyl = new Cylinder(id, c.length, c.scale, c.naType, c.routingStrategy);
+      const cyl = new Cylinder(
+        id,
+        c.length,
+        c.scale,
+        c.naType,
+        c.routingStrategy
+      );
       const transform = new Matrix4().fromArray(c.transform);
       cyl.transform = transform;
       cm.addCylinders(cyl);
       indexToCyl.set(id, cyl);
-      
-      for(const prime of Object.keys(c.neighbours)){
+
+      for (const prime of Object.keys(c.neighbours)) {
         const cyl2 = indexToCyl.get(c.neighbours[prime][0]);
-        if(cyl2){
+        if (cyl2) {
           const prime2 = c.neighbours[prime][1];
           cyl.neighbours[<PrimePos>prime] = [cyl2, prime2];
           cyl2.neighbours[<PrimePos>prime2] = [cyl, <PrimePos>prime];
@@ -583,13 +600,14 @@ class CylinderModel {
    *
    * @param v1 vertex 1
    * @param v2 vertex 2
+   * @param greedy push cylinders as close to the vertex as possible
    * @returns offset
    */
-  getVertexOffset(v1: Vertex, v2: Vertex): Vector3 {
+  getVertexOffset(v1: Vertex, v2: Vertex, greedy = true): Vector3 {
     const dir = v2.coords.clone().sub(v1.coords).normalize();
 
     // sort neighbours according to their lengths
-    const neighbours2 = v1
+    const neighbours = v1
       .getNeighbours()
       .map((v): [Vertex, number] => {
         const d = v.coords.clone().sub(v1.coords).length();
@@ -603,8 +621,9 @@ class CylinderModel {
       });
 
     let min_angle = Math.PI;
-    for (let n of neighbours2) {
-      if (n == v2) break;
+    for (let n of neighbours) {
+      if (n == v2 && greedy) break;
+      else if (n == v2) continue;
       const dirN = n.coords.clone().sub(v1.coords);
       let angle = dirN.angleTo(dir);
       if (angle > Math.PI) angle = 2 * Math.PI - angle;

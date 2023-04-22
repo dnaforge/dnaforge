@@ -44,7 +44,8 @@ export class CycleCoverMenu extends ModuleMenu {
     this.removeCylinders();
     this.removeNucleotides();
 
-    this.wires = json.wires && CycleCover.loadJSON(this.context.graph, json.wires);
+    this.wires =
+      json.wires && CycleCover.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 

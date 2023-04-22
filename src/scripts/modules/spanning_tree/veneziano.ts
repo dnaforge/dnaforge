@@ -8,17 +8,21 @@ import {
   PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
-import { Nucleotide, NucleotideModel } from '../../models/nucleotide_model';
-import { Graph, Edge } from '../../models/graph';
+import {
+  Nucleotide,
+  NucleotideModel,
+  Strand,
+} from '../../models/nucleotide_model';
+import { Graph, Edge, HalfEdge, Vertex } from '../../models/graph';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { STParameters } from './spanning_tree_menu';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-class Veneziano {
+export class Veneziano {
   graph: Graph;
   st: Set<Edge>;
-  trail: Edge[];
+  trail: HalfEdge[];
 
   obj: THREE.InstancedMesh;
 
@@ -37,29 +41,29 @@ class Veneziano {
   }
 
   getVeneziano() {
-    const route: Edge[] = [];
-    const startEdge = [...this.st][0];
-    let prevV = startEdge.getVertices()[0];
+    const route: HalfEdge[] = [];
+    const startEdge = [...this.st][0].halfEdges[0];
     const stack = [startEdge];
     const visited = new Set();
     while (stack.length > 0) {
       const curE = stack.pop();
-      const curV = curE.getOtherVertex(prevV);
+      const curV = curE.vertex;
       route.push(curE);
-      if (!this.st.has(curE)) continue;
+      if (!this.st.has(curE.edge)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
         let neighbours;
         try {
-          neighbours = curV.getTopoAdjacentEdges();
-        } catch {
-          neighbours = curV.getAdjacentEdges();
+          neighbours = curV.getTopoAdjacentHalfEdges();
+        } catch (error) {
+          neighbours = this.getNeighbours(curV);
         }
-        stack.push(curE);
-        stack.push(...neighbours.slice(1 + neighbours.indexOf(curE)));
-        stack.push(...neighbours.slice(0, neighbours.indexOf(curE)));
+        stack.push(curE.twin);
+        neighbours = neighbours
+          .slice(1 + neighbours.indexOf(curE))
+          .concat(neighbours.slice(0, neighbours.indexOf(curE)));
+        for (let n of neighbours) stack.push(n.twin);
       }
-      prevV = curV;
     }
     return route.slice(0, route.length - 1);
   }
@@ -96,32 +100,50 @@ class Veneziano {
     return st;
   }
 
-  getRST() {
-    const edges = this.graph.getEdges();
-    const visited = new Set();
-    const st = new Set();
-
-    const stack = [edges[0]];
-    while (stack.length > 0) {
-      const edge = stack.splice(Math.floor(Math.random() * stack.length), 1)[0];
-      const v1 = edge.vertices[0];
-      const v2 = edge.vertices[1];
-      if (!visited.has(v1) || !visited.has(v2)) {
-        st.add(edge);
+  /**
+   * Finds a TSP-path around the adjacent edges of the input vertex. This method allows for the routing algorithm
+   * to find a reasonable path even when a topological ordering of the edges based on face information is unavailabe.
+   *
+   * TODO: find a more accurate TSP solution
+   *
+   * @param v vertex
+   * @returns oredered list of edges
+   */
+  getNeighbours(v: Vertex): Array<HalfEdge> {
+    const neighbours = v.getAdjacentHalfEdges();
+    // find pairwise distances
+    const distances = new Map();
+    for (const e1 of neighbours) {
+      const distsT: Array<[HalfEdge, number]> = [];
+      const tp1 = e1.twin.vertex.coords.clone();
+      for (const e2 of neighbours) {
+        if (e1 == e2) continue;
+        const tp2 = e2.twin.vertex.coords.clone();
+        distsT.push([e2, tp2.sub(tp1).length()]);
       }
-      visited.add(v1);
-      visited.add(v2);
-      const neighbours = v1.getAdjacentEdges().concat(v2.getAdjacentEdges());
-      for (let i = 0; i < neighbours.length; i++) {
-        const edge2 = neighbours[i];
-        const [ev1, ev2] = edge2.getVertices();
-        if (!visited.has(ev1) || !visited.has(ev2)) {
-          stack.push(edge2);
-        }
+      distances.set(
+        e1,
+        distsT.sort((a, b) => {
+          return a[1] - b[1];
+        })
+      );
+    }
+    // traverse to NN
+    const result = [];
+    const visited = new Set();
+    let cur = neighbours[0];
+    while (result.length < neighbours.length) {
+      for (const t of distances.get(cur)) {
+        const e = t[0];
+        if (visited.has(e)) continue;
+        result.push(e);
+        visited.add(e);
+        cur = e;
+        break;
       }
     }
 
-    return st;
+    return result;
   }
 
   getObject() {
@@ -167,62 +189,112 @@ class Veneziano {
   }
 }
 
-function graphToWires(graph: Graph, params: STParameters) {
+/**
+ * Creates a routing model from the input graph.
+ *
+ * @param graph
+ * @param params
+ * @returns
+ */
+export function graphToWires(graph: Graph, params: STParameters) {
   const veneziano = new Veneziano(graph);
   return veneziano;
 }
 
-function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
+/**
+ * Creates a cylinder model from the input routing model.
+ *
+ * @param sterna
+ * @param params
+ * @returns
+ */
+export function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
   const trail = veneziano.trail;
   const st = veneziano.st;
+  const edgeToBundle = new Map<Edge, CylinderBundle>();
 
-  const visited = new Map();
-
-  let v1 = trail[0].getVertices()[0];
   for (let i = 0; i < trail.length; i++) {
-    const edge = trail[i];
-    const v2 = edge.getOtherVertex(v1);
+    const edge = trail[i].edge;
 
-    const dir = v2.coords.clone().sub(v1.coords).normalize();
-    const nor = edge.normal.clone().cross(dir);
-    const offset = nor.multiplyScalar(-0.5 * cm.scale * cm.nucParams.RADIUS);
-
-    const offset1 = offset
-      .clone()
-      .add(cm.getVertexOffset(v1, v2).multiplyScalar(2))
-      .add(offset);
-    const offset2 = offset
-      .clone()
-      .add(cm.getVertexOffset(v2, v1).multiplyScalar(2))
-      .add(offset);
-
-    const p1_t = v1.coords.clone().add(offset1);
-    const p2_t = v2.coords.clone().add(offset2);
-    let length = p2_t.clone().sub(p1_t.clone()).length();
-    if (p2_t.clone().sub(p1_t).dot(dir) < 0) length = 0;
-    const length_bp = Math.floor(
-      Math.round(length / cm.scale / cm.nucParams.RISE / 10.5) * 10.5
-    );
-    const length_n = length_bp * cm.scale * cm.nucParams.RISE;
-
-    const p1 = p1_t
-      .clone()
-      .add(dir.clone().multiplyScalar((length - length_n) / 2));
-
-    const c = cm.createCylinder(p1, dir, length_bp);
-    c.setOrientation(nor.cross(dir).applyAxisAngle(dir, cm.nucParams.AXIS));
-    if (visited.has(edge)) {
-      new CylinderBundle(c, visited.get(edge));
+    if (!edgeToBundle.get(edge)) {
+      const b = new CylinderBundle();
+      b.isRigid = true;
+      edgeToBundle.set(edge, b);
     }
-    if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
+    const bundle = edgeToBundle.get(edge);
+    const c = createCylinder(cm, trail[i]);
+    bundle.push(c);
 
-    if (st.has(edge)) v1 = v2;
-    visited.set(edge, c);
+    if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
   }
 
+  connectCylinders(cm);
+
+  return cm;
+}
+
+/**
+ * Creates a nucleotide model from the input cylinder model.
+ *
+ * @param cm
+ * @param params
+ * @returns
+ */
+export function cylindersToNucleotides(
+  cm: CylinderModel,
+  params: STParameters
+) {
+  const scale = cm.scale;
+  const addNicks = params.addNicks;
+
+  const nm = new NucleotideModel(scale);
+
+  const cylToStrands = nm.createStrands(cm, true);
+  connectStrands(nm, cm, cylToStrands);
+  nm.concatenateStrands();
+
+  if (addNicks) addStrandGaps(nm);
+
+  nm.setIDs();
+  setPrimaryFromScaffold(nm, params);
+
+  return nm;
+}
+
+function createCylinder(cm: CylinderModel, he: HalfEdge) {
+  const v1 = he.twin.vertex;
+  const v2 = he.vertex;
+
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  const nor = he.edge.normal.clone();
+  const tan = nor.cross(dir).normalize();
+
+  const offset = tan.multiplyScalar(-cm.scale * cm.nucParams.RADIUS);
+  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2, false));
+  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1, false));
+  const p1_t = v1.coords.clone().add(offset1);
+  const p2_t = v2.coords.clone().add(offset2);
+  let length = p2_t.clone().sub(p1_t.clone()).length();
+  if (p2_t.clone().sub(p1_t).dot(dir) < 0) length = 0;
+  const length_bp = Math.floor(
+    Math.round(length / cm.scale / cm.nucParams.RISE / 10.5) * 10.5
+  );
+  const length_n = length_bp * cm.scale * cm.nucParams.RISE;
+
+  const p1 = p1_t
+    .clone()
+    .add(dir.clone().multiplyScalar((length - length_n) / 2));
+
+  const cyl = cm.createCylinder(p1, dir, length_bp);
+  cyl.setOrientation(nor.cross(dir).applyAxisAngle(dir, cm.nucParams.AXIS));
+
+  return cyl;
+}
+
+function connectCylinders(cm: CylinderModel) {
   let prev = cm.cylinders[0];
   for (let i = 1; i < cm.cylinders.length + 1; i++) {
     const cur = i == cm.cylinders.length ? cm.cylinders[0] : cm.cylinders[i];
@@ -243,24 +315,19 @@ function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
       throw `A cylinder length is ${cur.length} < 31 nucleotides. Scale is too small.`;
     }
   }
-
-  return cm;
 }
 
-function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
-  const scale = cm.scale;
-  const addNicks = params.addNicks;
-
-  const nm = new NucleotideModel(scale);
-
-  nm.createStrands(cm, true);
-
+function connectStrands(
+  nm: NucleotideModel,
+  cm: CylinderModel,
+  cylToStrands: Map<Cylinder, [Strand, Strand]>
+) {
   const visited = new Set<Cylinder>();
   for (const cyl of cm.cylinders) {
-    const scaffold_next = nm.cylToStrands.get(
+    const scaffold_next = cylToStrands.get(
       cyl.neighbours[PrimePos.first3][0]
     )[0];
-    const staple_next = nm.cylToStrands.get(
+    const staple_next = cylToStrands.get(
       cyl.neighbours[PrimePos.second3][0]
     )[1];
 
@@ -269,10 +336,10 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
         ? cyl.bundle.cylinders[1]
         : cyl.bundle.cylinders[0];
 
-    const scaffold_cur = nm.cylToStrands.get(cyl)[0];
-    const scaffold_pair = nm.cylToStrands.get(otherCyl)[0];
-    const staple_cur = nm.cylToStrands.get(cyl)[1];
-    const staple_pair = nm.cylToStrands.get(otherCyl)[1];
+    const scaffold_cur = cylToStrands.get(cyl)[0];
+    const scaffold_pair = cylToStrands.get(otherCyl)[0];
+    const staple_cur = cylToStrands.get(cyl)[1];
+    const staple_pair = cylToStrands.get(otherCyl)[1];
 
     nm.addStrand(scaffold_cur.linkStrand(scaffold_next, 5, 5));
     nm.addStrand(staple_cur.linkStrand(staple_next, 5, 5));
@@ -339,18 +406,10 @@ function cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
       throw `Unrecognised cylinder type.`;
     }
   }
-
-  nm.concatenateStrands();
-
-  if (addNicks) addStrandGaps(nm);
-
-  nm.setIDs();
-  setPrimaryFromScaffold(nm, params);
-
-  return nm;
 }
 
 function addStrandGaps(nm: NucleotideModel) {
+  return;
   const findCrossovers = (nucs: Nucleotide[]) => {
     const cos = [];
     let i = 0;
@@ -392,5 +451,3 @@ function addStrandGaps(nm: NucleotideModel) {
   }
   nm.concatenateStrands();
 }
-
-export { Veneziano, graphToWires, wiresToCylinders, cylindersToNucleotides };

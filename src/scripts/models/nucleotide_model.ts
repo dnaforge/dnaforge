@@ -19,7 +19,7 @@ interface NucleotideMeshes {
   bases: InstancedMesh;
   nucleotides: InstancedMesh;
   backbone: InstancedMesh;
-};
+}
 
 const nucleotideColours: Record<string, THREE.Color> = {
   A: new THREE.Color(0x0000ff),
@@ -98,7 +98,6 @@ class Nucleotide {
   isScaffold = false;
   isPseudo = false;
 
-  parent: Strand;
   prev: Nucleotide;
   next: Nucleotide;
   pair: Nucleotide;
@@ -124,6 +123,33 @@ class Nucleotide {
     this.nucParams = naType == 'DNA' ? DNA : RNA;
 
     this.setTransform(new Matrix4());
+  }
+
+  toJSON(): JSONObject {
+    return {
+      id: this.instanceId,
+      base: this.base,
+      scale: this.scale,
+      naType: this.naType,
+      isLinker: this.isLinker,
+      isScaffold: this.isScaffold,
+      isPseudo: this.isPseudo,
+      transform: this.transform.elements,
+
+      prev: this.prev?.instanceId,
+      next: this.next?.instanceId,
+      pair: this.pair?.instanceId,
+    };
+  }
+
+  static loadJSON(json: any): Nucleotide {
+    const n = new Nucleotide(json.scale, json.naType, json.base);
+    n.instanceId = json.id;
+    n.isLinker = json.isLinker;
+    n.isScaffold = json.isScaffold;
+    n.isPseudo = json.isPseudo;
+    n.setTransform(new Matrix4().fromArray(json.transform));
+    return n;
   }
 
   setTransform(m: Matrix4) {
@@ -366,15 +392,40 @@ class Strand {
   /**
    *
    * @param scale
-   * @param isScaffold
    * @param naType DNA | RNA
    */
-  constructor(scale = 1, isScaffold = false, naType = 'DNA') {
+  constructor(scale = 1, naType = 'DNA') {
     this.scale = scale;
-    this.isScaffold = isScaffold;
-    this.isLinker = false;
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
+  }
+
+  toJSON(): JSONObject {
+    return {
+      nucleotides: this.nucleotides.map((n) => {
+        return n.toJSON();
+      }),
+      id: this.instanceId,
+      scale: this.scale,
+      naType: this.naType,
+      isScaffold: this.isScaffold,
+      isLinker: this.isLinker,
+      isPseudo: this.isPseudo,
+
+      pair: this.pair?.instanceId,
+    };
+  }
+
+  static loadJSON(json: any): Strand {
+    const s = new Strand(json.scale, json.naType);
+    s.instanceId = json.id;
+    s.isScaffold = json.isScaffold;
+    s.isLinker = json.isLinker;
+    s.isPseudo = json.isPseudo;
+    for (let n of json.nucleotides) {
+      s.addNucleotides(Nucleotide.loadJSON(n));
+    }
+    return s;
   }
 
   /**
@@ -461,7 +512,8 @@ class Strand {
     if (N == 0) return;
 
     const linkers = n1.linkNucleotides(n2, N);
-    const s = new Strand(this.scale, this.isScaffold, this.naType);
+    const s = new Strand(this.scale, this.naType);
+    s.isScaffold = this.isScaffold;
     s.addNucleotides(...linkers);
     s.isLinker = true;
 
@@ -505,10 +557,9 @@ class Strand {
  * Nucleotide model. Contains strands. Strands contain nucleotides.
  */
 class NucleotideModel {
-  cylToStrands = new Map<Cylinder, [Strand, Strand]>(); // associates each cylinder to two strands
   instanceToNuc = new Map<number, Nucleotide>(); // maps instance ids to nucleotides
-
   strands: Strand[];
+
   scale: number;
   naType: string;
   nucParams: Record<string, any>;
@@ -532,11 +583,45 @@ class NucleotideModel {
   }
 
   toJSON(): JSONObject {
-    return {};
+    return {
+      strands: this.strands.map((s) => {
+        return s.toJSON();
+      }),
+      scale: this.scale,
+      naType: this.naType,
+    };
   }
 
   static loadJSON(json: any) {
-    return new NucleotideModel(json.scale);
+    console.log(json);
+    const nm = new NucleotideModel(json.scale, json.naType);
+    const idToStrand = new Map<number, Strand>();
+    for (let s of json.strands) {
+      const strand = Strand.loadJSON(s);
+      idToStrand.set(strand.instanceId, strand);
+      if (s.pair && idToStrand.get(s.pair)) {
+        strand.pair = idToStrand.get(s.pair);
+        idToStrand.get(s.pair).pair = strand;
+      }
+      nm.addStrand(strand);
+
+      for (let n of strand.nucleotides) nm.instanceToNuc.set(n.instanceId, n);
+      for (let n of s.nucleotides) {
+        if (nm.instanceToNuc.get(n.pair)) {
+          nm.instanceToNuc.get(n.pair).pair = nm.instanceToNuc.get(n.id);
+          nm.instanceToNuc.get(n.id).pair = nm.instanceToNuc.get(n.pair);
+        }
+        if (nm.instanceToNuc.get(n.next)) {
+          nm.instanceToNuc.get(n.next).prev = nm.instanceToNuc.get(n.id);
+          nm.instanceToNuc.get(n.id).next = nm.instanceToNuc.get(n.next);
+        }
+        if (nm.instanceToNuc.get(n.prev)) {
+          nm.instanceToNuc.get(n.prev).next = nm.instanceToNuc.get(n.id);
+          nm.instanceToNuc.get(n.id).prev = nm.instanceToNuc.get(n.prev);
+        }
+      }
+    }
+    return nm;
   }
 
   /**
@@ -582,8 +667,8 @@ class NucleotideModel {
 
     const nm = new NucleotideModel(cm.scale, cm.naType);
 
-    nm.createStrands(cm, hasScaffold);
-    nm.linkStrands(cm, minLinkers, maxLinkers);
+    const cylToStrands = nm.createStrands(cm, hasScaffold);
+    nm.linkStrands(cm, cylToStrands, minLinkers, maxLinkers);
     addNicks && nm.addNicks(minLength, maxLength);
     nm.concatenateStrands();
     nm.setIDs();
@@ -621,14 +706,17 @@ class NucleotideModel {
    * @param hasScaffold Marks the first strand of each cylinder as scaffold
    */
   createStrands(cm: CylinderModel, hasScaffold: boolean) {
+    const cylToStrands = new Map<Cylinder, [Strand, Strand]>();
     for (let i = 0; i < cm.cylinders.length; i++) {
       const cyl = cm.cylinders[i];
 
-      const strand1 = new Strand(this.scale, hasScaffold, this.naType);
-      const strand2 = new Strand(this.scale, false, this.naType);
+      const strand1 = new Strand(this.scale, this.naType);
+      const strand2 = new Strand(this.scale, this.naType);
+      strand1.isScaffold = hasScaffold;
+      strand2.isScaffold = false;
       this.addStrand(strand1);
       this.addStrand(strand2);
-      this.cylToStrands.set(cyl, [strand1, strand2]);
+      cylToStrands.set(cyl, [strand1, strand2]);
 
       if (cyl.routingStrategy == RoutingStrategy.Pseudoknot) {
         strand1.isPseudo = true;
@@ -641,6 +729,7 @@ class NucleotideModel {
       // base pairs
       strand1.addBasePairs(strand2);
     }
+    return cylToStrands;
   }
 
   /**
@@ -651,11 +740,16 @@ class NucleotideModel {
    * @param minLinkers
    * @param maxLinkers
    */
-  linkStrands(cm: CylinderModel, minLinkers: number, maxLinkers: number) {
+  linkStrands(
+    cm: CylinderModel,
+    cylToStrands: Map<Cylinder, [Strand, Strand]>,
+    minLinkers: number,
+    maxLinkers: number
+  ) {
     const cyls = cm.getCylinders();
     for (let i = 0; i < cyls.length; i++) {
       const cyl = cyls[i];
-      const [strand1, strand2] = this.cylToStrands.get(cyl);
+      const [strand1, strand2] = cylToStrands.get(cyl);
 
       const next1 = cyl.neighbours[PrimePos.first3];
       const next2 = cyl.neighbours[PrimePos.second3];
@@ -666,13 +760,13 @@ class NucleotideModel {
       let strand2Next: Strand;
 
       if (next1[1] == PrimePos.first5)
-        strand1Next = this.cylToStrands.get(next1[0])[0];
+        strand1Next = cylToStrands.get(next1[0])[0];
       else if (next1[1] == PrimePos.second5)
-        strand1Next = this.cylToStrands.get(next1[0])[1];
+        strand1Next = cylToStrands.get(next1[0])[1];
       if (next2[1] == PrimePos.first5)
-        strand2Next = this.cylToStrands.get(next2[0])[0];
+        strand2Next = cylToStrands.get(next2[0])[0];
       else if (next2[1] == PrimePos.second5)
-        strand2Next = this.cylToStrands.get(next2[0])[1];
+        strand2Next = cylToStrands.get(next2[0])[1];
 
       if (strand1 && strand1Next) {
         const l1 = strand1.linkStrand(strand1Next, minLinkers, maxLinkers);
@@ -701,13 +795,14 @@ class NucleotideModel {
         do {
           if (cur.next.prev != cur)
             throw `Inconsistent nucleotide connectivity`;
-          if (cur.prev && cur.prev.next != cur)
+          if (!!cur.prev && cur.prev && cur.prev.next != cur)
             throw `Inconsistent nucleotide connectivity`;
 
           if (cur.prev) cur = cur.prev;
           else break;
         } while (cur != start);
-        const newStrand = new Strand(this.scale, s.isScaffold, s.naType);
+        const newStrand = new Strand(this.scale, s.naType);
+        newStrand.isScaffold = s.isScaffold;
         newStrands.push(newStrand);
         do {
           newStrand.addNucleotides(cur);

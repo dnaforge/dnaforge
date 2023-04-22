@@ -27,7 +27,7 @@ enum Direction {
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-class ATrail extends WiresModel {
+export class ATrail extends WiresModel {
   graph: Graph;
   trail: Array<HalfEdge>;
 
@@ -371,37 +371,27 @@ class ATrail extends WiresModel {
   }
 }
 
-function graphToWires(graph: Graph, params: ATrailParameters) {
+/**
+ * Creates a routing model from the input graph.
+ *
+ * @param graph
+ * @param params
+ * @returns
+ */
+export function graphToWires(graph: Graph, params: ATrailParameters) {
   const atrail = new ATrail(graph);
   atrail.findATrail();
   return atrail;
 }
 
-function createCylinder(
-  cm: CylinderModel,
-  he: HalfEdge,
-  offset = new Vector3()
-) {
-  const v1 = he.twin.vertex;
-  const v2 = he.vertex;
-
-  const dir = v2.coords.clone().sub(v1.coords).normalize();
-  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2));
-  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1));
-  const p1 = v1.coords.clone().add(offset1);
-  const p2 = v2.coords.clone().add(offset2);
-  let length =
-    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
-    1;
-  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
-
-  const cyl = cm.createCylinder(p1, dir, length);
-  cyl.setOrientation(he.edge.normal);
-
-  return cyl;
-}
-
-function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
+/**
+ * Creates a cylinder model from the input routing model.
+ *
+ * @param sterna
+ * @param params
+ * @returns
+ */
+export function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
   const trail = atrail.trail;
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
@@ -461,7 +451,17 @@ function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
   return cm;
 }
 
-function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
+/**
+ * Creates a nucleotide model from the input cylinder model.
+ *
+ * @param cm
+ * @param params
+ * @returns
+ */
+export function cylindersToNucleotides(
+  cm: CylinderModel,
+  params: ATrailParameters
+) {
   const minLinkers = params.minLinkers;
   const maxLinkers = params.minLinkers;
   const addNicks = params.addNicks;
@@ -470,9 +470,9 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
 
   const nm = new NucleotideModel(cm.scale, cm.naType);
 
-  nm.createStrands(cm, true);
-  nm.linkStrands(cm, minLinkers, maxLinkers);
-  connectReinforcedNucleotides(cm, nm, params); // handle cylinder bundles
+  const cylToStrands = nm.createStrands(cm, true);
+  nm.linkStrands(cm, cylToStrands, minLinkers, maxLinkers);
+  connectReinforcedNucleotides(cm, nm, cylToStrands, params); // handle cylinder bundles
   addNicks && nm.addNicks(minLength, maxLength);
   nm.concatenateStrands();
   nm.setIDs();
@@ -481,6 +481,30 @@ function cylindersToNucleotides(cm: CylinderModel, params: ATrailParameters) {
   nm.validate(addNicks, minLength, maxLength);
 
   return nm;
+}
+
+function createCylinder(
+  cm: CylinderModel,
+  he: HalfEdge,
+  offset = new Vector3()
+) {
+  const v1 = he.twin.vertex;
+  const v2 = he.vertex;
+
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2));
+  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1));
+  const p1 = v1.coords.clone().add(offset1);
+  const p2 = v2.coords.clone().add(offset2);
+  let length =
+    Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
+    1;
+  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
+
+  const cyl = cm.createCylinder(p1, dir, length);
+  cyl.setOrientation(he.edge.normal);
+
+  return cyl;
 }
 
 function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
@@ -541,6 +565,7 @@ export function reinforceCylinders(cm: CylinderModel) {
 function connectReinforcedNucleotides(
   cm: CylinderModel,
   nm: NucleotideModel,
+  cylToStrands: Map<Cylinder, [Strand, Strand]>,
   params: ATrailParameters
 ) {
   const reroute = (s1: Strand, s2: Strand, idx1: number, idx2: number) => {
@@ -566,14 +591,14 @@ function connectReinforcedNucleotides(
     const c3 = b.cylinders[2];
     const c4 = b.cylinders[3];
 
-    const s1a = nm.cylToStrands.get(c1)[0];
-    const s1b = nm.cylToStrands.get(c1)[1];
-    const s2a = nm.cylToStrands.get(c2)[0];
-    const s2b = nm.cylToStrands.get(c2)[1];
-    const s3a = nm.cylToStrands.get(c3)[0];
-    const s3b = nm.cylToStrands.get(c3)[1];
-    const s4a = nm.cylToStrands.get(c4)[0];
-    const s4b = nm.cylToStrands.get(c4)[1];
+    const s1a = cylToStrands.get(c1)[0];
+    const s1b = cylToStrands.get(c1)[1];
+    const s2a = cylToStrands.get(c2)[0];
+    const s2b = cylToStrands.get(c2)[1];
+    const s3a = cylToStrands.get(c3)[0];
+    const s3b = cylToStrands.get(c3)[1];
+    const s4a = cylToStrands.get(c4)[0];
+    const s4b = cylToStrands.get(c4)[1];
 
     s1a.isScaffold = true;
     s1b.isScaffold = false;
@@ -590,7 +615,7 @@ function connectReinforcedNucleotides(
     nm.addStrand(s3b.linkStrand(s4a, 2, 2));
     nm.addStrand(s4a.linkStrand(s3b, 2, 2));
 
-    if (nm.cylToStrands.get(c2)[0].nucleotides[0].prev) {
+    if (cylToStrands.get(c2)[0].nucleotides[0].prev) {
       // double edge
       s2a.isScaffold = true;
       s2b.isScaffold = false;
@@ -604,5 +629,3 @@ function connectReinforcedNucleotides(
     }
   }
 }
-
-export { ATrail, graphToWires, wiresToCylinders, cylindersToNucleotides };
