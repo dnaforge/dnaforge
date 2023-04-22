@@ -22,11 +22,41 @@ export class CycleCover extends WiresModel {
   }
 
   toJSON(): JSONObject {
-    return {};
+    const cycles = this.cycles.map((c: Array<HalfEdge>) => {
+      return c.map((he: HalfEdge) => {
+        return he.vertex.id;
+      });
+    });
+    return {cycles: cycles};
   }
 
   static loadJSON(graph: Graph, json: any) {
-    return new CycleCover(graph);
+    const cc = new CycleCover(graph);
+    const cycles: HalfEdge[][] = [];
+    cc.cycles = cycles;
+
+    const idToVert = new Map<number, Vertex>();
+    for(let v of graph.getVertices()) idToVert.set(v.id, v);
+
+    const visited = new Set<HalfEdge>();
+    for(let jCycle of json.cycles){
+      const cycle: HalfEdge[] = [];
+      for (let i = 1; i < jCycle.length + 1; i++) {
+        const cur = idToVert.get(jCycle[i - 1]);
+        const next = idToVert.get(jCycle[(i + 1) % jCycle.length]);
+
+        let edges = cur.getCommonEdges(next);
+        let halfEdge;
+        for (let edge of edges) {
+          halfEdge = edge.halfEdges[0].vertex == next ? edge.halfEdges[0] : edge.halfEdges[1];
+          if(!visited.has(halfEdge)) break;
+        }
+        visited.add(halfEdge);
+        cycle.push(halfEdge);
+      }
+      cycles.push(cycle);
+    }
+    return cc;
   }
 
   getCycleCover(): Array<Array<HalfEdge>> {

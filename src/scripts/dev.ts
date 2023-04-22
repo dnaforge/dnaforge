@@ -34,9 +34,9 @@ export function dev(context: Context) {
   context.setGraph(graph);
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
-  //cc.addWires();
-  //cc.addCylinders();
-  //cc.addNucleotides();
+  cc.addWires();
+  cc.addCylinders();
+  cc.addNucleotides();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();
@@ -49,8 +49,8 @@ export function dev(context: Context) {
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();
-  st.addCylinders();
-  st.addNucleotides();
+  //st.addCylinders();
+  //st.addNucleotides();
   //st.generatePrimary();
 
   const sterna = <SternaMenu>context.menus.get('sterna');
@@ -63,6 +63,6 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
-  //const json = JSON.stringify(context.toJSON());
-  //context.loadJSON(JSON.parse(json));
+  const json = JSON.stringify(context.toJSON());
+  context.loadJSON(JSON.parse(json));
 }

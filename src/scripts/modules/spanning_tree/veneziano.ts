@@ -33,11 +33,22 @@ export class Veneziano {
   }
 
   toJSON(): JSONObject {
-    return {};
+    const st: number[] = [];
+    for(let e of this.st) st.push(e.id);
+    return {st: st};
   }
 
   static loadJSON(graph: Graph, json: any) {
-    return new Veneziano(graph);
+    const v = new Veneziano(graph);
+    const idToEdge = new Map<number, Edge>();
+    for(let e of graph.edges) idToEdge.set(e.id, e);
+
+    v.st = new Set<Edge>();
+    for(let e of json.st){
+      v.st.add(idToEdge.get(e));
+    }
+    v.trail = v.getVeneziano();
+    return v;
   }
 
   getVeneziano() {
@@ -409,7 +420,6 @@ function connectStrands(
 }
 
 function addStrandGaps(nm: NucleotideModel) {
-  return;
   const findCrossovers = (nucs: Nucleotide[]) => {
     const cos = [];
     let i = 0;

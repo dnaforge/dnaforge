@@ -43,8 +43,6 @@ export class ATrail extends WiresModel {
     for (let he of this.trail) {
       trail.push(he.vertex.id);
     }
-    console.log(trail);
-
     return { trail: trail };
   }
 
@@ -275,12 +273,13 @@ export class ATrail extends WiresModel {
   }
 
   setATrail(trail: Array<number>) {
-    const vertices = this.graph.getVertices();
+    const idToVert = new Map<number, Vertex>();
+    for(let v of this.graph.getVertices()) idToVert.set(v.id, v);
     const visited = new Set();
     const trailEdges: HalfEdge[] = [];
     for (let i = 1; i < trail.length; i++) {
-      const cur = vertices[trail[i - 1] - 1];
-      const next = vertices[trail[i] - 1];
+      const cur = idToVert.get(trail[i - 1]);
+      const next = idToVert.get(trail[i]);
 
       let edges = cur.getCommonEdges(next);
       if (edges.length == 0) throw `No such edge: ${[trail[i - 1], trail[i]]}`;

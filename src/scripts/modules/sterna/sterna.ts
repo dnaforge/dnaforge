@@ -34,11 +34,22 @@ export class Sterna {
   }
 
   toJSON(): JSONObject {
-    return {};
+    const st: number[] = [];
+    for(let e of this.st) st.push(e.id);
+    return {st: st};
   }
 
   static loadJSON(graph: Graph, json: any) {
-    return new Sterna(graph);
+    const sterna = new Sterna(graph);
+    const idToEdge = new Map<number, Edge>();
+    for(let e of graph.edges) idToEdge.set(e.id, e);
+
+    sterna.st = new Set<Edge>();
+    for(let e of json.st){
+      sterna.st.add(idToEdge.get(e));
+    }
+    sterna.trail = sterna.getSterna();
+    return sterna;
   }
 
   /**

@@ -593,7 +593,6 @@ class NucleotideModel {
   }
 
   static loadJSON(json: any) {
-    console.log(json);
     const nm = new NucleotideModel(json.scale, json.naType);
     const idToStrand = new Map<number, Strand>();
     for (let s of json.strands) {
@@ -795,7 +794,7 @@ class NucleotideModel {
         do {
           if (cur.next.prev != cur)
             throw `Inconsistent nucleotide connectivity`;
-          if (!!cur.prev && cur.prev && cur.prev.next != cur)
+          if (cur.prev && cur.prev.next != cur)
             throw `Inconsistent nucleotide connectivity`;
 
           if (cur.prev) cur = cur.prev;
