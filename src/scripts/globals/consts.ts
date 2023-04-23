@@ -3,7 +3,7 @@ import { Vector3 } from 'three';
 
 const DNA_SCAFFOLDS: Record<string, string> = DNA_SCAFFOLDS_T;
 
-const DNA: Record<string, number | Vector3> = {
+const DNA = {
   RISE: 0.332,
   RADIUS: 1,
   TWIST: (2 * Math.PI) / 10.5,
@@ -19,7 +19,7 @@ const DNA: Record<string, number | Vector3> = {
   HYDROGEN_FACING_DIR: new Vector3(0.34084473, 0, -0.94011961),
 };
 
-const RNA: Record<string, number | Vector3> = {
+const RNA = {
   RISE: 0.281,
   RADIUS: 1,
   TWIST: (2 * Math.PI) / 11,

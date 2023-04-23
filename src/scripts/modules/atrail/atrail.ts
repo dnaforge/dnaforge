@@ -274,7 +274,7 @@ export class ATrail extends WiresModel {
 
   setATrail(trail: Array<number>) {
     const idToVert = new Map<number, Vertex>();
-    for(let v of this.graph.getVertices()) idToVert.set(v.id, v);
+    for (let v of this.graph.getVertices()) idToVert.set(v.id, v);
     const visited = new Set();
     const trailEdges: HalfEdge[] = [];
     for (let i = 1; i < trail.length; i++) {

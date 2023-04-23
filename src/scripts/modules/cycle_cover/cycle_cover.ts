@@ -27,7 +27,7 @@ export class CycleCover extends WiresModel {
         return he.vertex.id;
       });
     });
-    return {cycles: cycles};
+    return { cycles: cycles };
   }
 
   static loadJSON(graph: Graph, json: any) {
@@ -36,10 +36,10 @@ export class CycleCover extends WiresModel {
     cc.cycles = cycles;
 
     const idToVert = new Map<number, Vertex>();
-    for(let v of graph.getVertices()) idToVert.set(v.id, v);
+    for (let v of graph.getVertices()) idToVert.set(v.id, v);
 
     const visited = new Set<HalfEdge>();
-    for(let jCycle of json.cycles){
+    for (let jCycle of json.cycles) {
       const cycle: HalfEdge[] = [];
       for (let i = 1; i < jCycle.length + 1; i++) {
         const cur = idToVert.get(jCycle[i - 1]);
@@ -48,8 +48,11 @@ export class CycleCover extends WiresModel {
         let edges = cur.getCommonEdges(next);
         let halfEdge;
         for (let edge of edges) {
-          halfEdge = edge.halfEdges[0].vertex == next ? edge.halfEdges[0] : edge.halfEdges[1];
-          if(!visited.has(halfEdge)) break;
+          halfEdge =
+            edge.halfEdges[0].vertex == next
+              ? edge.halfEdges[0]
+              : edge.halfEdges[1];
+          if (!visited.has(halfEdge)) break;
         }
         visited.add(halfEdge);
         cycle.push(halfEdge);

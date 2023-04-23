@@ -15,7 +15,7 @@
             <span class="title">Open</span>
         </div>
         <div class="group">
-            <button class="ribbon-button" id="file-download-json" data-role="hint"
+            <button class="ribbon-button" id="file-open-json-dialog" data-role="hint"
                 data-hint-position="right" data-hint-text="Save current program state as a JSON-file.">
                 <span class="mif-file-download mif-3x"></span>
                 <span class="caption">Save as JSON</span>
@@ -30,5 +30,14 @@
                 <li><a href=""><span class="mif-file-text icon"></span> DNA Forge</a></li>
             </ul>
         </div>
+    </div>
+</div>
+<div class="dialog" data-role="dialog" id="file-json-dialog">
+    <div class="dialog-title">Save as JSON</div>
+    <div class="dialog-content">
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="file-download-json">Download JSON</button>
     </div>
 </div>

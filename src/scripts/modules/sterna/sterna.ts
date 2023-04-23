@@ -35,17 +35,17 @@ export class Sterna {
 
   toJSON(): JSONObject {
     const st: number[] = [];
-    for(let e of this.st) st.push(e.id);
-    return {st: st};
+    for (let e of this.st) st.push(e.id);
+    return { st: st };
   }
 
   static loadJSON(graph: Graph, json: any) {
     const sterna = new Sterna(graph);
     const idToEdge = new Map<number, Edge>();
-    for(let e of graph.edges) idToEdge.set(e.id, e);
+    for (let e of graph.edges) idToEdge.set(e.id, e);
 
     sterna.st = new Set<Edge>();
-    for(let e of json.st){
+    for (let e of json.st) {
       sterna.st.add(idToEdge.get(e));
     }
     sterna.trail = sterna.getSterna();
@@ -250,9 +250,7 @@ export function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
     if (edgeToCyl.get(edge.edge)) {
       cyl = edgeToCyl.get(edge.edge);
     } else {
-      const v1 = trail[i].twin.vertex; // some idiot managed to find the trail in inverse order
-      const v2 = trail[i].vertex;
-      cyl = createCylinder(cm, v1, v2);
+      cyl = createCylinder(cm, edge);
     }
 
     if (!st.has(edge.edge)) cyl.routingStrategy = RoutingStrategy.Pseudoknot;
@@ -316,12 +314,17 @@ export function cylindersToNucleotides(
   return nm;
 }
 
-function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
+function createCylinder(cm: CylinderModel, halfEdge: HalfEdge) {
+  const v1 = halfEdge.twin.vertex;
+  const v2 = halfEdge.vertex;
+  const dir = v2.coords.clone().sub(v1.coords).normalize();
+  const inclination = dir
+    .clone()
+    .multiplyScalar(cm.nucParams.INCLINATION * cm.scale);
   const offset1 = cm.getVertexOffset(v1, v2);
   const offset2 = cm.getVertexOffset(v2, v1);
-  const p1 = v1.coords.clone().add(offset1);
+  const p1 = v1.coords.clone().add(offset1).sub(inclination);
   const p2 = v2.coords.clone().add(offset2);
-  const dir = v2.coords.clone().sub(v1.coords).normalize();
   let length =
     Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
     1;
@@ -330,7 +333,7 @@ function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
     throw `Cylinder length is zero nucleotides. Scale is too small.`;
 
   const cyl = cm.createCylinder(p1, dir, length);
-  cyl.setOrientation(v1.getCommonEdges(v2)[0].normal);
+  cyl.setOrientation(halfEdge.edge.normal);
 
   return cyl;
 }

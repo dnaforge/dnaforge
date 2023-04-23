@@ -52,6 +52,10 @@ export abstract class Menu {
     this.setupHotkeys();
   }
 
+  abstract toJSON(selection: JSONObject): JSONObject;
+
+  abstract loadJSON(json: JSONObject): void;
+
   /**
    * Activate this context.
    */
@@ -124,14 +128,6 @@ export abstract class Menu {
     return false;
   }
 
-  toJSON(): JSONObject {
-    return {};
-  }
-
-  loadJSON(json: JSONObject) {
-    return;
-  }
-
   /**
    * Resets this menu to its original state. Deletes the existing models.
    */
@@ -150,6 +146,10 @@ export abstract class Menu {
    * Collects all the user parameters from the frontend into the params-dictionary.
    */
   collectParameters() {
+    return;
+  }
+
+  loadParameters(json: JSONObject) {
     return;
   }
 

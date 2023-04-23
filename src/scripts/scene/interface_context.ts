@@ -62,6 +62,14 @@ export class InterfaceMenu extends Menu {
     this.regenerateVisible();
   }
 
+  toJSON(): JSONObject {
+    return {};
+  }
+
+  loadJSON(json: JSONObject) {
+    return;
+  }
+
   populateHotkeys() {
     this.hotkeys.set('z', this.showAxesButton);
     this.hotkeys.set('shift+z', this.showGridButton);

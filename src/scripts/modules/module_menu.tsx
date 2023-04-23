@@ -154,6 +154,17 @@ export abstract class ModuleMenu extends Menu {
     this.params.linkerOptions = 'W';
   }
 
+  toJSON(selection: JSONObject): JSONObject {
+    const params = this.params as JSONObject;
+    const wires = selection['wires'] && this.wires && this.wires.toJSON();
+    const cm = selection['cm'] && this.cm && this.cm.toJSON();
+    const nm = selection['nm'] && this.nm && this.nm.toJSON();
+
+    return { params: params, wires: wires, cm: cm, nm: nm };
+  }
+
+  abstract loadJSON(json: any): void;
+
   /**
    * Assigns keys to functions or buttons.
    */
@@ -203,10 +214,6 @@ export abstract class ModuleMenu extends Menu {
     cm: CylinderModel,
     params: ModuleMenuParameters
   ): NucleotideModel;
-
-  abstract toJSON(): JSONObject;
-
-  abstract loadJSON(json: any): void;
 
   /**
    * Activate this context and unhide the associated models.
@@ -485,6 +492,10 @@ export abstract class ModuleMenu extends Menu {
     this.showWires = this.wiresButton[0].checked;
     this.showCylinders = this.cylindersButton[0].checked;
     this.showNucleotides = this.nucleotidesButton[0].checked;
+  }
+
+  loadParameters(json: JSONObject) {
+    super.loadParameters(json);
   }
 
   download() {

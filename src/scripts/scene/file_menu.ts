@@ -4,6 +4,7 @@ import { read_json } from '../io/read_json';
 import { read_obj } from '../io/read_obj';
 import { OBJLoader } from '../io/read_obj';
 import { Graph } from '../models/graph';
+import { ModuleMenu } from '../modules/module_menu';
 import { Context } from './context';
 import { Menu } from './menu';
 
@@ -24,7 +25,6 @@ const examples = ((): { [id: string]: Graph } => {
     const nEdges = graph.getEdges().length;
     const nFaces = graph.getFaces().length;
     examples[id] = graph;
-
     $('#file-input-example').append(`
             <li data-icon="<span class='mif-file-empty'>" 
             data-caption="${name}"  
@@ -46,10 +46,21 @@ export class FileMenu extends Menu {
   fileInputButton: any;
   fileInputExampleButton: any;
   fileInput: any;
+  openJSONDialogButton: any;
   downloadJSONButton: any;
+
+  private createdJSONMenu = false;
 
   constructor(context: Context) {
     super(context, 'file', 'File', true);
+  }
+
+  toJSON(): JSONObject {
+    return {};
+  }
+
+  loadJSON(json: JSONObject) {
+    return;
   }
 
   /**
@@ -95,11 +106,63 @@ export class FileMenu extends Menu {
 
   downloadJSON() {
     try {
-      const str = JSON.stringify(this.context.toJSON());
+      const selection: Record<string, Record<string, boolean>> = {};
+      const inputs = $('#file-json-treeview').find(':checked');
+      for (let i = 0; i < inputs.length; i++) {
+        const input = $(inputs[i]);
+        const data: string = input.attr('data-id');
+        const [dType, menu] = data.split('_');
+        if (!selection[menu]) selection[menu] = {};
+        selection[menu][dType] = true;
+      }
+      const str = JSON.stringify(this.context.toJSON(selection));
       downloadTXT(`dnaforge.json`, str);
     } catch (error) {
       throw `Error downloading JSON.`;
     }
+  }
+
+  createJSONMenu() {
+    //TODO: delegate this to each menu separately
+    const content = $('<ul>', {
+      'data-role': 'treeview',
+      id: 'file-json-treeview',
+    });
+
+    const menuUl = (menu: ModuleMenu) => {
+      const li = $('<li>', {
+        'data-caption': menu.title,
+      });
+      const ul = $('<ul>');
+      li.append(ul);
+
+      const input = (title: string, id: string) => {
+        const li2 = $('<li>');
+        const input = $('<input>', {
+          type: 'checkbox',
+          'data-role': 'checkbox',
+          'data-caption': title,
+          'data-id': id,
+          checked: true,
+        });
+        li2.append(input);
+        return li2;
+      };
+
+      ul.append(input('Parameters', `params_${menu.elementId}`));
+      menu.wires && ul.append(input('Wires Model', `wires_${menu.elementId}`));
+      menu.cm && ul.append(input('Cylinder Model', `cm_${menu.elementId}`));
+      menu.nm && ul.append(input('Nucleotide Model', `nm_${menu.elementId}`));
+
+      return li;
+    };
+
+    for (let menu of this.context.menus.values()) {
+      if (!(menu instanceof ModuleMenu)) continue;
+      content.append(menuUl(menu));
+    }
+
+    $('#file-json-dialog').children('.dialog-content').html(content);
   }
 
   /**
@@ -110,6 +173,12 @@ export class FileMenu extends Menu {
     this.fileInputExampleButton = $('#file-input-example-open');
     this.fileInput = $('#file-input');
     this.downloadJSONButton = $(`#file-download-json`);
+    this.openJSONDialogButton = $(`#file-open-json-dialog`);
+
+    this.openJSONDialogButton.on('click', () => {
+      this.createJSONMenu();
+      Metro.dialog.open('#file-json-dialog');
+    });
 
     this.downloadJSONButton.on('click', () => {
       try {

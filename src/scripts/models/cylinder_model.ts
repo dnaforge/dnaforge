@@ -107,7 +107,7 @@ class Cylinder {
   };
 
   instanceMeshes: CylinderMeshes;
-  nucParams: Record<string, any>;
+  nucParams: typeof RNA | typeof DNA;
   select = false;
   active = false;
   hover = false;
@@ -261,11 +261,11 @@ class Cylinder {
   getPrimePositionU(ps: PrimePos): Vector3 {
     const nor5P1 = this.nucParams.BACKBONE_CENTER.clone();
     const twist = (this.length - 1) * this.nucParams.TWIST;
-    const rise2 = new Vector3(0, (this.length - 1) * this.nucParams.RISE, 0);
+    const rise = new Vector3(0, (this.length - 1) * this.nucParams.RISE, 0);
     const inclination = new Vector3(0, this.nucParams.INCLINATION, 0);
 
     if (this.nucParams.INCLINATION < 0) {
-      // subtracting the inclination when the pair of the 5-prime is actually behind the 5-prime.
+      // subtracting the (negative) inclination when the pair of the 5-prime is actually behind the 5-prime.
       // otherwise it'd be outside the cylinder
       nor5P1.sub(inclination);
     }
@@ -277,13 +277,13 @@ class Cylinder {
       case PrimePos.first3:
         const nor3P1 = nor5P1
           .applyAxisAngle(new Vector3(0, 1, 0), twist)
-          .add(rise2);
+          .add(rise);
         return nor3P1;
 
       case PrimePos.second5:
         const nor5P2 = nor5P1
           .applyAxisAngle(new Vector3(0, 1, 0), twist + this.nucParams.AXIS)
-          .add(rise2)
+          .add(rise)
           .add(inclination);
         return nor5P2;
 
@@ -496,7 +496,7 @@ class CylinderModel {
   cylinders: Cylinder[] = [];
   scale: number;
   naType: string;
-  nucParams: Record<string, any>;
+  nucParams: typeof RNA | typeof DNA;
 
   obj: THREE.Object3D;
   meshes: CylinderMeshes;

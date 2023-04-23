@@ -92,7 +92,7 @@ class Nucleotide {
   base: string;
   scale: number;
   naType: string;
-  nucParams: Record<string, any>;
+  nucParams: typeof RNA | typeof DNA;
 
   isLinker = false;
   isScaffold = false;
@@ -381,7 +381,7 @@ class Strand {
   nucleotides: Nucleotide[] = [];
   scale: number;
   naType: string;
-  nucParams: Record<string, any>;
+  nucParams: typeof RNA | typeof DNA;
 
   pair: Strand;
 
@@ -562,7 +562,7 @@ class NucleotideModel {
 
   scale: number;
   naType: string;
-  nucParams: Record<string, any>;
+  nucParams: typeof RNA | typeof DNA;
 
   obj: THREE.Object3D;
   meshes: NucleotideMeshes;

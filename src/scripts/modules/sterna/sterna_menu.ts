@@ -33,24 +33,17 @@ export class SternaMenu extends ModuleMenu {
     this.params.naType = 'RNA';
   }
 
-  toJSON(): JSONObject {
-    const wires = this.wires && this.wires.toJSON();
-    const cm = this.cm && this.cm.toJSON();
-    const nm = this.nm && this.nm.toJSON();
-
-    return { wires: wires, cm: cm, nm: nm };
-  }
-
   loadJSON(json: any) {
-    this.removeWires();
-    this.removeCylinders();
-    this.removeNucleotides();
+    this.reset();
+    this.collectParameters();
 
     this.wires = json.wires && Sterna.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.collectParameters();
+    this.showWires = this.wires && this.showWires; // ugly hacks to prevent always creating the models on context switch
+    this.showCylinders = this.cm && this.showCylinders;
+    this.showNucleotides = this.nm && this.showNucleotides;
   }
 
   populateHotkeys() {

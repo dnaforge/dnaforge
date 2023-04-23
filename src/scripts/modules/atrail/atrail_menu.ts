@@ -40,24 +40,18 @@ export class ATrailMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
-  toJSON(): JSONObject {
-    const wires = this.wires && this.wires.toJSON();
-    const cm = this.cm && this.cm.toJSON();
-    const nm = this.nm && this.nm.toJSON();
-
-    return { wires: wires, cm: cm, nm: nm };
-  }
-
   loadJSON(json: any) {
-    this.removeWires(true);
-    this.removeCylinders(true);
-    this.removeNucleotides(true);
+    this.reset();
+    this.collectParameters();
 
+    json.params && this.loadParameters(json.params);
     this.wires = json.wires && ATrail.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.collectParameters();
+    this.showWires = this.wires && this.showWires; // ugly hacks to prevent always creating the models on context switch
+    this.showCylinders = this.cm && this.showCylinders;
+    this.showNucleotides = this.nm && this.showNucleotides;
   }
 
   graphToWires(graph: Graph, params: ATrailParameters) {
@@ -137,6 +131,11 @@ export class ATrailMenu extends ModuleMenu {
     this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
     this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
+  }
+
+  loadParameters(json: JSONObject) {
+    super.loadParameters(json);
+    console.log(json);
   }
 
   setupEventListeners() {

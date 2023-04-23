@@ -50,8 +50,8 @@ export class Context {
   callbacks: { (): void }[];
 
   graph: Graph;
-  controls: any;
-  activeContext: any;
+  controls: Controls;
+  activeContext: ModuleMenu;
   renderer: THREE.WebGLRenderer;
   labelRenderer: CSS2DRenderer;
 
@@ -330,11 +330,15 @@ export class Context {
     //Metro.toast.create(message, null, null, null, null);
   }
 
-  toJSON(): JSONObject {
-    const json: JSONObject = {};
-    json.graph = this.graph.toJSON();
-    for (const menu of this.menus.keys())
-      json[menu] = this.menus.get(menu).toJSON();
+  toJSON(selection: JSONObject): JSONObject {
+    const json: JSONObject = {
+      graph: this.graph.toJSON(),
+      active: this.activeContext?.elementId,
+    };
+    for (const menu of this.menus.keys()) {
+      if (!selection[menu]) continue;
+      json[menu] = this.menus.get(menu).toJSON(<JSONObject>selection[menu]);
+    }
     return json;
   }
 
@@ -343,9 +347,14 @@ export class Context {
     this.graph.loadJSON(json.graph);
     for (const menu of this.menus.keys()) {
       this.menus.get(menu).reset();
-      this.menus.get(menu).loadJSON(json[menu]);
+      const mJson = json[menu];
+      mJson && this.menus.get(menu).loadJSON(mJson);
     }
-    this.activeContext && this.activeContext.regenerateVisible();
+    if (!this.activeContext && json.active) {
+      this.menus.get(json.active).activate();
+      this.activeContext = <ModuleMenu>this.menus.get(json.active);
+    }
+    this.activeContext && this.activeContext.activate();
   }
 
   /**

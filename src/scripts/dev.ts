@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import { Relaxer } from './models/relaxer';
 import { createRoot } from 'react-dom/client';
 import { Cylinder, CylinderBundle } from './models/cylinder_model';
+import { FileMenu } from './scene/file_menu';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -34,14 +35,14 @@ export function dev(context: Context) {
   context.setGraph(graph);
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
-  cc.addWires();
-  cc.addCylinders();
-  cc.addNucleotides();
+  //cc.addWires();
+  //cc.addCylinders();
+  //cc.addNucleotides();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
-  //atrail.addWires();
-  //atrail.addCylinders();
-  //atrail.addNucleotides();
+  atrail.addWires();
+  atrail.addCylinders();
+  atrail.addNucleotides();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
@@ -63,6 +64,10 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
-  const json = JSON.stringify(context.toJSON());
+  const json = JSON.stringify(
+    context.toJSON({ atrail: { wires: true, cm: true, nm: true } })
+  );
   context.loadJSON(JSON.parse(json));
+
+  (<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
 }
