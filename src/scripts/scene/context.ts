@@ -332,7 +332,7 @@ export class Context {
 
   toJSON(selection: JSONObject): JSONObject {
     const json: JSONObject = {
-      graph: this.graph.toJSON(),
+      graph: this.graph?.toJSON(),
       active: this.activeContext?.elementId,
     };
     for (const menu of this.menus.keys()) {
@@ -343,10 +343,8 @@ export class Context {
   }
 
   loadJSON(json: any) {
-    this.graph = new Graph();
-    this.graph.loadJSON(json.graph);
+    json.graph && this.setGraph(Graph.loadJSON(json.graph));
     for (const menu of this.menus.keys()) {
-      this.menus.get(menu).reset();
       const mJson = json[menu];
       mJson && this.menus.get(menu).loadJSON(mJson);
     }
@@ -362,6 +360,7 @@ export class Context {
    *
    */
   reset() {
+    this.graph = null;
     for (const ctx of this.menus.values()) ctx.reset();
     this.activeContext = null;
   }
@@ -372,8 +371,9 @@ export class Context {
    * @param graph
    */
   setGraph(graph: Graph) {
-    this.graph = graph;
     this.reset();
+    this.graph = graph;
+    for (const ctx of this.menus.values()) ctx.isGlobal && ctx.activate();
     this.addMessage(
       `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${
         graph.getEdges().length

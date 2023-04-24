@@ -135,7 +135,18 @@ export class ATrailMenu extends ModuleMenu {
 
   loadParameters(json: JSONObject) {
     super.loadParameters(json);
-    console.log(json);
+
+    this.scaleInput[0].value = 1 / <number>json.scale;
+    this.linkersMinInput[0].value = json.minLinkers;
+    this.linkersMaxInput[0].value = json.maxLinkers;
+
+    this.strandLengthMaxInput[0].value = json.maxStrandLength;
+    this.strandLengthMinInput[0].value = json.minStrandLength;
+    this.addNicksSwitch[0].checked = json.addNicks;
+    this.atrailScaffold[0].value = json.scaffoldName;
+    this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
+    this.scaffoldStartInput[0].value = json.scaffoldStart;
+    this.gcContentInput[0].value = <number>json.gcContent * 100;
   }
 
   setupEventListeners() {

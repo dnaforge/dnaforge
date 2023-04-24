@@ -7,6 +7,8 @@ import { Menu, MenuParameters } from '../scene/menu';
 import * as React from 'react';
 import { downloadTXT } from '../io/download';
 
+//TODO: make a separate selection handler class
+
 //TODO: Get rid of the question marks.
 export interface ModuleMenuParameters extends MenuParameters {
   naType?: 'DNA' | 'RNA';
@@ -155,6 +157,12 @@ export abstract class ModuleMenu extends Menu {
   }
 
   toJSON(selection: JSONObject): JSONObject {
+    this.collectParameters();
+
+    this.showWires = this.wires && this.showWires; // ugly hacks to prevent always creating the models on context switch
+    this.showCylinders = this.cm && this.showCylinders; // TODO: find another solution. Starting to be a recurring problem.
+    this.showNucleotides = this.nm && this.showNucleotides;
+
     const params = this.params as JSONObject;
     const wires = selection['wires'] && this.wires && this.wires.toJSON();
     const cm = selection['cm'] && this.cm && this.cm.toJSON();
@@ -489,6 +497,8 @@ export abstract class ModuleMenu extends Menu {
    * Collect all user parameters from the HTML elements.
    */
   collectParameters() {
+    super.collectParameters();
+
     this.showWires = this.wiresButton[0].checked;
     this.showCylinders = this.cylindersButton[0].checked;
     this.showNucleotides = this.nucleotidesButton[0].checked;
@@ -496,6 +506,10 @@ export abstract class ModuleMenu extends Menu {
 
   loadParameters(json: JSONObject) {
     super.loadParameters(json);
+
+    this.wiresButton[0].checked = this.showWires;
+    this.cylindersButton[0].checked = this.showCylinders;
+    this.nucleotidesButton[0].checked = this.showNucleotides;
   }
 
   download() {

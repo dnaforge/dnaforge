@@ -41,8 +41,8 @@ export class CycleCover extends WiresModel {
     const visited = new Set<HalfEdge>();
     for (let jCycle of json.cycles) {
       const cycle: HalfEdge[] = [];
-      for (let i = 1; i < jCycle.length + 1; i++) {
-        const cur = idToVert.get(jCycle[i - 1]);
+      for (let i = 0; i < jCycle.length; i++) {
+        const cur = idToVert.get(jCycle[i]);
         const next = idToVert.get(jCycle[(i + 1) % jCycle.length]);
 
         let edges = cur.getCommonEdges(next);
@@ -59,6 +59,9 @@ export class CycleCover extends WiresModel {
       }
       cycles.push(cycle);
     }
+
+    console.log(cc);
+
     return cc;
   }
 

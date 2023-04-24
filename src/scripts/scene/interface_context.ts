@@ -62,6 +62,13 @@ export class InterfaceMenu extends Menu {
     this.regenerateVisible();
   }
 
+  /**
+   * Activate this context.
+   */
+  activate() {
+    this.regenerateVisible();
+  }
+
   toJSON(): JSONObject {
     return {};
   }
@@ -118,7 +125,6 @@ export class InterfaceMenu extends Menu {
     this.removeWires(true);
     this.removeMesh(true);
     this.removeVertexIndices();
-    this.regenerateVisible();
   }
 
   /**

@@ -39,6 +39,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.reset();
     this.collectParameters();
 
+    json.params && this.loadParameters(json.params);
     this.wires =
       json.wires && Veneziano.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
@@ -98,6 +99,18 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
     this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
+  }
+
+  loadParameters(json: JSONObject) {
+    super.loadParameters(json);
+
+    this.scaleInput[0].value = 1 / <number>json.scale;
+
+    this.addNicksSwitch[0].checked = json.addNicks;
+    this.venezianoScaffold[0].value = json.scaffoldName;
+    this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
+    this.scaffoldStartInput[0].value = json.scaffoldStart;
+    this.gcContentInput[0].value = <number>json.gcContent * 100;
   }
 
   setupEventListeners() {

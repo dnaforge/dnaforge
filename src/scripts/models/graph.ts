@@ -379,7 +379,9 @@ class Graph {
     return json;
   }
 
-  loadJSON(json: any) {
+  static loadJSON(json: any) {
+    const g = new Graph();
+
     const iToV = new Map<number, Vertex>();
     const iToE = new Map<number, Edge>();
 
@@ -388,7 +390,7 @@ class Graph {
       const id = v.id;
       const coords = new Vector3(...v.coords);
       const normal = new Vector3(...v.normal);
-      const vertex = this.addVertex(coords, normal, id);
+      const vertex = g.addVertex(coords, normal, id);
       iToV.set(i, vertex);
     }
     for (let i = 0; i < json.edges.length; i++) {
@@ -398,7 +400,7 @@ class Graph {
         return iToV.get(vid);
       });
       const normal = new Vector3(...e.normal);
-      const edge = this.addEdge(verts[0], verts[1], normal, id);
+      const edge = g.addEdge(verts[0], verts[1], normal, id);
       iToE.set(i, edge);
     }
     for (let i = 0; i < json.faces.length; i++) {
@@ -408,8 +410,10 @@ class Graph {
         return iToE.get(eid);
       });
       const normal = new Vector3(...f.normal);
-      this.addFace(edges, normal, id);
+      g.addFace(edges, normal, id);
     }
+
+    return g;
   }
 
   // Doesn't work on multigraphs

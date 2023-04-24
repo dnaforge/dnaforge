@@ -41,3 +41,26 @@
         <button class="button primary js-dialog-close" id="file-download-json">Download JSON</button>
     </div>
 </div>
+
+<div class="dialog" data-role="dialog" id="open-file-1">
+    <div class="dialog-title">Open file</div>
+    <div class="dialog-content">
+        <input type="file" data-role="file" data-mode="drop" id="file-input">
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="file-input-open">Open</button>
+    </div>
+</div>
+
+<div class="dialog" data-role="dialog" id="open-file-example">
+    <div class="dialog-title">Open file</div>
+    <div class="dialog-content">
+        <ul data-role="listview" data-view="content" data-select-node="true" id="file-input-example">
+        </ul>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="file-input-example-open">Open</button>
+    </div>
+</div>

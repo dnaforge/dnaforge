@@ -35,6 +35,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.reset();
     this.collectParameters();
 
+    json.params && this.loadParameters(json.params);
     this.wires =
       json.wires && CycleCover.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
@@ -83,6 +84,19 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
     this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
     this.params.addNicks = this.addNicksSwitch[0].checked;
+  }
+
+  loadParameters(json: JSONObject) {
+    super.loadParameters(json);
+
+    this.scaleInput[0].value = 1 / <number>json.scale;
+    this.linkersMinInput[0].value = json.minLinkers;
+    this.linkersMaxInput[0].value = json.maxLinkers;
+
+    this.gcContentInput[0].value = <number>json.gcContent * 100;
+    this.strandLengthMaxInput[0].value = json.maxStrandLength;
+    this.strandLengthMinInput[0].value = json.minStrandLength;
+    this.addNicksSwitch[0].checked = json.addNicks;
   }
 
   setupEventListeners() {

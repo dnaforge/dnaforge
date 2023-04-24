@@ -37,6 +37,7 @@ export class SternaMenu extends ModuleMenu {
     this.reset();
     this.collectParameters();
 
+    json.params && this.loadParameters(json.params);
     this.wires = json.wires && Sterna.loadJSON(this.context.graph, json.wires);
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
@@ -106,6 +107,17 @@ export class SternaMenu extends ModuleMenu {
 
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
     this.params.addNicks = this.addNicksSwitch[0].checked;
+  }
+
+  loadParameters(json: JSONObject) {
+    super.loadParameters(json);
+
+    this.scaleInput[0].value = 1 / <number>json.scale;
+    this.linkersMinInput[0].value = json.minLinkers;
+    this.linkersMaxInput[0].value = json.maxLinkers;
+
+    this.gcContentInput[0].value = <number>json.gcContent * 100;
+    this.addNicksSwitch[0].checked = json.addNicks;
   }
 
   setupEventListeners() {

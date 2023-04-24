@@ -17,6 +17,9 @@ import { FileMenu } from './scene/file_menu';
  * Used for testing while developing. Does not get compiled to the final product.
  */
 export function dev(context: Context) {
+  return;
+  window.context = <any>context;
+
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');
@@ -31,18 +34,18 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
   context.setGraph(graph);
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
-  //cc.addWires();
-  //cc.addCylinders();
+  cc.addWires();
+  cc.addCylinders();
   //cc.addNucleotides();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
-  atrail.addWires();
-  atrail.addCylinders();
-  atrail.addNucleotides();
+  //atrail.addWires();
+  //atrail.addCylinders();
+  //atrail.addNucleotides();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
@@ -65,9 +68,9 @@ export function dev(context: Context) {
   //const r = new Relaxer(cm);
 
   const json = JSON.stringify(
-    context.toJSON({ atrail: { wires: true, cm: true, nm: true } })
+    context.toJSON({ 'cycle-cover': { wires: true, cm: true, nm: true } })
   );
   context.loadJSON(JSON.parse(json));
 
-  (<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
+  //(<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
 }

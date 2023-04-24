@@ -328,7 +328,6 @@ function createCylinder(cm: CylinderModel, halfEdge: HalfEdge) {
   let length =
     Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
     1;
-  if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
   if (length < 1)
     throw `Cylinder length is zero nucleotides. Scale is too small.`;
 
