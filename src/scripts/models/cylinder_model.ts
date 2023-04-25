@@ -532,28 +532,36 @@ class CylinderModel {
 
   static loadJSON(json: any) {
     const indexToCyl = new Map<number, Cylinder>();
+    const bundles = new Map<number, CylinderBundle>();
     const cm = new CylinderModel(json.scale, json.naType);
-    for (let c of json.cylinders) {
-      const id = c.id;
+    for (let jCyl of json.cylinders) {
+      const id = jCyl.id;
       const cyl = new Cylinder(
         id,
-        c.length,
-        c.scale,
-        c.naType,
-        c.routingStrategy
+        jCyl.length,
+        jCyl.scale,
+        jCyl.naType,
+        jCyl.routingStrategy
       );
-      const transform = new Matrix4().fromArray(c.transform);
+      const transform = new Matrix4().fromArray(jCyl.transform);
       cyl.transform = transform;
       cm.addCylinders(cyl);
       indexToCyl.set(id, cyl);
 
-      for (const prime of Object.keys(c.neighbours)) {
-        const cyl2 = indexToCyl.get(c.neighbours[prime][0]);
+      for (const prime of Object.keys(jCyl.neighbours)) {
+        const cyl2 = indexToCyl.get(jCyl.neighbours[prime][0]);
         if (cyl2) {
-          const prime2 = c.neighbours[prime][1];
+          const prime2 = jCyl.neighbours[prime][1];
           cyl.neighbours[<PrimePos>prime] = [cyl2, prime2];
           cyl2.neighbours[<PrimePos>prime2] = [cyl, <PrimePos>prime];
         }
+      }
+
+      if(jCyl.bundle){
+        const bundle = bundles.get(id) || new CylinderBundle();
+        bundle.isRigid = jCyl.bundle.isRigid;
+        for(let id2 of jCyl.bundle.cylinders) bundles.set(id2, bundle);
+        bundle.push(cyl);
       }
     }
     return cm;
