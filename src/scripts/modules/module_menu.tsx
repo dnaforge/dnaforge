@@ -24,7 +24,14 @@ export interface ModuleMenuParameters extends MenuParameters {
   customScaffold?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
-}
+};
+
+export interface RelaxParameters {
+  iterations: number;
+  floorConstraints: boolean;
+  bundleConstraints: boolean;
+  springConstraints: boolean;
+};
 
 class CylinderSelection extends React.Component<
   { cm: CylinderModel },
