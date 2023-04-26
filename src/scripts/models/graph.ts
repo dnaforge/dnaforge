@@ -642,8 +642,8 @@ class Graph {
     if (face) {
       face.edges.splice(face.edges.indexOf(edge), 1, newEdge);
       newEdge.addFace(face);
-      this.addFace([newEdge, edge]);
     }
+    this.addFace([newEdge, edge]);
 
     return newEdge;
   }
