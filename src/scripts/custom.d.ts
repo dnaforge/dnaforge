@@ -16,10 +16,8 @@ declare module '*.htm' {
   export default content;
 }
 
-type JSONValue = string | number | boolean | JSONObject | JSONArray;
+type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
 
 interface JSONObject {
   [x: string]: JSONValue;
 }
-
-interface JSONArray extends Array<JSONValue> {}

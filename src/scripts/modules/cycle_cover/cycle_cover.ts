@@ -36,18 +36,18 @@ export class CycleCover extends WiresModel {
     cc.cycles = cycles;
 
     const idToVert = new Map<number, Vertex>();
-    for (let v of graph.getVertices()) idToVert.set(v.id, v);
+    for (const v of graph.getVertices()) idToVert.set(v.id, v);
 
     const visited = new Set<HalfEdge>();
-    for (let jCycle of json.cycles) {
+    for (const jCycle of json.cycles) {
       const cycle: HalfEdge[] = [];
       for (let i = 0; i < jCycle.length; i++) {
         const cur = idToVert.get(jCycle[i]);
         const next = idToVert.get(jCycle[(i + 1) % jCycle.length]);
 
-        let edges = cur.getCommonEdges(next);
+        const edges = cur.getCommonEdges(next);
         let halfEdge;
-        for (let edge of edges) {
+        for (const edge of edges) {
           halfEdge =
             edge.halfEdges[0].vertex == next
               ? edge.halfEdges[0]

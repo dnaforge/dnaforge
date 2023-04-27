@@ -7,6 +7,10 @@ import { Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { ATrail, cylindersToNucleotides, wiresToCylinders } from './atrail';
 import { ATrailParameters } from './atrail_menu';
+const x3 = require('../../../test/test_shapes/3x3.obj');
+const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+const x4 = require('../../../test/test_shapes/4x4.obj');
+const plane = require('../../../test/test_shapes/plane.obj');
 
 function getParams(): ATrailParameters {
   return {
@@ -16,12 +20,6 @@ function getParams(): ATrailParameters {
 }
 
 describe('Atrail-routing', function () {
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x4 = require('../../../test/test_shapes/4x4.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['4x4', x4],
@@ -33,8 +31,6 @@ describe('Atrail-routing', function () {
   let atrail: ATrail;
   let graph: Graph;
   let trail: HalfEdge[];
-
-  beforeEach(function namedFun() {});
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should be directed: ${g[0]}`, function () {
@@ -108,10 +104,6 @@ describe('Atrail-routing', function () {
 });
 
 describe('Atrail Cylinder Model', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x4 = require('../../../test/test_shapes/4x4.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['4x4', x4],
@@ -171,10 +163,6 @@ describe('Atrail Cylinder Model', function () {
 });
 
 describe('Atrail Nucleotide Model', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x4 = require('../../../test/test_shapes/4x4.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['4x4', x4],

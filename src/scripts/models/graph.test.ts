@@ -1,15 +1,13 @@
 const assert = require('assert');
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../io/read_obj';
-import { Graph, HalfEdge } from './graph';
-
+import { Graph } from './graph';
+const tet = require('../../test/test_shapes/tetra.obj');
+const x3 = require('../../test/test_shapes/3x3.obj');
+const plane = require('../../test/test_shapes/plane.obj');
 
 describe('Graph - tetrahedron', function () {
-  const tet = require('../../test/test_shapes/tetra.obj');
   const graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
-
-  beforeEach(function namedFun() {});
 
   it(`Should have 4 vertices`, function () {
     assert.equal(graph.getVertices().length == 4, true);
@@ -29,12 +27,9 @@ describe('Graph - tetrahedron', function () {
     const ce = v0.getCommonEdges(v1);
     assert.equal(ce.length == 1, true);
   });
-
 });
 
-
 describe('Graph - 3x3', function () {
-  const x3 = require('../../test/test_shapes/3x3.obj');
   const graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
 
   it(`Should have 27 vertices`, function () {
@@ -65,10 +60,6 @@ describe('Graph - 3x3', function () {
 });
 
 describe('Graph - edge splits', function () {
-  const tet = require('../../test/test_shapes/tetra.obj');
-  const x3 = require('../../test/test_shapes/3x3.obj');
-  const plane = require('../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -83,7 +74,7 @@ describe('Graph - edge splits', function () {
     it(`Edge count should double: ${g[0]}`, function () {
       graph = g[1].clone();
 
-      for(let e of graph.getEdges()) graph.splitEdge(e);
+      for (const e of graph.getEdges()) graph.splitEdge(e);
 
       assert.equal(g[1].getEdges().length * 2 == graph.getEdges().length, true);
     });
@@ -93,9 +84,13 @@ describe('Graph - edge splits', function () {
     it(`Face count should increase by |E|: ${g[0]}`, function () {
       graph = g[1].clone();
 
-      for(let e of graph.getEdges()) graph.splitEdge(e);
-      
-      assert.equal(g[1].getFaces().length + g[1].getEdges().length == graph.getFaces().length, true);
+      for (const e of graph.getEdges()) graph.splitEdge(e);
+
+      assert.equal(
+        g[1].getFaces().length + g[1].getEdges().length ==
+          graph.getFaces().length,
+        true
+      );
     });
   });
 
@@ -103,8 +98,8 @@ describe('Graph - edge splits', function () {
     it(`Edge count should quadruple: ${g[0]}`, function () {
       graph = g[1].clone();
 
-      for(let e of graph.getEdges()) graph.splitEdge(e);
-      for(let e of graph.getEdges()) graph.splitEdge(e);
+      for (const e of graph.getEdges()) graph.splitEdge(e);
+      for (const e of graph.getEdges()) graph.splitEdge(e);
 
       assert.equal(g[1].getEdges().length * 4 == graph.getEdges().length, true);
     });
@@ -114,10 +109,12 @@ describe('Graph - edge splits', function () {
     it(`Vertex count should remain the same: ${g[0]}`, function () {
       graph = g[1].clone();
 
-      for(let e of graph.getEdges()) graph.splitEdge(e);
+      for (const e of graph.getEdges()) graph.splitEdge(e);
 
-      assert.equal(g[1].getVertices().length == graph.getVertices().length, true);
+      assert.equal(
+        g[1].getVertices().length == graph.getVertices().length,
+        true
+      );
     });
   });
-
 });

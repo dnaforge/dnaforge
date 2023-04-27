@@ -8,11 +8,7 @@ import {
   PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
-import {
-  Nucleotide,
-  Strand,
-  NucleotideModel,
-} from '../../models/nucleotide_model';
+import { Strand, NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
@@ -40,7 +36,7 @@ export class ATrail extends WiresModel {
 
   toJSON(): JSONObject {
     const trail = [this.trail[0].twin.vertex.id];
-    for (let he of this.trail) {
+    for (const he of this.trail) {
       trail.push(he.vertex.id);
     }
     return { trail: trail };
@@ -274,14 +270,14 @@ export class ATrail extends WiresModel {
 
   setATrail(trail: Array<number>) {
     const idToVert = new Map<number, Vertex>();
-    for (let v of this.graph.getVertices()) idToVert.set(v.id, v);
+    for (const v of this.graph.getVertices()) idToVert.set(v.id, v);
     const visited = new Set();
     const trailEdges: HalfEdge[] = [];
     for (let i = 1; i < trail.length; i++) {
       const cur = idToVert.get(trail[i - 1]);
       const next = idToVert.get(trail[i]);
 
-      let edges = cur.getCommonEdges(next);
+      const edges = cur.getCommonEdges(next);
       if (edges.length == 0) throw `No such edge: ${[trail[i - 1], trail[i]]}`;
 
       let edge;
@@ -411,7 +407,7 @@ export function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
       if (!edgeToBundle.get(ces[0])) {
         const b = new CylinderBundle();
         b.isRigid = false;
-        for (let e of ces) {
+        for (const e of ces) {
           edgeToBundle.set(e, b);
         }
       }
@@ -547,7 +543,7 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
 
   cyl.bundle.isRigid = true;
 
-  for (let c of cyl.bundle.cylinders)
+  for (const c of cyl.bundle.cylinders)
     c.routingStrategy = RoutingStrategy.Reinforced;
 }
 
@@ -575,7 +571,7 @@ function connectReinforcedNucleotides(
   };
 
   const visited = new Set<CylinderBundle>();
-  for (let cyl of cm.cylinders) {
+  for (const cyl of cm.cylinders) {
     const b = cyl.bundle;
     if (
       !b ||

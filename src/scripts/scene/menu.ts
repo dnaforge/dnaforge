@@ -1,7 +1,4 @@
-import { createRoot } from 'react-dom/client';
 import { Context } from './context';
-
-const selectionMenu = createRoot($(`#selection-menu`)[0]);
 
 interface MenuParameters {}
 
@@ -19,8 +16,6 @@ export abstract class Menu {
   hotkeys = new Map();
   params: MenuParameters = {};
   scene: THREE.Scene;
-
-  selectionMenu: any;
 
   /**
    * All menus should inherit from this class. Registers the menu with main context and allows it to be
@@ -156,7 +151,5 @@ export abstract class Menu {
   /**
    * Connects the HTML elements to this object.
    */
-  setupEventListeners() {
-    this.selectionMenu = selectionMenu;
-  }
+  setupEventListeners() {}
 }

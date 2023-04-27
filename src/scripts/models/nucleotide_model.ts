@@ -422,7 +422,7 @@ class Strand {
     s.isScaffold = json.isScaffold;
     s.isLinker = json.isLinker;
     s.isPseudo = json.isPseudo;
-    for (let n of json.nucleotides) {
+    for (const n of json.nucleotides) {
       s.addNucleotides(Nucleotide.loadJSON(n));
     }
     return s;
@@ -595,7 +595,7 @@ class NucleotideModel {
   static loadJSON(json: any) {
     const nm = new NucleotideModel(json.scale, json.naType);
     const idToStrand = new Map<number, Strand>();
-    for (let s of json.strands) {
+    for (const s of json.strands) {
       const strand = Strand.loadJSON(s);
       idToStrand.set(strand.instanceId, strand);
       if (s.pair && idToStrand.get(s.pair)) {
@@ -604,8 +604,8 @@ class NucleotideModel {
       }
       nm.addStrand(strand);
 
-      for (let n of strand.nucleotides) nm.instanceToNuc.set(n.instanceId, n);
-      for (let n of s.nucleotides) {
+      for (const n of strand.nucleotides) nm.instanceToNuc.set(n.instanceId, n);
+      for (const n of s.nucleotides) {
         if (nm.instanceToNuc.get(n.pair)) {
           nm.instanceToNuc.get(n.pair).pair = nm.instanceToNuc.get(n.id);
           nm.instanceToNuc.get(n.id).pair = nm.instanceToNuc.get(n.pair);
@@ -1279,7 +1279,7 @@ class NucleotideModel {
    */
   select5p(onlyScaffold = true) {
     if (onlyScaffold) {
-      let scaffold = this.getScaffold();
+      const scaffold = this.getScaffold();
       if (!scaffold) return;
 
       const n = scaffold.nucleotides[0];

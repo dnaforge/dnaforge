@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel, PrimePos } from '../../models/cylinder_model';
-import { Edge, Graph, HalfEdge } from '../../models/graph';
+import { Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { STParameters } from './spanning_tree_menu';
 import {
@@ -11,6 +11,9 @@ import {
   Veneziano,
   wiresToCylinders,
 } from './veneziano';
+const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+const x3 = require('../../../test/test_shapes/3x3.obj');
+const plane = require('../../../test/test_shapes/plane.obj');
 
 function getParams(): STParameters {
   return {
@@ -20,10 +23,6 @@ function getParams(): STParameters {
 }
 
 describe('Spanning tree-routing', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -59,10 +58,6 @@ describe('Spanning tree-routing', function () {
 });
 
 describe('Spanning Tree Cylinder Model', function () {
-  const tet = require('../../../test/test_shapes/tetra.obj');
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -124,10 +119,6 @@ describe('Spanning Tree Cylinder Model', function () {
 });
 
 describe('Spanning Tree Nucleotide Model', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],

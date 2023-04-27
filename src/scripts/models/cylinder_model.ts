@@ -67,7 +67,7 @@ export class CylinderBundle {
   }
 
   push(...cylinders: Cylinder[]) {
-    for (let cyl of cylinders) {
+    for (const cyl of cylinders) {
       this.cylinders.push(cyl);
       cyl.bundle = this;
       this.length++;
@@ -386,7 +386,7 @@ class Cylinder {
    */
   getPrimePairs(): [Vector3, Vector3][] {
     const pairs: [Vector3, Vector3][] = [];
-    for (let pp of Object.values(PrimePos)) {
+    for (const pp of Object.values(PrimePos)) {
       const p1 = this.getPrimePosition(pp);
       const p2 = this.getPairPrimePosition(pp);
       pairs.push([p1, p2]);
@@ -534,7 +534,7 @@ class CylinderModel {
     const indexToCyl = new Map<number, Cylinder>();
     const bundles = new Map<number, CylinderBundle>();
     const cm = new CylinderModel(json.scale, json.naType);
-    for (let jCyl of json.cylinders) {
+    for (const jCyl of json.cylinders) {
       const id = jCyl.id;
       const cyl = new Cylinder(
         id,
@@ -557,10 +557,10 @@ class CylinderModel {
         }
       }
 
-      if(jCyl.bundle){
+      if (jCyl.bundle) {
         const bundle = bundles.get(id) || new CylinderBundle();
         bundle.isRigid = jCyl.bundle.isRigid;
-        for(let id2 of jCyl.bundle.cylinders) bundles.set(id2, bundle);
+        for (const id2 of jCyl.bundle.cylinders) bundles.set(id2, bundle);
         bundle.push(cyl);
       }
     }
@@ -629,7 +629,7 @@ class CylinderModel {
       });
 
     let min_angle = Math.PI;
-    for (let n of neighbours) {
+    for (const n of neighbours) {
       if (n == v2 && greedy) break;
       else if (n == v2) continue;
       const dirN = n.coords.clone().sub(v1.coords);
@@ -829,9 +829,9 @@ class CylinderModel {
    */
   calculateRelaxScore() {
     let score = 0;
-    for (let cyl of this.cylinders) {
+    for (const cyl of this.cylinders) {
       const primes = cyl.getPrimePairs();
-      for (let [p1, p2] of primes) {
+      for (const [p1, p2] of primes) {
         if (!p1 || !p2) continue;
         score += p2.sub(p1).length();
       }

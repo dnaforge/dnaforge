@@ -234,7 +234,7 @@ class Edge {
   }
 
   isSplit(): boolean {
-    for (let f of this.faces) {
+    for (const f of this.faces) {
       if (f.isSplit()) return true;
     }
     return false;

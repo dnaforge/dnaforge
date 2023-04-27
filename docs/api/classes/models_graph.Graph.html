@@ -21,7 +21,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">Graph</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L329">src/scripts/models/graph.ts:329</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L326">src/scripts/models/graph.ts:326</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -47,7 +47,6 @@
 <a href="models_graph.Graph.html#clone" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>clone</span></a>
 <a href="models_graph.Graph.html#dijkstra" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>dijkstra</span></a>
 <a href="models_graph.Graph.html#flipNormals" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>flip<wbr/>Normals</span></a>
-<a href="models_graph.Graph.html#getEdge" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Edge</span></a>
 <a href="models_graph.Graph.html#getEdges" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Edges</span></a>
 <a href="models_graph.Graph.html#getFaces" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Faces</span></a>
 <a href="models_graph.Graph.html#getVertices" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Vertices</span></a>
@@ -55,7 +54,10 @@
 <a href="models_graph.Graph.html#isEulerian" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>is<wbr/>Eulerian</span></a>
 <a href="models_graph.Graph.html#isPlanar" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>is<wbr/>Planar</span></a>
 <a href="models_graph.Graph.html#makeEulerian" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>make<wbr/>Eulerian</span></a>
+<a href="models_graph.Graph.html#splitEdge" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>split<wbr/>Edge</span></a>
 <a href="models_graph.Graph.html#test" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>test</span></a>
+<a href="models_graph.Graph.html#toJSON" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>toJSON</span></a>
+<a href="models_graph.Graph.html#loadJSON" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>loadJSON</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
@@ -71,23 +73,23 @@
 <h3 class="tsd-anchor-link"><span>edges</span><a href="#edges" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">edges<span class="tsd-signature-symbol">:</span> <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L331">src/scripts/models/graph.ts:331</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L328">src/scripts/models/graph.ts:328</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="faces" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>faces</span><a href="#faces" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">faces<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Face</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L332">src/scripts/models/graph.ts:332</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L329">src/scripts/models/graph.ts:329</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="vertices" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>vertices</span><a href="#vertices" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">vertices<span class="tsd-signature-symbol">:</span> <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L330">src/scripts/models/graph.ts:330</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L327">src/scripts/models/graph.ts:327</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addEdge" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Edge</span><a href="#addEdge" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="addEdge.addEdge-1">add<wbr/>Edge<span class="tsd-signature-symbol">(</span>v1<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a>, v2<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a>, normal<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><a href="#addEdge.addEdge-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="addEdge.addEdge-1">add<wbr/>Edge<span class="tsd-signature-symbol">(</span>v1<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a>, v2<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a>, normal<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Vector3</span>, id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><a href="#addEdge.addEdge-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -97,27 +99,33 @@
 <li>
 <h5>v2: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5></li>
 <li>
-<h5>normal: <span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol"> = undefined</span></h5></li></ul></div>
+<h5>normal: <span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol"> = undefined</span></h5></li>
+<li>
+<h5>id: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = ...</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L448">src/scripts/models/graph.ts:448</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L537">src/scripts/models/graph.ts:537</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addFace" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Face</span><a href="#addFace" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="addFace.addFace-1">add<wbr/>Face<span class="tsd-signature-symbol">(</span>edges<span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Face</span><a href="#addFace.addFace-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="addFace.addFace-1">add<wbr/>Face<span class="tsd-signature-symbol">(</span>edges<span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span>, normal<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Vector3</span>, id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Face</span><a href="#addFace.addFace-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>edges: <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h5>edges: <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span></h5></li>
+<li>
+<h5>normal: <span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol"> = undefined</span></h5></li>
+<li>
+<h5>id: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = ...</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Face</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L461">src/scripts/models/graph.ts:461</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L550">src/scripts/models/graph.ts:550</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addVertex" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Vertex</span><a href="#addVertex" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="addVertex.addVertex-1">add<wbr/>Vertex<span class="tsd-signature-symbol">(</span>coords<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span>, normal<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><a href="#addVertex.addVertex-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="addVertex.addVertex-1">add<wbr/>Vertex<span class="tsd-signature-symbol">(</span>coords<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Vector3</span>, normal<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Vector3</span>, id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><a href="#addVertex.addVertex-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -125,10 +133,12 @@
 <li>
 <h5>coords: <span class="tsd-signature-type">Vector3</span></h5></li>
 <li>
-<h5>normal: <span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol"> = undefined</span></h5></li></ul></div>
+<h5>normal: <span class="tsd-signature-type">Vector3</span><span class="tsd-signature-symbol"> = undefined</span></h5></li>
+<li>
+<h5>id: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = ...</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L442">src/scripts/models/graph.ts:442</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L527">src/scripts/models/graph.ts:527</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="calculateNormals" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>calculate<wbr/>Normals</span><a href="#calculateNormals" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -136,7 +146,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L336">src/scripts/models/graph.ts:336</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L421">src/scripts/models/graph.ts:421</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="calculateNormalsOutside" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>calculate<wbr/>Normals<wbr/>Outside</span><a href="#calculateNormalsOutside" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -144,7 +154,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L412">src/scripts/models/graph.ts:412</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L497">src/scripts/models/graph.ts:497</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="clone" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>clone</span><a href="#clone" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -152,7 +162,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L483">src/scripts/models/graph.ts:483</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L576">src/scripts/models/graph.ts:576</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="dijkstra" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>dijkstra</span><a href="#dijkstra" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -172,7 +182,7 @@
 <li class="tsd-parameter">
 <h5>path<span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span></h5></li></ul><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L516">src/scripts/models/graph.ts:516</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L601">src/scripts/models/graph.ts:601</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="flipNormals" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>flip<wbr/>Normals</span><a href="#flipNormals" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -180,22 +190,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L424">src/scripts/models/graph.ts:424</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getEdge" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>get<wbr/>Edge</span><a href="#getEdge" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getEdge.getEdge-1">get<wbr/>Edge<span class="tsd-signature-symbol">(</span>v1<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a>, v2<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><a href="#getEdge.getEdge-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5>v1: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5></li>
-<li>
-<h5>v2: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L456">src/scripts/models/graph.ts:456</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L509">src/scripts/models/graph.ts:509</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getEdges" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Edges</span><a href="#getEdges" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -203,7 +198,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L434">src/scripts/models/graph.ts:434</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L519">src/scripts/models/graph.ts:519</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getFaces" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Faces</span><a href="#getFaces" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -211,7 +206,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Face</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L438">src/scripts/models/graph.ts:438</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L523">src/scripts/models/graph.ts:523</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getVertices" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Vertices</span><a href="#getVertices" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -219,7 +214,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L430">src/scripts/models/graph.ts:430</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L515">src/scripts/models/graph.ts:515</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="hasFaceInformation" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Face<wbr/>Information</span><a href="#hasFaceInformation" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -227,7 +222,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L472">src/scripts/models/graph.ts:472</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L565">src/scripts/models/graph.ts:565</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="isEulerian" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Eulerian</span><a href="#isEulerian" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -235,7 +230,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L552">src/scripts/models/graph.ts:552</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L651">src/scripts/models/graph.ts:651</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="isPlanar" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Planar</span><a href="#isPlanar" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -243,7 +238,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L467">src/scripts/models/graph.ts:467</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L560">src/scripts/models/graph.ts:560</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="makeEulerian" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>make<wbr/>Eulerian</span><a href="#makeEulerian" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -251,7 +246,20 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span>length<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>path<span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L561">src/scripts/models/graph.ts:561</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L660">src/scripts/models/graph.ts:660</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="splitEdge" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>split<wbr/>Edge</span><a href="#splitEdge" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="splitEdge.splitEdge-1">split<wbr/>Edge<span class="tsd-signature-symbol">(</span>edge<span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><a href="#splitEdge.splitEdge-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>edge: <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L637">src/scripts/models/graph.ts:637</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="test" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>test</span><a href="#test" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -259,7 +267,28 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/graph.ts#L654">src/scripts/models/graph.ts:654</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L751">src/scripts/models/graph.ts:751</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="toJSON" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>toJSON</span><a href="#toJSON" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="toJSON.toJSON-1">toJSON<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/custom.JSONObject.html" class="tsd-signature-type" data-tsd-kind="Interface">JSONObject</a><a href="#toJSON.toJSON-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/custom.JSONObject.html" class="tsd-signature-type" data-tsd-kind="Interface">JSONObject</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L331">src/scripts/models/graph.ts:331</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="loadJSON" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>loadJSON</span><a href="#loadJSON" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="loadJSON.loadJSON-1">loadJSON<span class="tsd-signature-symbol">(</span>json<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a><a href="#loadJSON.loadJSON-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>json: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/graph.ts#L382">src/scripts/models/graph.ts:382</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -291,9 +320,12 @@
 <li class="tsd-kind-module"><a href="../modules/globals_scaffolds.html">globals/scaffolds</a></li>
 <li class="tsd-kind-module"><a href="../modules/index.html">index</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_download.html">io/download</a></li>
+<li class="tsd-kind-module"><a href="../modules/io_read_json.html">io/read_<wbr/>json</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_read_obj.html">io/read_<wbr/>obj</a></li>
+<li class="tsd-kind-module"><a href="../modules/io_read_ply.html">io/read_<wbr/>ply</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_cylinder_model.html">models/cylinder_<wbr/>model</a></li>
 <li class="current tsd-kind-module"><a href="../modules/models_graph.html">models/graph</a></li>
+<li class="tsd-kind-module"><a href="../modules/models_graph_test.html">models/graph.test</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_nucleotide_model.html">models/nucleotide_<wbr/>model</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_relaxer.html">models/relaxer</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_wires_model.html">models/wires_<wbr/>model</a></li>
@@ -334,7 +366,6 @@
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#clone" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>clone</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#dijkstra" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>dijkstra</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#flipNormals" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>flip<wbr/>Normals</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#getEdge" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Edge</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#getEdges" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Edges</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#getFaces" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Faces</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#getVertices" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Vertices</a></li>
@@ -342,7 +373,10 @@
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#isEulerian" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>is<wbr/>Eulerian</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#isPlanar" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>is<wbr/>Planar</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#makeEulerian" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>make<wbr/>Eulerian</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#test" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>test</a></li></ul></li></ul></nav></div></div>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#splitEdge" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>split<wbr/>Edge</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#test" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>test</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#toJSON" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>toJSON</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_graph.Graph.html#loadJSON" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>loadJSON</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
 <div class="overlay"></div><script src="../assets/main.js"></script></body></html>

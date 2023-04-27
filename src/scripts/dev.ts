@@ -9,7 +9,6 @@ import { CycleCoverMenu } from './modules/cycle_cover/cycle_cover_menu';
 import { SternaMenu } from './modules/sterna/sterna_menu';
 import * as _ from 'lodash';
 import { Relaxer } from './models/relaxer';
-import { createRoot } from 'react-dom/client';
 import { Cylinder, CylinderBundle } from './models/cylinder_model';
 import { FileMenu } from './scene/file_menu';
 
@@ -66,7 +65,9 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
-  const json = JSON.stringify(context.toJSON({ 'atrail': { wires: true, cm: true, nm: true } }));
+  const json = JSON.stringify(
+    context.toJSON({ atrail: { wires: true, cm: true, nm: true } })
+  );
   //const json = JSON.stringify(context.toJSON({ 'cycle-cover': { wires: true, cm: true, nm: true } }));
   context.loadJSON(JSON.parse(json));
 

@@ -35,17 +35,17 @@ export class Sterna {
 
   toJSON(): JSONObject {
     const st: number[] = [];
-    for (let e of this.st) st.push(e.id);
+    for (const e of this.st) st.push(e.id);
     return { st: st };
   }
 
   static loadJSON(graph: Graph, json: any) {
     const sterna = new Sterna(graph);
     const idToEdge = new Map<number, Edge>();
-    for (let e of graph.edges) idToEdge.set(e.id, e);
+    for (const e of graph.edges) idToEdge.set(e.id, e);
 
     sterna.st = new Set<Edge>();
-    for (let e of json.st) {
+    for (const e of json.st) {
       sterna.st.add(idToEdge.get(e));
     }
     sterna.trail = sterna.getSterna();
@@ -79,7 +79,7 @@ export class Sterna {
         neighbours = neighbours
           .slice(1 + neighbours.indexOf(curE))
           .concat(neighbours.slice(0, neighbours.indexOf(curE)));
-        for (let n of neighbours) stack.push(n.twin);
+        for (const n of neighbours) stack.push(n.twin);
       }
     }
     return route.slice(0, route.length - 1);
@@ -325,7 +325,7 @@ function createCylinder(cm: CylinderModel, halfEdge: HalfEdge) {
   const offset2 = cm.getVertexOffset(v2, v1);
   const p1 = v1.coords.clone().add(offset1).sub(inclination);
   const p2 = v2.coords.clone().add(offset2);
-  let length =
+  const length =
     Math.floor(p1.clone().sub(p2).length() / (cm.nucParams.RISE * cm.scale)) +
     1;
   if (length < 1)

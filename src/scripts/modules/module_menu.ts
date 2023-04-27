@@ -4,7 +4,6 @@ import { NucleotideModel } from '../models/nucleotide_model';
 import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
 import { Menu, MenuParameters } from '../scene/menu';
-import * as React from 'react';
 import { downloadTXT } from '../io/download';
 
 //TODO: make a separate selection handler class
@@ -24,91 +23,13 @@ export interface ModuleMenuParameters extends MenuParameters {
   customScaffold?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
-};
+}
 
 export interface RelaxParameters {
   iterations: number;
   floorConstraints: boolean;
   bundleConstraints: boolean;
   springConstraints: boolean;
-};
-
-class CylinderSelection extends React.Component<
-  { cm: CylinderModel },
-  Record<string, string>
-> {
-  cm: CylinderModel;
-  text = '';
-
-  constructor(props: { cm: CylinderModel }) {
-    super(props);
-    this.cm = props.cm;
-    this.state = { text: this.cylindersToText() };
-  }
-
-  cylindersToText() {
-    const cylinders = this.cm ? Array.from(this.cm.selection) : [];
-    const listItems = cylinders
-      .map((cyl) => {
-        return cyl.instanceId;
-      })
-      .join(' ');
-    return listItems;
-  }
-
-  shouldComponentUpdate(nextProps: { cm: CylinderModel }) {
-    this.cm = nextProps.cm;
-    const text = this.cylindersToText();
-    if ((this.state as any).text != text) {
-      this.setState({ text: text });
-      this.text = text;
-      return true;
-    }
-    return false;
-  }
-
-  render() {
-    return <textarea readOnly={true} value={(this.state as any).text} />;
-  }
-}
-
-class NucleotideSelection extends React.Component<
-  { nm: NucleotideModel },
-  Record<string, string>
-> {
-  nm: NucleotideModel;
-  text = '';
-
-  constructor(props: { nm: NucleotideModel }) {
-    super(props);
-    this.nm = props.nm;
-    this.state = { text: this.nucleotidesToText() };
-  }
-
-  nucleotidesToText() {
-    const nucs = this.nm ? Array.from(this.nm.selection) : [];
-    const listItems = nucs
-      .map((n) => {
-        return n.instanceId;
-      })
-      .join(' ');
-    return listItems;
-  }
-
-  shouldComponentUpdate(nextProps: { nm: NucleotideModel }) {
-    this.nm = nextProps.nm;
-    const text = this.nucleotidesToText();
-    if ((this.state as any).text != text) {
-      this.setState({ text: text });
-      this.text = text;
-      return true;
-    }
-    return false;
-  }
-
-  render() {
-    return <textarea readOnly={true} value={(this.state as any).text} />;
-  }
 }
 
 function setupHTML(html: string) {
@@ -235,7 +156,6 @@ export abstract class ModuleMenu extends Menu {
    */
   activate() {
     try {
-      this.handleSelection();
       this.regenerateVisible();
     } catch {} // regenerating structures should only fail if the input is faulty, so no need to catch anything
   }
@@ -256,8 +176,6 @@ export abstract class ModuleMenu extends Menu {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
-
-    this.handleSelection();
 
     // Prevents show-function from generating these after reset. TODO: find a better solution.
     this.showWires = false;
@@ -312,6 +230,7 @@ export abstract class ModuleMenu extends Menu {
   }
 
   handleSelection(): void {
+    /**
     this.selectionMenu.render(
       <div data-role="accordion" data-one-frame="true" data-show-active="true">
         <div className="frame">
@@ -328,6 +247,7 @@ export abstract class ModuleMenu extends Menu {
         </div>
       </div>
     );
+    */
   }
 
   createCylinderMenu() {
@@ -335,7 +255,8 @@ export abstract class ModuleMenu extends Menu {
     selection.attr('id', 'selection-cylinders');
     selection.attr('type', 'text');
     selection.attr('data-role', 'taginput');
-    this.selectionMenu.append(selection);
+    //this.selectionMenu.append(selection);
+
     return selection;
   }
 
@@ -347,7 +268,6 @@ export abstract class ModuleMenu extends Menu {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
-    this.handleSelection();
 
     this.collectParameters();
 
@@ -363,17 +283,12 @@ export abstract class ModuleMenu extends Menu {
     // remove old:
     this.removeCylinders(true);
     this.removeNucleotides(true);
-    this.handleSelection();
 
     this.collectParameters();
 
     if (!this.wires) this.generateWires();
 
     this.cm = this.wiresToCylinders(this.wires, this.params);
-    this.cm &&
-      this.cm.bindSelectionCallback(() => {
-        return this.handleSelection();
-      });
   }
 
   /**
@@ -382,17 +297,12 @@ export abstract class ModuleMenu extends Menu {
   generateNucleotideModel() {
     // remove old:
     this.removeNucleotides(true);
-    this.handleSelection();
 
     this.collectParameters();
 
     if (!this.cm) this.generateCylinderModel();
 
     this.nm = this.cylindersToNucleotides(this.cm, this.params);
-    this.nm &&
-      this.nm.bindSelectionCallback(() => {
-        return this.handleSelection();
-      });
     this.context.addMessage(
       `Created: ${this.nm.length()} nucleotides.`,
       'info'

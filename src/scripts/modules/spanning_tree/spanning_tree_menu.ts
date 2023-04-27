@@ -4,7 +4,6 @@ import {
   wiresToCylinders,
   cylindersToNucleotides,
 } from './veneziano';
-import { downloadTXT } from '../../io/download';
 import html from './spanning_tree_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { WiresModel } from '../../models/wires_model';

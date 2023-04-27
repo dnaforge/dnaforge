@@ -34,17 +34,17 @@ export class Veneziano {
 
   toJSON(): JSONObject {
     const st: number[] = [];
-    for (let e of this.st) st.push(e.id);
+    for (const e of this.st) st.push(e.id);
     return { st: st };
   }
 
   static loadJSON(graph: Graph, json: any) {
     const v = new Veneziano(graph);
     const idToEdge = new Map<number, Edge>();
-    for (let e of graph.edges) idToEdge.set(e.id, e);
+    for (const e of graph.edges) idToEdge.set(e.id, e);
 
     v.st = new Set<Edge>();
-    for (let e of json.st) {
+    for (const e of json.st) {
       v.st.add(idToEdge.get(e));
     }
     v.trail = v.getVeneziano();
@@ -73,7 +73,7 @@ export class Veneziano {
         neighbours = neighbours
           .slice(1 + neighbours.indexOf(curE))
           .concat(neighbours.slice(0, neighbours.indexOf(curE)));
-        for (let n of neighbours) stack.push(n.twin);
+        for (const n of neighbours) stack.push(n.twin);
       }
     }
     return route.slice(0, route.length - 1);

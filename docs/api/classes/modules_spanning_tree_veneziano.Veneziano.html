@@ -21,7 +21,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">Veneziano</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L16">src/scripts/modules/spanning_tree/veneziano.ts:16</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L22">src/scripts/modules/spanning_tree/veneziano.ts:22</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -42,11 +42,13 @@
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="modules_spanning_tree_veneziano.Veneziano.html#deselectAll" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>deselect<wbr/>All</span></a>
 <a href="modules_spanning_tree_veneziano.Veneziano.html#dispose" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>dispose</span></a>
+<a href="modules_spanning_tree_veneziano.Veneziano.html#getNeighbours" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Neighbours</span></a>
 <a href="modules_spanning_tree_veneziano.Veneziano.html#getObject" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Object</span></a>
 <a href="modules_spanning_tree_veneziano.Veneziano.html#getPrim" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Prim</span></a>
-<a href="modules_spanning_tree_veneziano.Veneziano.html#getRST" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>getRST</span></a>
 <a href="modules_spanning_tree_veneziano.Veneziano.html#getVeneziano" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Veneziano</span></a>
 <a href="modules_spanning_tree_veneziano.Veneziano.html#selectAll" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>select<wbr/>All</span></a>
+<a href="modules_spanning_tree_veneziano.Veneziano.html#toJSON" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>toJSON</span></a>
+<a href="modules_spanning_tree_veneziano.Veneziano.html#loadJSON" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>loadJSON</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
@@ -62,29 +64,29 @@
 <h5>graph: <a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="modules_spanning_tree_veneziano.Veneziano.html" class="tsd-signature-type" data-tsd-kind="Class">Veneziano</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L23">src/scripts/modules/spanning_tree/veneziano.ts:23</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L29">src/scripts/modules/spanning_tree/veneziano.ts:29</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="graph" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>graph</span><a href="#graph" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">graph<span class="tsd-signature-symbol">:</span> <a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L17">src/scripts/modules/spanning_tree/veneziano.ts:17</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L23">src/scripts/modules/spanning_tree/veneziano.ts:23</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="obj" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>obj</span><a href="#obj" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">obj<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">InstancedMesh</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">BufferGeometry</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Material</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Material</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L21">src/scripts/modules/spanning_tree/veneziano.ts:21</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L27">src/scripts/modules/spanning_tree/veneziano.ts:27</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="st" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>st</span><a href="#st" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">st<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L18">src/scripts/modules/spanning_tree/veneziano.ts:18</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L24">src/scripts/modules/spanning_tree/veneziano.ts:24</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="trail" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>trail</span><a href="#trail" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">trail<span class="tsd-signature-symbol">:</span> <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
+<div class="tsd-signature">trail<span class="tsd-signature-symbol">:</span> <a href="models_graph.HalfEdge.html" class="tsd-signature-type" data-tsd-kind="Class">HalfEdge</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L19">src/scripts/modules/spanning_tree/veneziano.ts:19</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L25">src/scripts/modules/spanning_tree/veneziano.ts:25</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="deselectAll" class="tsd-anchor"></a>
@@ -94,7 +96,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L155">src/scripts/modules/spanning_tree/veneziano.ts:155</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L198">src/scripts/modules/spanning_tree/veneziano.ts:198</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="dispose" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>dispose</span><a href="#dispose" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -102,7 +104,28 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L146">src/scripts/modules/spanning_tree/veneziano.ts:146</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L189">src/scripts/modules/spanning_tree/veneziano.ts:189</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getNeighbours" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Neighbours</span><a href="#getNeighbours" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="getNeighbours.getNeighbours-1">get<wbr/>Neighbours<span class="tsd-signature-symbol">(</span>v<span class="tsd-signature-symbol">: </span><a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.HalfEdge.html" class="tsd-signature-type" data-tsd-kind="Class">HalfEdge</a><span class="tsd-signature-symbol">[]</span><a href="#getNeighbours.getNeighbours-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Finds a TSP-path around the adjacent edges of the input vertex. This method allows for the routing algorithm
+to find a reasonable path even when a topological ordering of the edges based on face information is unavailabe.</p>
+<p>TODO: find a more accurate TSP solution</p>
+
+<h3>Returns</h3><p>oredered list of edges</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>v: <a href="models_graph.Vertex.html" class="tsd-signature-type" data-tsd-kind="Class">Vertex</a></h5>
+<div class="tsd-comment tsd-typography"><p>vertex</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="models_graph.HalfEdge.html" class="tsd-signature-type" data-tsd-kind="Class">HalfEdge</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L123">src/scripts/modules/spanning_tree/veneziano.ts:123</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getObject" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Object</span><a href="#getObject" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -110,7 +133,7 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">InstancedMesh</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">BufferGeometry</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">Material</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Material</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L117">src/scripts/modules/spanning_tree/veneziano.ts:117</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L160">src/scripts/modules/spanning_tree/veneziano.ts:160</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getPrim" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Prim</span><a href="#getPrim" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -118,23 +141,15 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L57">src/scripts/modules/spanning_tree/veneziano.ts:57</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getRST" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>getRST</span><a href="#getRST" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getRST.getRST-1">getRST<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><a href="#getRST.getRST-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L89">src/scripts/modules/spanning_tree/veneziano.ts:89</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L82">src/scripts/modules/spanning_tree/veneziano.ts:82</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getVeneziano" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Veneziano</span><a href="#getVeneziano" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getVeneziano.getVeneziano-1">get<wbr/>Veneziano<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span><a href="#getVeneziano.getVeneziano-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getVeneziano.getVeneziano-1">get<wbr/>Veneziano<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="models_graph.HalfEdge.html" class="tsd-signature-type" data-tsd-kind="Class">HalfEdge</a><span class="tsd-signature-symbol">[]</span><a href="#getVeneziano.getVeneziano-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <a href="models_graph.Edge.html" class="tsd-signature-type" data-tsd-kind="Class">Edge</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="models_graph.HalfEdge.html" class="tsd-signature-type" data-tsd-kind="Class">HalfEdge</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L29">src/scripts/modules/spanning_tree/veneziano.ts:29</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L54">src/scripts/modules/spanning_tree/veneziano.ts:54</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="selectAll" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>select<wbr/>All</span><a href="#selectAll" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -142,7 +157,30 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/modules/spanning_tree/veneziano.ts#L151">src/scripts/modules/spanning_tree/veneziano.ts:151</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L194">src/scripts/modules/spanning_tree/veneziano.ts:194</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="toJSON" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>toJSON</span><a href="#toJSON" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="toJSON.toJSON-1">toJSON<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/custom.JSONObject.html" class="tsd-signature-type" data-tsd-kind="Interface">JSONObject</a><a href="#toJSON.toJSON-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/custom.JSONObject.html" class="tsd-signature-type" data-tsd-kind="Interface">JSONObject</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L35">src/scripts/modules/spanning_tree/veneziano.ts:35</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="loadJSON" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>loadJSON</span><a href="#loadJSON" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="loadJSON.loadJSON-1">loadJSON<span class="tsd-signature-symbol">(</span>graph<span class="tsd-signature-symbol">: </span><a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a>, json<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="modules_spanning_tree_veneziano.Veneziano.html" class="tsd-signature-type" data-tsd-kind="Class">Veneziano</a><a href="#loadJSON.loadJSON-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>graph: <a href="models_graph.Graph.html" class="tsd-signature-type" data-tsd-kind="Class">Graph</a></h5></li>
+<li>
+<h5>json: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="modules_spanning_tree_veneziano.Veneziano.html" class="tsd-signature-type" data-tsd-kind="Class">Veneziano</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/modules/spanning_tree/veneziano.ts#L41">src/scripts/modules/spanning_tree/veneziano.ts:41</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -174,9 +212,12 @@
 <li class="tsd-kind-module"><a href="../modules/globals_scaffolds.html">globals/scaffolds</a></li>
 <li class="tsd-kind-module"><a href="../modules/index.html">index</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_download.html">io/download</a></li>
+<li class="tsd-kind-module"><a href="../modules/io_read_json.html">io/read_<wbr/>json</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_read_obj.html">io/read_<wbr/>obj</a></li>
+<li class="tsd-kind-module"><a href="../modules/io_read_ply.html">io/read_<wbr/>ply</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_cylinder_model.html">models/cylinder_<wbr/>model</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_graph.html">models/graph</a></li>
+<li class="tsd-kind-module"><a href="../modules/models_graph_test.html">models/graph.test</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_nucleotide_model.html">models/nucleotide_<wbr/>model</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_relaxer.html">models/relaxer</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_wires_model.html">models/wires_<wbr/>model</a></li>
@@ -212,11 +253,13 @@
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#trail" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>trail</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#deselectAll" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>deselect<wbr/>All</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#dispose" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>dispose</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#getNeighbours" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Neighbours</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#getObject" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Object</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#getPrim" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Prim</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#getRST" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>getRST</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#getVeneziano" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Veneziano</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#selectAll" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>select<wbr/>All</a></li></ul></li></ul></nav></div></div>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#selectAll" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>select<wbr/>All</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#toJSON" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>toJSON</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="modules_spanning_tree_veneziano.Veneziano.html#loadJSON" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>loadJSON</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
 <div class="overlay"></div><script src="../assets/main.js"></script></body></html>

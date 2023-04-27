@@ -157,7 +157,7 @@ export class FileMenu extends Menu {
       return li;
     };
 
-    for (let menu of this.context.menus.values()) {
+    for (const menu of this.context.menus.values()) {
       if (!(menu instanceof ModuleMenu)) continue;
       content.append(menuUl(menu));
     }

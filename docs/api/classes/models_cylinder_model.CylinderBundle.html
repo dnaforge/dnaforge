@@ -17,16 +17,16 @@
 <li><a href="models_cylinder_model.CylinderBundle.html">CylinderBundle</a></li></ul>
 <h1>Class CylinderBundle</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>A Cylinder bundle representes a set of cylinders that span across the same
-edge. Some models add multiple double helices per edge. In such cases,
-the cylinders should be associated with a cylinder bundle.</p>
+<div class="tsd-comment tsd-typography"><p>A Cylinder bundle representes a set of cylinders. Some models add multiple double helices
+per edge and use a non-standard strand routing across them. In such cases, the cylinders should
+be associated with a cylinder bundle.</p>
 </div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
 <li><span class="target">CylinderBundle</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/cylinder_model.ts#L47">src/scripts/models/cylinder_model.ts:47</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L60">src/scripts/models/cylinder_model.ts:60</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -45,6 +45,7 @@ the cylinders should be associated with a cylinder bundle.</p>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="models_cylinder_model.CylinderBundle.html#push" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>push</span></a>
+<a href="models_cylinder_model.CylinderBundle.html#toJSON" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>toJSON</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
@@ -60,24 +61,24 @@ the cylinders should be associated with a cylinder bundle.</p>
 <h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>cylinders: <a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="models_cylinder_model.CylinderBundle.html" class="tsd-signature-type" data-tsd-kind="Class">CylinderBundle</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/cylinder_model.ts#L52">src/scripts/models/cylinder_model.ts:52</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L65">src/scripts/models/cylinder_model.ts:65</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="cylinders" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>cylinders</span><a href="#cylinders" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">cylinders<span class="tsd-signature-symbol">:</span> <a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/cylinder_model.ts#L49">src/scripts/models/cylinder_model.ts:49</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L62">src/scripts/models/cylinder_model.ts:62</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="isRigid" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Rigid</span><a href="#isRigid" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">is<wbr/>Rigid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/cylinder_model.ts#L48">src/scripts/models/cylinder_model.ts:48</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L61">src/scripts/models/cylinder_model.ts:61</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="length" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>length</span><a href="#length" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/cylinder_model.ts#L50">src/scripts/models/cylinder_model.ts:50</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L63">src/scripts/models/cylinder_model.ts:63</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="push" class="tsd-anchor"></a>
@@ -92,7 +93,15 @@ the cylinders should be associated with a cylinder bundle.</p>
 <h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>cylinders: <a href="models_cylinder_model.Cylinder.html" class="tsd-signature-type" data-tsd-kind="Class">Cylinder</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/dca1f1f/src/scripts/models/cylinder_model.ts#L56">src/scripts/models/cylinder_model.ts:56</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L69">src/scripts/models/cylinder_model.ts:69</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="toJSON" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>toJSON</span><a href="#toJSON" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="toJSON.toJSON-1">toJSON<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/custom.JSONObject.html" class="tsd-signature-type" data-tsd-kind="Interface">JSONObject</a><a href="#toJSON.toJSON-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/custom.JSONObject.html" class="tsd-signature-type" data-tsd-kind="Interface">JSONObject</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/Ritkuli/dnaforge/blob/4547a09/src/scripts/models/cylinder_model.ts#L77">src/scripts/models/cylinder_model.ts:77</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -124,9 +133,12 @@ the cylinders should be associated with a cylinder bundle.</p>
 <li class="tsd-kind-module"><a href="../modules/globals_scaffolds.html">globals/scaffolds</a></li>
 <li class="tsd-kind-module"><a href="../modules/index.html">index</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_download.html">io/download</a></li>
+<li class="tsd-kind-module"><a href="../modules/io_read_json.html">io/read_<wbr/>json</a></li>
 <li class="tsd-kind-module"><a href="../modules/io_read_obj.html">io/read_<wbr/>obj</a></li>
+<li class="tsd-kind-module"><a href="../modules/io_read_ply.html">io/read_<wbr/>ply</a></li>
 <li class="current tsd-kind-module"><a href="../modules/models_cylinder_model.html">models/cylinder_<wbr/>model</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_graph.html">models/graph</a></li>
+<li class="tsd-kind-module"><a href="../modules/models_graph_test.html">models/graph.test</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_nucleotide_model.html">models/nucleotide_<wbr/>model</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_relaxer.html">models/relaxer</a></li>
 <li class="tsd-kind-module"><a href="../modules/models_wires_model.html">models/wires_<wbr/>model</a></li>
@@ -159,7 +171,8 @@ the cylinders should be associated with a cylinder bundle.</p>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="models_cylinder_model.CylinderBundle.html#cylinders" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>cylinders</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="models_cylinder_model.CylinderBundle.html#isRigid" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>is<wbr/>Rigid</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="models_cylinder_model.CylinderBundle.html#length" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>length</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_cylinder_model.CylinderBundle.html#push" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>push</a></li></ul></li></ul></nav></div></div>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_cylinder_model.CylinderBundle.html#push" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>push</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="models_cylinder_model.CylinderBundle.html#toJSON" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>toJSON</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
 <div class="overlay"></div><script src="../assets/main.js"></script></body></html>

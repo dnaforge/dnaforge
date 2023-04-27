@@ -3,9 +3,8 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel, PrimePos } from '../../models/cylinder_model';
-import { Edge, Graph, HalfEdge } from '../../models/graph';
+import { Graph, HalfEdge } from '../../models/graph';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import { WiresModel } from '../../models/wires_model';
 import { MenuParameters } from '../../scene/menu';
 import { setRandomPrimary } from '../../utils/primary_utils';
 import {
@@ -13,12 +12,11 @@ import {
   CycleCover,
   wiresToCylinders,
 } from './cycle_cover';
+const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+const x3 = require('../../../test/test_shapes/3x3.obj');
+const plane = require('../../../test/test_shapes/plane.obj');
 
 describe('Cycle cover routing', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -74,10 +72,6 @@ describe('Cycle cover routing', function () {
 });
 
 describe('Cycle Cover Cylinder Model', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -139,10 +133,6 @@ describe('Cycle Cover Cylinder Model', function () {
 });
 
 describe('Cycle Cover Nucleotide Model', function () {
-  const tet = require('../../../test/test_shapes/tetra_dubs.obj');
-  const x3 = require('../../../test/test_shapes/3x3.obj');
-  const plane = require('../../../test/test_shapes/plane.obj');
-
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],

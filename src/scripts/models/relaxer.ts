@@ -1,14 +1,8 @@
 import * as CANNON from 'cannon-es';
 import { LockConstraint } from 'cannon-es';
-import * as _ from 'lodash';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import { randFloat } from 'three/src/math/MathUtils';
-import {
-  Cylinder,
-  CylinderBundle,
-  CylinderModel,
-  PrimePos,
-} from './cylinder_model';
+import { Cylinder, CylinderModel, PrimePos } from './cylinder_model';
 
 /**
  * A class for relaxing cylinder models via physics simulation.
@@ -148,7 +142,7 @@ export class Relaxer {
     for (const cyl of this.cm.cylinders) {
       if (!cyl.bundle || !cyl.bundle.isRigid) continue;
       const body1 = this.cylToMesh.get(cyl);
-      for (let cyl2 of cyl.bundle.cylinders) {
+      for (const cyl2 of cyl.bundle.cylinders) {
         if (cyl == cyl2) continue;
         const body2 = this.cylToMesh.get(cyl2);
 

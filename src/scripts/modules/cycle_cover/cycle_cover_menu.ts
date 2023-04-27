@@ -4,7 +4,6 @@ import {
   wiresToCylinders,
   cylindersToNucleotides,
 } from './cycle_cover';
-import { downloadTXT } from '../../io/download';
 import html from './cycle_cover_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
