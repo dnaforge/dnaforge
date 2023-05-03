@@ -659,7 +659,7 @@ class NucleotideModel {
     hasScaffold = false
   ): NucleotideModel {
     const minLinkers = params.minLinkers;
-    const maxLinkers = params.minLinkers;
+    const maxLinkers = params.maxLinkers;
     const addNicks = params.addNicks;
     const maxLength = params.maxStrandLength;
     const minLength = params.minStrandLength;
