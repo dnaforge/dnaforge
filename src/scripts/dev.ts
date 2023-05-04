@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import { Relaxer } from './models/relaxer';
 import { Cylinder, CylinderBundle } from './models/cylinder_model';
 import { FileMenu } from './scene/file_menu';
+import { SuffixArray } from 'mnemonist';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -72,4 +73,16 @@ export function dev(context: Context) {
   context.loadJSON(JSON.parse(json));
 
   //(<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
+
+  const l = 250000;
+  let r = Object.keys([].concat(Array(l).join().split(''))).map(() => {return "ATGC"[Math.floor(Math.random() * 4)]});
+  //console.log(r);
+
+  const startT = performance.now();
+  const suffixArray = new SuffixArray(r);
+  //console.log(suffixArray.array);
+  console.log(performance.now() - startT);
+  
+
+
 }
