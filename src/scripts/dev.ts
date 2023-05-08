@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 import { Relaxer } from './models/relaxer';
 import { Cylinder, CylinderBundle } from './models/cylinder_model';
 import { FileMenu } from './scene/file_menu';
-import { SuffixArray } from 'mnemonist';
+import { PrimaryGenerator } from './utils/primary_generator';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -44,7 +44,7 @@ export function dev(context: Context) {
   const atrail = <ATrailMenu>context.menus.get('atrail');
   atrail.addWires();
   atrail.addCylinders();
-  //atrail.addNucleotides();
+  atrail.addNucleotides();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
@@ -74,15 +74,6 @@ export function dev(context: Context) {
 
   //(<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
 
-  const l = 250000;
-  let r = Object.keys([].concat(Array(l).join().split(''))).map(() => {return "ATGC"[Math.floor(Math.random() * 4)]});
-  //console.log(r);
-
-  const startT = performance.now();
-  const suffixArray = new SuffixArray(r);
-  //console.log(suffixArray.array);
-  console.log(performance.now() - startT);
-  
-
-
+  const pk = new PrimaryGenerator();
+  pk.generatePrimary(atrail.nm);
 }
