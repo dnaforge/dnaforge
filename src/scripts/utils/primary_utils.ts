@@ -87,7 +87,7 @@ function* getPKs(): IterableIterator<[string, string]> {
  * @param nucleotides
  * @returns
  */
-function getPairing(nucleotides: Array<Nucleotide>): Map<number, number> {
+export function getPairing(nucleotides: Array<Nucleotide>): Map<number, number> {
   const pairs = new Map<number, number>();
   const visited = new Set();
   const stack = [];

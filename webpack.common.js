@@ -4,7 +4,7 @@ const webpack = require('webpack');
 const childProcess = require('child_process');
 const PACKAGE = require('./package.json');
 
-const __versionString__ = PACKAGE.version + childProcess.execSync('git rev-list HEAD --count').toString();
+const __versionString__ = PACKAGE.version + " built at " + new Date().toISOString(); //childProcess.execSync('git rev-list HEAD --count').toString();
 
 module.exports = {
     entry: './src/scripts/index.ts',

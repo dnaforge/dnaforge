@@ -39,12 +39,15 @@ export function dev(context: Context) {
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.addWires();
   //cc.addCylinders();
-  //cc.addNucleotides();
+  cc.addNucleotides();
+
+  console.log(cc);
+
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
-  atrail.addWires();
-  atrail.addCylinders();
-  atrail.addNucleotides();
+  //atrail.addWires();
+  //atrail.addCylinders();
+  //atrail.addNucleotides();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
@@ -66,14 +69,20 @@ export function dev(context: Context) {
 
   //const r = new Relaxer(cm);
 
+  /**
   const json = JSON.stringify(
     context.toJSON({ atrail: { wires: true, cm: true, nm: true } })
   );
-  //const json = JSON.stringify(context.toJSON({ 'cycle-cover': { wires: true, cm: true, nm: true } }));
   context.loadJSON(JSON.parse(json));
+   */
+
+  /**
+  const json = JSON.stringify(context.toJSON({ 'cycle-cover': { wires: true, cm: true, nm: true } }));
+  context.loadJSON(JSON.parse(json));
+  */
 
   //(<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
 
-  const pk = new PrimaryGenerator();
-  pk.generatePrimary(atrail.nm);
+  const pk = new PrimaryGenerator(cc.nm);
+  pk.generatePrimary();
 }
