@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { InstancedMesh, Intersection, Matrix4 } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
-import { DNA, RNA } from '../globals/consts';
+import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Vertex } from './graph';
 import { Relaxer } from './relaxer';
 
@@ -92,7 +92,7 @@ export class CylinderBundle {
 class Cylinder {
   instanceId: number;
   scale: number;
-  naType: string;
+  naType: NATYPE;
 
   length: number; // length in nucleotides
   transform = new Matrix4();
@@ -123,7 +123,7 @@ class Cylinder {
     id: number,
     length: number,
     scale = 1,
-    naType = 'DNA',
+    naType: NATYPE = 'DNA',
     routingStrategy = RoutingStrategy.Normal
   ) {
     this.instanceId = id;
@@ -495,7 +495,7 @@ class Cylinder {
 class CylinderModel {
   cylinders: Cylinder[] = [];
   scale: number;
-  naType: string;
+  naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
   obj: THREE.Object3D;
@@ -509,7 +509,7 @@ class CylinderModel {
    * @param scale
    * @param naType DNA | RNA
    */
-  constructor(scale = 1, naType = 'DNA') {
+  constructor(scale = 1, naType: NATYPE = 'DNA') {
     this.scale = scale;
     this.naType = naType;
 

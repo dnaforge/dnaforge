@@ -40,9 +40,7 @@ export function dev(context: Context) {
   //cc.addWires();
   //cc.addCylinders();
   cc.addNucleotides();
-
-  console.log(cc);
-
+  cc.generatePrimary();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();
@@ -83,6 +81,6 @@ export function dev(context: Context) {
 
   //(<FileMenu>context.menus.get('file')).openJSONDialogButton.click();
 
-  const pk = new PrimaryGenerator(cc.nm);
-  pk.generatePrimary();
+  //const pk = new PrimaryGenerator(cc.nm);
+  //pk.optimise();
 }

@@ -3,6 +3,7 @@ import {
   RNA_NP_TEMPLATE,
   IUPAC_RNA,
   IUPAC_DNA,
+  NATYPE,
 } from '../globals/consts';
 import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
 import { DNA_SCAFFOLDS } from '../globals/consts';
@@ -11,7 +12,7 @@ interface ScaffoldParams {
   scaffoldName?: string;
   customScaffold?: string;
   gcContent?: number;
-  naType?: 'RNA' | 'DNA';
+  naType?: NATYPE;
   linkerOptions?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
@@ -82,24 +83,27 @@ function* getPKs(): IterableIterator<[string, string]> {
 }
 
 /**
- * Get a dictionary that maps nucleotide indices to their base pairs.
+ * Get a dictionary that maps nucleotide indices to their base pairs. Unpaired bases are marked as
+ * being paired to themselves.
  *
  * @param nucleotides
  * @returns
  */
-export function getPairing(nucleotides: Array<Nucleotide>): Map<number, number> {
+export function getPairing(
+  nucleotides: Array<Nucleotide>
+): Map<number, number> {
   const pairs = new Map<number, number>();
-  const visited = new Set();
-  const stack = [];
+  const nucToIdx = new Map<Nucleotide, number>();
   for (let i = 0; i < nucleotides.length; i++) {
     const cur = nucleotides[i];
-    if (!cur.pair || cur.isPseudo) pairs.set(i, i);
-    else if (visited.has(cur.pair)) {
-      const j = stack.pop();
-      pairs.set(i, j);
-      pairs.set(j, i);
-    } else stack.push(i);
-    visited.add(cur);
+    const pair = cur.pair;
+    if (!pair) pairs.set(i, i);
+
+    if (nucToIdx.has(pair)) {
+      pairs.set(nucToIdx.get(pair), i);
+      pairs.set(i, nucToIdx.get(pair));
+    }
+    nucToIdx.set(cur, i);
   }
   return pairs;
 }
@@ -223,7 +227,7 @@ export function setPartialPrimaryRNA(nm: NucleotideModel): string[] {
  * @param pair IUPAC codes for the base pair
  * @returns the base
  */
-function getComplementRNA(base: string, pair: string) {
+export function getComplementRNA(base: string, pair: string) {
   const complement: Record<string, string> = { A: 'U', U: 'A', G: 'C', C: 'G' };
   const wobbleComplement: Record<string, string> = { U: 'G', G: 'U' };
   const options = new Set(IUPAC_RNA[base]);
@@ -242,7 +246,7 @@ function getComplementRNA(base: string, pair: string) {
  * @param pair IUPAC codes for the base pair
  * @returns the base
  */
-function getComplementDNA(base: string, pair: string) {
+export function getComplementDNA(base: string, pair: string) {
   const complement: Record<string, string> = { A: 'T', T: 'A', G: 'C', C: 'G' };
   const options = new Set(IUPAC_DNA[base]);
 
@@ -258,7 +262,7 @@ function getComplementDNA(base: string, pair: string) {
  * @param gcContent the proportion of G's and C's
  * @returns the base
  */
-function getBaseRNA(options: string[], gcContent: number): string {
+export function getBaseRNA(options: string[], gcContent: number): string {
   const optionsAU = [];
   const optionsGC = [];
   for (const c of options) {
@@ -284,7 +288,7 @@ function getBaseRNA(options: string[], gcContent: number): string {
  * @param gcContent the proportion of G's and C's
  * @returns the base
  */
-function getBaseDNA(options: string[], gcContent: number): string {
+export function getBaseDNA(options: string[], gcContent: number): string {
   const base = getBaseRNA(options, gcContent).replace('U', 'T');
   return base;
 }
@@ -300,7 +304,7 @@ function getBaseDNA(options: string[], gcContent: number): string {
 export function setRandomPrimary(
   nm: NucleotideModel,
   gcContent: number,
-  naType: string
+  naType: NATYPE
 ): string[] {
   const iupac = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
   const getBase = naType == 'DNA' ? getBaseDNA : getBaseRNA;
@@ -375,4 +379,36 @@ export function getNP(nm: NucleotideModel): string {
   const ps = getPrimary(nm);
 
   return RNA_NP_TEMPLATE(ps, ss);
+}
+
+/**
+ * Validates the primary structure by checking whether each basepair consists of
+ * matching bases.
+ *
+ * @param nucleotides
+ * @param naType
+ * @returns
+ */
+export function validatePairs(
+  nucleotides: Nucleotide[],
+  naType: NATYPE
+): boolean {
+  for (const n of nucleotides) {
+    if (naType == 'DNA' && n.pair && 'ATGC'.includes(n.base)) {
+      if (n.base == 'A' && n.pair.base != 'T') return false;
+      else if (n.base == 'T' && n.pair.base != 'A') return false;
+      else if (n.base == 'G' && n.pair.base != 'C') return false;
+      else if (n.base == 'C' && n.pair.base != 'G') return false;
+    }
+    if (naType == 'RNA' && n.pair && 'AUGC'.includes(n.base)) {
+      if (n.base == 'A' && n.pair.base != 'U') return false;
+      else if (n.base == 'U' && n.pair.base != 'A' && n.pair.base != 'G')
+        return false;
+      else if (n.base == 'G' && n.pair.base != 'C' && n.pair.base != 'U')
+        return false;
+      else if (n.base == 'C' && n.pair.base != 'G') return false;
+    }
+    //TODO: also check the validity of other IUPAC symbols
+  }
+  return true;
 }

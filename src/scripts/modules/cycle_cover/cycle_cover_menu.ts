@@ -12,6 +12,7 @@ import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';
 import { NucleotideModel } from '../../models/nucleotide_model';
+import { PrimaryGenerator } from '../../utils/primary_generator';
 
 export type CCParameters = ModuleMenuParameters;
 
@@ -64,12 +65,32 @@ export class CycleCoverMenu extends ModuleMenu {
     return cylindersToNucleotides(cm, params);
   }
 
-  generatePrimary() {
+  /**
+   * Generates a random complementary primary structure.
+   */
+  generateRandomPrimary() {
     if (!this.nm) this.generateNucleotideModel();
 
     this.collectParameters();
 
     setRandomPrimary(this.nm, this.params.gcContent, 'DNA');
+  }
+
+  /**
+   * Uses an optimiser to generate the primary structure.
+   */
+  generatePrimary() {
+    if (!this.nm) this.generateNucleotideModel();
+
+    this.collectParameters();
+
+    const pgen = new PrimaryGenerator(this.nm);
+    pgen.optimise();
+
+    this.context.addMessage(
+      `Generated a primary with longest repeated subsequence of ${pgen.getLongestRepeat()}.`,
+      'info'
+    );
   }
 
   collectParameters() {

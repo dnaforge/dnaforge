@@ -4,7 +4,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { InstancedMesh, Intersection, Matrix4, Quaternion } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
-import { DNA, RNA } from '../globals/consts';
+import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
 import {
   CylinderModel,
@@ -91,7 +91,7 @@ class Nucleotide {
 
   base: string;
   scale: number;
-  naType: string;
+  naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
   isLinker = false;
@@ -116,7 +116,7 @@ class Nucleotide {
    * @param naType DNA | RNA
    * @param base IUPAC code
    */
-  constructor(scale = 1, naType = 'DNA', base = 'N') {
+  constructor(scale = 1, naType: NATYPE = 'DNA', base = 'N') {
     this.base = base;
     this.scale = scale;
     this.naType = naType;
@@ -380,7 +380,7 @@ class Strand {
   instanceId: number;
   nucleotides: Nucleotide[] = [];
   scale: number;
-  naType: string;
+  naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
   pair: Strand;
@@ -394,7 +394,7 @@ class Strand {
    * @param scale
    * @param naType DNA | RNA
    */
-  constructor(scale = 1, naType = 'DNA') {
+  constructor(scale = 1, naType: NATYPE = 'DNA') {
     this.scale = scale;
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
@@ -561,7 +561,7 @@ class NucleotideModel {
   strands: Strand[];
 
   scale: number;
-  naType: string;
+  naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
   obj: THREE.Object3D;
@@ -575,7 +575,7 @@ class NucleotideModel {
    * @param scale
    * @param naType DNA | RNA
    */
-  constructor(scale: number, naType = 'DNA') {
+  constructor(scale: number, naType: NATYPE = 'DNA') {
     this.strands = [];
     this.scale = scale;
     this.naType = naType;
