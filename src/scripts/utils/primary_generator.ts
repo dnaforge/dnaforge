@@ -3,6 +3,11 @@ import { WATSON_CHAR_DNA, WATSON_CHAR_RNA } from '../globals/consts';
 import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
 import { getPairing, setRandomPrimary, validatePairs } from './primary_utils';
 
+const MAX_TRIALS = 200;
+const ITERATIONS = 100;
+const START_LEN = 10;
+const ETA = 0.4;
+
 /**
  * PrimaryGenerator is used to generate a primary structure such that
  * the length of the longest repeated subsequence is minimised while
@@ -18,20 +23,32 @@ export class PrimaryGenerator {
 
   len: number;
   subSeqs: Map<string, Set<number>>;
-  repeats: Set<string>;
+  repeats: ListDict<string>;
 
-  constructor(nm: NucleotideModel) {
-    this.gcContent = 0.5;
+  constructor(nm: NucleotideModel, gcContent: number) {
+    this.gcContent = gcContent;
     this.naType = nm.naType;
     this.nm = nm;
 
     const nucleotides = nm.getNucleotides();
-    setRandomPrimary(nm, this.gcContent, this.naType);
-
     this.pairs = getPairing(nucleotides);
-    this.pString = nucleotides.map((n) => {
-      return n.base;
-    });
+
+    this.setupInitialPrimary();
+  }
+
+
+  /**
+   * Setups an initial primary structure such that it passes all the hard constraints.
+   */
+  setupInitialPrimary(){
+    for(let i = 0; i < 100; i++){
+      setRandomPrimary(this.nm, this.gcContent, this.naType, true);
+      this.pString = this.nm.getNucleotides().map((n) => {
+        return n.base;
+      });
+      if(!this.failsHardConstraints()) return;
+    }
+    throw `Unable to find an initial feasible solution.`;
   }
 
   /**
@@ -57,7 +74,7 @@ export class PrimaryGenerator {
    * @returns
    */
   private setupRepeats() {
-    const repeats = new Set<string>();
+    const repeats = new ListDict<string>();
 
     for (const p of this.subSeqs) {
       if (p[1].size > 1) {
@@ -107,8 +124,10 @@ export class PrimaryGenerator {
    *
    * @param idx
    * @param gcContent
+   * 
+   * @returns a list of the indicies changed with their previous values
    */
-  private setRandomBasePair(idx: number, gcContent = 0.5) {
+  private setRandomBasePair(idx: number, gcContent = 0.5): [number, string][] {
     const randBase = (naType: string): WATSON_CHAR_DNA | WATSON_CHAR_RNA => {
       if (naType == 'DNA')
         return 'ATGC'[Math.floor(Math.random() * 4)] as WATSON_CHAR_DNA;
@@ -125,11 +144,23 @@ export class PrimaryGenerator {
       else if (naType == 'RNA') return 'U'; // TODO: maybe sometimes return G-U pairs too
     };
 
+    const changes: [number, string][] = [];
+
     const base = randBase(this.naType);
     const complement = randComplement(base, this.naType);
+    const idx2 = this.pairs.get(idx);
+
+    const prevBase = this.pString[idx];
+    const prevComplement = this.pString[idx2];
 
     this.setBase(idx, base);
-    this.setBase(this.pairs.get(idx), complement);
+    changes.push([idx, prevBase])
+    if(idx != idx2){
+      this.setBase(idx2, complement)
+      changes.push([idx2, prevComplement]);
+    }
+
+    return changes;
   }
 
   /**
@@ -138,8 +169,7 @@ export class PrimaryGenerator {
    * @returns start index
    */
   private getOffender(): number {
-    //TODO: get a random one.
-    const seq = this.repeats.values().next().value;
+    const seq = this.repeats.getRandom();    
     const idx =
       this.subSeqs.get(seq).values().next().value +
       Math.floor(Math.random() * this.len);
@@ -179,13 +209,47 @@ export class PrimaryGenerator {
   }
 
   /**
+   * Score based on hard constraints. Returns true if constraints are failed.
+   * 
+   * @returns true if fails
+   */
+  failsHardConstraints(): boolean{
+    const repeatAtNick = () => {
+      return false;
+
+    }
+
+    if(repeatAtNick()) return true;
+    return false;
+
+  }
+
+  /**
+   * Score based on soft constraints. The lower the better.
+   * 
+   * @returns 
+   */
+  getScore(){
+    const repeatScore = this.repeats.size;
+
+    const score = repeatScore;
+    return score;
+  }
+
+  /**
    * Return the longest repeated subseuqnce.
    *
    * @returns lcs
    */
   getLongestRepeat() {
     //const suffixArray = new SuffixArray(this.pString);
-    return this.len + (this.repeats.size == 0 ? 0 : 1);
+    const repeats = new Set<string>();
+    for(let i = 0; i < this.pString.length - this.len; i++){
+      const s = this.pString.slice(i, i + this.len + 1).join('');
+      if(repeats.has(s)) throw `invalid repeats ${s}`;
+      repeats.add(s);
+    }
+    return this.len;
   }
 
   /**
@@ -194,20 +258,76 @@ export class PrimaryGenerator {
    * to the constraints.
    */
   optimise() {
-    const MAX_TRIALS = 500;
-    const ITERATIONS = 20;
-    const START_LEN = 10;
     this.setupDicts(START_LEN);
 
+    let bestPrimary = this.pString.join("");
+    let bestLen = Infinity;
+
     for (let j = 0; j < ITERATIONS; j++) {
+      console.log(bestLen);
+      
       for (let i = 0; i < MAX_TRIALS; i++) {
         if (this.repeats.size == 0) break;
         const idx = this.getOffender();
-        this.setRandomBasePair(idx);
+
+        const prevScore = this.getScore();
+        const changes = this.setRandomBasePair(idx);
+        if(this.failsHardConstraints() || (this.getScore() > prevScore && Math.random() > ETA)){
+          // Revert changes
+          for(const c of changes){
+            this.setBase(c[0], c[1]);
+          }
+        }
+
       }
-      if (this.repeats.size == 0) this.setupDicts(this.len - 1);
+      // If no repeats of length len, decrease len. Otherwise increase it.
+      if (this.repeats.size == 0){
+        this.setupDicts(this.len - 1);
+        if(this.len < bestLen){
+          // save the current best:
+          bestLen = this.len;
+          bestPrimary = this.pString.join("");
+        }
+      }
       else this.setupDicts(this.len + 1);
     }
+
+    // save the best primary
+    this.pString = bestPrimary.split("");
+    this.len = bestLen;
     this.savePrimary();
+  }
+}
+
+/**
+ * A combination of a list and a dictionary. Allows for a constant-time random-sampling and 
+ * addition/removal of specific elements.
+ */
+class ListDict<T> {
+  d: Map<T, number> = new Map();
+  items: T[] = [];
+  size: number = 0;
+
+  add(item: T) {
+    if (this.d.has(item)) return;
+    this.items.push(item);
+    this.d.set(item, this.size);
+    this.size += 1;
+  }
+
+  delete(item: T) {
+    if (!this.d.has(item)) return;
+    const position = this.d.get(item);
+    this.d.delete(item);
+    const last_item = this.items.pop();
+    if(position != this.size - 1){
+      this.items[position] = last_item;
+      this.d.set(last_item, position);
+    }
+    this.size -= 1;
+  }
+
+  getRandom() {    
+    return this.items[Math.floor(Math.random() * this.size)];
   }
 }

@@ -295,16 +295,19 @@ export function getBaseDNA(options: string[], gcContent: number): string {
 
 /**
  * Generates a random complementary primary structure for the nucleotide model.
- * Respects previously defined bases.
+ * Respects previously defined bases unless ignoreExisting is set to true.
  *
  * @param nm
  * @param gcContent
+ * @naType NATYPE
+ * @ignoreExisting ignore existing primary structure
  * @returns the generated primary structure
  */
 export function setRandomPrimary(
   nm: NucleotideModel,
   gcContent: number,
-  naType: NATYPE
+  naType: NATYPE,
+  ignoreExisting = false,
 ): string[] {
   const iupac = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
   const getBase = naType == 'DNA' ? getBaseDNA : getBaseRNA;
@@ -316,6 +319,7 @@ export function setRandomPrimary(
   for (let i = 0; i < nucleotides.length; i++) {
     let base;
     const n = nucleotides[i];
+    if(ignoreExisting) n.base = "N";
     if (n.isLinker || !visited.has(n.pair)) {
       const options = iupac[n.base];
       base = getBase(options, gcContent);

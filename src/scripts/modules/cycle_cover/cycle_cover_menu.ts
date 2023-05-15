@@ -84,7 +84,7 @@ export class CycleCoverMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    const pgen = new PrimaryGenerator(this.nm);
+    const pgen = new PrimaryGenerator(this.nm, this.params.gcContent);
     pgen.optimise();
 
     this.context.addMessage(
