@@ -1,12 +1,13 @@
 import { SuffixArray } from 'mnemonist';
 import { WATSON_CHAR_DNA, WATSON_CHAR_RNA } from '../globals/consts';
-import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
+import { NucleotideModel } from '../models/nucleotide_model';
 import { getPairing, setRandomPrimary, validatePairs } from './primary_utils';
 
-const MAX_TRIALS = 200;
+const MAX_TRIALS = 200; // changes per iteration
 const ITERATIONS = 100;
 const START_LEN = 10;
-const ETA = 0.4;
+const HARD_CONSTRAINT_LEN = 7; // maximum repeat length of subsequence starting or ending at a nick
+const ETA = 0.05; // Acceptance probability of a change to the worse
 
 /**
  * PrimaryGenerator is used to generate a primary structure such that
@@ -16,18 +17,23 @@ const ETA = 0.4;
 export class PrimaryGenerator {
   nm: NucleotideModel;
   gcContent: number;
-  naType: 'DNA' | 'RNA';
 
-  pairs: Map<number, number>;
-  pString: string[];
+  pairs: Map<number, number>; // secondary structure
+  nickIndices: Set<number>; // indices
+  pString: string[]; // primary structure
 
-  len: number;
-  subSeqs: Map<string, Set<number>>;
-  repeats: ListDict<string>;
+  // optimization parameters:
+  len: number = START_LEN; // currently active len
+  hcLen: number = HARD_CONSTRAINT_LEN;
+
+  trackedLengths: number[] = [START_LEN]; // all lengths for which subseqs and repeats are tracked
+  subSeqs: Map<number, Map<string, Set<number>>>; // all subsequences
+  repeats: Map<number, ListDict<string>>; // repeated subsequences
+
+  localConstraints: ((pString: string, idx: number) => boolean)[];
 
   constructor(nm: NucleotideModel, gcContent: number) {
     this.gcContent = gcContent;
-    this.naType = nm.naType;
     this.nm = nm;
 
     const nucleotides = nm.getNucleotides();
@@ -36,53 +42,93 @@ export class PrimaryGenerator {
     this.setupInitialPrimary();
   }
 
+  /**
+   * Setups the subsequence and repeat sets according to the repeat-length parameter
+   *
+   */
+  private setupDicts(): void {
+    this.subSeqs = new Map<number, Map<string, Set<number>>>();
+    this.repeats = new Map<number, ListDict<string>>();
+    this.nickIndices = this.getNickIndices(this.trackedLengths[0]);
+
+    this.trackedLengths = [this.len];
+    for (let len of this.trackedLengths) {
+      const subSeqs = this.getSubSeqs(len);
+      const repeats = this.getRepeats(subSeqs);
+
+      this.subSeqs.set(len, subSeqs);
+      this.repeats.set(len, repeats);
+    }
+  }
 
   /**
    * Setups an initial primary structure such that it passes all the hard constraints.
    */
-  setupInitialPrimary(){
-    for(let i = 0; i < 100; i++){
-      setRandomPrimary(this.nm, this.gcContent, this.naType, true);
+  setupInitialPrimary() {
+    for (let i = 0; i < 100; i++) {
+      setRandomPrimary(this.nm, this.gcContent, this.nm.naType, true);
       this.pString = this.nm.getNucleotides().map((n) => {
         return n.base;
       });
-      if(!this.failsHardConstraints()) return;
+      this.setupDicts();
+      if (this.getOffenderHard() == -1) return;
     }
     throw `Unable to find an initial feasible solution.`;
   }
 
   /**
-   * Setups the subseq dictionary. The subseq dictionary maps each subsequence
+   * Gets a subseq dictionary. The subseq dictionary maps each subsequence
    * of length len to a set of indices where that subsequence starts from.
+   *
+   * @param len
+   * @returns
    */
-  private setupSubSeqs() {
+  private getSubSeqs(len: number) {
     const subSeqs = new Map<string, Set<number>>();
 
-    for (let i = 0; i < this.pString.length - this.len + 1; i++) {
-      const s = this.pString.slice(i, i + this.len).join('');
+    for (let i = 0; i < this.pString.length - len + 1; i++) {
+      const s = this.pString.slice(i, i + len).join('');
       if (!subSeqs.get(s)) subSeqs.set(s, new Set<number>());
       subSeqs.get(s).add(i);
     }
 
-    this.subSeqs = subSeqs;
+    return subSeqs;
   }
 
   /**
-   * Setups the repeat set. The repeat set contains all subsequences of length len
-   * that are repeated more than once.
+   * Gets the repeat set. The repeat set contains all the repeated subesequences
    *
+   * @param subSeqs map of all subsequences
    * @returns
    */
-  private setupRepeats() {
+  private getRepeats(subSeqs: Map<string, Set<number>>) {
     const repeats = new ListDict<string>();
 
-    for (const p of this.subSeqs) {
+    for (const p of subSeqs) {
       if (p[1].size > 1) {
         repeats.add(p[0]);
       }
     }
 
-    this.repeats = repeats;
+    return repeats;
+  }
+
+  /**
+   * Returns the nick index set. It contains all the excluded starting indices of
+   * repeats of length len.
+   *
+   * @param len
+   * @returns
+   */
+  getNickIndices(len: number) {
+    const nickIndices = new Set<number>();
+    const nucs = this.nm.getNucleotides();
+    for (let i = 0; i < nucs.length; i++) {
+      const n = nucs[i];
+      if (!n.prev) nickIndices.add(i);
+      if (!n.next) nickIndices.add(i - len + 1);
+    }
+    return nickIndices;
   }
 
   /**
@@ -92,29 +138,36 @@ export class PrimaryGenerator {
    * @param base
    */
   private setBase(idx: number, base: string) {
-    const getSubSeqs = (): [number, string][] => {
+    const getSubSeqs = (len: number): [number, string][] => {
       const seqs: [number, string][] = [];
-      for (let i = 0; i < this.len; i++) {
-        if (idx - i + this.len > this.pString.length || idx - i < 0) continue;
-        const seq = this.pString.slice(idx - i, idx - i + this.len);
+      for (let i = 0; i < len; i++) {
+        if (idx - i + len > this.pString.length || idx - i < 0) continue;
+        const seq = this.pString.slice(idx - i, idx - i + len);
         seqs.push([idx - i, seq.join('')]);
       }
       return seqs;
     };
     // Remove old:
-    for (const p of getSubSeqs()) {
-      const [idx, seq] = p;
-      this.subSeqs.get(seq).delete(idx);
-      if (this.subSeqs.get(seq).size < 2) this.repeats.delete(seq);
+    for (let len of this.trackedLengths) {
+      for (const p of getSubSeqs(len)) {
+        const [idx, seq] = p;
+        this.subSeqs.get(len).get(seq).delete(idx);
+        if (this.subSeqs.get(len).get(seq).size < 2)
+          this.repeats.get(len).delete(seq);
+      }
     }
 
     // Add new:
     this.pString[idx] = base;
-    for (const p of getSubSeqs()) {
-      const [idx, seq] = p;
-      !this.subSeqs.has(seq) && this.subSeqs.set(seq, new Set());
-      this.subSeqs.get(seq).add(idx);
-      if (this.subSeqs.get(seq).size >= 2) this.repeats.add(seq);
+    for (let len of this.trackedLengths) {
+      for (const p of getSubSeqs(len)) {
+        const [idx, seq] = p;
+        !this.subSeqs.get(len).has(seq) &&
+          this.subSeqs.get(len).set(seq, new Set());
+        this.subSeqs.get(len).get(seq).add(idx);
+        if (this.subSeqs.get(len).get(seq).size >= 2)
+          this.repeats.get(len).add(seq);
+      }
     }
   }
 
@@ -124,7 +177,7 @@ export class PrimaryGenerator {
    *
    * @param idx
    * @param gcContent
-   * 
+   *
    * @returns a list of the indicies changed with their previous values
    */
   private setRandomBasePair(idx: number, gcContent = 0.5): [number, string][] {
@@ -146,17 +199,17 @@ export class PrimaryGenerator {
 
     const changes: [number, string][] = [];
 
-    const base = randBase(this.naType);
-    const complement = randComplement(base, this.naType);
+    const base = randBase(this.nm.naType);
+    const complement = randComplement(base, this.nm.naType);
     const idx2 = this.pairs.get(idx);
 
     const prevBase = this.pString[idx];
     const prevComplement = this.pString[idx2];
 
     this.setBase(idx, base);
-    changes.push([idx, prevBase])
-    if(idx != idx2){
-      this.setBase(idx2, complement)
+    changes.push([idx, prevBase]);
+    if (idx != idx2) {
+      this.setBase(idx2, complement);
       changes.push([idx2, prevComplement]);
     }
 
@@ -164,35 +217,51 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Returns the starting index of a random repeated subsequence of length len
+   * Soft constraints. Returns the starting index of a random repeated subsequence of length len
    *
    * @returns start index
    */
-  private getOffender(): number {
-    const seq = this.repeats.getRandom();    
+  private getOffenderSoft(): number {
+    const len = this.len;
+    const seq = this.repeats.get(len).getRandom();
     const idx =
-      this.subSeqs.get(seq).values().next().value +
-      Math.floor(Math.random() * this.len);
+      this.subSeqs.get(len).get(seq).values().next().value +
+      Math.floor(Math.random() * len);
     return idx;
   }
 
   /**
-   * Setups the subsequence and repeat sets according to the given repeat-length parameter
+   * Hard constraints. Returns the starting index of a random subsequence failing a hard constraint
    *
-   * @param len repeat-length
+   * @returns start index
    */
-  private setupDicts(len: number): void {
-    this.len = len;
-    this.setupSubSeqs();
-    this.setupRepeats();
+  private getOffenderHard(): number {
+    return -1;
+    const len = this.len;
+    const seq = this.repeats.get(len).getRandom();
+    const idx =
+      this.subSeqs.get(len).get(seq).values().next().value +
+      Math.floor(Math.random() * len);
+    return idx;
+    const repeatAtNick = () => {
+      for (const r of this.repeats.get(this.trackedLengths[0])) {
+        for (let idx of this.subSeqs.get(r.length).get(r)) {
+          if (this.nickIndices.has(idx)) return true;
+        }
+      }
+      return false;
+    };
   }
 
   /**
    * Validates the correcteness of the primary structure. Throws an error if invalid.
    */
   private validate() {
-    if (!validatePairs(this.nm.getNucleotides(), this.naType))
+    if (!validatePairs(this.nm.getNucleotides(), this.nm.naType))
       throw `Invalid base-pairing.`;
+    //if (this.failsHardConstraints())
+    //  throw `Did not satisfy hard constraints`;
+
     //TODO: validate GC-content
   }
 
@@ -209,44 +278,29 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Score based on hard constraints. Returns true if constraints are failed.
-   * 
-   * @returns true if fails
+   * Soft constraints. Returns a score. The lower the better.
+   *
+   * @returns score
    */
-  failsHardConstraints(): boolean{
-    const repeatAtNick = () => {
-      return false;
-
-    }
-
-    if(repeatAtNick()) return true;
-    return false;
-
-  }
-
-  /**
-   * Score based on soft constraints. The lower the better.
-   * 
-   * @returns 
-   */
-  getScore(){
-    const repeatScore = this.repeats.size;
+  getScore() {
+    const repeatScore = this.repeats.get(this.len).size;
 
     const score = repeatScore;
     return score;
   }
 
   /**
-   * Return the longest repeated subseuqnce.
+   * Return the length of the longest repeated subsequence.
    *
    * @returns lcs
    */
   getLongestRepeat() {
+    //TODO:  use the suffix array to find it instead of just validating this.len
     //const suffixArray = new SuffixArray(this.pString);
     const repeats = new Set<string>();
-    for(let i = 0; i < this.pString.length - this.len; i++){
+    for (let i = 0; i < this.pString.length - this.len; i++) {
       const s = this.pString.slice(i, i + this.len + 1).join('');
-      if(repeats.has(s)) throw `invalid repeats ${s}`;
+      if (repeats.has(s)) throw `invalid repeats ${s}`;
       repeats.add(s);
     }
     return this.len;
@@ -258,52 +312,53 @@ export class PrimaryGenerator {
    * to the constraints.
    */
   optimise() {
-    this.setupDicts(START_LEN);
+    const startT = performance.now();
 
-    let bestPrimary = this.pString.join("");
+    let bestPrimary = this.pString.join('');
     let bestLen = Infinity;
 
     for (let j = 0; j < ITERATIONS; j++) {
-      console.log(bestLen);
-      
-      for (let i = 0; i < MAX_TRIALS; i++) {
-        if (this.repeats.size == 0) break;
-        const idx = this.getOffender();
+      this.setupDicts();
+      console.log(this.len);
 
+      for (let i = 0; i < MAX_TRIALS; i++) {
+        if (this.repeats.get(this.len).size == 0) break;
+        const idx = this.getOffenderSoft();
         const prevScore = this.getScore();
         const changes = this.setRandomBasePair(idx);
-        if(this.failsHardConstraints() || (this.getScore() > prevScore && Math.random() > ETA)){
+        if (this.getScore() > prevScore && Math.random() > ETA) {
           // Revert changes
-          for(const c of changes){
+          for (const c of changes) {
             this.setBase(c[0], c[1]);
           }
         }
-
       }
       // If no repeats of length len, decrease len. Otherwise increase it.
-      if (this.repeats.size == 0){
-        this.setupDicts(this.len - 1);
-        if(this.len < bestLen){
+      if (this.repeats.get(this.len).size == 0) {
+        this.len -= 1;
+        if (this.len < bestLen) {
           // save the current best:
           bestLen = this.len;
-          bestPrimary = this.pString.join("");
+          bestPrimary = this.pString.join('');
         }
-      }
-      else this.setupDicts(this.len + 1);
+      } else this.len += 1;
     }
 
-    // save the best primary
-    this.pString = bestPrimary.split("");
+    // revert to the best primary:
+    this.pString = bestPrimary.split('');
     this.len = bestLen;
+
     this.savePrimary();
+
+    console.log(performance.now() - startT);
   }
 }
 
 /**
- * A combination of a list and a dictionary. Allows for a constant-time random-sampling and 
+ * A combination of a list and a dictionary. Should allow for near constant-time random-sampling and
  * addition/removal of specific elements.
  */
-class ListDict<T> {
+class ListDict<T> implements Iterable<T> {
   d: Map<T, number> = new Map();
   items: T[] = [];
   size: number = 0;
@@ -320,14 +375,23 @@ class ListDict<T> {
     const position = this.d.get(item);
     this.d.delete(item);
     const last_item = this.items.pop();
-    if(position != this.size - 1){
+    if (position != this.size - 1) {
       this.items[position] = last_item;
       this.d.set(last_item, position);
     }
     this.size -= 1;
   }
 
-  getRandom() {    
+  [Symbol.iterator](): Iterator<T, any, undefined> {
+    return this.items.values();
+  }
+
+  /**
+   * Returns a random entry.
+   *
+   * @returns
+   */
+  getRandom(): T {
     return this.items[Math.floor(Math.random() * this.size)];
   }
 }

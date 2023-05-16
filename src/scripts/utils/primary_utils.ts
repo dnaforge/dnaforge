@@ -307,7 +307,7 @@ export function setRandomPrimary(
   nm: NucleotideModel,
   gcContent: number,
   naType: NATYPE,
-  ignoreExisting = false,
+  ignoreExisting = false
 ): string[] {
   const iupac = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
   const getBase = naType == 'DNA' ? getBaseDNA : getBaseRNA;
@@ -319,7 +319,7 @@ export function setRandomPrimary(
   for (let i = 0; i < nucleotides.length; i++) {
     let base;
     const n = nucleotides[i];
-    if(ignoreExisting) n.base = "N";
+    if (ignoreExisting) n.base = 'N';
     if (n.isLinker || !visited.has(n.pair)) {
       const options = iupac[n.base];
       base = getBase(options, gcContent);
