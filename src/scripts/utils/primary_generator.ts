@@ -20,7 +20,7 @@ export class PrimaryGenerator {
 
   pairs: Map<number, number>; // secondary structure
   nickIndices: Set<number>; // indices
-  pString: string[]; // primary structure
+  pStrings: string[][]; // primary structure
 
   // optimization parameters:
   len: number = START_LEN; // currently active len
@@ -67,8 +67,10 @@ export class PrimaryGenerator {
   setupInitialPrimary() {
     for (let i = 0; i < 100; i++) {
       setRandomPrimary(this.nm, this.gcContent, this.nm.naType, true);
-      this.pString = this.nm.getNucleotides().map((n) => {
-        return n.base;
+      this.pStrings = this.nm.getStrands().map((s) => {
+        return s.getNucleotides().map((n) => {
+          return n.base;
+        });
       });
       this.setupDicts();
       if (this.getOffenderHard() == -1) return;
@@ -86,8 +88,8 @@ export class PrimaryGenerator {
   private getSubSeqs(len: number) {
     const subSeqs = new Map<string, Set<number>>();
 
-    for (let i = 0; i < this.pString.length - len + 1; i++) {
-      const s = this.pString.slice(i, i + len).join('');
+    for (let i = 0; i < this.pStrings.length - len + 1; i++) {
+      const s = this.pStrings.slice(i, i + len).join('');
       if (!subSeqs.get(s)) subSeqs.set(s, new Set<number>());
       subSeqs.get(s).add(i);
     }
@@ -141,8 +143,8 @@ export class PrimaryGenerator {
     const getSubSeqs = (len: number): [number, string][] => {
       const seqs: [number, string][] = [];
       for (let i = 0; i < len; i++) {
-        if (idx - i + len > this.pString.length || idx - i < 0) continue;
-        const seq = this.pString.slice(idx - i, idx - i + len);
+        if (idx - i + len > this.pStrings.length || idx - i < 0) continue;
+        const seq = this.pStrings.slice(idx - i, idx - i + len);
         seqs.push([idx - i, seq.join('')]);
       }
       return seqs;
@@ -158,7 +160,7 @@ export class PrimaryGenerator {
     }
 
     // Add new:
-    this.pString[idx] = base;
+    this.pStrings[idx] = base;
     for (let len of this.trackedLengths) {
       for (const p of getSubSeqs(len)) {
         const [idx, seq] = p;
@@ -203,8 +205,8 @@ export class PrimaryGenerator {
     const complement = randComplement(base, this.nm.naType);
     const idx2 = this.pairs.get(idx);
 
-    const prevBase = this.pString[idx];
-    const prevComplement = this.pString[idx2];
+    const prevBase = this.pStrings[idx];
+    const prevComplement = this.pStrings[idx2];
 
     this.setBase(idx, base);
     changes.push([idx, prevBase]);
@@ -271,7 +273,7 @@ export class PrimaryGenerator {
   private savePrimary() {
     const nucs = this.nm.getNucleotides();
     for (let i = 0; i < nucs.length; i++) {
-      nucs[i].base = this.pString[i];
+      nucs[i].base = this.pStrings[i];
     }
     this.nm.updateObject();
     this.validate();
@@ -298,8 +300,8 @@ export class PrimaryGenerator {
     //TODO:  use the suffix array to find it instead of just validating this.len
     //const suffixArray = new SuffixArray(this.pString);
     const repeats = new Set<string>();
-    for (let i = 0; i < this.pString.length - this.len; i++) {
-      const s = this.pString.slice(i, i + this.len + 1).join('');
+    for (let i = 0; i < this.pStrings.length - this.len; i++) {
+      const s = this.pStrings.slice(i, i + this.len + 1).join('');
       if (repeats.has(s)) throw `invalid repeats ${s}`;
       repeats.add(s);
     }
@@ -314,7 +316,7 @@ export class PrimaryGenerator {
   optimise() {
     const startT = performance.now();
 
-    let bestPrimary = this.pString.join('');
+    let bestPrimary = this.pStrings.join('');
     let bestLen = Infinity;
 
     for (let j = 0; j < ITERATIONS; j++) {
@@ -339,13 +341,13 @@ export class PrimaryGenerator {
         if (this.len < bestLen) {
           // save the current best:
           bestLen = this.len;
-          bestPrimary = this.pString.join('');
+          bestPrimary = this.pStrings.join('');
         }
       } else this.len += 1;
     }
 
     // revert to the best primary:
-    this.pString = bestPrimary.split('');
+    this.pStrings = bestPrimary.split('');
     this.len = bestLen;
 
     this.savePrimary();
