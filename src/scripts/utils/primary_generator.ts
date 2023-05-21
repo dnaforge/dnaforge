@@ -11,7 +11,7 @@ import { IUPAC_DNA } from '../globals/consts';
 import { IUPAC_RNA } from '../globals/consts';
 
 const MAX_TRIALS = 200; // changes per iteration
-const ITERATIONS = 100;
+const ITERATIONS = 200;
 const START_LEN = 10;
 const ETA = 0.05; // Acceptance probability of a change to the worse
 const BANNED_SEQS = [
@@ -38,14 +38,15 @@ export class PrimaryGenerator {
 
   //constraints:
   gcContent: number;
-  bannedSeqs: (seq: string) => boolean; // regex for banned subsequences
+  bannedSeqs: string[];
   linkerBases: string[]; // allowed bases for linkers
 
   // optimization parameters:
   curLen: number = START_LEN; // currently active len
-  trackedLengths: number[]; // all lengths for which subseqs and repeats are tracked
   subSeqs: Map<number, Map<string, Set<number>>>; // len -> (subseq -> indices) all subsequences
   repeats: Map<number, ListDict<string>>; // len -> (subseqs) repeated subsequences
+
+  isConflict: (seq: string) => boolean; // regex for banned subsequences
   conflicts: ListDict<string>; // subsequences conflicting with banned subsequences
 
   constructor(
@@ -56,11 +57,14 @@ export class PrimaryGenerator {
   ) {
     this.gcContent = gcContent;
     this.linkerBases = Array.from(iupacToOptions(linkers, nm.naType));
-    this.bannedSeqs = this.getBannedRegex(bannedSeqs);
+    this.bannedSeqs = bannedSeqs;
 
     this.nm = nm;
     this.pairs = getPairing(nm.getNucleotides());
     this.setupInitialPrimary(); //pString && idxToBounds && linkerIndices
+
+    this.setupDicts();
+    this.setupBans();
   }
 
   /**
@@ -70,8 +74,11 @@ export class PrimaryGenerator {
   private setupDicts(): void {
     this.subSeqs = new Map<number, Map<string, Set<number>>>();
     this.repeats = new Map<number, ListDict<string>>();
-    this.trackedLengths = [this.curLen];
-    for (let len of this.trackedLengths) {
+
+    const trackedLengths = new Set<number>();
+    for (let bSeq of this.bannedSeqs) trackedLengths.add(bSeq.length);
+    trackedLengths.add(this.curLen);
+    for (let len of trackedLengths) {
       const subSeqs = this.getSubSeqs(len);
       const repeats = this.getRepeats(subSeqs);
 
@@ -108,9 +115,41 @@ export class PrimaryGenerator {
     }
   }
 
-  private getBannedRegex(bannedSeqs: string[]) {
+  /**
+   * Setups the bannedRegex and conflicts dicts
+   */
+  private setupBans() {
+    this.isConflict = this.getBannedRegex(this.bannedSeqs, this.nm.naType);
+    this.conflicts = new ListDict<string>();
+    for (let len of this.subSeqs.keys()) {
+      for (let seq of this.subSeqs.get(len).keys()) {
+        if (this.isConflict(seq)) this.conflicts.add(seq);
+      }
+    }
+  }
+
+  private getBannedRegex(bannedSeqs: string[], naType = 'DNA') {
+    //TODO: use some clever data structure for this instead
+    const bannedSeqsSet = new Set<string>();
+
+    const options = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
+    for (let seq of bannedSeqs) {
+      let tSeqs: string[] = [];
+      tSeqs.push('');
+      for (let char of seq) {
+        const tSeqs2: string[] = [];
+        for (let b of options[char]) {
+          for (let tSeq of tSeqs) {
+            tSeqs2.push(tSeq + b);
+          }
+        }
+        tSeqs = tSeqs2;
+      }
+      for (let tSeq of tSeqs) bannedSeqsSet.add(tSeq);
+    }
+
     return (seq: string) => {
-      return true;
+      return bannedSeqsSet.has(seq);
     };
   }
 
@@ -154,24 +193,6 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Returns the nick index set. It contains all the excluded starting indices of
-   * repeats of length len.
-   *
-   * @param len
-   * @returns
-   */
-  getNickIndices(len: number) {
-    const nickIndices = new Set<number>();
-    const nucs = this.nm.getNucleotides();
-    for (let i = 0; i < nucs.length; i++) {
-      const n = nucs[i];
-      if (!n.prev) nickIndices.add(i);
-      if (!n.next) nickIndices.add(i - len + 1);
-    }
-    return nickIndices;
-  }
-
-  /**
    * Sets the base at idx. Updates the subseq and repeat dictionaries too.
    *
    * @param idx
@@ -189,18 +210,19 @@ export class PrimaryGenerator {
       return seqs;
     };
     // Remove old:
-    for (let len of this.trackedLengths) {
+    for (let len of this.subSeqs.keys()) {
       for (const p of getSubSeqs(len)) {
         const [idx, seq] = p;
         this.subSeqs.get(len).get(seq).delete(idx);
         if (this.subSeqs.get(len).get(seq).size < 2)
           this.repeats.get(len).delete(seq);
+        if (this.subSeqs.get(len).get(seq).size < 1) this.conflicts.delete(seq);
       }
     }
 
     // Add new:
     this.pString[idx] = base;
-    for (let len of this.trackedLengths) {
+    for (let len of this.subSeqs.keys()) {
       for (const p of getSubSeqs(len)) {
         const [idx, seq] = p;
         !this.subSeqs.get(len).has(seq) &&
@@ -208,6 +230,7 @@ export class PrimaryGenerator {
         this.subSeqs.get(len).get(seq).add(idx);
         if (this.subSeqs.get(len).get(seq).size >= 2)
           this.repeats.get(len).add(seq);
+        if (this.isConflict(seq)) this.conflicts.add(seq);
       }
     }
   }
@@ -268,13 +291,19 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Returns the index of a random repeated subsequence of length len
    *
    * @returns index
    */
-  private getOffenderRepeats(): number {
-    const len = this.curLen;
-    const seq = this.repeats.get(len).getRandom();
+  private getOffendingIdx(): number {
+    let seq, len;
+    if (this.conflicts.size > 0) {
+      seq = this.conflicts.getRandom();
+      len = seq.length;
+    } else if (this.repeats.get(this.curLen).size > 0) {
+      len = this.curLen;
+      seq = this.repeats.get(len).getRandom();
+    } else return -1;
+
     const idx =
       this.subSeqs.get(len).get(seq).values().next().value +
       Math.floor(Math.random() * len);
@@ -285,6 +314,10 @@ export class PrimaryGenerator {
    * Validates the correcteness of the primary structure. Throws an error if invalid.
    */
   private validate() {
+    this.setupDicts();
+    this.setupBans();
+
+    if (this.conflicts.size > 0) throw `Could not satisfy constraints`;
     if (!validatePairs(this.nm.getNucleotides(), this.nm.naType))
       throw `Invalid base-pairing.`;
     for (let n of this.nm.getNucleotides())
@@ -358,8 +391,9 @@ export class PrimaryGenerator {
       console.log(this.curLen);
 
       for (let i = 0; i < MAX_TRIALS; i++) {
-        if (this.repeats.get(this.curLen).size == 0) break;
-        const idx = this.getOffenderRepeats();
+        const idx = this.getOffendingIdx();
+        if (idx == -1) break;
+
         const prevScore = this.getScore();
         const changes = this.setRandomBasePair(idx);
         if (this.getScore() > prevScore && Math.random() > ETA) {
@@ -369,8 +403,8 @@ export class PrimaryGenerator {
           }
         }
       }
-      // If no repeats of length len, decrease len. Otherwise increase it.
-      if (this.repeats.get(this.curLen).size == 0) {
+      // If no offenders, decrease len. Otherwise increase it.
+      if (this.getOffendingIdx() == -1) {
         this.curLen -= 1;
         if (this.curLen < bestLen) {
           // save the current best:
@@ -386,7 +420,9 @@ export class PrimaryGenerator {
 
     this.savePrimary();
 
-    console.log(performance.now() - startT);
+    console.log(
+      `Optimised for ${(performance.now() - startT) / 1000} seconds.`
+    );
   }
 }
 
