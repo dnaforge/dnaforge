@@ -416,3 +416,21 @@ export function validatePairs(
   }
   return true;
 }
+
+/**
+ * Given a string of IUPAC symbols, returns a set of all possible bases it can contain
+ *
+ * @param iupac a string of IUPAC symbols
+ * @param naType
+ * @returns set of bases
+ */
+export function iupacToOptions(iupac: string = 'W', naType = 'DNA') {
+  const bases = new Set<string>();
+  for (let x of iupac.split('')) {
+    const iToChar = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
+    for (let b of iToChar[x.toUpperCase()]) {
+      bases.add(b);
+    }
+  }
+  return bases;
+}

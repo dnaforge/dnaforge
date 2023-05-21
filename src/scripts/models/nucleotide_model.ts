@@ -429,6 +429,15 @@ class Strand {
   }
 
   /**
+   * Returns a list of all nucleotides in this strand.
+   *
+   * @returns nucleotides
+   */
+  getNucleotides(): Nucleotide[] {
+    return this.nucleotides;
+  }
+
+  /**
    * Generates a new nucleotide for each transformation matrix provided.
    *
    * @param matrices transformation matrices
@@ -981,9 +990,9 @@ class NucleotideModel {
   /**
    * Returns a list of all nucleotides in this model.
    *
-   * @returns
+   * @returns nucleotides
    */
-  getNucleotides() {
+  getNucleotides(): Nucleotide[] {
     const nucs = [];
     for (const s of this.strands) {
       for (const n of s.nucleotides) {
@@ -991,6 +1000,15 @@ class NucleotideModel {
       }
     }
     return nucs;
+  }
+
+  /**
+   * Returns a list of all the strands in this model
+   *
+   * @returns strands
+   */
+  getStrands(): Strand[] {
+    return this.strands;
   }
 
   /**

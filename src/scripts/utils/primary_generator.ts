@@ -1,13 +1,27 @@
 import { SuffixArray } from 'mnemonist';
 import { WATSON_CHAR_DNA, WATSON_CHAR_RNA } from '../globals/consts';
-import { NucleotideModel } from '../models/nucleotide_model';
-import { getPairing, setRandomPrimary, validatePairs } from './primary_utils';
+import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
+import {
+  getPairing,
+  iupacToOptions,
+  setRandomPrimary,
+  validatePairs,
+} from './primary_utils';
+import { IUPAC_DNA } from '../globals/consts';
+import { IUPAC_RNA } from '../globals/consts';
 
 const MAX_TRIALS = 200; // changes per iteration
 const ITERATIONS = 100;
 const START_LEN = 10;
-const HARD_CONSTRAINT_LEN = 7; // maximum repeat length of subsequence starting or ending at a nick
 const ETA = 0.05; // Acceptance probability of a change to the worse
+const BANNED_SEQS = [
+  'KKKKKK',
+  'MMMMMM',
+  'RRRRRR',
+  'SSSSSS',
+  'WWWWWW',
+  'YYYYYY',
+];
 
 /**
  * PrimaryGenerator is used to generate a primary structure such that
@@ -15,31 +29,38 @@ const ETA = 0.05; // Acceptance probability of a change to the worse
  * adhering to hard constraints such as GC-content and repeated bases.
  */
 export class PrimaryGenerator {
+  //structure:
   nm: NucleotideModel;
-  gcContent: number;
-
   pairs: Map<number, number>; // secondary structure
-  nickIndices: Set<number>; // indices
-  pStrings: string[][]; // primary structure
+  pString: string[]; // primary structure
+  idxToBounds: Map<number, [number, number]>; //maps indices to the 5' and 3' of the asscociated strand
+  linkerIndices: Set<number>; // indices of linkers
+
+  //constraints:
+  gcContent: number;
+  bannedSeqs: (seq: string) => boolean; // regex for banned subsequences
+  linkerBases: string[]; // allowed bases for linkers
 
   // optimization parameters:
-  len: number = START_LEN; // currently active len
-  hcLen: number = HARD_CONSTRAINT_LEN;
+  curLen: number = START_LEN; // currently active len
+  trackedLengths: number[]; // all lengths for which subseqs and repeats are tracked
+  subSeqs: Map<number, Map<string, Set<number>>>; // len -> (subseq -> indices) all subsequences
+  repeats: Map<number, ListDict<string>>; // len -> (subseqs) repeated subsequences
+  conflicts: ListDict<string>; // subsequences conflicting with banned subsequences
 
-  trackedLengths: number[] = [START_LEN]; // all lengths for which subseqs and repeats are tracked
-  subSeqs: Map<number, Map<string, Set<number>>>; // all subsequences
-  repeats: Map<number, ListDict<string>>; // repeated subsequences
-
-  localConstraints: ((pString: string, idx: number) => boolean)[];
-
-  constructor(nm: NucleotideModel, gcContent: number) {
+  constructor(
+    nm: NucleotideModel,
+    gcContent: number,
+    linkers = 'W',
+    bannedSeqs = BANNED_SEQS
+  ) {
     this.gcContent = gcContent;
+    this.linkerBases = Array.from(iupacToOptions(linkers, nm.naType));
+    this.bannedSeqs = this.getBannedRegex(bannedSeqs);
+
     this.nm = nm;
-
-    const nucleotides = nm.getNucleotides();
-    this.pairs = getPairing(nucleotides);
-
-    this.setupInitialPrimary();
+    this.pairs = getPairing(nm.getNucleotides());
+    this.setupInitialPrimary(); //pString && idxToBounds && linkerIndices
   }
 
   /**
@@ -49,9 +70,7 @@ export class PrimaryGenerator {
   private setupDicts(): void {
     this.subSeqs = new Map<number, Map<string, Set<number>>>();
     this.repeats = new Map<number, ListDict<string>>();
-    this.nickIndices = this.getNickIndices(this.trackedLengths[0]);
-
-    this.trackedLengths = [this.len];
+    this.trackedLengths = [this.curLen];
     for (let len of this.trackedLengths) {
       const subSeqs = this.getSubSeqs(len);
       const repeats = this.getRepeats(subSeqs);
@@ -62,20 +81,37 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Setups an initial primary structure such that it passes all the hard constraints.
+   * Setups an initial primary structure and the idxToBounds map and the linkerIndices
    */
   setupInitialPrimary() {
-    for (let i = 0; i < 100; i++) {
-      setRandomPrimary(this.nm, this.gcContent, this.nm.naType, true);
-      this.pStrings = this.nm.getStrands().map((s) => {
-        return s.getNucleotides().map((n) => {
-          return n.base;
-        });
-      });
-      this.setupDicts();
-      if (this.getOffenderHard() == -1) return;
+    this.idxToBounds = new Map<number, [number, number]>();
+    this.linkerIndices = new Set<number>();
+    this.pString = [];
+
+    for (let n of this.nm.getNucleotides()) {
+      if (n.isLinker)
+        n.base =
+          this.linkerBases[Math.floor(Math.random() * this.linkerBases.length)];
+      else n.base = 'N';
     }
-    throw `Unable to find an initial feasible solution.`;
+    setRandomPrimary(this.nm, this.gcContent, this.nm.naType, false);
+
+    let i = 0;
+    for (let s of this.nm.strands) {
+      const sNucs = s.getNucleotides();
+      const bounds: [number, number] = [i, i + s.length()];
+      for (let j = 0; j < s.length(); j++, i++) {
+        this.pString.push(sNucs[j].base);
+        this.idxToBounds.set(i, bounds);
+        sNucs[j].isLinker && this.linkerIndices.add(i);
+      }
+    }
+  }
+
+  private getBannedRegex(bannedSeqs: string[]) {
+    return (seq: string) => {
+      return true;
+    };
   }
 
   /**
@@ -88,8 +124,10 @@ export class PrimaryGenerator {
   private getSubSeqs(len: number) {
     const subSeqs = new Map<string, Set<number>>();
 
-    for (let i = 0; i < this.pStrings.length - len + 1; i++) {
-      const s = this.pStrings.slice(i, i + len).join('');
+    for (let i = 0; i < this.pString.length - len + 1; i++) {
+      const bounds = this.idxToBounds.get(i);
+      if (i + len > bounds[1]) continue;
+      const s = this.pString.slice(i, i + len).join('');
       if (!subSeqs.get(s)) subSeqs.set(s, new Set<number>());
       subSeqs.get(s).add(i);
     }
@@ -142,9 +180,10 @@ export class PrimaryGenerator {
   private setBase(idx: number, base: string) {
     const getSubSeqs = (len: number): [number, string][] => {
       const seqs: [number, string][] = [];
+      const bounds = this.idxToBounds.get(idx);
       for (let i = 0; i < len; i++) {
-        if (idx - i + len > this.pStrings.length || idx - i < 0) continue;
-        const seq = this.pStrings.slice(idx - i, idx - i + len);
+        if (idx - i < bounds[0] || idx - i + len > bounds[1]) continue;
+        const seq = this.pString.slice(idx - i, idx - i + len);
         seqs.push([idx - i, seq.join('')]);
       }
       return seqs;
@@ -160,7 +199,7 @@ export class PrimaryGenerator {
     }
 
     // Add new:
-    this.pStrings[idx] = base;
+    this.pString[idx] = base;
     for (let len of this.trackedLengths) {
       for (const p of getSubSeqs(len)) {
         const [idx, seq] = p;
@@ -184,9 +223,19 @@ export class PrimaryGenerator {
    */
   private setRandomBasePair(idx: number, gcContent = 0.5): [number, string][] {
     const randBase = (naType: string): WATSON_CHAR_DNA | WATSON_CHAR_RNA => {
-      if (naType == 'DNA')
+      if (naType == 'DNA') {
+        if (this.linkerIndices.has(idx))
+          return this.linkerBases[
+            Math.floor(Math.random() * this.linkerBases.length)
+          ] as WATSON_CHAR_DNA;
         return 'ATGC'[Math.floor(Math.random() * 4)] as WATSON_CHAR_DNA;
-      else return 'AUGC'[Math.floor(Math.random() * 4)] as WATSON_CHAR_RNA;
+      } else if (naType == 'RNA') {
+        if (this.linkerIndices.has(idx))
+          return this.linkerBases[
+            Math.floor(Math.random() * this.linkerBases.length)
+          ] as WATSON_CHAR_RNA;
+        return 'AUGC'[Math.floor(Math.random() * 4)] as WATSON_CHAR_RNA;
+      }
     };
     const randComplement = (
       base: WATSON_CHAR_DNA | WATSON_CHAR_RNA,
@@ -205,8 +254,8 @@ export class PrimaryGenerator {
     const complement = randComplement(base, this.nm.naType);
     const idx2 = this.pairs.get(idx);
 
-    const prevBase = this.pStrings[idx];
-    const prevComplement = this.pStrings[idx2];
+    const prevBase = this.pString[idx];
+    const prevComplement = this.pString[idx2];
 
     this.setBase(idx, base);
     changes.push([idx, prevBase]);
@@ -219,40 +268,17 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Soft constraints. Returns the starting index of a random repeated subsequence of length len
+   * Returns the index of a random repeated subsequence of length len
    *
-   * @returns start index
+   * @returns index
    */
-  private getOffenderSoft(): number {
-    const len = this.len;
+  private getOffenderRepeats(): number {
+    const len = this.curLen;
     const seq = this.repeats.get(len).getRandom();
     const idx =
       this.subSeqs.get(len).get(seq).values().next().value +
       Math.floor(Math.random() * len);
     return idx;
-  }
-
-  /**
-   * Hard constraints. Returns the starting index of a random subsequence failing a hard constraint
-   *
-   * @returns start index
-   */
-  private getOffenderHard(): number {
-    return -1;
-    const len = this.len;
-    const seq = this.repeats.get(len).getRandom();
-    const idx =
-      this.subSeqs.get(len).get(seq).values().next().value +
-      Math.floor(Math.random() * len);
-    return idx;
-    const repeatAtNick = () => {
-      for (const r of this.repeats.get(this.trackedLengths[0])) {
-        for (let idx of this.subSeqs.get(r.length).get(r)) {
-          if (this.nickIndices.has(idx)) return true;
-        }
-      }
-      return false;
-    };
   }
 
   /**
@@ -261,8 +287,9 @@ export class PrimaryGenerator {
   private validate() {
     if (!validatePairs(this.nm.getNucleotides(), this.nm.naType))
       throw `Invalid base-pairing.`;
-    //if (this.failsHardConstraints())
-    //  throw `Did not satisfy hard constraints`;
+    for (let n of this.nm.getNucleotides())
+      if (n.isLinker && !this.linkerBases.includes(n.base))
+        throw `Invalid linker bases`;
 
     //TODO: validate GC-content
   }
@@ -273,7 +300,7 @@ export class PrimaryGenerator {
   private savePrimary() {
     const nucs = this.nm.getNucleotides();
     for (let i = 0; i < nucs.length; i++) {
-      nucs[i].base = this.pStrings[i];
+      nucs[i].base = this.pString[i];
     }
     this.nm.updateObject();
     this.validate();
@@ -285,7 +312,7 @@ export class PrimaryGenerator {
    * @returns score
    */
   getScore() {
-    const repeatScore = this.repeats.get(this.len).size;
+    const repeatScore = this.repeats.get(this.curLen).size;
 
     const score = repeatScore;
     return score;
@@ -300,12 +327,19 @@ export class PrimaryGenerator {
     //TODO:  use the suffix array to find it instead of just validating this.len
     //const suffixArray = new SuffixArray(this.pString);
     const repeats = new Set<string>();
-    for (let i = 0; i < this.pStrings.length - this.len; i++) {
-      const s = this.pStrings.slice(i, i + this.len + 1).join('');
-      if (repeats.has(s)) throw `invalid repeats ${s}`;
-      repeats.add(s);
+    for (let strand of this.nm.getStrands()) {
+      for (let i = 0; i < strand.length() - this.curLen; i++) {
+        const nucs = strand.getNucleotides().slice(i, i + this.curLen + 1);
+        const s = nucs
+          .map((n) => {
+            return n.base;
+          })
+          .join('');
+        if (repeats.has(s)) throw `invalid repeats ${s}`;
+        repeats.add(s);
+      }
     }
-    return this.len;
+    return this.curLen;
   }
 
   /**
@@ -316,16 +350,16 @@ export class PrimaryGenerator {
   optimise() {
     const startT = performance.now();
 
-    let bestPrimary = this.pStrings.join('');
+    let bestPrimary = this.pString.join('');
     let bestLen = Infinity;
 
     for (let j = 0; j < ITERATIONS; j++) {
       this.setupDicts();
-      console.log(this.len);
+      console.log(this.curLen);
 
       for (let i = 0; i < MAX_TRIALS; i++) {
-        if (this.repeats.get(this.len).size == 0) break;
-        const idx = this.getOffenderSoft();
+        if (this.repeats.get(this.curLen).size == 0) break;
+        const idx = this.getOffenderRepeats();
         const prevScore = this.getScore();
         const changes = this.setRandomBasePair(idx);
         if (this.getScore() > prevScore && Math.random() > ETA) {
@@ -336,19 +370,19 @@ export class PrimaryGenerator {
         }
       }
       // If no repeats of length len, decrease len. Otherwise increase it.
-      if (this.repeats.get(this.len).size == 0) {
-        this.len -= 1;
-        if (this.len < bestLen) {
+      if (this.repeats.get(this.curLen).size == 0) {
+        this.curLen -= 1;
+        if (this.curLen < bestLen) {
           // save the current best:
-          bestLen = this.len;
-          bestPrimary = this.pStrings.join('');
+          bestLen = this.curLen;
+          bestPrimary = this.pString.join('');
         }
-      } else this.len += 1;
+      } else this.curLen += 1;
     }
 
     // revert to the best primary:
-    this.pStrings = bestPrimary.split('');
-    this.len = bestLen;
+    this.pString = bestPrimary.split('');
+    this.curLen = bestLen;
 
     this.savePrimary();
 

@@ -183,6 +183,7 @@ export class Controls {
       default:
         break;
     }
+    this.handlePointerMove(event); // this should allow selection on touch pad too
   }
 
   handleMouseUp(event: PointerEvent) {
