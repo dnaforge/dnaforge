@@ -27,8 +27,8 @@
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
-                        type="number" data-role="input" data-default-value="15" data-size="225" data-prepend="Scale"
-                        data-append="nm" id="veneziano-scale"></li>
+                        type="number" data-role="input" data-default-value="15" min="0.01" max="1000" step="0.01"
+                        data-size="225" data-prepend="Scale" data-append="nm" id="veneziano-scale"></li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
                     <select data-prepend="Scaffold" data-role="select" id="veneziano-scaffold">
                         <optgroup label="Scaffold strand">
@@ -47,13 +47,15 @@
                 </li>
             </ul>
             <ul style="list-style-type:none;">
-                <li data-role="hint" data-hint-position="right" data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200"
-                        data-prepend="Offset" id="spanning-tree-scaffold-offset">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="Offset"
+                        id="spanning-tree-scaffold-offset">
                 </li>
-                <li data-role="hint" data-hint-position="right" data-hint-text="ID of the first nucleotide in the scaffold strand.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200"
-                        data-prepend="5' ID" id="spanning-tree-scaffold-start">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="5' ID"
+                        id="spanning-tree-scaffold-start">
                 </li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Add strand gaps in linker strands.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"

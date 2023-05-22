@@ -18,7 +18,8 @@
             </ul>
             <ul style="list-style-type:none;">
                 <li>
-                    <button class="ribbon-button" id="atrail-generate-cylinders" data-role="hint" data-hint-position="right"
+                    <button class="ribbon-button" id="atrail-generate-cylinders" data-role="hint"
+                        data-hint-position="right"
                         data-hint-text="Generate a cylinder model based on the current routing.">
                         <span class="mif-loop2 mif-1x"></span>
                         <span class="caption">(Re)Generate<br>Cylinders</span>
@@ -26,8 +27,7 @@
                 </li>
                 <li>
                     <button class="button primary" data-role="hint" id="atrail-reinforce-cylinders"
-                        data-hint-position="right"
-                        data-hint-text="Reinforce selected cylinders.">Reinforce</button>
+                        data-hint-position="right" data-hint-text="Reinforce selected cylinders.">Reinforce</button>
                 </li>
             </ul>
             <span class="title">Main</span>
@@ -53,8 +53,8 @@
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
-                        type="number" data-role="input" data-default-value="15" data-size="225" data-prepend="Scale"
-                        data-append="nm" id="atrail-scale">
+                        type="number" data-role="input" data-default-value="15" min="0.01" max="1000" step="0.01"
+                        data-size="225" data-prepend="Scale" data-append="nm" id="atrail-scale">
                 </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
@@ -92,13 +92,15 @@
                 </li>
             </ul>
             <ul style="list-style-type:none;">
-                <li data-role="hint" data-hint-position="right" data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200"
-                        data-prepend="Offset" id="atrail-scaffold-offset">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="Offset"
+                        id="atrail-scaffold-offset">
                 </li>
-                <li data-role="hint" data-hint-position="right" data-hint-text="ID of the first nucleotide in the scaffold strand.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200"
-                        data-prepend="5' ID" id="atrail-scaffold-start">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="5' ID"
+                        id="atrail-scaffold-start">
                 </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Separate linker strands with strand gaps. If off, linker strands will form long cycles.">

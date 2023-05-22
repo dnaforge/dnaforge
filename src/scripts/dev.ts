@@ -33,14 +33,14 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(proteus);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
   context.setGraph(graph);
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.addWires();
   //cc.addCylinders();
   cc.addNucleotides();
-  cc.generatePrimary();
+  //cc.generatePrimary();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();

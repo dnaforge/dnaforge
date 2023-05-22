@@ -5,6 +5,7 @@ import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
 import { Menu, MenuParameters } from '../scene/menu';
 import { downloadTXT } from '../io/download';
+import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA } from '../globals/consts';
 
 //TODO: make a separate selection handler class
 
@@ -14,7 +15,7 @@ export interface ModuleMenuParameters extends MenuParameters {
   scale?: number;
   minLinkers?: number;
   maxLinkers?: number;
-  linkerOptions?: string;
+  linkerOptions?: IUPAC_CHAR_DNA | IUPAC_CHAR_RNA;
   minStrandLength?: number;
   maxStrandLength?: number;
   gcContent?: number;

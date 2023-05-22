@@ -12,19 +12,30 @@ import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import { PrimaryGenerator } from '../../utils/primary_generator';
+import {
+  OptimiserParams,
+  PrimaryGenerator,
+} from '../../utils/primary_generator';
 
 export type CCParameters = ModuleMenuParameters;
 
 export class CycleCoverMenu extends ModuleMenu {
+  psParams: Partial<OptimiserParams> = {};
+
   scaleInput: any;
   linkersMinInput: any;
   linkersMaxInput: any;
-  gcContentInput: any;
   strandLengthMaxInput: any;
   strandLengthMinInput: any;
   addNicksSwitch: any;
+
   generatePrimaryButton: any;
+  psGGContentInput: any;
+  psLinkersInput: any;
+  psBannedInput: any;
+  psIterationsInput: any;
+  psTrialsInput: any;
+  psEtaInput: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -84,7 +95,7 @@ export class CycleCoverMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    const pgen = new PrimaryGenerator(this.nm, this.params.gcContent);
+    const pgen = new PrimaryGenerator(this.nm, this.psParams);
     pgen.optimise();
 
     this.context.addMessage(
@@ -100,10 +111,16 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.minLinkers = parseInt(this.linkersMinInput[0].value);
     this.params.maxLinkers = parseInt(this.linkersMaxInput[0].value);
 
-    this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
     this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
     this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
     this.params.addNicks = this.addNicksSwitch[0].checked;
+
+    this.psParams.gcContent = parseFloat(this.psGGContentInput[0].value) / 100;
+    this.psParams.linkers = this.psLinkersInput[0].value.split(',');
+    this.psParams.bannedSeqs = this.psBannedInput[0].value.split(',');
+    this.psParams.iterations = parseInt(this.psIterationsInput[0].value);
+    this.psParams.maxTrials = parseInt(this.psTrialsInput[0].value);
+    this.psParams.eta = parseInt(this.psEtaInput[0].value);
   }
 
   loadParameters(json: JSONObject) {
@@ -113,7 +130,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.linkersMinInput[0].value = json.minLinkers;
     this.linkersMaxInput[0].value = json.maxLinkers;
 
-    this.gcContentInput[0].value = <number>json.gcContent * 100;
+    this.psGGContentInput[0].value = <number>json.gcContent * 100;
     this.strandLengthMaxInput[0].value = json.maxStrandLength;
     this.strandLengthMinInput[0].value = json.minStrandLength;
     this.addNicksSwitch[0].checked = json.addNicks;
@@ -125,12 +142,18 @@ export class CycleCoverMenu extends ModuleMenu {
     this.scaleInput = $('#cycle-cover-scale');
     this.linkersMinInput = $('#cycle-cover-linkers-min');
     this.linkersMaxInput = $('#cycle-cover-linkers-max');
-    this.gcContentInput = $('#cycle-cover-gc-content');
     this.strandLengthMaxInput = $('#cycle-cover-strand-length-max');
     this.strandLengthMinInput = $('#cycle-cover-strand-length-min');
-
     this.addNicksSwitch = $('#cycle-cover-add-nicks');
-    this.generatePrimaryButton = $('#generate-cycle-cover-primary');
+
+    // Primary structure:
+    this.generatePrimaryButton = $('#cycle-cover-generate-primary');
+    this.psGGContentInput = $('#cycle-cover-ps-gc-content');
+    this.psLinkersInput = $('#cycle-cover-ps-linkers');
+    this.psBannedInput = $('#cycle-cover-ps-banned');
+    this.psIterationsInput = $('#cycle-cover-ps-iterations');
+    this.psTrialsInput = $('#cycle-cover-ps-trials');
+    this.psEtaInput = $('#cycle-cover-ps-eta');
 
     this.generatePrimaryButton.on('click', () => {
       try {

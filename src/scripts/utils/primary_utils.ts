@@ -424,11 +424,12 @@ export function validatePairs(
  * @param naType
  * @returns set of bases
  */
-export function iupacToOptions(iupac: string = 'W', naType = 'DNA') {
+export function iupacToOptions(iupac: string, naType = 'DNA') {
   const bases = new Set<string>();
-  for (let x of iupac.split('')) {
+  for (const x of iupac.split('')) {
     const iToChar = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
-    for (let b of iToChar[x.toUpperCase()]) {
+    if (!iToChar[x.toUpperCase()]) throw `Unrecognised IUPAC symbol: ${x}`;
+    for (const b of iToChar[x.toUpperCase()]) {
       bases.add(b);
     }
   }
