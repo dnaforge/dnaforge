@@ -801,7 +801,7 @@ class NucleotideModel {
         if (visited.has(cur)) continue;
         const start = cur;
         do {
-          if (cur.next.prev != cur)
+          if (cur.next && cur.next.prev != cur)
             throw `Inconsistent nucleotide connectivity`;
           if (cur.prev && cur.prev.next != cur)
             throw `Inconsistent nucleotide connectivity`;
@@ -935,8 +935,25 @@ class NucleotideModel {
         shortStrands.push(strand);
         continue;
       }
-      if (l >= minLength * 3) {
-        const N = Math.floor((l - minLength) / (2 * minLength)); // number of long strands
+      if (l >= minLength * 5) {
+        const indices1 = [minLength - 1, l - 2 * minLength - 1];
+        const indices2 = [minLength - 1, l - 2 * minLength - 1];
+
+        const N = Math.floor((l - 3 * minLength) / (2 * minLength)); // number of long substrands
+        const b = 2 * minLength + Math.floor((l - (2 * N + 3) * minLength) / N); // bases per strand
+        const remainder = l - N * b - 3 * minLength;
+
+        for (let i = 1; i < N + 1; i++) {
+          const t1 = i <= remainder ? i : remainder;
+          const t2 = i > N - remainder ? i - N + remainder : 0;
+          indices1.push(minLength - 1 + i * b + t1);
+          indices2.push(minLength - 1 + i * b + t2);
+        }
+
+        addNicksT(strand, indices1);
+        addNicksT(strand.pair, indices2);
+      } else if (l >= minLength * 3) {
+        const N = Math.floor((l - minLength) / (2 * minLength)); // number of long substrands
         const r = l - 2 * minLength * N;
 
         const l1 = 0;

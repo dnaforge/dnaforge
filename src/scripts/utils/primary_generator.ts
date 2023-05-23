@@ -152,7 +152,18 @@ export class PrimaryGenerator {
     }
   }
 
-  private getBannedRegex(bannedSeqs: string[], naType: NATYPE = 'DNA') {
+  /**
+   * Creates a function that returns true if the given sequence matches with
+   * any of the banned sequences or false otherwise.
+   *
+   * @param bannedSeqs
+   * @param naType
+   * @returns (sequence: string) => boolean
+   */
+  private getBannedRegex(
+    bannedSeqs: string[],
+    naType: NATYPE = 'DNA'
+  ): (sequence: string) => boolean {
     //TODO: use some clever data structure for this instead
     const bannedSeqsSet = new Set<string>();
 
@@ -185,7 +196,7 @@ export class PrimaryGenerator {
    * @param len
    * @returns
    */
-  private getSubSeqs(len: number) {
+  private getSubSeqs(len: number): Map<string, Set<number>> {
     const subSeqs = new Map<string, Set<number>>();
 
     for (let i = 0; i < this.pString.length - len + 1; i++) {
@@ -200,12 +211,12 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Gets the repeat set. The repeat set contains all the repeated subesequences
+   * Gets the repeat set. The repeat set contains all the repeated subesequences.
    *
    * @param subSeqs map of all subsequences
    * @returns
    */
-  private getRepeats(subSeqs: Map<string, Set<number>>) {
+  private getRepeats(subSeqs: Map<string, Set<number>>): ListDict<string> {
     const repeats = new ListDict<string>();
 
     for (const p of subSeqs) {
@@ -321,7 +332,7 @@ export class PrimaryGenerator {
    * If there are no conflicts, finds a random repeated substring and returns a random index
    * in the primary structure matching to that repeat.
    *
-   * Otherwise returns -1
+   * If there are neither conflicts nor repeats, returns -1
    *
    * @returns index or -1
    */
@@ -376,7 +387,7 @@ export class PrimaryGenerator {
    *
    * @returns score
    */
-  getScore() {
+  getScore(): number {
     const repeatScore = this.repeats.get(this.curLen).size;
 
     const score = repeatScore;
@@ -408,7 +419,7 @@ export class PrimaryGenerator {
   }
 
   /**
-   * Sets the curLen parameter and updates the necessary dicts.
+   * Sets the curLen parameter and updates the optimiser data structures.
    *
    * @param len
    */
