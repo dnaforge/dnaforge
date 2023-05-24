@@ -18,4 +18,4 @@ Check out the package.json for scripts. E.g.:
 npm build
 ```
 
-The output is in the dist-directory and should be runnable on all modern browsers.
+The output is in the dist-directory and should be runnable on all modern browsers..
