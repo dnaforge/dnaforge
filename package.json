@@ -1,6 +1,6 @@
 {
   "name": "dforge_server",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -19,6 +19,7 @@
   "dependencies": {
     "cannon-es": "^0.20.0",
     "edmonds-blossom-fixed": "^1.0.1",
+    "eslint": "^8.42.0",
     "lodash": "^4.17.21",
     "metro4": "^4.3.10",
     "mnemonist": "^0.39.5",

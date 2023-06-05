@@ -40,7 +40,7 @@ export function dev(context: Context) {
   //cc.addWires();
   //cc.addCylinders();
   cc.addNucleotides();
-  //cc.generatePrimary();
+  cc.generatePrimary();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();

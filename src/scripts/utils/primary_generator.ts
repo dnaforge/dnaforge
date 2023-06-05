@@ -45,6 +45,7 @@ export class PrimaryGenerator {
 
   // optimiser data structures:
   pString: string[]; // primary structure
+  numGC: number;
   linkerOptions: string[]; // allowed bases for linkers
   curLen = 1; // currently active len
   subSeqs: Map<number, Map<string, Set<number>>>; // len -> (subseq -> indices) all subsequences
@@ -96,6 +97,7 @@ export class PrimaryGenerator {
    */
   private setupInitialPrimary() {
     this.pString = [];
+    this.numGC = 0;
     for (const n of this.nm.getNucleotides()) {
       if (n.isLinker)
         n.base =
@@ -110,7 +112,9 @@ export class PrimaryGenerator {
     for (const s of this.nm.strands) {
       const sNucs = s.getNucleotides();
       for (let j = 0; j < s.length(); j++, i++) {
-        this.pString.push(sNucs[j].base);
+        const base = sNucs[j].base;
+        this.pString.push(base);
+        if (new Set('GC').has(base)) this.numGC += 1;
       }
     }
   }
@@ -246,6 +250,7 @@ export class PrimaryGenerator {
       return seqs;
     };
     // Remove old:
+    if (new Set('GC').has(this.pString[idx])) this.numGC -= 1;
     for (const len of this.subSeqs.keys()) {
       for (const p of getSubSeqs(len)) {
         const [idx, seq] = p;
@@ -258,6 +263,7 @@ export class PrimaryGenerator {
 
     // Add new:
     this.pString[idx] = base;
+    if (new Set('GC').has(this.pString[idx])) this.numGC += 1;
     for (const len of this.subSeqs.keys()) {
       for (const p of getSubSeqs(len)) {
         const [idx, seq] = p;
@@ -282,12 +288,17 @@ export class PrimaryGenerator {
    */
   private setRandomBasePair(idx: number, gcContent = 0.5): [number, string][] {
     const randBase = (naType: NATYPE): WATSON_CHAR_DNA | WATSON_CHAR_RNA => {
+      //TODO: clean this function
+      const K = 25; // the logistic growth rate around the current gc-content
+      const gcContentCur = this.getGCContent();
       if (naType == 'DNA') {
         if (this.linkerIndices.has(idx))
           return this.linkerOptions[
             Math.floor(Math.random() * this.linkerOptions.length)
           ] as WATSON_CHAR_DNA;
-        return 'ATGC'[Math.floor(Math.random() * 4)] as WATSON_CHAR_DNA;
+        if (Math.random() > 1 / (1 + Math.exp(-K * (gcContent - gcContentCur))))
+          return 'AT'[Math.floor(Math.random() * 2)] as WATSON_CHAR_DNA;
+        else return 'GC'[Math.floor(Math.random() * 2)] as WATSON_CHAR_DNA;
       } else if (naType == 'RNA') {
         if (this.linkerIndices.has(idx))
           return this.linkerOptions[
@@ -419,6 +430,15 @@ export class PrimaryGenerator {
   }
 
   /**
+   * Returns the gc-content of the current primary structure.
+   *
+   * @returns gc-content
+   */
+  getGCContent() {
+    return this.numGC / this.pString.length;
+  }
+
+  /**
    * Sets the curLen parameter and updates the optimiser data structures.
    *
    * @param len
@@ -426,7 +446,7 @@ export class PrimaryGenerator {
   private setCurLen(len: number) {
     this.curLen = len;
     this.setupDicts();
-    console.log(this.curLen);
+    //console.log(this.curLen);
   }
 
   /**
@@ -445,7 +465,7 @@ export class PrimaryGenerator {
         const idx = this.getOffendingIdx();
         if (idx == -1) break;
         const prevScore = this.getScore();
-        const changes = this.setRandomBasePair(idx);
+        const changes = this.setRandomBasePair(idx, this.params.gcContent);
         if (this.getScore() > prevScore && Math.random() > this.params.eta) {
           // Revert changes
           for (const c of changes) {
