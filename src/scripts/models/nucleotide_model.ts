@@ -855,7 +855,7 @@ class NucleotideModel {
 
   /**
    * Returns an oxDNA dat-file corresponding to this model.
-   * 
+   *
    * @returns string
    */
   toDat(): string {
@@ -867,32 +867,47 @@ class NucleotideModel {
       (50 * 1) / this.scale + 50,
     ];
 
-    lines.push("t = 0");
-    lines.push("b = " + boxSize.join(" "));
-    lines.push("E = 0 0 0");
+    lines.push('t = 0');
+    lines.push('b = ' + boxSize.join(' '));
+    lines.push('E = 0 0 0');
 
-    for (let s of this.getStrands()) {
-      for (let n of s.getNucleotides()) {
+    for (const s of this.getStrands()) {
+      for (const n of s.getNucleotides()) {
         const a1 = n.hydrogenFaceDir;
         const a3 = n.baseNormal;
         const a2 = a1.clone().cross(a3);
-        const bb = n.backboneCenter.clone().multiplyScalar(lenFactor).multiplyScalar(1 / this.scale);
-        const cm = bb.clone().add(a1.clone().multiplyScalar(0.34).add(a2.clone().multiplyScalar(0.3408)));
+        const bb = n.backboneCenter
+          .clone()
+          .multiplyScalar(lenFactor)
+          .multiplyScalar(1 / this.scale);
+        const cm = bb
+          .clone()
+          .add(
+            a1
+              .clone()
+              .multiplyScalar(0.34)
+              .add(a2.clone().multiplyScalar(0.3408))
+          );
 
-        lines.push(cm.toArray().concat(a1.toArray(), a3.toArray(), [0, 0, 0, 0, 0, 0]).join(" "));
+        lines.push(
+          cm
+            .toArray()
+            .concat(a1.toArray(), a3.toArray(), [0, 0, 0, 0, 0, 0])
+            .join(' ')
+        );
       }
     }
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 
   /**
    * Returns an oxDNA top-file corresponding to this model.
-   * 
+   *
    * @returns string
    */
-  toTop(): string{
-    const lines = []
+  toTop(): string {
+    const lines = [];
 
     const nNucs = this.getNucleotides().length;
     const nStrands = this.getStrands().length;
@@ -900,30 +915,30 @@ class NucleotideModel {
     lines.push(`${nNucs} ${nStrands}`);
 
     let j = 0;
-    for(let s of this.getStrands()){
+    for (const s of this.getStrands()) {
       j += 1;
-      for(let n of s.getNucleotides()){
+      for (const n of s.getNucleotides()) {
         const line = [];
         line.push(j);
         line.push(n.base);
         line.push(n.prev ? n.prev.instanceId : -1);
         line.push(n.next ? n.next.instanceId : -1);
-        lines.push(line.join(" "));
+        lines.push(line.join(' '));
       }
     }
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 
   /**
    * Returns an oxDNA external forces file corresponding to the base pairs of this model.
-   * 
+   *
    * @returns string
    */
-  toExternalForces(stiffness = 0.1): string{
+  toExternalForces(stiffness = 0.1): string {
     const forces: string[] = [];
-    for(let n of this.getNucleotides()){
-      if(!n.pair) continue;
+    for (const n of this.getNucleotides()) {
+      if (!n.pair) continue;
       const force: string[] = [];
       force.push(`type = mutual_trap`);
       force.push(`particle = ${n.instanceId}`);
@@ -931,9 +946,9 @@ class NucleotideModel {
       force.push(`stiff = ${stiffness}`);
       force.push(`r0 = 1.2`);
       force.push(`PBC = 1`);
-      forces.push("{\n" + force.join("\n") + "\n}\n");
+      forces.push('{\n' + force.join('\n') + '\n}\n');
     }
-    return forces.join("\n");
+    return forces.join('\n');
   }
 
   /**

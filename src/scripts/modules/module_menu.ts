@@ -441,7 +441,7 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
-  downloadOx(){
+  downloadOx() {
     try {
       const top = this.nm.toTop();
       const dat = this.nm.toDat();
@@ -452,7 +452,7 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
-  downloadForces(){
+  downloadForces() {
     try {
       const forces = this.nm.toExternalForces();
       downloadTXT(`${this.elementId}-forces`, forces);
