@@ -41,6 +41,7 @@ export function dev(context: Context) {
   //cc.addCylinders();
   cc.addNucleotides();
   //cc.generatePrimary();
+  //cc.downloadOxDNA();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.addWires();

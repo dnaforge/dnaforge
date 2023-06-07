@@ -73,19 +73,19 @@
                         type="number" data-role="input" data-default-value="50" data-size="260"
                         data-prepend="GC-content" data-append="%" id="sterna-gc-content"></li>
                 <li>
-                    <button class="button primary" id="generate-sterna-template" data-role="hint"
+                    <button class="button" id="generate-sterna-template" data-role="hint"
                         data-hint-position="right"
                         data-hint-text="Generate a partial primary structure by filling in pseudoknots, linkers and certain stem segments. The undetermined bases can be generated externally or filled randomly.">Generate
                         partial</button>
-                    <button class="button primary" id="generate-sterna-primary" data-role="hint"
+                    <button class="button" id="generate-sterna-primary" data-role="hint"
                         data-hint-position="right"
                         data-hint-text="Fill all undetermined bases with random complementary ones.">Generate
                         random</button>
                 </li>
                 <li>
-                    <button class="button primary" id="download-sterna-np" data-role="hint" data-hint-position="right"
+                    <button class="button" id="download-sterna-np" data-role="hint" data-hint-position="right"
                         data-hint-text="Download a NUPACK file of the current nucleotide model.">Download NP</button>
-                    <button class="button primary"
+                    <button class="button"
                         onclick="Metro.dialog.open('#sterna-primary-dialog');  $('#sterna-primary-dialog-text').focus()"
                         data-role="hint" data-hint-position="right"
                         data-hint-text="Upload a primary structure as a sequence of IUPAC nucleotide codes.">Upload
@@ -101,11 +101,30 @@
             <span class="title">Primary structure</span>
         </div>
         <div class="group">
-            <button class="ribbon-button" id="sterna-download" data-role="hint" data-hint-position="right"
-                data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
-                <span class="mif-download mif-4x"></span>
-                <span class="caption">Download UNF</span>
-            </button>
+
+            <ul style="list-style-type:none;">
+                <li>
+                    <button class="button w-100" id="sterna-download-unf" data-role="hint" data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download UNF</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button w-100" id="sterna-download-ox" data-role="hint" data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as oxDNA files.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download oxDNA</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button w-100" id="sterna-download-forces" data-role="hint" data-hint-position="right"
+                        data-hint-text="Download an oxDNA external forces file with forces added between base pairs.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download Forces</span>
+                    </button>
+                </li>
+            </ul>
             <span class="title">Download</span>
         </div>
         <div class="group">

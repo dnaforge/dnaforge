@@ -70,7 +70,9 @@ export abstract class ModuleMenu extends Menu {
   generateWiresButton: any;
   generateCylindersButton: any;
   generateNucleotidesButton: any;
-  downloadButton: any;
+  downloadUNFButton: any;
+  downloadOxButton: any;
+  downloadForcesButton: any;
 
   /**
    *
@@ -430,10 +432,30 @@ export abstract class ModuleMenu extends Menu {
     this.nucleotidesButton[0].checked = this.showNucleotides;
   }
 
-  download() {
+  downloadUNF() {
     try {
       const str = JSON.stringify(this.nm.toUNF());
       downloadTXT(`${this.elementId}.unf`, str);
+    } catch (error) {
+      throw `Nucleotide model not defined.`;
+    }
+  }
+
+  downloadOx(){
+    try {
+      const top = this.nm.toTop();
+      const dat = this.nm.toDat();
+      downloadTXT(`${this.elementId}.top`, top);
+      downloadTXT(`${this.elementId}.dat`, dat);
+    } catch (error) {
+      throw `Nucleotide model not defined.`;
+    }
+  }
+
+  downloadForces(){
+    try {
+      const forces = this.nm.toExternalForces();
+      downloadTXT(`${this.elementId}-forces`, forces);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -456,15 +478,33 @@ export abstract class ModuleMenu extends Menu {
     this.generateNucleotidesButton = $(
       `#${this.elementId}-generate-nucleotides`
     );
-    this.downloadButton = $(`#${this.elementId}-download`);
+    this.downloadUNFButton = $(`#${this.elementId}-download-unf`);
+    this.downloadOxButton = $(`#${this.elementId}-download-ox`);
+    this.downloadForcesButton = $(`#${this.elementId}-download-forces`);
 
     const blur = () => {
       (document.activeElement as HTMLElement).blur();
     };
 
-    this.downloadButton.on('click', () => {
+    this.downloadUNFButton.on('click', () => {
       try {
-        this.download();
+        this.downloadUNF();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+      }
+    });
+
+    this.downloadOxButton.on('click', () => {
+      try {
+        this.downloadOx();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+      }
+    });
+
+    this.downloadForcesButton.on('click', () => {
+      try {
+        this.downloadForces();
       } catch (error) {
         this.context.addMessage(error, 'alert');
       }
