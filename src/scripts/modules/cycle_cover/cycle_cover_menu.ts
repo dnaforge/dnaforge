@@ -99,7 +99,9 @@ export class CycleCoverMenu extends ModuleMenu {
     pgen.optimise();
 
     this.context.addMessage(
-      `Generated a primary with longest repeated subsequence of ${pgen.getLongestRepeat()}.`,
+      `Generated a primary with longest repeated subsequence of ${pgen.getLongestRepeat()} and a gc-content of ${pgen
+        .getGCContent()
+        .toFixed(2)}`,
       'info'
     );
   }
