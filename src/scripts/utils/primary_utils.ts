@@ -49,7 +49,7 @@ export function setPrimaryFromScaffold(
     if (scaffold.length < scaffoldNucs.length)
       throw `Scaffold strand is too short for this structure: ${scaffoldNucs.length} > ${scaffold.length}.`;
     // scaffold start:
-    const idx = scaffoldNucs.indexOf(nm.instanceToNuc.get(scaffoldStart));
+    const idx = scaffoldNucs.indexOf(nm.idToNuc.get(scaffoldStart));
     if (idx == -1)
       throw `Invalid 5' ID. ${scaffoldStart} is not a part of the scaffold`;
     scaffoldNucs = scaffoldNucs
@@ -326,7 +326,7 @@ export function setRandomPrimary(
     } else {
       base = getComplement(n.base, n.pair.base);
       if (!base)
-        throw `Impossible base pair. ${n.instanceId}: ${n.base} - ${n.pair.instanceId}: ${n.pair.base}`;
+        throw `Impossible base pair. ${n.id}: ${n.base} - ${n.pair.id}: ${n.pair.base}`;
     }
     visited.add(n);
     n.base = base;

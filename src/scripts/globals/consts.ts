@@ -7,7 +7,7 @@ const DNA = {
   RISE: 0.332,
   RADIUS: 1,
   TWIST: (2 * Math.PI) / 10.5,
-  AXIS: 2.86, // 2.445964664330316,
+  AXIS: (1 - 16 / 180) * Math.PI,
   INCLINATION: 0,
 
   BB_DIST: 1,

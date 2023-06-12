@@ -15,10 +15,10 @@ import {
 import { ModuleMenuParameters } from '../modules/module_menu';
 
 interface NucleotideMeshes {
-  [key: string]: InstancedMesh;
   bases: InstancedMesh;
   nucleotides: InstancedMesh;
-  backbone: InstancedMesh;
+  backbone1: InstancedMesh;
+  backbone2: InstancedMesh;
 }
 
 const nucleotideColours: Record<string, THREE.Color> = {
@@ -52,7 +52,14 @@ const nucleotideColours: Record<string, THREE.Color> = {
 
 const materialNucleotides = new THREE.MeshStandardMaterial({ color: 0xffffff });
 
-const backboneGeometry = new THREE.ConeGeometry(0.15, 1, 6);
+const backboneGeometryCone = new THREE.ConeGeometry(0.15, 1, 6);
+const backboneGeometryBall = (nucParams: Record<string, any>) => {
+  const backbone = new THREE.SphereGeometry(0.15, 16, 8);
+  backbone.translate(
+    ...(nucParams.BACKBONE_CENTER as [number, number, number])
+  );
+  return backbone;
+};
 const baseGeometry = (nucParams: Record<string, any>) => {
   const base = new THREE.SphereGeometry(0.2, 16, 8);
   base.scale(1, 0.5, 1);
@@ -60,31 +67,19 @@ const baseGeometry = (nucParams: Record<string, any>) => {
   return base;
 };
 const nucleotideGeometry = (nucParams: Record<string, any>) => {
-  const geometries = [];
-
-  const backbone = new THREE.SphereGeometry(0.15, 16, 8);
   const base = new THREE.CylinderGeometry(0.1, 0.1, 0.75, 8);
-
-  backbone.translate(
-    ...(nucParams.BACKBONE_CENTER as [number, number, number])
-  );
   base.applyMatrix4(
     get2PointTransform(nucParams.BACKBONE_CENTER, nucParams.NUCLEOBASE_CENTER)
   );
-
-  geometries.push(backbone);
-  geometries.push(base);
-
-  const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
-  return mergedGeometry;
+  return base;
 };
 
 /**
  * An individual nucleotide.
  */
 class Nucleotide {
-  instanceId: number;
-  instanceMeshes: Record<string, THREE.InstancedMesh>;
+  id: number;
+  instanceMeshes: NucleotideMeshes;
   hover = false;
   select = false;
   active = false;
@@ -127,7 +122,7 @@ class Nucleotide {
 
   toJSON(): JSONObject {
     return {
-      id: this.instanceId,
+      id: this.id,
       base: this.base,
       scale: this.scale,
       naType: this.naType,
@@ -136,15 +131,15 @@ class Nucleotide {
       isPseudo: this.isPseudo,
       transform: this.transform.elements,
 
-      prev: this.prev?.instanceId,
-      next: this.next?.instanceId,
-      pair: this.pair?.instanceId,
+      prev: this.prev?.id,
+      next: this.next?.id,
+      pair: this.pair?.id,
     };
   }
 
   static loadJSON(json: any): Nucleotide {
     const n = new Nucleotide(json.scale, json.naType, json.base);
-    n.instanceId = json.id;
+    n.id = json.id;
     n.isLinker = json.isLinker;
     n.isScaffold = json.isScaffold;
     n.isPseudo = json.isPseudo;
@@ -187,27 +182,23 @@ class Nucleotide {
   }
 
   /**
-   * Set the object instance transformation matrices and colours
+   * Assign the instance meshes and set the instance transformation matrices and colours
    *
-   * @param index
    * @param meshes
    */
-  setObjectInstance(index: number, meshes: NucleotideMeshes) {
-    this.instanceId = index;
+  setObjectInstance(meshes: NucleotideMeshes) {
     this.instanceMeshes = meshes;
-    this.setObjectMatrices();
-    this.setObjectColours();
+    this.updateObjectMatrices();
+    this.updateObjectColours();
+    this.updateObjectVisibility();
   }
 
   /**
    * Set the object instance transformation matrices
    */
-  setObjectMatrices() {
-    this.instanceMeshes.bases.setMatrixAt(this.instanceId, this.transform);
-    this.instanceMeshes.nucleotides.setMatrixAt(
-      this.instanceId,
-      this.transform
-    );
+  updateObjectMatrices() {
+    this.instanceMeshes.bases.setMatrixAt(this.id, this.transform);
+    this.instanceMeshes.nucleotides.setMatrixAt(this.id, this.transform);
     let bbTransform;
     if (this.next) {
       const p1 = this.backboneCenter;
@@ -219,13 +210,14 @@ class Nucleotide {
     } else {
       bbTransform = new Matrix4().scale(new Vector3(0, 0, 0));
     }
-    this.instanceMeshes.backbone.setMatrixAt(this.instanceId, bbTransform);
+    this.instanceMeshes.backbone1.setMatrixAt(this.id, bbTransform);
+    this.instanceMeshes.backbone2.setMatrixAt(this.id, this.transform);
   }
 
   /**
    * Set the object instance colours.
    */
-  setObjectColours() {
+  updateObjectColours() {
     let colours;
     if (this.hover)
       colours = [
@@ -252,26 +244,36 @@ class Nucleotide {
         nucleotideColours[this.base],
       ];
 
-    this.instanceMeshes.backbone.setColorAt(this.instanceId, colours[0]);
-    this.instanceMeshes.nucleotides.setColorAt(this.instanceId, colours[1]);
-    this.instanceMeshes.bases.setColorAt(this.instanceId, colours[2]);
+    this.instanceMeshes.backbone1.setColorAt(this.id, colours[0]);
+    this.instanceMeshes.backbone2.setColorAt(this.id, colours[0]);
+    this.instanceMeshes.nucleotides.setColorAt(this.id, colours[1]);
+    this.instanceMeshes.bases.setColorAt(this.id, colours[2]);
     for (const m of _.keys(this.instanceMeshes))
-      this.instanceMeshes[m].instanceColor.needsUpdate = true;
+      this.instanceMeshes[
+        m as keyof NucleotideMeshes
+      ].instanceColor.needsUpdate = true;
+  }
+
+  updateObjectVisibility() {
+    this.instanceMeshes.backbone1.visible = GLOBALS.visibilityNucBackbone;
+    this.instanceMeshes.backbone2.visible = GLOBALS.visibilityNucBackbone;
+    this.instanceMeshes.nucleotides.visible = GLOBALS.visibilityNucBase;
+    this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
   }
 
   markSelect(val: boolean) {
     this.select = val;
-    this.setObjectColours();
+    this.updateObjectColours();
   }
 
   markActive(val: boolean) {
     this.active = val;
-    this.setObjectColours();
+    this.updateObjectColours();
   }
 
   markHover(val: boolean) {
     this.hover = val;
-    this.setObjectColours();
+    this.updateObjectColours();
   }
 
   /**
@@ -289,12 +291,12 @@ class Nucleotide {
     const hydrogenFaceDir = this.hydrogenFaceDir;
     const baseNormal = this.baseNormal;
 
-    const next = this.next ? this.next.instanceId : -1;
-    const prev = this.prev ? this.prev.instanceId : -1;
-    const pair = this.pair ? this.pair.instanceId : -1;
+    const next = this.next ? this.next.id : -1;
+    const prev = this.prev ? this.prev.id : -1;
+    const pair = this.pair ? this.pair.id : -1;
 
     const t = {
-      id: this.instanceId,
+      id: this.id,
       nbAbbrev: this.base,
       pair: pair,
       prev: prev,
@@ -548,8 +550,8 @@ class Strand {
       isScaffold: this.isScaffold,
       naType: this.naType,
       color: '',
-      fivePrimeId: this.nucleotides[0].instanceId,
-      threePrimeId: this.nucleotides[length - 1].instanceId,
+      fivePrimeId: this.nucleotides[0].id,
+      threePrimeId: this.nucleotides[length - 1].id,
       pdbFileId: 0,
       chainName: '',
       nucleotides: nucleotidesJSON,
@@ -566,7 +568,7 @@ class Strand {
  * Nucleotide model. Contains strands. Strands contain nucleotides.
  */
 class NucleotideModel {
-  instanceToNuc = new Map<number, Nucleotide>(); // maps instance ids to nucleotides
+  idToNuc = new Map<number, Nucleotide>(); // maps ids to nucleotides, must always be correct
   strands: Strand[];
 
   scale: number;
@@ -613,19 +615,19 @@ class NucleotideModel {
       }
       nm.addStrand(strand);
 
-      for (const n of strand.nucleotides) nm.instanceToNuc.set(n.instanceId, n);
+      for (const n of strand.nucleotides) nm.idToNuc.set(n.id, n);
       for (const n of s.nucleotides) {
-        if (nm.instanceToNuc.get(n.pair)) {
-          nm.instanceToNuc.get(n.pair).pair = nm.instanceToNuc.get(n.id);
-          nm.instanceToNuc.get(n.id).pair = nm.instanceToNuc.get(n.pair);
+        if (nm.idToNuc.get(n.pair)) {
+          nm.idToNuc.get(n.pair).pair = nm.idToNuc.get(n.id);
+          nm.idToNuc.get(n.id).pair = nm.idToNuc.get(n.pair);
         }
-        if (nm.instanceToNuc.get(n.next)) {
-          nm.instanceToNuc.get(n.next).prev = nm.instanceToNuc.get(n.id);
-          nm.instanceToNuc.get(n.id).next = nm.instanceToNuc.get(n.next);
+        if (nm.idToNuc.get(n.next)) {
+          nm.idToNuc.get(n.next).prev = nm.idToNuc.get(n.id);
+          nm.idToNuc.get(n.id).next = nm.idToNuc.get(n.next);
         }
-        if (nm.instanceToNuc.get(n.prev)) {
-          nm.instanceToNuc.get(n.prev).next = nm.instanceToNuc.get(n.id);
-          nm.instanceToNuc.get(n.id).prev = nm.instanceToNuc.get(n.prev);
+        if (nm.idToNuc.get(n.prev)) {
+          nm.idToNuc.get(n.prev).next = nm.idToNuc.get(n.id);
+          nm.idToNuc.get(n.id).prev = nm.idToNuc.get(n.prev);
         }
       }
     }
@@ -836,8 +838,8 @@ class NucleotideModel {
     if (scaffold) {
       scaffold.instanceId = j++;
       for (const n of scaffold.nucleotides) {
-        n.instanceId = i;
-        this.instanceToNuc.set(i, n);
+        n.id = i;
+        this.idToNuc.set(i, n);
         i += 1;
       }
     }
@@ -846,8 +848,8 @@ class NucleotideModel {
       if (s == scaffold) continue;
       s.instanceId = j++;
       for (const n of s.nucleotides) {
-        n.instanceId = i;
-        this.instanceToNuc.set(i, n);
+        n.id = i;
+        this.idToNuc.set(i, n);
         i += 1;
       }
     }
@@ -888,7 +890,6 @@ class NucleotideModel {
               .multiplyScalar(0.34)
               .add(a2.clone().multiplyScalar(0.3408))
           );
-
         lines.push(
           cm
             .toArray()
@@ -921,8 +922,8 @@ class NucleotideModel {
         const line = [];
         line.push(j);
         line.push(n.base);
-        line.push(n.prev ? n.prev.instanceId : -1);
-        line.push(n.next ? n.next.instanceId : -1);
+        line.push(n.next ? n.next.id : -1);
+        line.push(n.prev ? n.prev.id : -1);
         lines.push(line.join(' '));
       }
     }
@@ -941,8 +942,8 @@ class NucleotideModel {
       if (!n.pair) continue;
       const force: string[] = [];
       force.push(`type = mutual_trap`);
-      force.push(`particle = ${n.instanceId}`);
-      force.push(`ref_particle = ${n.pair.instanceId}`);
+      force.push(`particle = ${n.id}`);
+      force.push(`ref_particle = ${n.pair.id}`);
       force.push(`stiff = ${stiffness}`);
       force.push(`r0 = 1.2`);
       force.push(`PBC = 1`);
@@ -1196,8 +1197,13 @@ class NucleotideModel {
       materialNucleotides,
       count
     );
-    const meshBackbone = new THREE.InstancedMesh(
-      backboneGeometry,
+    const meshBackbone1 = new THREE.InstancedMesh(
+      backboneGeometryCone,
+      materialNucleotides,
+      count
+    );
+    const meshBackbone2 = new THREE.InstancedMesh(
+      backboneGeometryBall(this.nucParams),
       materialNucleotides,
       count
     );
@@ -1205,14 +1211,20 @@ class NucleotideModel {
     const meshes = {
       bases: meshBases,
       nucleotides: meshNucleotides,
-      backbone: meshBackbone,
+      backbone1: meshBackbone1,
+      backbone2: meshBackbone2,
     };
 
-    for (const i of this.instanceToNuc.keys())
-      this.instanceToNuc.get(i).setObjectInstance(i, meshes);
+    for (const i of this.idToNuc.keys())
+      this.idToNuc.get(i).setObjectInstance(meshes);
 
     const obj_group = new THREE.Group();
-    obj_group.add(meshes.bases, meshes.nucleotides, meshes.backbone);
+    obj_group.add(
+      meshes.bases,
+      meshes.nucleotides,
+      meshes.backbone1,
+      meshes.backbone2
+    );
     this.obj = obj_group;
 
     this.setupEventListeners(meshes);
@@ -1234,24 +1246,24 @@ class NucleotideModel {
         (intersection.object as any).onMouseOverExit();
 
       lastI = i;
-      this.setHover(this.instanceToNuc.get(i), true);
+      this.setHover(this.idToNuc.get(i), true);
     };
 
     const onMouseOverExit = () => {
       if (lastI == -1) return;
-      this.setHover(this.instanceToNuc.get(lastI), false);
+      this.setHover(this.idToNuc.get(lastI), false);
       lastI = -1;
     };
 
     const onClick = (intersection: Intersection) => {
       const i = intersection.instanceId;
-      this.setHover(this.instanceToNuc.get(i), false);
-      this.toggleSelect(this.instanceToNuc.get(i));
+      this.setHover(this.idToNuc.get(i), false);
+      this.toggleSelect(this.idToNuc.get(i));
     };
 
     const getTooltip = (intersection: Intersection) => {
       const i = intersection.instanceId;
-      const nuc = this.instanceToNuc.get(i);
+      const nuc = this.idToNuc.get(i);
       return `${nuc.base}<br>${i}`;
     };
 
@@ -1287,7 +1299,7 @@ class NucleotideModel {
     if (!this.obj) this.generateObject();
     for (const s of this.strands) {
       for (const n of s.nucleotides) {
-        n.setObjectColours();
+        n.updateObjectColours();
       }
     }
   }
@@ -1296,7 +1308,8 @@ class NucleotideModel {
    * Deletes all the meshes associated with this model.
    */
   dispose() {
-    for (const k of _.keys(this.meshes)) this.meshes[k].geometry.dispose();
+    for (const k of _.keys(this.meshes))
+      this.meshes[k as keyof NucleotideMeshes].geometry.dispose();
     delete this.obj;
   }
 
@@ -1364,7 +1377,6 @@ class NucleotideModel {
         n.markSelect(true);
       }
     }
-    this.handleSelectionCallback();
   }
 
   /**
@@ -1391,7 +1403,6 @@ class NucleotideModel {
         this.selection.add(n);
       }
     }
-    this.handleSelectionCallback();
   }
 
   /**
@@ -1404,7 +1415,6 @@ class NucleotideModel {
         this.selection.delete(n);
       }
     }
-    this.handleSelectionCallback();
   }
 
   /**
@@ -1425,17 +1435,6 @@ class NucleotideModel {
         this.selection.add(n);
       }
     }
-    this.handleSelectionCallback();
-  }
-
-  handleSelectionCallback() {
-    this.selectionCallback && this.selectionCallback();
-  }
-
-  selectionCallback: () => void;
-
-  bindSelectionCallback(callback: () => void) {
-    this.selectionCallback = callback;
   }
 }
 

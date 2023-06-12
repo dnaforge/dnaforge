@@ -1,0 +1,6 @@
+toggle base visibility
+toggle show linkers
+edit cylinder length
+colour springs by length
+colour cylinders by stress
+input helix parameters
