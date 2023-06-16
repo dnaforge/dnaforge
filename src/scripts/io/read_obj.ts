@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Graph } from '../models/graph';
+import { Graph } from '../models/graph_model';
 import { FileLoader, Loader, Vector3 } from 'three';
 
 const _face_vertex_data_separator_pattern = /\s+/;

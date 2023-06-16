@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel, PrimePos } from '../../models/cylinder_model';
-import { Graph, HalfEdge } from '../../models/graph';
+import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { ATrail, cylindersToNucleotides, wiresToCylinders } from './atrail';
 import { ATrailParameters } from './atrail_menu';

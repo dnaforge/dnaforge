@@ -9,7 +9,7 @@ import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../scene/context';
-import { Graph } from '../../models/graph';
+import { Graph } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { NucleotideModel } from '../../models/nucleotide_model';
 

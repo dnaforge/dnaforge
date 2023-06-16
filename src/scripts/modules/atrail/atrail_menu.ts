@@ -9,7 +9,7 @@ import { downloadTXT } from '../../io/download';
 import html from './atrail_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
-import { Graph } from '../../models/graph';
+import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
@@ -71,7 +71,7 @@ export class ATrailMenu extends ModuleMenu {
   reinforce() {
     if (!this.cm || this.cm.selection.size == 0) return;
     reinforceCylinders(this.cm);
-    this.cm.removeFromScene(true); // make sure the old model is deleted
+    this.cm.dispose(); // make sure the old model is deleted
     this.removeNucleotides(true);
 
     this.regenerateVisible();

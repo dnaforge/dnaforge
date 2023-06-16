@@ -9,17 +9,17 @@ import {
   RoutingStrategy,
 } from '../../models/cylinder_model';
 import {
-  Nucleotide,
   NucleotideModel,
-  Strand,
 } from '../../models/nucleotide_model';
-import { Graph, Edge, HalfEdge, Vertex } from '../../models/graph';
+import { Graph, Edge, HalfEdge, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { STParameters } from './spanning_tree_menu';
-
+import { Nucleotide } from '../../models/nucleotide';
+import { Strand } from '../../models/strand';
+import { WiresModel } from '../../models/wires_model';
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-export class Veneziano {
+export class Veneziano extends WiresModel{
   graph: Graph;
   st: Set<Edge>;
   trail: HalfEdge[];
@@ -27,6 +27,7 @@ export class Veneziano {
   obj: THREE.InstancedMesh;
 
   constructor(graph: Graph) {
+    super();
     this.graph = graph;
     this.st = this.getPrim();
     this.trail = this.getVeneziano();
@@ -157,7 +158,7 @@ export class Veneziano {
     return result;
   }
 
-  getObject() {
+  generateObject() {
     if (!this.obj) {
       const color = new THREE.Color(0xffffff);
       const count = this.st.size;
@@ -184,11 +185,6 @@ export class Veneziano {
       this.obj = lines;
     }
     return this.obj;
-  }
-
-  dispose() {
-    this.obj.dispose();
-    delete this.obj;
   }
 
   selectAll(): void {

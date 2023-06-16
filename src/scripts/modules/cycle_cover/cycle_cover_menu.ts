@@ -7,7 +7,7 @@ import {
 import html from './cycle_cover_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
-import { Graph } from '../../models/graph';
+import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';

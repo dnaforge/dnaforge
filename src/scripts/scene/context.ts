@@ -5,10 +5,11 @@ import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { Controls } from '../utils/controls';
+import { Controls } from './controls';
 import { Menu } from './menu';
 import { ModuleMenu } from '../modules/module_menu';
-import { Graph } from '../models/graph';
+import { Graph } from '../models/graph_model';
+import { SelectionHandler } from './selection_handler';
 
 const canvas = document.querySelector('#canvas');
 
@@ -50,6 +51,7 @@ export class Context {
   callbacks: { (): void }[];
 
   graph: Graph;
+  selectionHandler: SelectionHandler;
   controls: Controls;
   activeContext: ModuleMenu;
   renderer: THREE.WebGLRenderer;
@@ -69,6 +71,7 @@ export class Context {
     this.callbacks = [];
 
     this.graph = null;
+    this.selectionHandler = new SelectionHandler(this);
     this.controls = new Controls(this);
     this.activeContext = null;
 

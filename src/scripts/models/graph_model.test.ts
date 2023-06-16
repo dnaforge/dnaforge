@@ -1,7 +1,7 @@
 const assert = require('assert');
 import * as THREE from 'three';
 import { OBJLoader } from '../io/read_obj';
-import { Graph } from './graph';
+import { Graph } from './graph_model';
 const tet = require('../../test/test_shapes/tetra.obj');
 const x3 = require('../../test/test_shapes/3x3.obj');
 const plane = require('../../test/test_shapes/plane.obj');

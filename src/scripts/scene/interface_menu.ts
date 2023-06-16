@@ -621,6 +621,16 @@ export class InterfaceMenu extends Menu {
         .attr('data-id');
     });
 
+    $('#toggle-nucleotides-backbone').on('click', () => {
+      GLOBALS.visibilityNucBackbone = $('#toggle-nucleotides-backbone')[0].checked;
+      this.context.activeContext?.updateVisuals();
+    });
+
+    $('#toggle-nucleotides-bases').on('click', () => {
+      GLOBALS.visibilityNucBase = $('#toggle-nucleotides-bases')[0].checked;
+      this.context.activeContext?.updateVisuals();
+    });
+
     this.hoverButton.on('click', (e: Event) => {
       e.stopPropagation();
       GLOBALS.hover = this.hoverButton[0].checked;

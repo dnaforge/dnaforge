@@ -1,7 +1,7 @@
 import 'metro4/build/css/metro-all.min.css';
 import 'metro4';
 import { Context } from './scene/context';
-import { InterfaceMenu } from './scene/interface_context';
+import { InterfaceMenu } from './scene/interface_menu';
 import { FileMenu } from './scene/file_menu';
 import { setupModules } from './modules/modules';
 import { dev } from './dev';

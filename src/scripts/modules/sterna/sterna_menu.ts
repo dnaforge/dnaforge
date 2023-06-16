@@ -13,7 +13,7 @@ import { downloadTXT } from '../../io/download';
 import html from './sterna_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
 import { Context } from '../../scene/context';
-import { Graph } from '../../models/graph';
+import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';

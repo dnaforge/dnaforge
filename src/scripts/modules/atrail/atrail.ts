@@ -8,11 +8,12 @@ import {
   PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
-import { Strand, NucleotideModel } from '../../models/nucleotide_model';
+import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
-import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph';
+import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { ATrailParameters } from './atrail_menu';
+import { Strand } from '../../models/strand';
 
 const MAX_TIME = 10000; // milliseconds, give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
@@ -314,7 +315,7 @@ export class ATrail extends WiresModel {
     return this.trail.length;
   }
 
-  private generateObject(): void {
+  generateObject(): void {
     if (!this.trail) return null;
     const color = new THREE.Color(0xffffff);
     const count = this.trail.length;
@@ -340,19 +341,6 @@ export class ATrail extends WiresModel {
 
       co1 = co2;
     }
-  }
-
-  getObject(): Object3D {
-    if (!this.obj) {
-      this.generateObject();
-    }
-    return this.obj;
-  }
-
-  dispose() {
-    if (!this.obj) return;
-    this.obj.geometry.dispose();
-    delete this.obj;
   }
 
   selectAll(): void {

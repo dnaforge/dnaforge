@@ -8,19 +8,20 @@ import {
   RoutingStrategy,
 } from '../../models/cylinder_model';
 import {
-  Nucleotide,
   NucleotideModel,
-  Strand,
 } from '../../models/nucleotide_model';
-import { Graph, Edge, Vertex, HalfEdge } from '../../models/graph';
+import { Graph, Edge, Vertex, HalfEdge } from '../../models/graph_model';
 import { SternaParameters } from './sterna_menu';
+import { Nucleotide } from '../../models/nucleotide';
+import { Strand } from '../../models/strand';
+import { WiresModel } from '../../models/wires_model';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 /**
  * Sterna RNA routing method.
  */
-export class Sterna {
+export class Sterna extends WiresModel{
   graph: Graph;
   st: Set<Edge>;
   trail: HalfEdge[];
@@ -28,6 +29,7 @@ export class Sterna {
   obj: InstancedMesh;
 
   constructor(graph: Graph) {
+    super();
     this.graph = graph;
     this.st = this.getRST();
     this.trail = this.getSterna();
@@ -168,9 +170,8 @@ export class Sterna {
   /**
    * Return the 3d object associated with this route. Generate it if it does not exist.
    *
-   * @returns 3d object
    */
-  getObject() {
+  generateObject() {
     if (!this.obj) {
       const color = new THREE.Color(0xffffff);
       const count = this.st.size;
@@ -196,15 +197,6 @@ export class Sterna {
       }
       this.obj = lines;
     }
-    return this.obj;
-  }
-
-  /**
-   * Delete the 3d model and free up the resources.
-   */
-  dispose() {
-    this.obj.dispose();
-    delete this.obj;
   }
 
   selectAll(): void {

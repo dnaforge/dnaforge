@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Vector2 } from 'three';
 import { GLOBALS } from '../globals/globals';
-import { Context } from '../scene/context';
+import { Context } from './context';
 
 const MIN_DELTA = 3;
 

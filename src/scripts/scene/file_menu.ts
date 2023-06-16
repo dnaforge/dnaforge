@@ -3,7 +3,7 @@ import { downloadTXT } from '../io/download';
 import { read_json } from '../io/read_json';
 import { read_obj } from '../io/read_obj';
 import { OBJLoader } from '../io/read_obj';
-import { Graph } from '../models/graph';
+import { Graph } from '../models/graph_model';
 import { ModuleMenu } from '../modules/module_menu';
 import { Context } from './context';
 import { Menu } from './menu';

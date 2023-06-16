@@ -4,7 +4,7 @@ import { InstancedMesh, Intersection, Vector3 } from 'three';
 import { Cylinder, CylinderModel, PrimePos } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
-import { Graph, Vertex, HalfEdge } from '../../models/graph';
+import { Graph, Vertex, HalfEdge } from '../../models/graph_model';
 import { CCParameters } from './cycle_cover_menu';
 
 const cyclesColorHover = 0xff8822;
@@ -223,19 +223,6 @@ export class CycleCover extends WiresModel {
       value: onMouseOverExit,
       writable: false,
     });
-  }
-
-  getObject() {
-    if (!this.obj) {
-      this.generateObject();
-    }
-
-    return this.obj;
-  }
-
-  dispose() {
-    this.obj.dispose();
-    delete this.obj;
   }
 
   selectAll(): void {

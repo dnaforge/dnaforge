@@ -5,8 +5,9 @@ import {
   IUPAC_DNA,
   NATYPE,
 } from '../globals/consts';
-import { Nucleotide, NucleotideModel } from '../models/nucleotide_model';
+import { NucleotideModel } from '../models/nucleotide_model';
 import { DNA_SCAFFOLDS } from '../globals/consts';
+import { Nucleotide } from '../models/nucleotide';
 
 interface ScaffoldParams {
   scaffoldName?: string;

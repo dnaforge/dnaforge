@@ -4,7 +4,7 @@ import { InstancedMesh, Intersection, Matrix4 } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, NATYPE, RNA } from '../globals/consts';
-import { Vertex } from './graph';
+import { Vertex } from './graph_model';
 import { Relaxer } from './relaxer';
 
 export enum RoutingStrategy {
@@ -643,31 +643,42 @@ class CylinderModel {
     return offset;
   }
 
+  show(){
+    if(this.obj) this.obj.visible = true;
+  }
+
+  hide(){
+    if(this.obj) this.obj.visible = false;
+  }
+
   /**
    * Adds the 3d object associated with this cylinder model to the given scene.
    * Generates it if it does not already exist.
    *
    * @param scene
+   * @param visible 
    */
-  addToScene(scene: THREE.Scene) {
+  addToScene(scene: THREE.Scene, visible = true) {
     if (!this.obj) {
       this.generateObject();
       this.updateObject();
+      this.obj.visible = visible;
     }
     scene.add(this.obj);
   }
 
   /**
-   * Removes the 3d object associated with this cylinder model from its
-   * parent.
-   *
-   * @param dispose delete the 3d object entirely
+   * Deletes all the objects associated with this cylinder model.
    */
-  removeFromScene(dispose = false) {
-    if (!this.obj) return;
+  dispose() {
     if (this.obj.parent) this.obj.parent.remove(this.obj);
-    if (dispose) this.dispose();
+    for (const k of _.keys(this.meshes)) {
+      const mesh = this.meshes[k];
+      mesh.geometry.dispose();
+    }
+    delete this.obj;
   }
+
 
   /**
    * Generates the 3d object and its meshes.
@@ -785,17 +796,6 @@ class CylinderModel {
       this.meshes[k].instanceColor.needsUpdate = true;
       this.meshes[k].instanceMatrix.needsUpdate = true;
     }
-  }
-
-  /**
-   * Deletes all the objects associated with this cylinder model.
-   */
-  dispose() {
-    for (const k of _.keys(this.meshes)) {
-      const mesh = this.meshes[k];
-      mesh.geometry.dispose();
-    }
-    delete this.obj;
   }
 
   /**

@@ -1,5 +1,5 @@
 import { CylinderModel } from '../models/cylinder_model';
-import { Graph } from '../models/graph';
+import { Graph } from '../models/graph_model';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { WiresModel } from '../models/wires_model';
 import { Context } from '../scene/context';
@@ -186,6 +186,11 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides = false;
   }
 
+
+  updateVisuals(){
+    this.nm?.updateObject();
+  }
+
   /**
    * Select all selectable visible models.
    */
@@ -232,37 +237,6 @@ export abstract class ModuleMenu extends Menu {
     this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
   }
 
-  handleSelection(): void {
-    /**
-    this.selectionMenu.render(
-      <div data-role="accordion" data-one-frame="true" data-show-active="true">
-        <div className="frame">
-          <div className="heading">Cylinders</div>
-          <div className="content">
-            <CylinderSelection cm={this.cm} />
-          </div>
-        </div>
-        <div className="frame active">
-          <div className="heading">Nucleotides</div>
-          <div className="content">
-            <NucleotideSelection nm={this.nm} />
-          </div>
-        </div>
-      </div>
-    );
-    */
-  }
-
-  createCylinderMenu() {
-    const selection = $('<input>');
-    selection.attr('id', 'selection-cylinders');
-    selection.attr('type', 'text');
-    selection.attr('data-role', 'taginput');
-    //this.selectionMenu.append(selection);
-
-    return selection;
-  }
-
   /**
    * Generate a wireframe / routing model based on the current graph and parameters. Remove the previous version.
    */
@@ -277,6 +251,7 @@ export abstract class ModuleMenu extends Menu {
     const graph = this.context.graph;
     if (!graph) throw 'No model is loaded.';
     this.wires = this.graphToWires(graph, this.params);
+    this.wires.addToScene(this.scene, this.showWires);
   }
 
   /**
@@ -292,6 +267,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.wires) this.generateWires();
 
     this.cm = this.wiresToCylinders(this.wires, this.params);
+    this.cm.addToScene(this.scene, this.showCylinders);
   }
 
   /**
@@ -306,6 +282,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.cm) this.generateCylinderModel();
 
     this.nm = this.cylindersToNucleotides(this.cm, this.params);
+    this.nm.addToScene(this.scene, this.showNucleotides);
     this.context.addMessage(
       `Created: ${this.nm.length()} nucleotides.`,
       'info'
@@ -340,7 +317,7 @@ export abstract class ModuleMenu extends Menu {
    */
   addWires() {
     if (!this.wires) this.generateWires();
-    this.scene.add(this.wires.getObject());
+    if(this.wires) this.wires.show();
   }
 
   /**
@@ -350,7 +327,7 @@ export abstract class ModuleMenu extends Menu {
    */
   removeWires(dispose = false) {
     if (!this.wires) return;
-    this.scene.remove(this.wires.getObject());
+    this.wires.hide();
     if (dispose) {
       this.wires.dispose();
       this.wires = null;
@@ -362,7 +339,7 @@ export abstract class ModuleMenu extends Menu {
    */
   addCylinders() {
     if (!this.cm) this.generateCylinderModel();
-    if (this.cm) this.cm.addToScene(this.scene);
+    if (this.cm) this.cm.show();
   }
 
   /**
@@ -372,7 +349,7 @@ export abstract class ModuleMenu extends Menu {
    */
   removeCylinders(dispose = false) {
     if (!this.cm) return;
-    this.cm.removeFromScene();
+    this.cm.hide();
     if (dispose) {
       this.cm.dispose();
       this.cm = null;
@@ -384,7 +361,7 @@ export abstract class ModuleMenu extends Menu {
    */
   addNucleotides() {
     if (!this.nm) this.generateNucleotideModel();
-    if (this.nm) this.nm.addToScene(this.scene);
+    if (this.nm) this.nm.show();
   }
 
   /**
@@ -394,7 +371,7 @@ export abstract class ModuleMenu extends Menu {
    */
   removeNucleotides(dispose = false) {
     if (!this.nm) return;
-    this.nm.removeFromScene();
+    this.nm.hide();
     if (dispose) {
       this.nm.dispose();
       this.nm = null;
@@ -411,6 +388,8 @@ export abstract class ModuleMenu extends Menu {
     else this.removeCylinders();
     if (this.showNucleotides) this.addNucleotides();
     else this.removeNucleotides();
+
+    this.updateVisuals();
   }
 
   /**
