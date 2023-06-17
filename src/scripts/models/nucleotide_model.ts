@@ -9,9 +9,10 @@ import {
   RoutingStrategy,
   PrimePos,
 } from './cylinder_model';
-import { ModuleMenuParameters } from '../modules/module_menu';
+import { ModuleMenuParameters } from '../scene/module_menu';
 import { Strand } from './strand';
 import { Nucleotide, NucleotideMeshes } from './nucleotide';
+import { Context } from '../scene/context';
 
 
 /**
@@ -26,7 +27,6 @@ export class NucleotideModel {
   nucParams: typeof RNA | typeof DNA;
 
   obj: THREE.Object3D;
-  meshes: NucleotideMeshes;
 
   selection = new Set<Nucleotide>();
   hover = new Set<Nucleotide>();
@@ -610,27 +610,36 @@ export class NucleotideModel {
   }
 
   show(){
-    if(this.obj) this.obj.visible = true;
+    if(this.obj){
+      this.obj.layers.set(0);
+      for(let o of this.obj.children) o.layers.set(0);
+    }
   }
 
   hide(){
-    if(this.obj) this.obj.visible = false;
+    if(this.obj){
+      this.obj.layers.set(1);
+      for(let o of this.obj.children) o.layers.set(1);
+    }
   }
 
   /**
    * Adds the 3d object associated with this nucleotide model to the given scene.
    * Generates it if it does not already exist.
    *
-   * @param scene
+   * @param context
    * @param visible 
    */
-  addToScene(scene: THREE.Scene, visible = true) {
+  addToScene(context: Context, visible = true) {
     if (!this.obj) {
       this.generateObject();
       this.updateObject();
-      this.obj.visible = visible;
+      if(visible) this.show();
+      else this.hide();
     }
-    scene.add(this.obj);
+    context.scene.add(this.obj);
+    for (const m of this.obj.children) 
+      context.selectionHandler.register(m, this.idToNuc.values(), (id: number) => {return this.idToNuc.get(id)});
   }
 
   /**
@@ -638,8 +647,8 @@ export class NucleotideModel {
    */
   dispose() {
     if (this.obj.parent) this.obj.parent.remove(this.obj);
-    for (const k of _.keys(this.meshes))
-      this.meshes[k as keyof NucleotideMeshes].geometry.dispose();
+    for (const m of this.obj.children)
+      (m as THREE.Mesh).geometry.dispose();
     delete this.obj;
   }
 
@@ -685,8 +694,7 @@ export class NucleotideModel {
       lastI = -1;
     };
 
-    const onClick = (intersection: Intersection) => {
-      const i = intersection.instanceId;
+    const onClick = (i: number) => {
       this.setHover(this.idToNuc.get(i), false);
       this.toggleSelect(this.idToNuc.get(i));
     };

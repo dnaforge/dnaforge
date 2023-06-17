@@ -5,7 +5,7 @@ import {
   cylindersToNucleotides,
 } from './veneziano';
 import html from './spanning_tree_ui.htm';
-import { ModuleMenu, ModuleMenuParameters } from '../module_menu';
+import { ModuleMenu, ModuleMenuParameters } from '../../scene/module_menu';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../scene/context';

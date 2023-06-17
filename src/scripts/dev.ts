@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OBJLoader } from './io/read_obj';
 import { Context } from './scene/context';
-import { ModuleMenu } from './modules/module_menu';
+import { ModuleMenu } from './scene/module_menu';
 import { Matrix4, Vector3 } from 'three';
 import { SpanningTreeMenu } from './modules/spanning_tree/spanning_tree_menu';
 import { ATrailMenu } from './modules/atrail/atrail_menu';

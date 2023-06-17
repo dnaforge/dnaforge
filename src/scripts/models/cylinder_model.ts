@@ -78,7 +78,7 @@ export class CylinderBundle {
     return {
       isRigid: this.isRigid,
       cylinders: this.cylinders.map((c) => {
-        return c.instanceId;
+        return c.id;
       }),
     };
   }
@@ -90,7 +90,7 @@ export class CylinderBundle {
  * at the origin and the end one unit along the Y-vector.
  */
 class Cylinder {
-  instanceId: number;
+  id: number;
   scale: number;
   naType: NATYPE;
 
@@ -126,7 +126,7 @@ class Cylinder {
     naType: NATYPE = 'DNA',
     routingStrategy = RoutingStrategy.Normal
   ) {
-    this.instanceId = id;
+    this.id = id;
     this.scale = scale;
     this.naType = naType;
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
@@ -141,13 +141,13 @@ class Cylinder {
     for (const key of Object.values(PrimePos)) {
       if (this.neighbours[key])
         neighbours[key] = [
-          this.neighbours[key][0].instanceId,
+          this.neighbours[key][0].id,
           this.neighbours[key][1],
         ];
     }
 
     return {
-      id: this.instanceId,
+      id: this.id,
       length: this.length,
       scale: this.scale,
       naType: this.naType,
@@ -410,7 +410,7 @@ class Cylinder {
     const transformMain = this.transform
       .clone()
       .scale(new Vector3(1, this.getCylinderLength() / this.scale, 1)); // the transform is already scaled
-    this.instanceMeshes.main.setMatrixAt(this.instanceId, transformMain);
+    this.instanceMeshes.main.setMatrixAt(this.id, transformMain);
 
     const primePairs = this.getPrimePairs();
     let transformLinker;
@@ -427,11 +427,11 @@ class Cylinder {
         transformLinker = new Matrix4().scale(new Vector3(0, 0, 0));
       }
       this.instanceMeshes.linker.setMatrixAt(
-        4 * this.instanceId + i,
+        4 * this.id + i,
         transformLinker
       );
       this.instanceMeshes.prime.setMatrixAt(
-        4 * this.instanceId + i,
+        4 * this.id + i,
         transformPrime
       );
     }
@@ -464,13 +464,13 @@ class Cylinder {
         cylinderColours.prime,
       ];
 
-    this.instanceMeshes.main.setColorAt(this.instanceId, colours[0]);
+    this.instanceMeshes.main.setColorAt(this.id, colours[0]);
     for (let i = 0; i < 4; i++) {
       this.instanceMeshes.linker.setColorAt(
-        4 * this.instanceId + i,
+        4 * this.id + i,
         colours[1]
       );
-      this.instanceMeshes.prime.setColorAt(4 * this.instanceId + i, colours[2]);
+      this.instanceMeshes.prime.setColorAt(4 * this.id + i, colours[2]);
     }
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[m].instanceColor.needsUpdate = true;
@@ -644,11 +644,17 @@ class CylinderModel {
   }
 
   show(){
-    if(this.obj) this.obj.visible = true;
+    if(this.obj){
+      this.obj.layers.set(0);
+      for(let o of this.obj.children) o.layers.set(0);
+    }
   }
 
   hide(){
-    if(this.obj) this.obj.visible = false;
+    if(this.obj){
+      this.obj.layers.set(1);
+      for(let o of this.obj.children) o.layers.set(1);
+    }
   }
 
   /**
@@ -662,7 +668,8 @@ class CylinderModel {
     if (!this.obj) {
       this.generateObject();
       this.updateObject();
-      this.obj.visible = visible;
+      if(visible) this.show();
+      else this.hide();
     }
     scene.add(this.obj);
   }
@@ -755,7 +762,7 @@ class CylinderModel {
 
     const getTooltip = (intersection: Intersection) => {
       const cyl = intersectionToCylinder(intersection);
-      return `ID: ${cyl.instanceId}<br>Len:${cyl.length} bp`;
+      return `ID: ${cyl.id}<br>Len:${cyl.length} bp`;
     };
 
     for (const m of _.keys(meshes)) {

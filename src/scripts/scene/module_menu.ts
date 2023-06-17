@@ -2,8 +2,8 @@ import { CylinderModel } from '../models/cylinder_model';
 import { Graph } from '../models/graph_model';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { WiresModel } from '../models/wires_model';
-import { Context } from '../scene/context';
-import { Menu, MenuParameters } from '../scene/menu';
+import { Context } from './context';
+import { Menu, MenuParameters } from './menu';
 import { downloadTXT } from '../io/download';
 import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA } from '../globals/consts';
 
@@ -282,7 +282,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.cm) this.generateCylinderModel();
 
     this.nm = this.cylindersToNucleotides(this.cm, this.params);
-    this.nm.addToScene(this.scene, this.showNucleotides);
+    this.nm.addToScene(this.context, this.showNucleotides);
     this.context.addMessage(
       `Created: ${this.nm.length()} nucleotides.`,
       'info'

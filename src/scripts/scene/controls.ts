@@ -14,7 +14,7 @@ const body = $('body')[0];
 export class Controls {
   pointer = new Vector2();
   pointerPrev = new Vector2();
-  raycaster = new THREE.Raycaster(); // TODO: use layers
+  raycaster = new THREE.Raycaster();
 
   context: Context;
   scene: THREE.Scene;
@@ -27,7 +27,6 @@ export class Controls {
   constructor(context: Context) {
     this.context = context;
     this.scene = context.scene;
-
     this.setupEventListeners();
   }
 
@@ -132,15 +131,11 @@ export class Controls {
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
-        mesh = this.intersection.object as any;
-        if (mesh.onClick) break;
-      }
-      if (mesh.onClick) {
-        mesh.onClick(this.intersection);
-        return;
+        mesh = this.intersection.object;
+        if (this.context.selectionHandler.toggle(mesh, this.intersection.instanceId)) return;
       }
     }
-    this.context.deselectAll();
+    this.context.selectionHandler.deselectAll();
   }
 
   handleMouseRightDown(event: PointerEvent) {

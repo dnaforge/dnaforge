@@ -31,15 +31,22 @@ abstract class WiresModel {
   addToScene(scene: THREE.Scene, visible = true){
     if(!this.obj) this.generateObject();
     scene.add(this.obj);
-    this.obj.visible = visible;
+    if(visible) this.show();
+    else this.hide();
   }
 
   show(){
-    if(this.obj) this.obj.visible = true;
+    this.obj.layers.set(0);
+    if(this.obj){
+      for(let o of this.obj.children) o.layers.set(0);
+    }
   }
 
   hide(){
-    if(this.obj) this.obj.visible = false;
+    this.obj.layers.set(1);
+    if(this.obj){
+      for(let o of this.obj.children) o.layers.set(1);
+    }
   }
 }
 

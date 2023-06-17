@@ -7,7 +7,7 @@ import {
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { Controls } from './controls';
 import { Menu } from './menu';
-import { ModuleMenu } from '../modules/module_menu';
+import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { SelectionHandler } from './selection_handler';
 
@@ -79,6 +79,7 @@ export class Context {
     this.setupEventListeners();
     this.resetCamera(false);
     this.render();
+    this.camera.layers.disable(1);
   }
 
   /**
@@ -383,20 +384,6 @@ export class Context {
       } edges<br>${graph.getFaces().length} faces`,
       'info'
     );
-  }
-
-  /**
-   * Select everything selectable in the currently active context.
-   */
-  selectAll() {
-    this.activeContext && this.activeContext.selectAll();
-  }
-
-  /**
-   * Deselect everything selectable in the currently active context.
-   */
-  deselectAll() {
-    this.activeContext && this.activeContext.deselectAll();
   }
 
   /**
