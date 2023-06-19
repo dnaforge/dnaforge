@@ -8,9 +8,7 @@ import {
   PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
-import {
-  NucleotideModel,
-} from '../../models/nucleotide_model';
+import { NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge, HalfEdge, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { STParameters } from './spanning_tree_menu';
@@ -19,7 +17,7 @@ import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-export class Veneziano extends WiresModel{
+export class Veneziano extends WiresModel {
   graph: Graph;
   st: Set<Edge>;
   trail: HalfEdge[];

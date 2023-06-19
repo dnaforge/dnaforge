@@ -9,7 +9,8 @@ import { Controls } from './controls';
 import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
-import { SelectionHandler } from './selection_handler';
+import { Selection, Editor } from './editor';
+import { Model } from '../models/model';
 
 const canvas = document.querySelector('#canvas');
 
@@ -49,9 +50,13 @@ export class Context {
   camera: THREE.Camera;
   cameraControls: OrbitControls;
   callbacks: { (): void }[];
+  intersectionSolvers = new Map<
+    THREE.Object3D,
+    (i: THREE.Intersection) => Selection
+  >();
 
   graph: Graph;
-  selectionHandler: SelectionHandler;
+  editor: Editor;
   controls: Controls;
   activeContext: ModuleMenu;
   renderer: THREE.WebGLRenderer;
@@ -71,7 +76,7 @@ export class Context {
     this.callbacks = [];
 
     this.graph = null;
-    this.selectionHandler = new SelectionHandler(this);
+    this.editor = new Editor(this);
     this.controls = new Controls(this);
     this.activeContext = null;
 
@@ -128,6 +133,7 @@ export class Context {
    * @param key
    */
   handleHotKey(key: string) {
+    if (this.editor.handleHotKey(key)) return;
     if (this.activeContext && this.activeContext.handleHotKey(key)) return;
     for (const menu of this.menus.values())
       if (menu.isGlobal && menu.handleHotKey(key)) return;
@@ -139,6 +145,32 @@ export class Context {
       default:
         break;
     }
+  }
+
+  addToScene(
+    obj: THREE.Object3D,
+    intersectionSolver?: (i: THREE.Intersection) => Selection,
+    model?: Model
+  ) {
+    this.scene.add(obj);
+    this.intersectionSolvers.set(obj, intersectionSolver);
+    this.editor.add(model);
+  }
+
+  removeFromScene(obj: THREE.Object3D, model?: Model) {
+    this.scene.remove(obj);
+    this.intersectionSolvers.delete(obj);
+    this.editor.remove(model);
+  }
+
+  resolveIntersection(intersection: THREE.Intersection): Selection {
+    let curObj = intersection.object;
+    while (curObj && curObj != this.scene) {
+      const handler = this.intersectionSolvers.get(curObj);
+      if (handler) return handler(intersection);
+      else curObj = curObj.parent;
+    }
+    return null;
   }
 
   /**
@@ -351,6 +383,7 @@ export class Context {
     for (const menu of this.menus.keys()) {
       const mJson = json[menu];
       mJson && this.menus.get(menu).loadJSON(mJson);
+      this.menus.get(menu).inactivate();
     }
     if (!this.activeContext && json.active) {
       this.menus.get(json.active).activate();

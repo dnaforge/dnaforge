@@ -7,9 +7,7 @@ import {
   PrimePos,
   RoutingStrategy,
 } from '../../models/cylinder_model';
-import {
-  NucleotideModel,
-} from '../../models/nucleotide_model';
+import { NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge, Vertex, HalfEdge } from '../../models/graph_model';
 import { SternaParameters } from './sterna_menu';
 import { Nucleotide } from '../../models/nucleotide';
@@ -21,7 +19,7 @@ const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 /**
  * Sterna RNA routing method.
  */
-export class Sterna extends WiresModel{
+export class Sterna extends WiresModel {
   graph: Graph;
   st: Set<Edge>;
   trail: HalfEdge[];

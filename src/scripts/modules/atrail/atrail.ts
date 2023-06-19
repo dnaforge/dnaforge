@@ -14,6 +14,7 @@ import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { ATrailParameters } from './atrail_menu';
 import { Strand } from '../../models/strand';
+import { Selectable } from '../../scene/editor';
 
 const MAX_TIME = 10000; // milliseconds, give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
@@ -535,8 +536,11 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
     c.routingStrategy = RoutingStrategy.Reinforced;
 }
 
-export function reinforceCylinders(cm: CylinderModel) {
-  for (const c of cm.selection) {
+export function reinforceCylinders(
+  cm: CylinderModel,
+  selection: Iterable<Cylinder>
+) {
+  for (const c of selection) {
     if (!c.bundle || c.bundle.length <= 2) {
       reinforceCylinder(cm, c);
     }

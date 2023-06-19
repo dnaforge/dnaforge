@@ -616,13 +616,15 @@ export class InterfaceMenu extends Menu {
     });
 
     $('#selection-mode').on('click', () => {
-      GLOBALS.selectionMode = $('#selection-mode')
+      this.context.editor.selectionMode = $('#selection-mode')
         .children('.active')
         .attr('data-id');
     });
 
     $('#toggle-nucleotides-backbone').on('click', () => {
-      GLOBALS.visibilityNucBackbone = $('#toggle-nucleotides-backbone')[0].checked;
+      GLOBALS.visibilityNucBackbone = $(
+        '#toggle-nucleotides-backbone'
+      )[0].checked;
       this.context.activeContext?.updateVisuals();
     });
 
@@ -633,7 +635,7 @@ export class InterfaceMenu extends Menu {
 
     this.hoverButton.on('click', (e: Event) => {
       e.stopPropagation();
-      GLOBALS.hover = this.hoverButton[0].checked;
+      this.context.controls.hover = this.hoverButton[0].checked;
     });
   }
 }

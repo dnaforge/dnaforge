@@ -6,6 +6,11 @@ import { get2PointTransform } from '../utils/transforms';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Vertex } from './graph_model';
 import { Relaxer } from './relaxer';
+import { Model } from './model';
+import { Selectable } from '../scene/editor';
+import { ModuleMenu } from '../scene/module_menu';
+
+//TODO: Split into files
 
 export enum RoutingStrategy {
   Normal = 0,
@@ -27,14 +32,27 @@ interface CylinderMeshes {
   linker: InstancedMesh;
 }
 
-const cylinderColours: Record<string, THREE.Color> = {
-  cylinder: new THREE.Color(0xffffff),
-  prime: new THREE.Color(0xff9999),
-  linker: new THREE.Color(0xff9999),
-
-  active: new THREE.Color(0x6666ff),
-  select: new THREE.Color(0x5555ff),
-  hover: new THREE.Color(0xff5555),
+type CylinderColour = {
+  cylinder: THREE.Color;
+  prime: THREE.Color;
+  linker: THREE.Color;
+};
+const cylinderColours: { [n: string]: CylinderColour } = {
+  default: {
+    cylinder: new THREE.Color(0xffffff),
+    prime: new THREE.Color(0xff9999),
+    linker: new THREE.Color(0xff9999),
+  },
+  select: {
+    cylinder: new THREE.Color(0x5555ff),
+    prime: new THREE.Color(0xff9999),
+    linker: new THREE.Color(0xff9999),
+  },
+  hover: {
+    cylinder: new THREE.Color(0xff5555),
+    prime: new THREE.Color(0xff9999),
+    linker: new THREE.Color(0xff9999),
+  },
 };
 
 const materialCylinders = new THREE.MeshPhongMaterial({ color: 0xffffff });
@@ -89,7 +107,7 @@ export class CylinderBundle {
  * cylinder with an identity transformation matrix is considered to have its base
  * at the origin and the end one unit along the Y-vector.
  */
-class Cylinder {
+export class Cylinder {
   id: number;
   scale: number;
   naType: NATYPE;
@@ -108,9 +126,6 @@ class Cylinder {
 
   instanceMeshes: CylinderMeshes;
   nucParams: typeof RNA | typeof DNA;
-  select = false;
-  active = false;
-  hover = false;
 
   /**
    * @param id
@@ -140,10 +155,7 @@ class Cylinder {
     const neighbours: Partial<Record<PrimePos, [number, PrimePos]>> = {};
     for (const key of Object.values(PrimePos)) {
       if (this.neighbours[key])
-        neighbours[key] = [
-          this.neighbours[key][0].id,
-          this.neighbours[key][1],
-        ];
+        neighbours[key] = [this.neighbours[key][0].id, this.neighbours[key][1]];
     }
 
     return {
@@ -426,83 +438,47 @@ class Cylinder {
       } else {
         transformLinker = new Matrix4().scale(new Vector3(0, 0, 0));
       }
-      this.instanceMeshes.linker.setMatrixAt(
-        4 * this.id + i,
-        transformLinker
-      );
-      this.instanceMeshes.prime.setMatrixAt(
-        4 * this.id + i,
-        transformPrime
-      );
+      this.instanceMeshes.linker.setMatrixAt(4 * this.id + i, transformLinker);
+      this.instanceMeshes.prime.setMatrixAt(4 * this.id + i, transformPrime);
     }
   }
 
-  setObjectColours() {
-    let colours;
-    if (this.hover)
-      colours = [
-        cylinderColours.hover,
-        cylinderColours.linker,
-        cylinderColours.prime,
-      ];
-    else if (this.active)
-      colours = [
-        cylinderColours.active,
-        cylinderColours.linker,
-        cylinderColours.prime,
-      ];
-    else if (this.select)
-      colours = [
-        cylinderColours.select,
-        cylinderColours.linker,
-        cylinderColours.prime,
-      ];
-    else
-      colours = [
-        cylinderColours.cylinder,
-        cylinderColours.linker,
-        cylinderColours.prime,
-      ];
-
-    this.instanceMeshes.main.setColorAt(this.id, colours[0]);
+  setObjectColours(colours = cylinderColours.default) {
+    this.instanceMeshes.main.setColorAt(this.id, colours.cylinder);
     for (let i = 0; i < 4; i++) {
-      this.instanceMeshes.linker.setColorAt(
-        4 * this.id + i,
-        colours[1]
-      );
-      this.instanceMeshes.prime.setColorAt(4 * this.id + i, colours[2]);
+      this.instanceMeshes.linker.setColorAt(4 * this.id + i, colours.linker);
+      this.instanceMeshes.prime.setColorAt(4 * this.id + i, colours.prime);
     }
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[m].instanceColor.needsUpdate = true;
   }
 
-  markSelect(val: boolean) {
-    this.select = val;
+  markDefault() {
     this.setObjectColours();
   }
 
-  markActive(val: boolean) {
-    this.active = val;
-    this.setObjectColours();
+  markSelect() {
+    this.setObjectColours(cylinderColours.select);
   }
 
-  markHover(val: boolean) {
-    this.hover = val;
-    this.setObjectColours();
+  markHover() {
+    this.setObjectColours(cylinderColours.hover);
+  }
+
+  getTooltip() {
+    return `ID: ${this.id}<br>Len:${this.length} bp`;
   }
 }
 
-class CylinderModel {
+export class CylinderModel extends Model {
   cylinders: Cylinder[] = [];
   scale: number;
   naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
-  obj: THREE.Object3D;
-  meshes: CylinderMeshes;
-
-  selection = new Set<Cylinder>();
-  active: Cylinder;
+  obj?: THREE.Object3D;
+  owner?: ModuleMenu;
+  meshes?: CylinderMeshes;
 
   /**
    *
@@ -510,10 +486,11 @@ class CylinderModel {
    * @param naType DNA | RNA
    */
   constructor(scale = 1, naType: NATYPE = 'DNA') {
+    super();
     this.scale = scale;
     this.naType = naType;
 
-    if (!(scale < 1000 && scale >= 0)) {
+    if (scale <= 0.001) {
       throw `Invalid scale`;
     }
 
@@ -643,49 +620,70 @@ class CylinderModel {
     return offset;
   }
 
-  show(){
-    if(this.obj){
+  show() {
+    if (this.obj) {
+      this.isVisible = true;
       this.obj.layers.set(0);
-      for(let o of this.obj.children) o.layers.set(0);
+      for (let o of this.obj.children) o.layers.set(0);
     }
   }
 
-  hide(){
-    if(this.obj){
+  hide() {
+    if (this.obj) {
+      this.isVisible = false;
       this.obj.layers.set(1);
-      for(let o of this.obj.children) o.layers.set(1);
+      for (let o of this.obj.children) o.layers.set(1);
     }
   }
 
   /**
-   * Adds the 3d object associated with this cylinder model to the given scene.
+   * Adds the 3d object associated with this cylinder model to the scene.
    * Generates it if it does not already exist.
    *
    * @param scene
-   * @param visible 
+   * @param visible
    */
-  addToScene(scene: THREE.Scene, visible = true) {
+  addToScene(owner: ModuleMenu, visible = true) {
+    this.owner = owner;
     if (!this.obj) {
       this.generateObject();
       this.updateObject();
-      if(visible) this.show();
-      else this.hide();
     }
-    scene.add(this.obj);
+    if (visible) this.show();
+    else this.hide();
+
+    const intersectionToCylinder = (intersection: Intersection) => {
+      const obj = intersection.object;
+      if (obj == this.meshes.main) {
+        return this.cylinders[intersection.instanceId];
+      } else {
+        return this.cylinders[Math.floor(intersection.instanceId / 4)];
+      }
+    };
+
+    owner.context.addToScene(
+      this.obj,
+      (i: Intersection) => {
+        return {
+          owner: this,
+          target: intersectionToCylinder(i),
+        };
+      },
+      this
+    );
   }
 
   /**
    * Deletes all the objects associated with this cylinder model.
    */
   dispose() {
-    if (this.obj.parent) this.obj.parent.remove(this.obj);
+    this.owner && this.owner.context.removeFromScene(this.obj);
     for (const k of _.keys(this.meshes)) {
       const mesh = this.meshes[k];
       mesh.geometry.dispose();
     }
     delete this.obj;
   }
-
 
   /**
    * Generates the 3d object and its meshes.
@@ -716,77 +714,6 @@ class CylinderModel {
     const group = new THREE.Group();
     group.add(meshes.main, meshes.prime, meshes.linker);
     this.obj = group;
-
-    this.setupEventListeners(meshes);
-  }
-
-  /**
-   *
-   * @param meshes
-   */
-  setupEventListeners(meshes: Record<string, InstancedMesh>) {
-    let lastCyl: Cylinder = undefined;
-
-    //TODO: Move these somewhere else. Don't just hack them into the existing object3d.
-
-    const intersectionToCylinder = (intersection: Intersection) => {
-      const obj = intersection.object;
-      if (obj == this.meshes.main) {
-        return this.cylinders[intersection.instanceId];
-      } else {
-        return this.cylinders[Math.floor(intersection.instanceId / 4)];
-      }
-    };
-
-    const onMouseOver = (intersection: Intersection) => {
-      const cyl = intersectionToCylinder(intersection);
-      if (cyl == lastCyl) return;
-      if (lastCyl && cyl != lastCyl)
-        (intersection.object as any).onMouseOverExit();
-
-      lastCyl = cyl;
-      this.setHover(cyl, true);
-    };
-
-    const onMouseOverExit = () => {
-      if (!lastCyl) return;
-      this.setHover(lastCyl, false);
-      lastCyl = undefined;
-    };
-
-    const onClick = (intersection: Intersection) => {
-      const cyl = intersectionToCylinder(intersection);
-      this.setHover(cyl, false);
-      this.toggleSelect(cyl);
-    };
-
-    const getTooltip = (intersection: Intersection) => {
-      const cyl = intersectionToCylinder(intersection);
-      return `ID: ${cyl.id}<br>Len:${cyl.length} bp`;
-    };
-
-    for (const m of _.keys(meshes)) {
-      Object.defineProperty(meshes[m], 'onMouseOver', {
-        value: onMouseOver,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'onMouseOverExit', {
-        value: onMouseOverExit,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'onClick', {
-        value: onClick,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'getTooltip', {
-        value: getTooltip,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'focusable', {
-        value: true,
-        writable: false,
-      });
-    }
   }
 
   /**
@@ -846,87 +773,18 @@ class CylinderModel {
     return score;
   }
 
-  /**
-   * Sets target cylinder active
-   *
-   * @param target
-   */
-  setActive(target: Cylinder) {
-    this.clearActive();
-    target.markActive(true);
-    this.active = target;
-  }
-
-  /**
-   * Clears active cylinder
-   *
-   */
-  clearActive() {
-    if (this.active) this.active.markActive(false);
-    this.active = undefined;
-  }
-
-  /**
-   * Toggles select of target cylinder
-   *
-   * @param target
-   */
-  toggleSelect(target: Cylinder) {
-    if (this.selection.has(target)) {
-      this.selection.delete(target);
-      target.markSelect(false);
-      if (this.active == target) this.clearActive();
-    } else {
-      this.selection.add(target);
-      target.markSelect(true);
-      target.markActive(true);
-      this.setActive(target);
+  getSelection(
+    event: string,
+    target?: Selectable,
+    mode?: 'none' | 'single' | 'limited' | 'connected'
+  ): Selectable[] {
+    switch (event) {
+      case 'select':
+        return [target];
+      case 'selectAll':
+        return this.cylinders;
+      default:
+        return [];
     }
-    this.handleSelectionCallback();
-  }
-
-  /**
-   * Sets the hover of target cylinder
-   *
-   * @param target
-   * @param val
-   */
-  setHover(target: Cylinder, val: boolean) {
-    target.markHover(val);
-  }
-
-  /**
-   * Marks all cylinders as selected.
-   */
-  selectAll() {
-    for (const cyl of this.cylinders) {
-      cyl.markSelect(true);
-      this.selection.add(cyl);
-    }
-    this.handleSelectionCallback();
-  }
-
-  /**
-   * Unmarks all cylinders as selected.
-   */
-  deselectAll() {
-    this.clearActive();
-    for (const cyl of this.cylinders) {
-      cyl.markSelect(false);
-      this.selection.delete(cyl);
-    }
-    this.handleSelectionCallback();
-  }
-
-  handleSelectionCallback() {
-    this.selectionCallback && this.selectionCallback();
-  }
-
-  selectionCallback: () => void;
-
-  bindSelectionCallback(callback: () => void) {
-    this.selectionCallback = callback;
   }
 }
-
-export { CylinderModel, Cylinder };

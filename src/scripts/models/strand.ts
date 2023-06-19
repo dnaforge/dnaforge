@@ -3,7 +3,6 @@ import { Matrix4 } from 'three';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Nucleotide } from './nucleotide';
 
-
 /**
  * A class represeting a strand. Contains nucleotides.
  */

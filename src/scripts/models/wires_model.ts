@@ -1,7 +1,11 @@
 import { Object3D } from 'three';
+import { Model } from './model';
+import { Selectable } from '../scene/editor';
+import { ModuleMenu } from '../scene/module_menu';
 
-abstract class WiresModel {
-  obj: THREE.InstancedMesh;
+abstract class WiresModel extends Model {
+  obj?: THREE.InstancedMesh;
+  owner?: ModuleMenu;
 
   abstract toJSON(): JSONObject;
 
@@ -26,27 +30,39 @@ abstract class WiresModel {
    * Generates it if it does not already exist.
    *
    * @param scene
-   * @param visible 
+   * @param visible
    */
-  addToScene(scene: THREE.Scene, visible = true){
-    if(!this.obj) this.generateObject();
-    scene.add(this.obj);
-    if(visible) this.show();
+  addToScene(owner: ModuleMenu, visible = true) {
+    this.owner = owner;
+    if (!this.obj) this.generateObject();
+    owner.context.scene.add(this.obj);
+    if (visible) this.show();
     else this.hide();
   }
 
-  show(){
+  show() {
     this.obj.layers.set(0);
-    if(this.obj){
-      for(let o of this.obj.children) o.layers.set(0);
+    if (this.obj) {
+      this.isVisible = true;
+      for (let o of this.obj.children) o.layers.set(0);
     }
   }
 
-  hide(){
+  hide() {
     this.obj.layers.set(1);
-    if(this.obj){
-      for(let o of this.obj.children) o.layers.set(1);
+    if (this.obj) {
+      this.isVisible = false;
+      for (let o of this.obj.children) o.layers.set(1);
     }
+  }
+
+  getSelection(
+    event: string,
+    target?: Selectable,
+    mode?: 'none' | 'single' | 'limited' | 'connected'
+  ): Selectable[] {
+    //TODO
+    return [];
   }
 }
 

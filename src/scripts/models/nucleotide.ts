@@ -5,6 +5,7 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
+import { Selectable } from '../scene/editor';
 
 export interface NucleotideMeshes {
   bases: InstancedMesh;
@@ -36,8 +37,10 @@ const nucleotideColours: Record<string, THREE.Color> = {
 
   nucleotide: new THREE.Color(0xffffff),
   backbone: new THREE.Color(0xffffff),
+};
 
-  active: new THREE.Color(0xbbbbff),
+const selectionColours = {
+  default: new THREE.Color(0xffffff),
   selection: new THREE.Color(0x5555ff),
   hover: new THREE.Color(0xff5555),
 };
@@ -69,7 +72,7 @@ const nucleotideGeometry = (nucParams: Record<string, any>) => {
 /**
  * An individual nucleotide.
  */
-export class Nucleotide {
+export class Nucleotide extends Selectable {
   id: number;
   instanceMeshes: NucleotideMeshes;
   hover = false;
@@ -104,6 +107,7 @@ export class Nucleotide {
    * @param base IUPAC code
    */
   constructor(scale = 1, naType: NATYPE = 'DNA', base = 'N') {
+    super();
     this.base = base;
     this.scale = scale;
     this.naType = naType;
@@ -141,12 +145,15 @@ export class Nucleotide {
 
   /**
    * Generates instanced meshes of DNA or RNA nucleotides.
-   * 
+   *
    * @param nucParams DNA | RNA
    * @param count number of instances
    * @returns NucleotideMeshes
    */
-  static createInstanceMesh(nucParams: typeof DNA | typeof RNA, count: number): NucleotideMeshes{
+  static createInstanceMesh(
+    nucParams: typeof DNA | typeof RNA,
+    count: number
+  ): NucleotideMeshes {
     const meshBases = new THREE.InstancedMesh(
       baseGeometry(nucParams),
       materialNucleotides,
@@ -248,37 +255,11 @@ export class Nucleotide {
   /**
    * Set the object instance colours.
    */
-  updateObjectColours() {
-    let colours;
-    if (this.hover)
-      colours = [
-        nucleotideColours.hover,
-        nucleotideColours.hover,
-        nucleotideColours[this.base],
-      ];
-    else if (this.active)
-      colours = [
-        nucleotideColours.active,
-        nucleotideColours.active,
-        nucleotideColours[this.base],
-      ];
-    else if (this.select)
-      colours = [
-        nucleotideColours.selection,
-        nucleotideColours.selection,
-        nucleotideColours[this.base],
-      ];
-    else
-      colours = [
-        nucleotideColours.backbone,
-        nucleotideColours.nucleotide,
-        nucleotideColours[this.base],
-      ];
-
-    this.instanceMeshes.backbone1.setColorAt(this.id, colours[0]);
-    this.instanceMeshes.backbone2.setColorAt(this.id, colours[0]);
-    this.instanceMeshes.nucleotides.setColorAt(this.id, colours[1]);
-    this.instanceMeshes.bases.setColorAt(this.id, colours[2]);
+  updateObjectColours(colour = selectionColours.default) {
+    this.instanceMeshes.backbone1.setColorAt(this.id, colour);
+    this.instanceMeshes.backbone2.setColorAt(this.id, colour);
+    this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
+    this.instanceMeshes.bases.setColorAt(this.id, nucleotideColours[this.base]);
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[
         m as keyof NucleotideMeshes
@@ -292,19 +273,20 @@ export class Nucleotide {
     this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
   }
 
-  markSelect(val: boolean) {
-    this.select = val;
+  markSelect() {
+    this.updateObjectColours(selectionColours.selection);
+  }
+
+  markHover() {
+    this.updateObjectColours(selectionColours.hover);
+  }
+
+  markDefault(): void {
     this.updateObjectColours();
   }
 
-  markActive(val: boolean) {
-    this.active = val;
-    this.updateObjectColours();
-  }
-
-  markHover(val: boolean) {
-    this.hover = val;
-    this.updateObjectColours();
+  getTooltip(): string {
+    return `${this.base}<br>${this.id}`;
   }
 
   /**

@@ -60,8 +60,6 @@ export class CycleCover extends WiresModel {
       cycles.push(cycle);
     }
 
-    console.log(cc);
-
     return cc;
   }
 

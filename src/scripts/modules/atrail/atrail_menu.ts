@@ -11,7 +11,7 @@ import { ModuleMenu, ModuleMenuParameters } from '../../scene/module_menu';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
-import { CylinderModel } from '../../models/cylinder_model';
+import { Cylinder, CylinderModel } from '../../models/cylinder_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { NucleotideModel } from '../../models/nucleotide_model';
 
@@ -49,9 +49,9 @@ export class ATrailMenu extends ModuleMenu {
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.showWires = this.wires && this.showWires; // ugly hacks to prevent always creating the models on context switch
-    this.showCylinders = this.cm && this.showCylinders;
-    this.showNucleotides = this.nm && this.showNucleotides;
+    this.wires && this.wires.addToScene(this, this.showWires);
+    this.cm && this.cm.addToScene(this, this.showCylinders);
+    this.nm && this.nm.addToScene(this, this.showNucleotides);
   }
 
   graphToWires(graph: Graph, params: ATrailParameters) {
@@ -69,9 +69,11 @@ export class ATrailMenu extends ModuleMenu {
   }
 
   reinforce() {
-    if (!this.cm || this.cm.selection.size == 0) return;
-    reinforceCylinders(this.cm);
+    const selection = this.context.editor.getSelection(this.cm);
+    if (!this.cm || selection.size == 0) return;
+    reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
     this.cm.dispose(); // make sure the old model is deleted
+    this.cm.addToScene(this, this.showCylinders);
     this.removeNucleotides(true);
 
     this.regenerateVisible();

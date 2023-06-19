@@ -44,9 +44,9 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.showWires = this.wires && this.showWires; // ugly hacks to prevent always creating the models on context switch
-    this.showCylinders = this.cm && this.showCylinders;
-    this.showNucleotides = this.nm && this.showNucleotides;
+    this.wires && this.wires.addToScene(this, this.showWires);
+    this.cm && this.cm.addToScene(this, this.showCylinders);
+    this.nm && this.nm.addToScene(this, this.showNucleotides);
   }
 
   graphToWires(graph: Graph, params: STParameters) {

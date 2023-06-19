@@ -9,27 +9,26 @@ import {
   RoutingStrategy,
   PrimePos,
 } from './cylinder_model';
-import { ModuleMenuParameters } from '../scene/module_menu';
+import { ModuleMenu, ModuleMenuParameters } from '../scene/module_menu';
 import { Strand } from './strand';
 import { Nucleotide, NucleotideMeshes } from './nucleotide';
 import { Context } from '../scene/context';
-
+import { Model } from './model';
+import { Selectable } from '../scene/editor';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
  */
-export class NucleotideModel {
+export class NucleotideModel extends Model {
   idToNuc = new Map<number, Nucleotide>(); // maps ids to nucleotides, must always be correct
-  strands: Strand[];
+  strands: Strand[] = [];
 
   scale: number;
   naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
-  obj: THREE.Object3D;
-
-  selection = new Set<Nucleotide>();
-  hover = new Set<Nucleotide>();
+  obj?: THREE.Object3D;
+  owner?: ModuleMenu;
 
   /**
    *
@@ -37,7 +36,7 @@ export class NucleotideModel {
    * @param naType DNA | RNA
    */
   constructor(scale: number, naType: NATYPE = 'DNA') {
-    this.strands = [];
+    super();
     this.scale = scale;
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
@@ -609,49 +608,58 @@ export class NucleotideModel {
     this.updateObject();
   }
 
-  show(){
-    if(this.obj){
+  show() {
+    if (this.obj) {
+      this.isVisible = true;
       this.obj.layers.set(0);
-      for(let o of this.obj.children) o.layers.set(0);
+      for (let o of this.obj.children) o.layers.set(0);
     }
   }
 
-  hide(){
-    if(this.obj){
+  hide() {
+    if (this.obj) {
+      this.isVisible = false;
       this.obj.layers.set(1);
-      for(let o of this.obj.children) o.layers.set(1);
+      for (let o of this.obj.children) o.layers.set(1);
     }
   }
 
   /**
-   * Adds the 3d object associated with this nucleotide model to the given scene.
+   * Adds the 3d object associated with this nucleotide model to the scene.
    * Generates it if it does not already exist.
    *
-   * @param context
-   * @param visible 
+   * @param owner
+   * @param visible
    */
-  addToScene(context: Context, visible = true) {
+  addToScene(owner: ModuleMenu, visible = true) {
+    this.owner = owner;
     if (!this.obj) {
       this.generateObject();
       this.updateObject();
-      if(visible) this.show();
-      else this.hide();
     }
-    context.scene.add(this.obj);
-    for (const m of this.obj.children) 
-      context.selectionHandler.register(m, this.idToNuc.values(), (id: number) => {return this.idToNuc.get(id)});
+    if (visible) this.show();
+    else this.hide();
+
+    owner.context.addToScene(
+      this.obj,
+      (i: Intersection) => {
+        return {
+          owner: this,
+          target: this.idToNuc.get(i.instanceId),
+        };
+      },
+      this
+    );
   }
 
   /**
    * Deletes all the meshes associated with this model.
    */
   dispose() {
-    if (this.obj.parent) this.obj.parent.remove(this.obj);
-    for (const m of this.obj.children)
-      (m as THREE.Mesh).geometry.dispose();
+    this.owner && this.owner.context.removeFromScene(this.obj);
+    for (const m of this.obj.children) (m as THREE.Mesh).geometry.dispose();
     delete this.obj;
   }
-
 
   /**
    * Generates the 3d object associated with this model.
@@ -664,71 +672,7 @@ export class NucleotideModel {
 
     this.obj = new THREE.Group();
     let n: keyof NucleotideMeshes;
-    for(n in meshes) this.obj.add(meshes[n]);
-
-    this.setupEventListeners(meshes);
-  }
-
-  /**
-   *
-   * @param meshes
-   */
-  setupEventListeners(meshes: NucleotideMeshes) {
-    let lastI = -1;
-
-    //TODO: Move these somewhere else. Don't just hack them into the existing object3d.
-
-    const onMouseOver = (intersection: Intersection) => {
-      const i = intersection.instanceId;
-      if (i == lastI) return;
-      if (lastI != -1 && i != lastI)
-        (intersection.object as any).onMouseOverExit();
-
-      lastI = i;
-      this.setHover(this.idToNuc.get(i), true);
-    };
-
-    const onMouseOverExit = () => {
-      if (lastI == -1) return;
-      this.setHover(this.idToNuc.get(lastI), false);
-      lastI = -1;
-    };
-
-    const onClick = (i: number) => {
-      this.setHover(this.idToNuc.get(i), false);
-      this.toggleSelect(this.idToNuc.get(i));
-    };
-
-    const getTooltip = (intersection: Intersection) => {
-      const i = intersection.instanceId;
-      const nuc = this.idToNuc.get(i);
-      return `${nuc.base}<br>${i}`;
-    };
-
-
-    let m: keyof NucleotideMeshes;
-    for (m in meshes) {
-      Object.defineProperty(meshes[m], 'onMouseOver', {
-        value: onMouseOver,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'onMouseOverExit', {
-        value: onMouseOverExit,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'onClick', {
-        value: onClick,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'getTooltip', {
-        value: getTooltip,
-        writable: false,
-      });
-      Object.defineProperty(meshes[m], 'focusable', {
-        value: true,
-        writable: false,
-      });
-    }
+    for (n in meshes) this.obj.add(meshes[n]);
   }
 
   /**
@@ -745,6 +689,31 @@ export class NucleotideModel {
     }
   }
 
+  getSelection(
+    event: string,
+    target?: Selectable,
+    mode?: typeof GLOBALS.selectionMode
+  ): Selectable[] {
+    switch (event) {
+      case 'select':
+        return this.getConnected(target as Nucleotide, mode);
+      case 'select5ps':
+        return this.get5ps();
+      case 'selectAll':
+        return this.getNucleotides();
+      default:
+        return [];
+    }
+  }
+
+  get5ps() {
+    const primes5: Nucleotide[] = [];
+    for (let s of this.strands) {
+      primes5.push(s.getNucleotides()[0]);
+    }
+    return primes5;
+  }
+
   /**
    * Returns a set of nucleotides according to the selection mode, when the first
    * selection is the given target nucleotide.
@@ -752,12 +721,14 @@ export class NucleotideModel {
    * @param target
    * @returns
    */
-  getSelection(target: Nucleotide): Nucleotide[] {
-    const selectionMode = GLOBALS.selectionMode;
+  getConnected(
+    target: Nucleotide,
+    mode: typeof GLOBALS.selectionMode
+  ): Nucleotide[] {
     let nucs = [target];
-    if (selectionMode == 'none') nucs = [];
-    else if (selectionMode == 'single') {
-    } else if (selectionMode == 'limited') {
+    if (mode == 'none') nucs = [];
+    else if (mode == 'single') {
+    } else if (mode == 'limited') {
       let cur = target.next;
       const hasSameType = (n1: Nucleotide, n2: Nucleotide) => {
         if (n1.isLinker != n2.isLinker) return false;
@@ -776,7 +747,7 @@ export class NucleotideModel {
           cur = cur.prev;
         }
       }
-    } else if (selectionMode == 'connected') {
+    } else if (mode == 'connected') {
       let cur = target.next;
       while (cur && cur != target) {
         nucs.push(cur);
@@ -791,81 +762,5 @@ export class NucleotideModel {
       }
     } else nucs = [];
     return nucs;
-  }
-
-  /**
-   * Toggles select of target nucleotide and all its neighbours according to the
-   * selection mode.
-   *
-   * @param target
-   */
-  toggleSelect(target: Nucleotide) {
-    for (const n of this.getSelection(target)) {
-      if (this.selection.has(n)) {
-        this.selection.delete(n);
-        n.markSelect(false);
-      } else {
-        this.selection.add(n);
-        n.markSelect(true);
-      }
-    }
-  }
-
-  /**
-   * Sets the hover of target nucleotide and all its neighbours according to the
-   * selection mode.
-   *
-   * @param target
-   * @param val
-   */
-  setHover(target: Nucleotide, val: boolean) {
-    for (const n of this.hover) n.markHover(false);
-    this.hover.clear();
-    target.markHover(val);
-    this.hover.add(target);
-  }
-
-  /**
-   * Marks all nucleotides as selected.
-   */
-  selectAll() {
-    for (const s of this.strands) {
-      for (const n of s.nucleotides) {
-        n.markSelect(true);
-        this.selection.add(n);
-      }
-    }
-  }
-
-  /**
-   * Unmarks all nucleotides as selected.
-   */
-  deselectAll() {
-    for (const s of this.strands) {
-      for (const n of s.nucleotides) {
-        n.markSelect(false);
-        this.selection.delete(n);
-      }
-    }
-  }
-
-  /**
-   * Select 5 primes
-   */
-  select5p(onlyScaffold = true) {
-    if (onlyScaffold) {
-      const scaffold = this.getScaffold();
-      if (!scaffold) return;
-
-      const n = scaffold.nucleotides[0];
-      n.markSelect(true);
-      this.selection.add(n);
-    } else {
-      for (const s of this.strands) {
-        const n = s.nucleotides[0];
-        n.markSelect(true);
-        this.selection.add(n);
-      }
-    }
   }
 }

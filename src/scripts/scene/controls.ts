@@ -20,8 +20,7 @@ export class Controls {
   scene: THREE.Scene;
 
   pointerOnCanvas = false;
-  curMesh: any;
-  prevMesh: any; //TODO: Figure out a type for these. Or access the event listerners via some other route
+  hover = false;
   intersection: THREE.Intersection;
 
   constructor(context: Context) {
@@ -36,53 +35,31 @@ export class Controls {
    */
   handleInput() {
     try {
-      if (GLOBALS.hover) {
+      if (this.hover) {
         this.raycaster.setFromCamera(this.pointer, this.context.getCamera());
         const intersects = this.raycaster.intersectObjects(
           this.scene.children,
           true
         );
+
         if (intersects.length > 0 && this.pointerOnCanvas) {
           for (let i = 0; i < intersects.length; i++) {
             this.intersection = intersects[i];
-            this.curMesh = this.intersection.object;
-            if (this.curMesh.onMouseOver) break;
-          }
-          if (
-            this.prevMesh &&
-            this.prevMesh !== this.curMesh &&
-            this.prevMesh.onMouseOverExit
-          ) {
-            this.prevMesh.onMouseOverExit();
-            this.context.removeTooltip();
-          }
-          if (this.curMesh.onMouseOver) {
-            this.curMesh.onMouseOver(this.intersection);
-          }
-          if (this.curMesh.getTooltip) {
-            this.context.addTooltip(
-              this.intersection.point,
-              this.curMesh.getTooltip(this.intersection)
-            );
-          }
-          this.prevMesh = this.curMesh;
-        } else {
-          if (this.prevMesh && this.prevMesh.onMouseOverExit) {
-            this.prevMesh.onMouseOverExit();
-            this.context.removeTooltip();
+            const s = this.context.resolveIntersection(this.intersection);
+            if (s) {
+              this.context.editor.setHover(s);
+              this.context.editor.addToolTip(s, this.intersection.point);
+              return;
+            }
           }
         }
-      } else if (this.prevMesh) {
-        this.prevMesh.onMouseOverExit && this.prevMesh.onMouseOverExit();
-        this.context.removeTooltip();
-        this.prevMesh = null;
       }
     } catch (e) {
       // Try not to crash the whole program if something here fails.
-      this.curMesh = null;
-      this.prevMesh = null;
       console.error(e);
     }
+    this.context.editor.clearHover();
+    this.context.editor.removeToolTip();
   }
 
   handleHotKey(key: string) {
@@ -127,15 +104,17 @@ export class Controls {
       this.scene.children,
       true
     );
-    let mesh;
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
-        mesh = this.intersection.object;
-        if (this.context.selectionHandler.toggle(mesh, this.intersection.instanceId)) return;
+        const s = this.context.resolveIntersection(this.intersection);
+        if (s) {
+          this.context.editor.toggleSelect(s);
+          return;
+        }
       }
     }
-    this.context.selectionHandler.deselectAll();
+    this.context.editor.deselectAll();
   }
 
   handleMouseRightDown(event: PointerEvent) {
@@ -212,10 +191,10 @@ export class Controls {
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
-        const mesh = this.intersection.object;
-        if ((mesh as any).focusable) {
+        const s = this.context.resolveIntersection(this.intersection);
+        if (s) {
           this.context.focusCamera(this.intersection.point);
-          break;
+          return;
         }
       }
     }

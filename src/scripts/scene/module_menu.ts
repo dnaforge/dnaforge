@@ -90,10 +90,6 @@ export abstract class ModuleMenu extends Menu {
   toJSON(selection: JSONObject): JSONObject {
     this.collectParameters();
 
-    this.showWires = this.wires && this.showWires; // ugly hacks to prevent always creating the models on context switch
-    this.showCylinders = this.cm && this.showCylinders; // TODO: find another solution. Starting to be a recurring problem.
-    this.showNucleotides = this.nm && this.showNucleotides;
-
     const params = this.params as JSONObject;
     const wires = selection['wires'] && this.wires && this.wires.toJSON();
     const cm = selection['cm'] && this.cm && this.cm.toJSON();
@@ -158,18 +154,18 @@ export abstract class ModuleMenu extends Menu {
    * Activate this context and unhide the associated models.
    */
   activate() {
-    try {
-      this.regenerateVisible();
-    } catch {} // regenerating structures should only fail if the input is faulty, so no need to catch anything
+    this.showWires && this.wires?.show();
+    this.showCylinders && this.cm?.show();
+    this.showNucleotides && this.nm?.show();
   }
 
   /**
    * Inactivate this context and hide the associated models.
    */
   inactivate() {
-    this.removeWires(false);
-    this.removeCylinders(false);
-    this.removeNucleotides(false);
+    this.wires?.hide();
+    this.cm?.hide();
+    this.nm?.hide();
   }
 
   /**
@@ -179,15 +175,9 @@ export abstract class ModuleMenu extends Menu {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
-
-    // Prevents show-function from generating these after reset. TODO: find a better solution.
-    this.showWires = false;
-    this.showCylinders = false;
-    this.showNucleotides = false;
   }
 
-
-  updateVisuals(){
+  updateVisuals() {
     this.nm?.updateObject();
   }
 
@@ -195,46 +185,42 @@ export abstract class ModuleMenu extends Menu {
    * Select all selectable visible models.
    */
   selectAll() {
-    if (this.showWires) this.selectWires();
-    if (this.showCylinders) this.selectCylinders();
-    if (this.showNucleotides) this.selectNucleotides();
+    this.context.editor.selectAll();
   }
 
   /**
    * Deselect all selectable visible models.
    */
   deselectAll() {
-    if (this.showWires) this.deselectWires();
-    if (this.showCylinders) this.deselectCylinders();
-    if (this.showNucleotides) this.deselectNucleotides();
+    this.context.editor.deselectAll();
   }
 
   selectWires() {
-    this.showWires && this.wires && this.wires.selectAll();
+    this.context.editor.selectAllOf(this.wires);
   }
 
   selectCylinders() {
-    this.showCylinders && this.cm && this.cm.selectAll();
-  }
-
-  selectNucleotides() {
-    this.showNucleotides && this.nm && this.nm.selectAll();
+    this.context.editor.selectAllOf(this.cm);
   }
 
   deselectWires() {
-    this.showWires && this.wires && this.wires.deselectAll();
+    this.context.editor.deselectAllOf(this.wires);
   }
 
   deselectCylinders() {
-    this.showCylinders && this.cm && this.cm.deselectAll();
+    this.context.editor.deselectAllOf(this.cm);
+  }
+
+  selectNucleotides() {
+    this.context.editor.selectAllOf(this.nm);
   }
 
   deselectNucleotides() {
-    this.showNucleotides && this.nm && this.nm.deselectAll();
+    this.context.editor.deselectAllOf(this.nm);
   }
 
   select5p(onlyScaffold = true) {
-    this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
+    //this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
   }
 
   /**
@@ -251,7 +237,7 @@ export abstract class ModuleMenu extends Menu {
     const graph = this.context.graph;
     if (!graph) throw 'No model is loaded.';
     this.wires = this.graphToWires(graph, this.params);
-    this.wires.addToScene(this.scene, this.showWires);
+    this.wires.addToScene(this, this.showWires);
   }
 
   /**
@@ -267,7 +253,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.wires) this.generateWires();
 
     this.cm = this.wiresToCylinders(this.wires, this.params);
-    this.cm.addToScene(this.scene, this.showCylinders);
+    this.cm.addToScene(this, this.showCylinders);
   }
 
   /**
@@ -282,7 +268,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.cm) this.generateCylinderModel();
 
     this.nm = this.cylindersToNucleotides(this.cm, this.params);
-    this.nm.addToScene(this.context, this.showNucleotides);
+    this.nm.addToScene(this, this.showNucleotides);
     this.context.addMessage(
       `Created: ${this.nm.length()} nucleotides.`,
       'info'
@@ -317,7 +303,7 @@ export abstract class ModuleMenu extends Menu {
    */
   addWires() {
     if (!this.wires) this.generateWires();
-    if(this.wires) this.wires.show();
+    if (this.wires) this.wires.show();
   }
 
   /**
