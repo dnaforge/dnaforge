@@ -69,7 +69,7 @@ export class ATrailMenu extends ModuleMenu {
   }
 
   reinforce() {
-    const selection = this.context.editor.getSelection(this.cm);
+    const selection = this.context.editor.getSelectionOf(this.cm);
     if (!this.cm || selection.size == 0) return;
     reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
     this.cm.dispose(); // make sure the old model is deleted
@@ -112,6 +112,7 @@ export class ATrailMenu extends ModuleMenu {
     atrail.setATrail(trail);
 
     this.wires = atrail;
+    this.wires.addToScene(this, this.showWires);
   }
 
   setCustomScaffold(scaffold: string) {

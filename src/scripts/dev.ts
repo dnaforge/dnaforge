@@ -38,8 +38,8 @@ export function dev(context: Context) {
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.addWires();
-  //cc.addCylinders();
-  cc.addNucleotides();
+  cc.addCylinders();
+  //cc.addNucleotides();
   //cc.generatePrimary();
   //cc.downloadOxDNA();
 

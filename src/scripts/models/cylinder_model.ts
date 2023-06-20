@@ -107,7 +107,7 @@ export class CylinderBundle {
  * cylinder with an identity transformation matrix is considered to have its base
  * at the origin and the end one unit along the Y-vector.
  */
-export class Cylinder {
+export class Cylinder extends Selectable{
   id: number;
   scale: number;
   naType: NATYPE;
@@ -141,6 +141,7 @@ export class Cylinder {
     naType: NATYPE = 'DNA',
     routingStrategy = RoutingStrategy.Normal
   ) {
+    super();
     this.id = id;
     this.scale = scale;
     this.naType = naType;
@@ -259,9 +260,28 @@ export class Cylinder {
     console.log('unimplemented');
   }
 
-  //TODO:
   translate(newPos: Vector3) {
-    console.log('unimplemented');
+    const tr = new Matrix4().makeTranslation(newPos.x, newPos.y, newPos.z);
+    this.transform.setPosition(newPos);
+    this.updateTransform();
+  }
+
+  reScale(scale: number){
+
+  }
+
+  getPosition(): THREE.Vector3 {
+    return new Vector3().applyMatrix4(this.transform);
+  }
+
+  updateTransform(){
+    this.setObjectMatrices();
+    for(const n in this.neighbours){
+      this.neighbours[n as PrimePos][0].setObjectMatrices();
+    }
+    for(let m in this.instanceMeshes){
+      this.instanceMeshes[m].instanceMatrix.needsUpdate = true; 
+    }
   }
 
   /**

@@ -15,6 +15,15 @@ export abstract class Selectable {
   abstract markDefault(): void;
 
   abstract getTooltip(): string;
+
+  getPosition(): Vector3{
+    return new Vector3();
+  }
+
+  translate(pos: Vector3){
+    console.log("asdf");
+    
+  }
 }
 
 export class Editor {
@@ -36,8 +45,8 @@ export class Editor {
    */
   handleHotKey(key: string): boolean {
     switch (key) {
-      case 'asdf':
-        console.log('asdf');
+      case 'g':
+        this.translate();
         break;
 
       default:
@@ -45,16 +54,66 @@ export class Editor {
     }
     return false;
   }
+  
 
-  add(model: Model) {
+  addModel(model: Model) {
     this.selections.set(model, new Set());
   }
 
-  remove(model: Model) {
+  removeModel(model: Model) {
     this.selections.delete(model);
   }
 
-  getSelection(model: Model): Set<Selectable> {
+  
+
+  translate() {
+    const sensitivity = 10;
+
+    const curSel = this.getSelection();
+    const curObj = curSel[0];
+
+    const startPos = this.context.controls.pointer.clone();
+    const curPos = startPos.clone();
+    const objPos = curObj.getPosition();
+
+
+    const pointerProjInit = new Vector3(curPos.x - startPos.x, curPos.y - startPos.y, 0).applyMatrix4(this.context.getCamera().matrixWorld);
+
+    this.context.controls.addModal(
+      (p: Vector2) => {
+        //for (const c of curSel) c.translate(new Vector3());
+        
+      },
+      (p: Vector2) => {
+        curPos.copy(this.context.controls.pointer);
+        const objInv = objPos.clone().applyMatrix4(this.context.camera.matrixWorldInverse);
+        const pointerProj = (new Vector3(sensitivity * curPos.x - startPos.x, sensitivity * curPos.y - startPos.y, 0).applyMatrix4(this.context.getCamera().matrixWorld)).sub(pointerProjInit);
+        const nPos = objPos.clone().add(pointerProj);
+        curObj.translate(nPos);
+        
+        
+
+      },
+      (p: Vector2) => {
+
+      },
+      (k: string) => {
+
+      }
+    )
+  }
+
+  getSelection(): Selectable[]{
+    const curSel: Selectable[] = [];
+    for (let m of this.selections.keys()) {
+      if (m.isVisible) {
+        curSel.push(...this.selections.get(m));
+      }
+    }
+    return curSel;
+  }
+
+  getSelectionOf(model: Model): Set<Selectable> {
     return this.selections.get(model);
   }
 

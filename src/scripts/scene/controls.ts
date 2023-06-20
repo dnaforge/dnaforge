@@ -23,17 +23,50 @@ export class Controls {
   hover = false;
   intersection: THREE.Intersection;
 
+  modal: {
+    onComplete: (m: Vector2) => void,
+    onUpdate: (m: Vector2) => void,
+    onCancel: (m: Vector2) => void,
+    onKey: (k: string) => void,
+  };
+
   constructor(context: Context) {
     this.context = context;
     this.scene = context.scene;
     this.setupEventListeners();
   }
 
+  addModal(onComplete: (m: Vector2) => void, onUpdate: (m: Vector2) => void, onCancel: (m: Vector2) => void, onKey: (k: string) => void){
+    this.modal = {
+      onComplete: onComplete,
+      onUpdate: onUpdate,
+      onCancel: onCancel,
+      onKey: onKey
+    }
+  }
+
+  completeModal(){
+    if(this.modal){
+      this.modal.onComplete(this.pointer);
+      delete(this.modal);
+    }
+  }
+
+  cancelModal(){
+    if(this.modal){
+      this.modal.onCancel(this.pointer);
+      delete(this.modal);
+    }
+  }
+
   /**
    *  Gets called once every tick. Other handlers get called once per event.
-   * TODO: This is getting messy. Do something about it
    */
   handleInput() {
+    if(this.modal){
+      this.modal.onUpdate(this.pointer);
+      return;
+    }
     try {
       if (this.hover) {
         this.raycaster.setFromCamera(this.pointer, this.context.getCamera());
@@ -62,7 +95,20 @@ export class Controls {
     this.context.editor.removeToolTip();
   }
 
+  //TODO: Create a global hotkey handler in the context maybe
   handleHotKey(key: string) {
+    switch (key) {
+      case "esc":
+        if(this.modal){
+          this.cancelModal();
+          return;
+        }
+        break;
+    }
+    if(this.modal){
+      this.modal.onKey(key);
+      return;
+    }
     this.context.handleHotKey(key);
   }
 
@@ -94,6 +140,10 @@ export class Controls {
   }
 
   handleMouseLeftUp(event: PointerEvent) {
+    if(this.modal){
+      this.completeModal();
+      return;
+    }
     const pointerCur = new Vector2(event.pageX, event.pageY);
     if (pointerCur.sub(this.pointerPrev).length() > MIN_DELTA) {
       return;
@@ -122,7 +172,10 @@ export class Controls {
   }
 
   handleMouseRightUp(event: PointerEvent) {
-    return;
+    if(this.modal){
+      this.cancelModal();
+      return;
+    }
   }
 
   handleMouseMiddleDown(event: PointerEvent) {

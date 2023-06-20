@@ -154,13 +154,13 @@ export class Context {
   ) {
     this.scene.add(obj);
     this.intersectionSolvers.set(obj, intersectionSolver);
-    this.editor.add(model);
+    this.editor.addModel(model);
   }
 
   removeFromScene(obj: THREE.Object3D, model?: Model) {
     this.scene.remove(obj);
     this.intersectionSolvers.delete(obj);
-    this.editor.remove(model);
+    this.editor.removeModel(model);
   }
 
   resolveIntersection(intersection: THREE.Intersection): Selection {
