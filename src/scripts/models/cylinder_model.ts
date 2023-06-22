@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { InstancedMesh, Intersection, Matrix4 } from 'three';
-import { Vector3 } from 'three';
+import { Vector3, Quaternion } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Vertex } from './graph_model';
@@ -107,7 +107,7 @@ export class CylinderBundle {
  * cylinder with an identity transformation matrix is considered to have its base
  * at the origin and the end one unit along the Y-vector.
  */
-export class Cylinder extends Selectable{
+export class Cylinder extends Selectable {
   id: number;
   scale: number;
   naType: NATYPE;
@@ -171,6 +171,10 @@ export class Cylinder extends Selectable{
     };
   }
 
+  getTransform() {
+    return this.transform;
+  }
+
   /**
    *
    * @returns The length of one strand of the double helix in 3d space units
@@ -229,7 +233,7 @@ export class Cylinder extends Selectable{
    *
    * @param bb backbone direction at first 5'.
    */
-  setOrientation(bb: Vector3) {
+  initOrientation(bb: Vector3) {
     const root = new Vector3().applyMatrix4(this.transform);
     const dir = new Vector3(0, 1, 0)
       .applyMatrix4(this.transform)
@@ -256,31 +260,65 @@ export class Cylinder extends Selectable{
    * @param axis
    * @param angle
    */
-  rotate(axis: Vector3, angle: number) {
-    console.log('unimplemented');
-  }
-
-  translate(newPos: Vector3) {
-    const tr = new Matrix4().makeTranslation(newPos.x, newPos.y, newPos.z);
-    this.transform.setPosition(newPos);
+  setRotation(rot: Quaternion) {
+    const pos = new Vector3();
+    const trash1 = new Quaternion();
+    const trash2 = new Vector3();
+    this.transform.decompose(pos, trash1, trash2);
+    this.transform.compose(
+      pos,
+      rot,
+      new Vector3(this.scale, this.scale, this.scale)
+    );
     this.updateTransform();
   }
 
-  reScale(scale: number){
+  setPosition(newPos: Vector3) {
+    this.transform.setPosition(newPos);
+    this.transform.setPosition(
+      new Vector3(
+        0,
+        -this.getCylinderLength() / this.scale / 2,
+        0
+      ).applyMatrix4(this.transform)
+    );
+    this.updateTransform();
+  }
 
+  setSize(len: number) {
+    const pos = this.getPosition();
+    this.length = Math.round(len);
+    this.updateTransform();
+    this.setPosition(pos);
   }
 
   getPosition(): THREE.Vector3 {
-    return new Vector3().applyMatrix4(this.transform);
+    return new Vector3(
+      0,
+      this.getCylinderLength() / this.scale / 2,
+      0
+    ).applyMatrix4(this.transform);
   }
 
-  updateTransform(){
+  getRotation(): Quaternion {
+    const pos = new Vector3();
+    const rot = new Quaternion();
+    const scale = new Vector3();
+    this.transform.decompose(pos, rot, scale);
+    return rot;
+  }
+
+  getSize(): number {
+    return this.length;
+  }
+
+  updateTransform() {
     this.setObjectMatrices();
-    for(const n in this.neighbours){
+    for (const n in this.neighbours) {
       this.neighbours[n as PrimePos][0].setObjectMatrices();
     }
-    for(let m in this.instanceMeshes){
-      this.instanceMeshes[m].instanceMatrix.needsUpdate = true; 
+    for (const m in this.instanceMeshes) {
+      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
     }
   }
 
@@ -644,7 +682,7 @@ export class CylinderModel extends Model {
     if (this.obj) {
       this.isVisible = true;
       this.obj.layers.set(0);
-      for (let o of this.obj.children) o.layers.set(0);
+      for (const o of this.obj.children) o.layers.set(0);
     }
   }
 
@@ -652,7 +690,7 @@ export class CylinderModel extends Model {
     if (this.obj) {
       this.isVisible = false;
       this.obj.layers.set(1);
-      for (let o of this.obj.children) o.layers.set(1);
+      for (const o of this.obj.children) o.layers.set(1);
     }
   }
 

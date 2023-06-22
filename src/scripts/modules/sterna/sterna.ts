@@ -322,7 +322,7 @@ function createCylinder(cm: CylinderModel, halfEdge: HalfEdge) {
     throw `Cylinder length is zero nucleotides. Scale is too small.`;
 
   const cyl = cm.createCylinder(p1, dir, length);
-  cyl.setOrientation(halfEdge.edge.normal);
+  cyl.initOrientation(halfEdge.edge.normal);
 
   return cyl;
 }

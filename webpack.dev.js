@@ -9,7 +9,11 @@ module.exports = merge(common, {
     devServer: {
         static: './dist',
         client: {
-          overlay: false,
+            overlay: {
+                errors: true,
+                warnings: false,
+                runtimeErrors: false,
+            },
         },
     },
     plugins: [

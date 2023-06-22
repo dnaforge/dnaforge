@@ -24,10 +24,10 @@ export class Controls {
   intersection: THREE.Intersection;
 
   modal: {
-    onComplete: (m: Vector2) => void,
-    onUpdate: (m: Vector2) => void,
-    onCancel: (m: Vector2) => void,
-    onKey: (k: string) => void,
+    onComplete: (m: Vector2) => void;
+    onUpdate: (m: Vector2) => void;
+    onCancel: (m: Vector2) => void;
+    onKey: (k: string) => void;
   };
 
   constructor(context: Context) {
@@ -36,26 +36,31 @@ export class Controls {
     this.setupEventListeners();
   }
 
-  addModal(onComplete: (m: Vector2) => void, onUpdate: (m: Vector2) => void, onCancel: (m: Vector2) => void, onKey: (k: string) => void){
+  addModal(
+    onComplete: (m: Vector2) => void,
+    onUpdate: (m: Vector2) => void,
+    onCancel: (m: Vector2) => void,
+    onKey: (k: string) => void
+  ) {
     this.modal = {
       onComplete: onComplete,
       onUpdate: onUpdate,
       onCancel: onCancel,
-      onKey: onKey
-    }
+      onKey: onKey,
+    };
   }
 
-  completeModal(){
-    if(this.modal){
+  completeModal() {
+    if (this.modal) {
       this.modal.onComplete(this.pointer);
-      delete(this.modal);
+      delete this.modal;
     }
   }
 
-  cancelModal(){
-    if(this.modal){
+  cancelModal() {
+    if (this.modal) {
       this.modal.onCancel(this.pointer);
-      delete(this.modal);
+      delete this.modal;
     }
   }
 
@@ -63,7 +68,7 @@ export class Controls {
    *  Gets called once every tick. Other handlers get called once per event.
    */
   handleInput() {
-    if(this.modal){
+    if (this.modal) {
       this.modal.onUpdate(this.pointer);
       return;
     }
@@ -81,7 +86,7 @@ export class Controls {
             const s = this.context.resolveIntersection(this.intersection);
             if (s) {
               this.context.editor.setHover(s);
-              this.context.editor.addToolTip(s, this.intersection.point);
+              this.context.editor.addToolTip(s.target, this.intersection.point);
               return;
             }
           }
@@ -95,17 +100,17 @@ export class Controls {
     this.context.editor.removeToolTip();
   }
 
-  //TODO: Create a global hotkey handler in the context maybe
+  //TODO: Create a global hotkey handler and stop hard-coding the shortcuts
   handleHotKey(key: string) {
     switch (key) {
-      case "esc":
-        if(this.modal){
+      case 'escape':
+        if (this.modal) {
           this.cancelModal();
           return;
         }
         break;
     }
-    if(this.modal){
+    if (this.modal) {
       this.modal.onKey(key);
       return;
     }
@@ -140,12 +145,13 @@ export class Controls {
   }
 
   handleMouseLeftUp(event: PointerEvent) {
-    if(this.modal){
-      this.completeModal();
-      return;
-    }
     const pointerCur = new Vector2(event.pageX, event.pageY);
     if (pointerCur.sub(this.pointerPrev).length() > MIN_DELTA) {
+      return;
+    }
+
+    if (this.modal) {
+      this.completeModal();
       return;
     }
 
@@ -168,11 +174,17 @@ export class Controls {
   }
 
   handleMouseRightDown(event: PointerEvent) {
-    return;
+    this.pointerPrev.x = event.pageX;
+    this.pointerPrev.y = event.pageY;
   }
 
   handleMouseRightUp(event: PointerEvent) {
-    if(this.modal){
+    const pointerCur = new Vector2(event.pageX, event.pageY);
+    if (pointerCur.sub(this.pointerPrev).length() > MIN_DELTA) {
+      return;
+    }
+
+    if (this.modal) {
       this.cancelModal();
       return;
     }

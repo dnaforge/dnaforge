@@ -44,7 +44,7 @@ abstract class WiresModel extends Model {
     this.obj.layers.set(0);
     if (this.obj) {
       this.isVisible = true;
-      for (let o of this.obj.children) o.layers.set(0);
+      for (const o of this.obj.children) o.layers.set(0);
     }
   }
 
@@ -52,7 +52,7 @@ abstract class WiresModel extends Model {
     this.obj.layers.set(1);
     if (this.obj) {
       this.isVisible = false;
-      for (let o of this.obj.children) o.layers.set(1);
+      for (const o of this.obj.children) o.layers.set(1);
     }
   }
 

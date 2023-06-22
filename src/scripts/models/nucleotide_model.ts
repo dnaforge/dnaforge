@@ -612,7 +612,7 @@ export class NucleotideModel extends Model {
     if (this.obj) {
       this.isVisible = true;
       this.obj.layers.set(0);
-      for (let o of this.obj.children) o.layers.set(0);
+      for (const o of this.obj.children) o.layers.set(0);
     }
   }
 
@@ -620,7 +620,7 @@ export class NucleotideModel extends Model {
     if (this.obj) {
       this.isVisible = false;
       this.obj.layers.set(1);
-      for (let o of this.obj.children) o.layers.set(1);
+      for (const o of this.obj.children) o.layers.set(1);
     }
   }
 
@@ -708,7 +708,7 @@ export class NucleotideModel extends Model {
 
   get5ps() {
     const primes5: Nucleotide[] = [];
-    for (let s of this.strands) {
+    for (const s of this.strands) {
       primes5.push(s.getNucleotides()[0]);
     }
     return primes5;

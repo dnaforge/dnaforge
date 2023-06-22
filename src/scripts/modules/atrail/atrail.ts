@@ -486,7 +486,7 @@ function createCylinder(
   if (p2.clone().sub(p1).dot(dir) < 0) length = 0;
 
   const cyl = cm.createCylinder(p1, dir, length);
-  cyl.setOrientation(he.edge.normal);
+  cyl.initOrientation(he.edge.normal);
 
   return cyl;
 }

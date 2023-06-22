@@ -294,7 +294,7 @@ function createCylinder(cm: CylinderModel, he: HalfEdge) {
     .add(dir.clone().multiplyScalar((length - length_n) / 2));
 
   const cyl = cm.createCylinder(p1, dir, length_bp);
-  cyl.setOrientation(nor.cross(dir).applyAxisAngle(dir, cm.nucParams.AXIS));
+  cyl.initOrientation(nor.cross(dir).applyAxisAngle(dir, cm.nucParams.AXIS));
 
   return cyl;
 }
