@@ -849,19 +849,20 @@ export class CylinderModel extends Model {
     }
   }
 
-  getConnected(target: Cylinder, mode: typeof GLOBALS.selectionMode): Cylinder[]{
+  getConnected(
+    target: Cylinder,
+    mode: typeof GLOBALS.selectionMode
+  ): Cylinder[] {
     const selection: Cylinder[] = [];
-    if(mode == 'limited' || mode == 'connected'){
-      if(target.bundle){
-        for(let c of target.bundle.cylinders){
+    if (mode == 'limited' || mode == 'connected') {
+      if (target.bundle) {
+        for (const c of target.bundle.cylinders) {
           selection.push(c);
         }
-      }
-      else{
+      } else {
         selection.push(target);
       }
-    }
-    else if(mode == 'single'){
+    } else if (mode == 'single') {
       selection.push(target);
     }
     return selection;

@@ -3,7 +3,7 @@ import { Vector2 } from 'three';
 import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
 
-const MIN_DELTA = 3;
+const MIN_DELTA = 0.01;
 
 const canvas = $('#canvas')[0];
 const body = $('body')[0];
@@ -20,14 +20,19 @@ export class Controls {
   scene: THREE.Scene;
 
   pointerOnCanvas = false;
-  hover = false;
+  leftClicked = false;
+  rightClicked = false;
   intersection: THREE.Intersection;
+
+  hover = false;
 
   modal: {
     onComplete: () => void;
     onUpdate: () => void;
     onCancel: () => void;
     onKey: (k: string) => void;
+    onLeftDrag?: (sp: Vector2) => void;
+    onRightDrag?: (sp: Vector2) => void;
   };
 
   constructor(context: Context) {
@@ -40,13 +45,17 @@ export class Controls {
     onComplete: () => void,
     onUpdate: () => void,
     onCancel: () => void,
-    onKey: (k: string) => void
+    onKey: (k: string) => void,
+    onLeftDrag?: (sp: Vector2) => void,
+    onRightDrag?: (sp: Vector2) => void
   ) {
     this.modal = {
       onComplete: onComplete,
       onUpdate: onUpdate,
       onCancel: onCancel,
       onKey: onKey,
+      onLeftDrag: onLeftDrag,
+      onRightDrag: onRightDrag,
     };
   }
 
@@ -69,8 +78,11 @@ export class Controls {
    */
   handleInput() {
     if (this.modal) {
-      this.modal.onUpdate();
-      return;
+      if (this.leftClicked && this.modal.onLeftDrag)
+        return this.modal.onLeftDrag(this.pointerPrev);
+      if (this.rightClicked && this.modal.onRightDrag)
+        return this.modal.onRightDrag(this.pointerPrev);
+      return this.modal.onUpdate();
     }
     try {
       if (this.hover) {
@@ -140,12 +152,14 @@ export class Controls {
   }
 
   handleMouseLeftDown(event: PointerEvent) {
-    this.pointerPrev.x = event.pageX;
-    this.pointerPrev.y = event.pageY;
+    this.leftClicked = true;
+    this.pointerPrev.copy(this.toStandardCoords(event.clientX, event.clientY));
   }
 
   handleMouseLeftUp(event: PointerEvent) {
-    const pointerCur = new Vector2(event.pageX, event.pageY);
+    this.leftClicked = false;
+    if (this.modal?.onLeftDrag) return this.completeModal();
+    const pointerCur = this.toStandardCoords(event.clientX, event.clientY);
     if (pointerCur.sub(this.pointerPrev).length() > MIN_DELTA) {
       return;
     }
@@ -167,8 +181,7 @@ export class Controls {
         if (s) {
           if (event.altKey) {
             this.context.editor.deSelectConnected(s);
-          }
-          else {
+          } else {
             this.context.editor.selectConnected(s, event.shiftKey);
           }
           return;
@@ -179,12 +192,14 @@ export class Controls {
   }
 
   handleMouseRightDown(event: PointerEvent) {
-    this.pointerPrev.x = event.pageX;
-    this.pointerPrev.y = event.pageY;
+    this.rightClicked = true;
+    this.pointerPrev.copy(this.toStandardCoords(event.clientX, event.clientY));
   }
 
   handleMouseRightUp(event: PointerEvent) {
-    const pointerCur = new Vector2(event.pageX, event.pageY);
+    this.rightClicked = false;
+    if (this.modal?.onRightDrag) return this.completeModal();
+    const pointerCur = this.toStandardCoords(event.clientX, event.clientY);
     if (pointerCur.sub(this.pointerPrev).length() > MIN_DELTA) {
       return;
     }
@@ -196,12 +211,11 @@ export class Controls {
   }
 
   handleMouseMiddleDown(event: PointerEvent) {
-    this.pointerPrev.x = event.pageX;
-    this.pointerPrev.y = event.pageY;
+    this.pointerPrev.copy(this.toStandardCoords(event.clientX, event.clientY));
   }
 
   handleMouseMiddleUp(event: PointerEvent) {
-    const pointerCur = new Vector2(event.pageX, event.pageY);
+    const pointerCur = this.toStandardCoords(event.clientX, event.clientY);
     if (pointerCur.sub(this.pointerPrev).length() > MIN_DELTA) {
       return;
     }
@@ -272,9 +286,23 @@ export class Controls {
 
   handlePointerMove(event: PointerEvent) {
     this.pointerOnCanvas = event.target == canvas;
+    this.pointer.copy(this.toStandardCoords(event.clientX, event.clientY));
+  }
+
+  toStandardCoords(clientX: number, clientY: number) {
     const rect = canvas.getBoundingClientRect();
-    this.pointer.x = ((event.clientX - rect.x) / window.innerWidth) * 2 - 1;
-    this.pointer.y = -((event.clientY - rect.y) / window.innerHeight) * 2 + 1;
+    return new Vector2(
+      ((clientX - rect.x) / window.innerWidth) * 2 - 1,
+      -((clientY - rect.y) / window.innerHeight) * 2 + 1
+    );
+  }
+
+  toClientCoords(stdX: number, stdY: number) {
+    const rect = canvas.getBoundingClientRect();
+    return new Vector2(
+      ((stdX + 1) / 2) * window.innerWidth + rect.x,
+      -(((stdY - 1) / 2) * window.innerHeight + rect.y)
+    );
   }
 
   setupEventListeners() {

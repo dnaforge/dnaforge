@@ -49,6 +49,7 @@ export class Context {
   scene: THREE.Scene;
   camera: THREE.Camera;
   cameraControls: OrbitControls;
+  controls: Controls;
   callbacks: { (): void }[];
   intersectionSolvers = new Map<
     THREE.Object3D,
@@ -57,7 +58,6 @@ export class Context {
 
   graph: Graph;
   editor: Editor;
-  controls: Controls;
   activeContext: ModuleMenu;
   renderer: THREE.WebGLRenderer;
   labelRenderer: CSS2DRenderer;

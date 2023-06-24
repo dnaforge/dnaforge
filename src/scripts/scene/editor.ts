@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Context } from './context';
 import { Model } from '../models/model';
 import { Matrix4, Vector2, Vector3, Quaternion, Matrix } from 'three';
@@ -6,7 +7,6 @@ export interface Selection {
   owner: Model;
   target: Selectable;
 }
-
 
 export abstract class Selectable {
   abstract markSelect(): void;
@@ -33,8 +33,7 @@ export abstract class Selectable {
     return 0;
   }
 
-  setTransform(m: Matrix4) {
-  }
+  setTransform(m: Matrix4) {}
 
   setPosition(pos: Vector3) {
     console.log('TODO: Translation');
@@ -46,6 +45,34 @@ export abstract class Selectable {
 
   setSize(val: number) {
     console.log('TODO: Scale');
+  }
+}
+
+class BoxSelector {
+  element: any;
+
+  constructor() {
+    const div = $('<div>', {
+      style:
+        'position: fixed; width: 0px; height: 0px; background-color: rgba(50,50,200,0.25);  z-index: 1000; border-style: solid; border-width: 1px; pointer-events: none;',
+    });
+    div.appendTo($('body'));
+    this.element = div;
+  }
+
+  createElement(c1: Vector2, c2: Vector2) {}
+
+  deleteElement() {
+    $(this.element).remove();
+  }
+
+  update(c1: Vector2, c2: Vector2) {
+    $(this.element).css({
+      left: Math.min(c1.x, c2.x),
+      top: Math.min(c1.y, c2.y),
+      width: Math.max(c1.x, c2.x) - Math.min(c1.x, c2.x),
+      height: Math.max(c1.y, c2.y) - Math.min(c1.y, c2.y),
+    });
   }
 }
 
@@ -63,7 +90,7 @@ const AxesToVec: Record<Axes, Vector3> = {
 
 class SelectionTransformer {
   transform: Matrix4 = new Matrix4();
-  scale: number = 1;
+  scale = 1;
 
   children: Selectable[] = [];
   cTransforms: Matrix4[] = [];
@@ -77,7 +104,7 @@ class SelectionTransformer {
 
   constructor(...children: Selectable[]) {
     const pos = new Vector3();
-    for (let c of children) {
+    for (const c of children) {
       this.children.push(c);
       pos.add(c.getPosition());
 
@@ -91,8 +118,6 @@ class SelectionTransformer {
     this.transform = new Matrix4().makeTranslation(0, 0, 0);
     this.scale = 1;
   }
-
-
 
   input(key: string) {
     switch (key) {
@@ -135,8 +160,6 @@ class SelectionTransformer {
     }
   }
 
-
-
   handleTransLocks(v: Vector3, localTransform?: Matrix4): Vector3 {
     if (this.lockLabel == 'xyz') return v;
     const d = AxesToVec[this.lockLabel];
@@ -172,7 +195,6 @@ class SelectionTransformer {
     return d;
   }
 
-
   getTransform(): Matrix4 {
     return this.transform;
   }
@@ -198,7 +220,7 @@ class SelectionTransformer {
   }
 
   setTransform() {
-    throw "TODO";
+    throw 'TODO';
   }
 
   setPosition(pos: Vector3) {
@@ -206,17 +228,17 @@ class SelectionTransformer {
   }
 
   setRotation() {
-    throw "TODO";
+    throw 'TODO';
   }
 
   setSize() {
-    throw "TODO";
+    throw 'TODO';
   }
 
   /**
    * Applies the given transform to all children.
-   * 
-   * @param m 
+   *
+   * @param m
    */
   applyTransform(m: Matrix4) {
     for (let i = 0; i < this.children.length; i++) {
@@ -227,7 +249,7 @@ class SelectionTransformer {
 
   /**
    * Applies the given position to all children
-   * 
+   *
    * @param pos
    */
   applyPosition(pos: Vector3) {
@@ -242,37 +264,46 @@ class SelectionTransformer {
 
   /**
    * Applies the given rotation along the given axis to all children
-   * 
-   * @param axis 
-   * @param angle 
+   *
+   * @param axis
+   * @param angle
    */
   applyRotation(axis: Vector3, angle: number) {
     if (!this.individualOrigins && this.lockMode != 'local') {
       // median point origin
       const lockedAxis = this.handleRotLocks(axis);
       const mPoint = new Vector3();
-      for (let p of this.cPositions) {
+      for (const p of this.cPositions) {
         mPoint.add(p.clone().divideScalar(this.cPositions.length));
       }
       const rot = new Matrix4().makeRotationAxis(lockedAxis, -angle);
-      const trans1 = new Matrix4().makeTranslation(-mPoint.x, -mPoint.y, -mPoint.z);
-      const trans2 = new Matrix4().makeTranslation(mPoint.x, mPoint.y, mPoint.z);
+      const trans1 = new Matrix4().makeTranslation(
+        -mPoint.x,
+        -mPoint.y,
+        -mPoint.z
+      );
+      const trans2 = new Matrix4().makeTranslation(
+        mPoint.x,
+        mPoint.y,
+        mPoint.z
+      );
 
       for (let i = 0; i < this.children.length; i++) {
         const c = this.children[i];
         const m = this.cTransforms[i].clone();
-        m.premultiply(trans1);  // translate to origin
-        m.premultiply(rot);     // rotate
-        m.premultiply(trans2)   // translate back
+        m.premultiply(trans1); // translate to origin
+        m.premultiply(rot); // rotate
+        m.premultiply(trans2); // translate back
         c.setTransform(m);
       }
-    }
-    else {
+    } else {
       // individual origins
       for (let i = 0; i < this.children.length; i++) {
         const c = this.children[i];
         const lockedAxis = this.handleRotLocks(axis, this.cTransforms[i]);
-        const cRot = new Quaternion().setFromAxisAngle(lockedAxis, -angle).multiply(this.cRots[i]);
+        const cRot = new Quaternion()
+          .setFromAxisAngle(lockedAxis, -angle)
+          .multiply(this.cRots[i]);
         c.setRotation(cRot);
         c.setPosition(this.cPositions[i]);
       }
@@ -281,8 +312,8 @@ class SelectionTransformer {
 
   /**
    * Applies the given size to all children
-   * 
-   * @param val 
+   *
+   * @param val
    */
   applySize(val: number) {
     this.scale = val;
@@ -294,7 +325,6 @@ class SelectionTransformer {
     }
   }
 }
-
 
 export class Editor {
   context: Context;
@@ -318,6 +348,12 @@ export class Editor {
    */
   handleHotKey(key: string): boolean {
     switch (key) {
+      case 'b':
+        this.boxSelect(false);
+        return true;
+      case 'shift+b':
+        this.boxSelect(true);
+        return true;
       case 'g':
         this.setPosition();
         return true;
@@ -348,15 +384,11 @@ export class Editor {
     this.selections.delete(model);
   }
 
-  undo() {
+  undo() {}
 
-  }
+  redo() {}
 
-  redo() {
-
-  }
-
-  getPointerProjection(
+  getPointerProjection2p(
     startPos: Vector2,
     curPos: Vector2,
     transform: Matrix4,
@@ -375,6 +407,57 @@ export class Editor {
     return pointerProj;
   }
 
+  selectAllWithinBounds(c1: Vector2, c2: Vector2) {
+    const minX = Math.min(c1.x, c2.x);
+    const maxX = Math.max(c1.x, c2.x);
+    const minY = Math.min(c1.y, c2.y);
+    const maxY = Math.max(c1.y, c2.y);
+
+    for (const se of this.selections) {
+      const m = se[0];
+      if (!m.isVisible) continue;
+
+      for (const obj of m.getSelection('selectAll')) {
+        const pos = obj.getPosition().project(this.context.camera);
+        if (pos.x <= maxX && pos.x >= minX && pos.y <= maxY && pos.y >= minY) {
+          this.select({ owner: m, target: obj }, true);
+        }
+      }
+    }
+  }
+
+  boxSelect(add = false) {
+    if (!add) this.deselectAll();
+
+    this.context.cameraControls.enabled = false;
+
+    const startPos = new Vector2();
+    const endPos = new Vector2();
+
+    const b = new BoxSelector();
+
+    this.context.controls.addModal(
+      () => {
+        this.selectAllWithinBounds(startPos, endPos);
+        b.deleteElement();
+        this.context.cameraControls.enabled = true;
+      },
+      () => {},
+      () => {
+        this.context.controls.completeModal();
+      },
+      (k: string) => {},
+      (sp: Vector2) => {
+        startPos.copy(sp);
+        endPos.copy(this.context.controls.pointer);
+        b.update(
+          this.context.controls.toClientCoords(sp.x, sp.y),
+          this.context.controls.toClientCoords(endPos.x, endPos.y)
+        );
+      }
+    );
+  }
+
   setPosition() {
     const curSel = this.getSelection();
     if (curSel.length <= 0) return;
@@ -390,8 +473,7 @@ export class Editor {
     const camMatrix = cam.matrixWorld.clone();
 
     this.context.controls.addModal(
-      () => {
-      },
+      () => {},
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
         if (!cam.matrixWorld.equals(camMatrix)) {
@@ -404,7 +486,7 @@ export class Editor {
         // scale transformation by the objects distance to camera
         const distToCam = -objPos.clone().applyMatrix4(cam.matrixWorldInverse)
           .z;
-        const pointerProj = this.getPointerProjection(
+        const pointerProj = this.getPointerProjection2p(
           mouseStartPos,
           mouseCurPos,
           camMatrix,
@@ -474,15 +556,15 @@ export class Editor {
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
         const scale =
-          (mouseCurPos.distanceTo(new Vector2()) /
-            mouseStartPos.distanceTo(new Vector2()));
+          mouseCurPos.distanceTo(new Vector2()) /
+          mouseStartPos.distanceTo(new Vector2());
 
         obj.applySize(scale * objSize);
       },
       () => {
         obj.applySize(objSize);
       },
-      (k: string) => { }
+      (k: string) => {}
     );
   }
 
@@ -527,7 +609,6 @@ export class Editor {
     if (!add) this.deselectAllOf(owner);
     this.selections.get(owner).add(target);
     target.markSelect();
-
   }
 
   deSelect(se: Selection) {
