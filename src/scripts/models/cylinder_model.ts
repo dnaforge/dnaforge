@@ -9,6 +9,7 @@ import { Relaxer } from './relaxer';
 import { Model } from './model';
 import { Selectable } from '../scene/editor';
 import { ModuleMenu } from '../scene/module_menu';
+import { GLOBALS } from '../globals/globals';
 
 //TODO: Split into files
 
@@ -175,6 +176,11 @@ export class Cylinder extends Selectable {
     return this.transform;
   }
 
+  setTransform(m: THREE.Matrix4): void {
+    this.transform = m;
+    this.updateTransform();
+  }
+
   /**
    *
    * @returns The length of one strand of the double helix in 3d space units
@@ -261,12 +267,8 @@ export class Cylinder extends Selectable {
    * @param angle
    */
   setRotation(rot: Quaternion) {
-    const pos = new Vector3();
-    const trash1 = new Quaternion();
-    const trash2 = new Vector3();
-    this.transform.decompose(pos, trash1, trash2);
     this.transform.compose(
-      pos,
+      this.getPosition(),
       rot,
       new Vector3(this.scale, this.scale, this.scale)
     );
@@ -315,7 +317,8 @@ export class Cylinder extends Selectable {
   updateTransform() {
     this.setObjectMatrices();
     for (const n in this.neighbours) {
-      this.neighbours[n as PrimePos][0].setObjectMatrices();
+      const neighbour = this.neighbours[n as PrimePos];
+      neighbour && neighbour[0].setObjectMatrices();
     }
     for (const m in this.instanceMeshes) {
       this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
@@ -834,15 +837,33 @@ export class CylinderModel extends Model {
   getSelection(
     event: string,
     target?: Selectable,
-    mode?: 'none' | 'single' | 'limited' | 'connected'
+    mode?: typeof GLOBALS.selectionMode
   ): Selectable[] {
     switch (event) {
       case 'select':
-        return [target];
+        return this.getConnected(target as Cylinder, mode);
       case 'selectAll':
         return this.cylinders;
       default:
         return [];
     }
+  }
+
+  getConnected(target: Cylinder, mode: typeof GLOBALS.selectionMode): Cylinder[]{
+    const selection: Cylinder[] = [];
+    if(mode == 'limited' || mode == 'connected'){
+      if(target.bundle){
+        for(let c of target.bundle.cylinders){
+          selection.push(c);
+        }
+      }
+      else{
+        selection.push(target);
+      }
+    }
+    else if(mode == 'single'){
+      selection.push(target);
+    }
+    return selection;
   }
 }

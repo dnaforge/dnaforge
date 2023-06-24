@@ -24,9 +24,9 @@ export class Controls {
   intersection: THREE.Intersection;
 
   modal: {
-    onComplete: (m: Vector2) => void;
-    onUpdate: (m: Vector2) => void;
-    onCancel: (m: Vector2) => void;
+    onComplete: () => void;
+    onUpdate: () => void;
+    onCancel: () => void;
     onKey: (k: string) => void;
   };
 
@@ -37,9 +37,9 @@ export class Controls {
   }
 
   addModal(
-    onComplete: (m: Vector2) => void,
-    onUpdate: (m: Vector2) => void,
-    onCancel: (m: Vector2) => void,
+    onComplete: () => void,
+    onUpdate: () => void,
+    onCancel: () => void,
     onKey: (k: string) => void
   ) {
     this.modal = {
@@ -52,14 +52,14 @@ export class Controls {
 
   completeModal() {
     if (this.modal) {
-      this.modal.onComplete(this.pointer);
+      this.modal.onComplete();
       delete this.modal;
     }
   }
 
   cancelModal() {
     if (this.modal) {
-      this.modal.onCancel(this.pointer);
+      this.modal.onCancel();
       delete this.modal;
     }
   }
@@ -69,7 +69,7 @@ export class Controls {
    */
   handleInput() {
     if (this.modal) {
-      this.modal.onUpdate(this.pointer);
+      this.modal.onUpdate();
       return;
     }
     try {
@@ -102,15 +102,15 @@ export class Controls {
 
   //TODO: Create a global hotkey handler and stop hard-coding the shortcuts
   handleHotKey(key: string) {
-    switch (key) {
-      case 'escape':
-        if (this.modal) {
+    if (this.modal) {
+      switch (key) {
+        case 'escape':
           this.cancelModal();
           return;
-        }
-        break;
-    }
-    if (this.modal) {
+        case 'enter':
+          this.completeModal();
+          return;
+      }
       this.modal.onKey(key);
       return;
     }
@@ -165,7 +165,12 @@ export class Controls {
         this.intersection = intersects[i];
         const s = this.context.resolveIntersection(this.intersection);
         if (s) {
-          this.context.editor.toggleSelect(s);
+          if (event.altKey) {
+            this.context.editor.deSelectConnected(s);
+          }
+          else {
+            this.context.editor.selectConnected(s, event.shiftKey);
+          }
           return;
         }
       }
