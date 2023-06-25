@@ -295,7 +295,7 @@ export class Context {
         cameraParams.right,
         cameraParams.top,
         cameraParams.bottom,
-        cameraParams.near,
+        -1000,
         cameraParams.far
       );
     } else {

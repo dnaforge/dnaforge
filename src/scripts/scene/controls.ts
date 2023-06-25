@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Vector2 } from 'three';
+import { Vector2, Vector3 } from 'three';
 import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
 
@@ -39,6 +39,19 @@ export class Controls {
     this.context = context;
     this.scene = context.scene;
     this.setupEventListeners();
+  }
+
+  raycast() {
+    const cam = this.context.getCamera();
+    if ((cam as THREE.OrthographicCamera).isOrthographicCamera) {
+      const worldDir = cam.getWorldDirection(new Vector3());
+      const pos = new Vector3(this.pointer.x, this.pointer.y, -1).unproject(
+        cam
+      );
+      this.raycaster.set(pos, worldDir);
+    } else {
+      this.raycaster.setFromCamera(this.pointer, cam);
+    }
   }
 
   addModal(
@@ -86,7 +99,7 @@ export class Controls {
     }
     try {
       if (this.hover) {
-        this.raycaster.setFromCamera(this.pointer, this.context.getCamera());
+        this.raycast();
         const intersects = this.raycaster.intersectObjects(
           this.scene.children,
           true
@@ -169,7 +182,7 @@ export class Controls {
       return;
     }
 
-    this.raycaster.setFromCamera(this.pointer, this.context.getCamera());
+    this.raycast();
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,
       true
@@ -267,7 +280,7 @@ export class Controls {
     if (event.target != canvas) return;
     event.preventDefault();
 
-    this.raycaster.setFromCamera(this.pointer, this.context.getCamera());
+    this.raycast();
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,
       true

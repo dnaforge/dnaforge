@@ -235,6 +235,14 @@ class SelectionTransformer {
     throw 'TODO';
   }
 
+  getMedianPoint(): Vector3 {
+    const mPoint = new Vector3();
+    for (const p of this.cPositions) {
+      mPoint.add(p.clone().divideScalar(this.cPositions.length));
+    }
+    return mPoint;
+  }
+
   /**
    * Applies the given transform to all children.
    *
@@ -272,10 +280,7 @@ class SelectionTransformer {
     if (!this.individualOrigins && this.lockMode != 'local') {
       // median point origin
       const lockedAxis = this.handleRotLocks(axis);
-      const mPoint = new Vector3();
-      for (const p of this.cPositions) {
-        mPoint.add(p.clone().divideScalar(this.cPositions.length));
-      }
+      const mPoint = this.getMedianPoint();
       const rot = new Matrix4().makeRotationAxis(lockedAxis, -angle);
       const trans1 = new Matrix4().makeTranslation(
         -mPoint.x,
@@ -394,7 +399,7 @@ export class Editor {
     transform: Matrix4,
     z: number
   ) {
-    const SENSITIVITY = 0.5;
+    const SENSITIVITY = 0.75;
 
     const pointerProjInit = new Vector3(startPos.x, startPos.y, 0).applyMatrix4(
       transform
@@ -471,6 +476,7 @@ export class Editor {
 
     const cam = this.context.getCamera();
     const camMatrix = cam.matrixWorld.clone();
+    const camTarget = obj.getMedianPoint();
 
     this.context.controls.addModal(
       () => {},
@@ -484,8 +490,7 @@ export class Editor {
           return;
         }
         // scale transformation by the objects distance to camera
-        const distToCam = -objPos.clone().applyMatrix4(cam.matrixWorldInverse)
-          .z;
+        const distToCam = cam.position.distanceTo(camTarget);
         const pointerProj = this.getPointerProjection2p(
           mouseStartPos,
           mouseCurPos,

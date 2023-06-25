@@ -223,7 +223,7 @@ export class Cylinder extends Selectable {
     const p1 = startP.clone().add(inclination);
     const translation = new Matrix4().makeTranslation(p1.x, p1.y, p1.z);
 
-    const r1 = new THREE.Vector3(Math.random(), Math.random(), Math.random());
+    const r1 = new THREE.Vector3().randomDirection();
     const nor1 = r1.sub(dir.clone().multiplyScalar(r1.dot(dir))).normalize();
     const nor2 = dir.clone().cross(nor1);
     const rotation = new Matrix4().makeBasis(nor2, dir, nor1);

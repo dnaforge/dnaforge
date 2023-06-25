@@ -54,7 +54,15 @@ export class InterfaceMenu extends Menu {
     super(context, 'interface', 'Interface', true);
 
     context.callbacks.push(() => {
-      const pos = this.context.getCamera().position;
+      const cam = this.context.getCamera();
+      const pos = cam.position.clone();
+      if ((cam as OrthographicCamera).isOrthographicCamera) {
+        const offset = new Vector3();
+        cam
+          .getWorldDirection(offset)
+          .divideScalar((cam as OrthographicCamera).zoom / -1005);
+        pos.add(offset);
+      }
       this.cameraLight.position.copy(pos);
     });
 
