@@ -324,8 +324,8 @@ class Face {
 
   getNeighbours(): Face[] {
     const faces: Face[] = [];
-    for (let e of this.getEdges()) {
-      for (let f of e.getFaces()) {
+    for (const e of this.getEdges()) {
+      for (const f of e.getFaces()) {
         if (f != this) faces.push(f);
       }
     }
@@ -333,7 +333,7 @@ class Face {
   }
 
   getCommonEdge(f: Face): Edge {
-    for (let e of this.getEdges()) {
+    for (const e of this.getEdges()) {
       const [f1, f2] = e.getFaces();
       if ((f1 == this && f2 == f) || (f2 == this && f1 == f)) return e;
     }
@@ -795,12 +795,12 @@ class Graph {
       if (depth % 2) l.add(curF);
       else r.add(curF);
 
-      for (let f of curF.getNeighbours()) {
+      for (const f of curF.getNeighbours()) {
         !visited.has(f) && stack.push([f, depth + 1]);
       }
     }
 
-    for (let e of this.getEdges()) {
+    for (const e of this.getEdges()) {
       const [f1, f2] = e.getFaces();
       if ((r.has(f1) && r.has(f2)) || (l.has(f1) && l.has(f2)))
         this.splitEdge(e);

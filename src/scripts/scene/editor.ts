@@ -107,7 +107,7 @@ class SelectionTransformer {
   lockLabel: Axes = 'xyz';
   lockMode: LockMode = 'global';
   individualOrigins = false;
-  customValue: string = '';
+  customValue = '';
 
   tooltip: any;
 
