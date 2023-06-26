@@ -18,6 +18,7 @@ import { NucleotideModel } from '../../models/nucleotide_model';
 export interface ATrailParameters extends ModuleMenuParameters {
   scaffoldOffset: number;
   scaffoldStart: number;
+  checkerBoard: boolean;
 }
 
 export class ATrailMenu extends ModuleMenu {
@@ -34,6 +35,7 @@ export class ATrailMenu extends ModuleMenu {
   scaffoldStartInput: any;
   gcContentInput: any;
   reinforceButton: any;
+  checkerboardSwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -55,6 +57,12 @@ export class ATrailMenu extends ModuleMenu {
   }
 
   graphToWires(graph: Graph, params: ATrailParameters) {
+    const genus = graph.getGenus();
+    if (genus > 0 && !params.checkerBoard)
+      this.context.addMessage(
+        `Graph genus appears to be ${genus}. Consider using checkerboard-colouring.`,
+        'warning'
+      );
     const atrail = graphToWires(graph, params);
     this.context.addMessage(`Found an atrail.`, 'info');
     return atrail;
@@ -130,6 +138,7 @@ export class ATrailMenu extends ModuleMenu {
     this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
     this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
     this.params.addNicks = this.addNicksSwitch[0].checked;
+    this.params.checkerBoard = this.checkerboardSwitch[0].checked;
     this.params.scaffoldName = this.atrailScaffold[0].value;
     this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
     this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
@@ -146,6 +155,7 @@ export class ATrailMenu extends ModuleMenu {
     this.strandLengthMaxInput[0].value = json.maxStrandLength;
     this.strandLengthMinInput[0].value = json.minStrandLength;
     this.addNicksSwitch[0].checked = json.addNicks;
+    this.checkerboardSwitch[0].checked = json.checkerBoard;
     this.atrailScaffold[0].value = json.scaffoldName;
     this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
     this.scaffoldStartInput[0].value = json.scaffoldStart;
@@ -162,6 +172,7 @@ export class ATrailMenu extends ModuleMenu {
     this.strandLengthMaxInput = $('#atrail-strand-length-max');
     this.strandLengthMinInput = $('#atrail-strand-length-min');
     this.addNicksSwitch = $('#atrail-add-nicks');
+    this.checkerboardSwitch = $('#atrail-checkerboard');
 
     this.atrailScaffold = $('#atrail-scaffold');
     this.scaffoldOffsetInput = $('#atrail-scaffold-offset');

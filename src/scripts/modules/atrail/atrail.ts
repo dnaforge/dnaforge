@@ -50,18 +50,21 @@ export class ATrail extends WiresModel {
     return atrail;
   }
 
-  private initialiseGraph() {
+  initialiseGraph(checkerBoard = false) {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;
-    try {
-      this.graph.makeEulerian();
-    } catch (error) {
-      throw 'Error making the graph Eulerian.';
+    if (checkerBoard) {
+      this.graph.checkerBoard();
+    } else {
+      try {
+        this.graph.makeEulerian();
+      } catch (error) {
+        throw 'Error making the graph Eulerian.';
+      }
     }
   }
 
   findATrail() {
-    this.initialiseGraph();
     const transitions = new Map<Vertex, number>(); // orentations of vertices
     const neighbours = this.getNeighbourhoodFunction(transitions);
 
@@ -364,6 +367,7 @@ export class ATrail extends WiresModel {
  */
 export function graphToWires(graph: Graph, params: ATrailParameters) {
   const atrail = new ATrail(graph);
+  atrail.initialiseGraph(params.checkerBoard);
   atrail.findATrail();
   return atrail;
 }

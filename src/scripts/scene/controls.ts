@@ -52,6 +52,13 @@ export class Controls {
     } else {
       this.raycaster.setFromCamera(this.pointer, cam);
     }
+
+    const intersects = this.raycaster.intersectObjects(
+      this.scene.children,
+      true
+    );
+
+    return intersects;
   }
 
   addModal(
@@ -99,11 +106,7 @@ export class Controls {
     }
     try {
       if (this.hover) {
-        this.raycast();
-        const intersects = this.raycaster.intersectObjects(
-          this.scene.children,
-          true
-        );
+        const intersects = this.raycast();
 
         if (intersects.length > 0 && this.pointerOnCanvas) {
           for (let i = 0; i < intersects.length; i++) {
@@ -182,11 +185,7 @@ export class Controls {
       return;
     }
 
-    this.raycast();
-    const intersects = this.raycaster.intersectObjects(
-      this.scene.children,
-      true
-    );
+    const intersects = this.raycast();
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
@@ -280,11 +279,7 @@ export class Controls {
     if (event.target != canvas) return;
     event.preventDefault();
 
-    this.raycast();
-    const intersects = this.raycaster.intersectObjects(
-      this.scene.children,
-      true
-    );
+    const intersects = this.raycast();
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];

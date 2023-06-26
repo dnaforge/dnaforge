@@ -321,6 +321,23 @@ class Face {
     }
     return vertices;
   }
+
+  getNeighbours(): Face[] {
+    const faces: Face[] = [];
+    for (let e of this.getEdges()) {
+      for (let f of e.getFaces()) {
+        if (f != this) faces.push(f);
+      }
+    }
+    return faces;
+  }
+
+  getCommonEdge(f: Face): Edge {
+    for (let e of this.getEdges()) {
+      const [f1, f2] = e.getFaces();
+      if ((f1 == this && f2 == f) || (f2 == this && f1 == f)) return e;
+    }
+  }
 }
 
 class Graph {
@@ -746,6 +763,48 @@ class Graph {
     const matchedPaths = getMatching(paths);
     splitEdges(matchedPaths);
     return matchedPaths;
+  }
+
+  /**
+   * Calculates the genus of this graph, assuming it is a closed orientable surface
+   *
+   * @returns
+   */
+  getGenus(): number {
+    const v = this.getVertices().length;
+    const e = this.getEdges().length;
+    const f = this.getFaces().length;
+    return Math.round((-v + e - f) / 2 + 1);
+  }
+
+  /**
+   * Duplicate edges so that the graph becomes checkerboard-colourable
+   */
+  checkerBoard() {
+    const l = new Set<Face>();
+    const r = new Set<Face>();
+
+    const faces = this.getFaces();
+    const stack: [[Face, number]] = [[faces[0], 0]];
+    const visited = new Set<Face>();
+    while (stack.length > 0) {
+      const [curF, depth] = stack.shift();
+      if (visited.has(curF)) continue;
+      else visited.add(curF);
+
+      if (depth % 2) l.add(curF);
+      else r.add(curF);
+
+      for (let f of curF.getNeighbours()) {
+        !visited.has(f) && stack.push([f, depth + 1]);
+      }
+    }
+
+    for (let e of this.getEdges()) {
+      const [f1, f2] = e.getFaces();
+      if ((r.has(f1) && r.has(f2)) || (l.has(f1) && l.has(f2)))
+        this.splitEdge(e);
+    }
   }
 
   test() {

@@ -53,8 +53,14 @@ class BoxSelector {
 
   constructor() {
     const div = $('<div>', {
-      style:
-        'position: fixed; width: 0px; height: 0px; background-color: rgba(50,50,200,0.25);  z-index: 1000; border-style: solid; border-width: 1px; pointer-events: none;',
+      style: `position: fixed; 
+        width: 0px; 
+        height: 0px; 
+        background-color: rgba(50,50,200,0.25);  
+        z-index: 1000; 
+        border-style: solid; 
+        border-width: 1px; 
+        pointer-events: none;`,
     });
     div.appendTo($('body'));
     this.element = div;
@@ -101,6 +107,9 @@ class SelectionTransformer {
   lockLabel: Axes = 'xyz';
   lockMode: LockMode = 'global';
   individualOrigins = false;
+  customValue: string = '';
+
+  tooltip: any;
 
   constructor(...children: Selectable[]) {
     const pos = new Vector3();
@@ -117,11 +126,13 @@ class SelectionTransformer {
 
     this.transform = new Matrix4().makeTranslation(0, 0, 0);
     this.scale = 1;
+
+    this.createTooltip();
   }
 
   input(key: string) {
-    switch (key) {
-      case 'x':
+    switch (true) {
+      case key == 'x':
         if (this.lockLabel != 'x') {
           this.lockLabel = 'x';
           this.lockMode = 'global';
@@ -133,7 +144,7 @@ class SelectionTransformer {
           }
         }
         break;
-      case 'y':
+      case key == 'y':
         if (this.lockLabel != 'y') {
           this.lockLabel = 'y';
           this.lockMode = 'global';
@@ -145,7 +156,7 @@ class SelectionTransformer {
           }
         }
         break;
-      case 'z':
+      case key == 'z':
         if (this.lockLabel != 'z') {
           this.lockLabel = 'z';
           this.lockMode = 'global';
@@ -157,7 +168,64 @@ class SelectionTransformer {
           }
         }
         break;
+      case key == 'shift+shift':
+        this.individualOrigins = !this.individualOrigins;
+        break;
+      case key == '0' || !!parseInt(key) || key == '.':
+        this.customValue = this.customValue + key;
+        break;
+      case key == 'backspace':
+        const cVal = this.customValue;
+        if (cVal.length > 0) this.customValue = cVal.slice(0, cVal.length - 1);
+        break;
     }
+  }
+
+  createTooltip() {
+    if (!this.tooltip) {
+      const div = $('<div>', {
+        style: `position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(255,255,255,0.15);  
+          z-index: 1000;  
+          pointer-events: none;
+          bottom:5%;
+          left: 10 %;
+          text-align: center;`,
+      });
+      div.appendTo($('body'));
+      this.tooltip = div;
+    }
+  }
+
+  updateTooltip() {
+    this.tooltip.html(`
+    Axes: ${this.lockLabel} - 
+    Transform: ${this.lockLabel == 'xyz' ? 'screen' : this.lockMode} - 
+    Origin: ${this.individualOrigins ? 'individual' : 'mean'} 
+    ${this.customValue ? ' - Val: ' + this.customValue : ''}
+    <br>
+    X, Y, Z to change axes. Shift to change origins. [0-9] to input value.
+    `);
+  }
+
+  /**
+   * Remove the tooltip.
+   */
+  removeTooltip() {
+    if (!this.tooltip) return;
+    $(this.tooltip).remove();
+  }
+
+  handleValue(val: number, degrees = false) {
+    if (this.customValue) {
+      const tVal = parseFloat(this.customValue);
+      if (isNaN(tVal)) return val;
+      else if (degrees) return (tVal / 180) * Math.PI;
+      else return tVal;
+    }
+    return val;
   }
 
   handleTransLocks(v: Vector3, localTransform?: Matrix4): Vector3 {
@@ -253,6 +321,7 @@ class SelectionTransformer {
       const c = this.children[i];
       c.setTransform(this.cTransforms[i].clone().premultiply(m));
     }
+    this.updateTooltip();
   }
 
   /**
@@ -268,6 +337,7 @@ class SelectionTransformer {
       const cTransform = this.cTransforms[i].clone().premultiply(pTransform);
       c.setTransform(cTransform);
     }
+    this.updateTooltip();
   }
 
   /**
@@ -277,11 +347,12 @@ class SelectionTransformer {
    * @param angle
    */
   applyRotation(axis: Vector3, angle: number) {
+    const tAngle = this.handleValue(angle, true);
     if (!this.individualOrigins && this.lockMode != 'local') {
       // median point origin
       const lockedAxis = this.handleRotLocks(axis);
       const mPoint = this.getMedianPoint();
-      const rot = new Matrix4().makeRotationAxis(lockedAxis, -angle);
+      const rot = new Matrix4().makeRotationAxis(lockedAxis, -tAngle);
       const trans1 = new Matrix4().makeTranslation(
         -mPoint.x,
         -mPoint.y,
@@ -307,12 +378,13 @@ class SelectionTransformer {
         const c = this.children[i];
         const lockedAxis = this.handleRotLocks(axis, this.cTransforms[i]);
         const cRot = new Quaternion()
-          .setFromAxisAngle(lockedAxis, -angle)
+          .setFromAxisAngle(lockedAxis, -tAngle)
           .multiply(this.cRots[i]);
         c.setRotation(cRot);
         c.setPosition(this.cPositions[i]);
       }
     }
+    this.updateTooltip();
   }
 
   /**
@@ -321,13 +393,27 @@ class SelectionTransformer {
    * @param val
    */
   applySize(val: number) {
-    this.scale = val;
+    this.scale = this.handleValue(val);
 
     for (let i = 0; i < this.children.length; i++) {
       const c = this.children[i];
       const cSize = this.cSizes[i];
       c.setSize(this.scale * cSize);
     }
+    this.updateTooltip();
+  }
+
+  apply() {
+    this.removeTooltip();
+  }
+
+  revert() {
+    for (let i = 0; i < this.children.length; i++) {
+      const c = this.children[i];
+      c.setSize(this.cSizes[i]);
+      c.setTransform(this.cTransforms[i]);
+    }
+    this.removeTooltip();
   }
 }
 
@@ -479,7 +565,9 @@ export class Editor {
     const camTarget = obj.getMedianPoint();
 
     this.context.controls.addModal(
-      () => {},
+      () => {
+        obj.apply();
+      },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
         if (!cam.matrixWorld.equals(camMatrix)) {
@@ -503,7 +591,7 @@ export class Editor {
         obj.setPosition(nPos);
       },
       () => {
-        obj.applyPosition(objPos);
+        obj.revert();
       },
       (k: string) => {
         objCurPos.copy(objPos);
@@ -524,7 +612,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        //for (const c of curSel) c.translate(new Vector3());
+        obj.apply();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -536,7 +624,7 @@ export class Editor {
         obj.applyRotation(axis, angle);
       },
       () => {
-        obj.applyRotation(new Vector3(1, 0, 0), 0);
+        obj.revert();
       },
       (k: string) => {
         obj.input(k);
@@ -556,7 +644,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        //for (const c of curSel) c.translate(new Vector3());
+        obj.apply();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -567,9 +655,11 @@ export class Editor {
         obj.applySize(scale * objSize);
       },
       () => {
-        obj.applySize(objSize);
+        obj.revert();
       },
-      (k: string) => {}
+      (k: string) => {
+        obj.input(k);
+      }
     );
   }
 

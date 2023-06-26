@@ -75,9 +75,6 @@ const nucleotideGeometry = (nucParams: Record<string, any>) => {
 export class Nucleotide extends Selectable {
   id: number;
   instanceMeshes: NucleotideMeshes;
-  hover = false;
-  select = false;
-  active = false;
 
   base: string;
   scale: number;
@@ -185,11 +182,6 @@ export class Nucleotide extends Selectable {
     return meshes;
   }
 
-  setTransform(m: Matrix4) {
-    this.transform = m.clone();
-    this.setNucleotideVectors();
-  }
-
   /**
    * Connects the nucleotide following this one to the one preceding this one and vice versa.
    * Does not delete the nucleotide elsehwere.
@@ -271,22 +263,6 @@ export class Nucleotide extends Selectable {
     this.instanceMeshes.backbone2.visible = GLOBALS.visibilityNucBackbone;
     this.instanceMeshes.nucleotides.visible = GLOBALS.visibilityNucBase;
     this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
-  }
-
-  markSelect() {
-    this.updateObjectColours(selectionColours.selection);
-  }
-
-  markHover() {
-    this.updateObjectColours(selectionColours.hover);
-  }
-
-  markDefault(): void {
-    this.updateObjectColours();
-  }
-
-  getTooltip(): string {
-    return `${this.base}<br>${this.id}`;
   }
 
   /**
@@ -385,5 +361,76 @@ export class Nucleotide extends Selectable {
     other.prev = linkers[linkers.length - 1];
 
     return linkers;
+  }
+
+  updateVisuals() {
+    if (!this.instanceMeshes) return;
+
+    this.updateObjectMatrices();
+    this.next?.updateObjectMatrices();
+    this.prev?.updateObjectMatrices();
+    let m: keyof NucleotideMeshes;
+    for (m in this.instanceMeshes) {
+      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
+    }
+  }
+
+  markSelect() {
+    this.updateObjectColours(selectionColours.selection);
+  }
+
+  markHover() {
+    this.updateObjectColours(selectionColours.hover);
+  }
+
+  markDefault(): void {
+    this.updateObjectColours();
+  }
+
+  getTooltip(): string {
+    return `${this.base}<br>${this.id}`;
+  }
+
+  getTransform(): Matrix4 {
+    return this.transform.clone();
+  }
+
+  getPosition(): Vector3 {
+    return this.backboneCenter.clone();
+  }
+
+  getRotation(): Quaternion {
+    const pos = new Vector3();
+    const rot = new Quaternion();
+    const scale = new Vector3();
+    this.transform.decompose(pos, rot, scale);
+    return rot;
+  }
+
+  getSize(): number {
+    return 1; // Nucleotide size is fixed
+  }
+
+  setTransform(m: Matrix4) {
+    this.transform = m.clone();
+    this.setNucleotideVectors();
+    this.updateVisuals();
+  }
+
+  setPosition(pos: Vector3) {
+    console.log('TODO: Translation');
+  }
+
+  setRotation(rot: Quaternion) {
+    this.transform.compose(
+      this.getPosition(),
+      rot,
+      new Vector3(this.scale, this.scale, this.scale)
+    );
+    this.updateVisuals();
+  }
+
+  setSize(val: number) {
+    return; // Nucleotide size is fixed
   }
 }

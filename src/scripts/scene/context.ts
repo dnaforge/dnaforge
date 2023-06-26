@@ -180,18 +180,6 @@ export class Context {
    */
   focusCamera(point: Vector3) {
     this.cameraControls.target.copy(point);
-    const d = this.cameraControls.target
-      .clone()
-      .sub(this.camera.position)
-      .length();
-    const dir = this.cameraControls.target
-      .clone()
-      .sub(this.camera.position)
-      .normalize();
-    const nPos = this.cameraControls.target
-      .clone()
-      .sub(dir.multiplyScalar(Math.min(d, 3)));
-    this.camera.position.copy(nPos);
     this.cameraControls.update();
   }
 
@@ -431,7 +419,7 @@ export class Context {
       const td = document.createElement('div');
       td.style.left = '50px';
       td.style.color = '#000000';
-      td.style.backgroundColor = '#ffffff';
+      td.style.backgroundColor = 'rgba(255,255,255,0.6)';
       td.style.border = '1px';
       const tl = new CSS2DObject(td);
       this.tooltip = { object: tl, div: td };
