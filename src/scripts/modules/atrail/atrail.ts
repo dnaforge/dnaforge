@@ -332,7 +332,7 @@ export class ATrail extends WiresModel {
       const co2T =
         this.trail[(i + 1) % this.trail.length].vertex.coords.clone();
       const dir = co2T.clone().sub(co1).normalize();
-      const co2 = co2T.sub(dir.multiplyScalar(0.1));
+      const co2 = co2T.sub(dir.multiplyScalar(0.3));
 
       const length = co2.clone().sub(co1).length();
       const transform = get2PointTransform(co1, co2).scale(

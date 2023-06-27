@@ -6,7 +6,7 @@
                     <button class="ribbon-button" id="atrail-generate-wires" data-role="hint" data-hint-position="right"
                         data-hint-text="Generate an A-Trail routing. This can take a while.">
                         <span class="mif-play mif-1x"></span>
-                        <span class="caption">(Re)Generate<br>A-trail</span>
+                        <span class="caption">Generate<br>A-trail</span>
                     </button>
                 </li>
                 <li>
@@ -22,7 +22,7 @@
                         data-hint-position="right"
                         data-hint-text="Generate a cylinder model based on the current routing.">
                         <span class="mif-loop2 mif-1x"></span>
-                        <span class="caption">(Re)Generate<br>Cylinders</span>
+                        <span class="caption">Generate<br>Cylinders</span>
                     </button>
                 </li>
                 <li>
@@ -56,24 +56,6 @@
                         type="number" data-role="input" data-default-value="15" min="0.01" max="1000" step="0.01"
                         data-size="225" data-prepend="Scale" data-append="nm" id="atrail-scale">
                 </li>
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
-                        type="number" data-role="input" data-default-value="3" data-size="225"
-                        data-prepend="Min Linkers" id="atrail-linkers-min"></li>
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
-                        type="number" data-role="input" data-default-value="3" data-size="225"
-                        data-prepend="Max Linkers" id="atrail-linkers-max"></li>
-            </ul>
-            <ul style="list-style-type:none;">
-                <li data-role="hint" data-hint-position="right" data-hint-text="Maximum staple length in nucleotides.">
-                    <input type="number" data-role="input" data-default-value="100" data-size="275"
-                        data-prepend="Max staple length" id="atrail-strand-length-max">
-                </li>
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Minimum length of a continuous double helix without strand gaps."><input
-                        type="number" data-role="input" data-default-value="10" data-size="275"
-                        data-prepend="Min overlap" id="atrail-strand-length-min"></li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
                     <select data-prepend="Scaffold" data-role="select" id="atrail-scaffold">
                         <optgroup label="Scaffold strand">
@@ -90,33 +72,18 @@
                         </optgroup>
                     </select>
                 </li>
-            </ul>
-            <ul style="list-style-type:none;">
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="Offset"
-                        id="atrail-scaffold-offset">
-                </li>
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="ID of the first nucleotide in the scaffold strand.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="5' ID"
-                        id="atrail-scaffold-start">
-                </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Separate linker strands with strand gaps. If off, linker strands will form long cycles.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
                         id="atrail-add-nicks">
                 </li>
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm.">
-                    <input type="checkbox" data-role="checkbox" data-caption="Checkerboard"
-                        id="atrail-checkerboard">
-                </li>
-                <li hidden data-role="hint" data-hint-position="right"
-                    data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
-                        type="number" data-role="input" data-default-value="50" data-size="260"
-                        data-prepend="GC-content" data-append="%" id="atrail-gc-content"></li>
             </ul>
+
+            <button class="ribbon-button" onclick="Metro.dialog.open('#atrail-settings');" data-role="hint"
+                data-hint-position="right" data-hint-text="Additional A-Trail settings.">
+                <span class="mif-cogs mif-4x"></span>
+                <span class="caption">Additional<br>Parameters</span>
+            </button>
             <span class="title">Parameters</span>
         </div>
         <div class="group">
@@ -128,7 +95,7 @@
             <button class="ribbon-button" id="atrail-generate-nucleotides" data-role="hint" data-hint-position="right"
                 data-hint-text="Generate a nucleotide model based on the current cylinder model. Also assigns bases identities if the scaffold strand is defined.">
                 <span class="mif-shuffle mif-4x"></span>
-                <span class="caption">(Re)Generate<br>nucleotide<br>model</span>
+                <span class="caption">Generate<br>nucleotide<br>model</span>
             </button>
             <span class="title">Generation</span>
         </div>
@@ -192,5 +159,55 @@
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
         <button class="button primary js-dialog-close" id="atrail-scaffold-dialog-confirm">Set Scaffold</button>
+    </div>
+</div>
+
+<div class="dialog" data-role="dialog" id="atrail-settings">
+    <div class="dialog-title">A-Trail parameters</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <p>Routing parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm.">
+                <input type="checkbox" data-role="checkbox" data-caption="Checkerboard"
+                    id="atrail-checkerboard">
+            </li>
+        </ul>
+        <p>Strand parameters:</p>
+        <ul class="group-list">
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                    type="number" data-role="input" data-default-value="50" 
+                    data-prepend="GC-content" data-append="%" id="atrail-gc-content"></li>
+            <li data-role="hint" data-hint-position="right" data-hint-text="Maximum staple length in nucleotides.">
+                <input type="number" data-role="input" data-default-value="100" 
+                    data-prepend="Max staple length" id="atrail-strand-length-max">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Minimum length of a continuous double helix without strand gaps."><input
+                    type="number" data-role="input" data-default-value="10" 
+                    data-prepend="Min overlap" id="atrail-strand-length-min"></li>
+            <li data-role="hint" data-hint-position="right"
+            data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
+                type="number" data-role="input" data-default-value="3" 
+                data-prepend="Min Linkers" id="atrail-linkers-min"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
+                    type="number" data-role="input" data-default-value="3" 
+                    data-prepend="Max Linkers" id="atrail-linkers-max"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="Offset"
+                    id="atrail-scaffold-offset">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="5' ID"
+                    id="atrail-scaffold-start">
+            </li>
+        </ul>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
     </div>
 </div>

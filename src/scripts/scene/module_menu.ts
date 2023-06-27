@@ -109,7 +109,7 @@ export abstract class ModuleMenu extends Menu {
     this.hotkeys.set('3', this.nucleotidesButton);
     this.hotkeys.set('a', this.selectAll);
     this.hotkeys.set('alt+a', this.deselectAll);
-    this.hotkeys.set('r', this.relaxButton);
+    this.hotkeys.set('shift+r', this.relaxButton);
     this.hotkeys.set('space', this.generateWiresButton);
     this.hotkeys.set('c', () => {
       this.select5p(true);

@@ -4,7 +4,7 @@
             <button class="ribbon-button" id="spanning-tree-generate-wires" data-role="hint" data-hint-position="right"
                 data-hint-text="Generate a maximally branching spanning tree and a route twice around it.">
                 <span class="mif-play mif-4x"></span>
-                <span class="caption">(Re)Generate<br>Spanning Tree</span>
+                <span class="caption">Generate<br>Spanning Tree</span>
             </button>
             <span class="title">Main</span>
         </div>
@@ -45,27 +45,16 @@
                         </optgroup>
                     </select>
                 </li>
-            </ul>
-            <ul style="list-style-type:none;">
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="Offset"
-                        id="spanning-tree-scaffold-offset">
-                </li>
-                <li data-role="hint" data-hint-position="right"
-                    data-hint-text="ID of the first nucleotide in the scaffold strand.">
-                    <input type="number" data-role="input" data-default-value="0" data-size="200" data-prepend="5' ID"
-                        id="spanning-tree-scaffold-start">
-                </li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Add strand gaps in linker strands.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
                         id="veneziano-add-nicks">
                 </li>
-                <li hidden data-role="hint" data-hint-position="right"
-                    data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
-                        type="number" data-role="input" data-default-value="50" data-size="260"
-                        data-prepend="GC-content" data-append="%" id="veneziano-gc-content"></li>
             </ul>
+            <button class="ribbon-button" onclick="Metro.dialog.open('#spanning-tree-parameters');" data-role="hint"
+                data-hint-position="right" data-hint-text="Setup additional ST-DNA parameters.">
+                <span class="mif-cogs mif-4x"></span>
+                <span class="caption">Additional<br>Parameters</span>
+            </button>
             <span class="title">Parameters</span>
         </div>
         <div class="group">
@@ -78,7 +67,7 @@
                 data-hint-position="right"
                 data-hint-text="Generate a nucleotide model based on the current cylinder model. Also assigns bases identities if the scaffold strand is defined.">
                 <span class="mif-shuffle mif-4x"></span>
-                <span class="caption">(Re)Generate<br>nucleotide<br>model</span>
+                <span class="caption">Generate<br>nucleotide<br>model</span>
             </button>
             <span class="title">Generation</span>
         </div>
@@ -130,5 +119,32 @@
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
         <button class="button primary js-dialog-close" id="veneziano-scaffold-dialog-confirm">Set Scaffold</button>
+    </div>
+</div>
+
+
+<div class="dialog" data-role="dialog" id="spanning-tree-parameters">
+    <div class="dialog-title">ST-DNA settings</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <p>Strand parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="Offset"
+                    id="spanning-tree-scaffold-offset">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="5' ID"
+                    id="spanning-tree-scaffold-start">
+            </li>
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                    type="number" data-role="input" data-default-value="50" data-size="260"
+                    data-prepend="GC-content" data-append="%" id="veneziano-gc-content"></li>
+        </ul>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
     </div>
 </div>
