@@ -14,7 +14,7 @@ import { Strand } from './strand';
 import { Nucleotide, NucleotideMeshes } from './nucleotide';
 import { Context } from '../scene/context';
 import { Model } from './model';
-import { Selectable } from '../scene/editor';
+import { Selectable } from '../scene/selection_utils';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
@@ -56,8 +56,8 @@ export class NucleotideModel extends Model {
     const nm = new NucleotideModel(json.scale, json.naType);
     const idToStrand = new Map<number, Strand>();
     for (const s of json.strands) {
-      const strand = Strand.loadJSON(s);
-      idToStrand.set(strand.instanceId, strand);
+      const strand = Strand.loadJSON(nm, s);
+      idToStrand.set(strand.id, strand);
       if (s.pair && idToStrand.get(s.pair)) {
         strand.pair = idToStrand.get(s.pair);
         idToStrand.get(s.pair).pair = strand;
@@ -169,8 +169,8 @@ export class NucleotideModel extends Model {
     for (let i = 0; i < cm.cylinders.length; i++) {
       const cyl = cm.cylinders[i];
 
-      const strand1 = new Strand(this.scale, this.naType);
-      const strand2 = new Strand(this.scale, this.naType);
+      const strand1 = new Strand(this);
+      const strand2 = new Strand(this);
       strand1.isScaffold = hasScaffold;
       strand2.isScaffold = false;
       this.addStrand(strand1);
@@ -260,7 +260,7 @@ export class NucleotideModel extends Model {
           if (cur.prev) cur = cur.prev;
           else break;
         } while (cur != start);
-        const newStrand = new Strand(this.scale, s.naType);
+        const newStrand = new Strand(this, s.naType);
         newStrand.isScaffold = s.isScaffold;
         newStrands.push(newStrand);
         do {
@@ -285,7 +285,7 @@ export class NucleotideModel extends Model {
     // set scaffold indices first:
     const scaffold = this.getScaffold();
     if (scaffold) {
-      scaffold.instanceId = j++;
+      scaffold.id = j++;
       for (const n of scaffold.nucleotides) {
         n.id = i;
         this.idToNuc.set(i, n);
@@ -295,7 +295,7 @@ export class NucleotideModel extends Model {
 
     for (const s of this.strands) {
       if (s == scaffold) continue;
-      s.instanceId = j++;
+      s.id = j++;
       for (const n of s.nucleotides) {
         n.id = i;
         this.idToNuc.set(i, n);
@@ -643,10 +643,7 @@ export class NucleotideModel extends Model {
     owner.context.addToScene(
       this.obj,
       (i: Intersection) => {
-        return {
-          owner: this,
-          target: this.idToNuc.get(i.instanceId),
-        };
+        return this.idToNuc.get(i.instanceId);
       },
       this
     );

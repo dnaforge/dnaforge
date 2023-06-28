@@ -1,5 +1,5 @@
 import { GLOBALS } from '../globals/globals';
-import { Selectable } from '../scene/editor';
+import { Selectable } from '../scene/selection_utils';
 
 export abstract class Model {
   isVisible = false;

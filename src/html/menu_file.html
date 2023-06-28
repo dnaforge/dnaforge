@@ -2,7 +2,7 @@
     <div class="d-flex flex-wrap">
         <div class="group">
             <button class="ribbon-button" onclick="Metro.dialog.open('#open-file-1')" data-role="hint"
-            data-hint-position="right" data-hint-text="Open a file from the local file system.">
+                data-hint-position="right" data-hint-text="Open a file from the local file system.">
                 <span class="mif-folder-open mif-5x"></span>
                 <span class="caption"></span>
             </button>
@@ -15,8 +15,8 @@
             <span class="title">Open</span>
         </div>
         <div class="group">
-            <button class="ribbon-button" id="file-open-json-dialog" data-role="hint"
-                data-hint-position="right" data-hint-text="Save current program state as a JSON-file.">
+            <button class="ribbon-button" id="file-open-json-dialog" data-role="hint" data-hint-position="right"
+                data-hint-text="Save current program state as a JSON-file.">
                 <span class="mif-file-download mif-3x"></span>
                 <span class="caption">Save as JSON</span>
             </button>
@@ -55,7 +55,7 @@
 
 <div class="dialog" data-role="dialog" id="open-file-example">
     <div class="dialog-title">Open file</div>
-    <div class="dialog-content">
+    <div class="dialog-content" style="overflow-y: scroll;">
         <ul data-role="listview" data-view="content" data-select-node="true" id="file-input-example">
         </ul>
     </div>

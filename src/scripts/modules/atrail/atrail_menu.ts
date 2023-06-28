@@ -77,7 +77,8 @@ export class ATrailMenu extends ModuleMenu {
   }
 
   reinforce() {
-    const selection = this.context.editor.getSelectionOf(this.cm);
+    if (this.context.editor.getActiveModel() != this.cm) return;
+    const selection = this.context.editor.getSelection();
     if (!this.cm || selection.size == 0) return;
     reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
     this.cm.dispose(); // make sure the old model is deleted
@@ -85,6 +86,7 @@ export class ATrailMenu extends ModuleMenu {
     this.removeNucleotides(true);
 
     this.regenerateVisible();
+    this.context.editor.do({ reversible: false }); // TODO:
   }
 
   generatePrimary() {

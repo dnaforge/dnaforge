@@ -49,7 +49,6 @@ export class SternaMenu extends ModuleMenu {
 
   populateHotkeys() {
     super.populateHotkeys();
-    this.hotkeys.set('shift+r', this.generatePrimaryButton);
   }
 
   graphToWires(graph: Graph, params: SternaParameters) {

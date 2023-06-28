@@ -14,7 +14,7 @@ import { HalfEdge, Edge, Graph, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
 import { ATrailParameters } from './atrail_menu';
 import { Strand } from '../../models/strand';
-import { Selectable } from '../../scene/editor';
+import { Selectable } from '../../scene/selection_utils';
 
 const MAX_TIME = 10000; // milliseconds, give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
@@ -50,7 +50,7 @@ export class ATrail extends WiresModel {
     return atrail;
   }
 
-  initialiseGraph(checkerBoard = false) {
+  initialiseGraph(checkerBoard: boolean) {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;
     if (checkerBoard) {
@@ -64,7 +64,8 @@ export class ATrail extends WiresModel {
     }
   }
 
-  findATrail() {
+  findATrail(checkerBoard = false): HalfEdge[] {
+    this.initialiseGraph(checkerBoard);
     const transitions = new Map<Vertex, number>(); // orentations of vertices
     const neighbours = this.getNeighbourhoodFunction(transitions);
 
@@ -367,8 +368,7 @@ export class ATrail extends WiresModel {
  */
 export function graphToWires(graph: Graph, params: ATrailParameters) {
   const atrail = new ATrail(graph);
-  atrail.initialiseGraph(params.checkerBoard);
-  atrail.findATrail();
+  atrail.findATrail(params.checkerBoard);
   return atrail;
 }
 

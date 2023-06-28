@@ -5,7 +5,8 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/transforms';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
-import { Selectable } from '../scene/editor';
+import { Selectable } from '../scene/selection_utils';
+import { NucleotideModel } from './nucleotide_model';
 
 export interface NucleotideMeshes {
   bases: InstancedMesh;
@@ -73,6 +74,7 @@ const nucleotideGeometry = (nucParams: Record<string, any>) => {
  * An individual nucleotide.
  */
 export class Nucleotide extends Selectable {
+  owner: NucleotideModel;
   id: number;
   instanceMeshes: NucleotideMeshes;
 
@@ -99,14 +101,15 @@ export class Nucleotide extends Selectable {
    * Constructs a nucleotide at the origin, along a helical axis pointing towards Y-axis,
    * with the backbone center of mass pointing towards Z-axis.
    *
-   * @param scale
+   * @param nm
    * @param naType DNA | RNA
    * @param base IUPAC code
    */
-  constructor(scale = 1, naType: NATYPE = 'DNA', base = 'N') {
+  constructor(nm: NucleotideModel, naType: NATYPE = 'DNA', base = 'N') {
     super();
+    this.owner = nm;
     this.base = base;
-    this.scale = scale;
+    this.scale = nm.scale;
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
 
@@ -130,8 +133,8 @@ export class Nucleotide extends Selectable {
     };
   }
 
-  static loadJSON(json: any): Nucleotide {
-    const n = new Nucleotide(json.scale, json.naType, json.base);
+  static loadJSON(nm: NucleotideModel, json: any): Nucleotide {
+    const n = new Nucleotide(nm, json.naType, json.base);
     n.id = json.id;
     n.isLinker = json.isLinker;
     n.isScaffold = json.isScaffold;
@@ -344,7 +347,7 @@ export class Nucleotide extends Selectable {
       const qt = q1.clone().slerp(q2, z);
       const transform = new Matrix4().compose(pt, qt, scale);
 
-      const nt = new Nucleotide(this.scale, this.naType);
+      const nt = new Nucleotide(this.owner, this.naType);
       nt.isLinker = true;
       if (this.isScaffold) nt.isScaffold = true;
       nt.setTransform(transform);
@@ -418,7 +421,7 @@ export class Nucleotide extends Selectable {
   }
 
   setPosition(pos: Vector3) {
-    console.log('TODO: Translation');
+    return; //TODO
   }
 
   setRotation(rot: Quaternion) {

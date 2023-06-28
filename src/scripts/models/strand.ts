@@ -2,12 +2,14 @@ import * as _ from 'lodash';
 import { Matrix4 } from 'three';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Nucleotide } from './nucleotide';
+import { NucleotideModel } from './nucleotide_model';
 
 /**
  * A class represeting a strand. Contains nucleotides.
  */
 export class Strand {
-  instanceId: number;
+  owner: NucleotideModel;
+  id: number;
   nucleotides: Nucleotide[] = [];
   scale: number;
   naType: NATYPE;
@@ -21,11 +23,13 @@ export class Strand {
 
   /**
    *
+   * @param NucleotideModel
    * @param scale
    * @param naType DNA | RNA
    */
-  constructor(scale = 1, naType: NATYPE = 'DNA') {
-    this.scale = scale;
+  constructor(nm: NucleotideModel, naType: NATYPE = 'DNA') {
+    this.owner = nm;
+    this.scale = nm.scale;
     this.naType = naType;
     this.nucParams = naType == 'DNA' ? DNA : RNA;
   }
@@ -35,25 +39,25 @@ export class Strand {
       nucleotides: this.nucleotides.map((n) => {
         return n.toJSON();
       }),
-      id: this.instanceId,
+      id: this.id,
       scale: this.scale,
       naType: this.naType,
       isScaffold: this.isScaffold,
       isLinker: this.isLinker,
       isPseudo: this.isPseudo,
 
-      pair: this.pair?.instanceId,
+      pair: this.pair?.id,
     };
   }
 
-  static loadJSON(json: any): Strand {
-    const s = new Strand(json.scale, json.naType);
-    s.instanceId = json.id;
+  static loadJSON(nm: NucleotideModel, json: any): Strand {
+    const s = new Strand(nm, json.naType);
+    s.id = json.id;
     s.isScaffold = json.isScaffold;
     s.isLinker = json.isLinker;
     s.isPseudo = json.isPseudo;
     for (const n of json.nucleotides) {
-      s.addNucleotides(Nucleotide.loadJSON(n));
+      s.addNucleotides(Nucleotide.loadJSON(nm, n));
     }
     return s;
   }
@@ -74,7 +78,7 @@ export class Strand {
    */
   generateNucleotides(...matrices: Matrix4[]) {
     for (let i = 0; i < matrices.length; i++) {
-      const nuc = new Nucleotide(this.scale, this.naType);
+      const nuc = new Nucleotide(this.owner, this.naType);
       nuc.isLinker = this.isLinker;
       nuc.isScaffold = this.isScaffold;
 
@@ -151,7 +155,7 @@ export class Strand {
     if (N == 0) return;
 
     const linkers = n1.linkNucleotides(n2, N);
-    const s = new Strand(this.scale, this.naType);
+    const s = new Strand(this.owner, this.naType);
     s.isScaffold = this.isScaffold;
     s.addNucleotides(...linkers);
     s.isLinker = true;
@@ -174,7 +178,7 @@ export class Strand {
     }
 
     const t = {
-      id: this.instanceId,
+      id: this.id,
       isScaffold: this.isScaffold,
       naType: this.naType,
       color: '',

@@ -7,9 +7,9 @@ import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Vertex } from './graph_model';
 import { Relaxer } from './relaxer';
 import { Model } from './model';
-import { Selectable } from '../scene/editor';
 import { ModuleMenu } from '../scene/module_menu';
 import { GLOBALS } from '../globals/globals';
+import { Selectable } from '../scene/selection_utils';
 
 //TODO: Split into files
 
@@ -109,6 +109,7 @@ export class CylinderBundle {
  * at the origin and the end one unit along the Y-vector.
  */
 export class Cylinder extends Selectable {
+  owner: CylinderModel;
   id: number;
   scale: number;
   naType: NATYPE;
@@ -136,15 +137,16 @@ export class Cylinder extends Selectable {
    * @param routingStrategy
    */
   constructor(
+    cm: CylinderModel,
     id: number,
     length: number,
-    scale = 1,
     naType: NATYPE = 'DNA',
     routingStrategy = RoutingStrategy.Normal
   ) {
     super();
+    this.owner = cm;
     this.id = id;
-    this.scale = scale;
+    this.scale = cm.scale;
     this.naType = naType;
     this.nucParams = this.naType == 'DNA' ? DNA : RNA;
     this.routingStrategy = routingStrategy;
@@ -575,9 +577,9 @@ export class CylinderModel extends Model {
     for (const jCyl of json.cylinders) {
       const id = jCyl.id;
       const cyl = new Cylinder(
+        cm,
         id,
         jCyl.length,
-        jCyl.scale,
         jCyl.naType,
         jCyl.routingStrategy
       );
@@ -625,12 +627,7 @@ export class CylinderModel extends Model {
    */
   createCylinder(startP: Vector3, dir: Vector3, length_bp: number) {
     //TODO: use different indexing scheme if deleting cylinders is made possible
-    const c = new Cylinder(
-      this.cylinders.length,
-      length_bp,
-      this.scale,
-      this.naType
-    );
+    const c = new Cylinder(this, this.cylinders.length, length_bp, this.naType);
     c.initTransformMatrix(startP, dir);
     this.addCylinders(c);
     return c;
@@ -725,10 +722,7 @@ export class CylinderModel extends Model {
     owner.context.addToScene(
       this.obj,
       (i: Intersection) => {
-        return {
-          owner: this,
-          target: intersectionToCylinder(i),
-        };
+        return intersectionToCylinder(i);
       },
       this
     );

@@ -86,45 +86,57 @@ export class InterfaceMenu extends Menu {
   }
 
   populateHotkeys() {
-    this.hotkeys.set('z', this.showAxesButton);
-    this.hotkeys.set('shift+z', this.showGridButton);
-    this.hotkeys.set('shift+1', $($('#selection-mode').children()[0]));
-    this.hotkeys.set('shift+2', $($('#selection-mode').children()[1]));
-    this.hotkeys.set('shift+3', $($('#selection-mode').children()[2]));
-    this.hotkeys.set('shift+4', $($('#selection-mode').children()[3]));
-    this.hotkeys.set('4', this.wiresButton);
-    this.hotkeys.set('5', this.solidButton);
-    this.hotkeys.set('6', this.indicesButton);
-    this.hotkeys.set('7', this.boundingBoxButton);
-    this.hotkeys.set('q', this.hoverButton);
-    this.hotkeys.set('np1', () => {
+    this.context.controls.registerHotkey('z', this.showAxesButton);
+    this.context.controls.registerHotkey('shift+z', this.showGridButton);
+    this.context.controls.registerHotkey(
+      'shift+1',
+      $($('#selection-mode').children()[0])
+    );
+    this.context.controls.registerHotkey(
+      'shift+2',
+      $($('#selection-mode').children()[1])
+    );
+    this.context.controls.registerHotkey(
+      'shift+3',
+      $($('#selection-mode').children()[2])
+    );
+    this.context.controls.registerHotkey(
+      'shift+4',
+      $($('#selection-mode').children()[3])
+    );
+    this.context.controls.registerHotkey('4', this.wiresButton);
+    this.context.controls.registerHotkey('5', this.solidButton);
+    this.context.controls.registerHotkey('6', this.indicesButton);
+    this.context.controls.registerHotkey('7', this.boundingBoxButton);
+    this.context.controls.registerHotkey('q', this.hoverButton);
+    this.context.controls.registerHotkey('np1', () => {
       this.context.setCameraView('front');
     });
-    this.hotkeys.set('np2', () => {
+    this.context.controls.registerHotkey('np2', () => {
       this.context.rotateCameraView('down');
     });
-    this.hotkeys.set('np3', () => {
+    this.context.controls.registerHotkey('np3', () => {
       this.context.setCameraView('right');
     });
-    this.hotkeys.set('np4', () => {
+    this.context.controls.registerHotkey('np4', () => {
       this.context.rotateCameraView('left');
     });
-    this.hotkeys.set('np5', () => {
+    this.context.controls.registerHotkey('np5', () => {
       this.switchCameraType();
     });
-    this.hotkeys.set('np6', () => {
+    this.context.controls.registerHotkey('np6', () => {
       this.context.rotateCameraView('right');
     });
-    this.hotkeys.set('np7', () => {
+    this.context.controls.registerHotkey('np7', () => {
       this.context.setCameraView('top');
     });
-    this.hotkeys.set('np8', () => {
+    this.context.controls.registerHotkey('np8', () => {
       this.context.rotateCameraView('up');
     });
-    this.hotkeys.set('np9', () => {
+    this.context.controls.registerHotkey('np9', () => {
       this.context.flipCameraView();
     });
-    this.hotkeys.set('np,', () => {
+    this.context.controls.registerHotkey('np,', () => {
       this.resetCamera();
     });
   }

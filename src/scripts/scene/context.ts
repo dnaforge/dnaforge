@@ -9,8 +9,9 @@ import { Controls } from './controls';
 import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
-import { Selection, Editor } from './editor';
+import { Editor } from './editor';
 import { Model } from '../models/model';
+import { Selectable } from './selection_utils';
 
 const canvas = document.querySelector('#canvas');
 
@@ -53,7 +54,7 @@ export class Context {
   callbacks: { (): void }[];
   intersectionSolvers = new Map<
     THREE.Object3D,
-    (i: THREE.Intersection) => Selection
+    (i: THREE.Intersection) => Selectable
   >();
 
   graph: Graph;
@@ -76,8 +77,8 @@ export class Context {
     this.callbacks = [];
 
     this.graph = null;
-    this.editor = new Editor(this);
     this.controls = new Controls(this);
+    this.editor = new Editor(this);
     this.activeContext = null;
 
     this.setupRenderer();
@@ -125,31 +126,9 @@ export class Context {
     renderT();
   }
 
-  /**
-   * Handles a hotkey by sending it to the active menu. If the active menu does nothing with it,
-   * the key press is sent to globally active menus. If they do not handle it either, tries to
-   * handle it here. Otherwise the hotkey does nothing.
-   *
-   * @param key
-   */
-  handleHotKey(key: string) {
-    if (this.editor.handleHotKey(key)) return;
-    if (this.activeContext && this.activeContext.handleHotKey(key)) return;
-    for (const menu of this.menus.values())
-      if (menu.isGlobal && menu.handleHotKey(key)) return;
-    switch (key) {
-      case 'asdf':
-        console.log('asdf');
-        break;
-
-      default:
-        break;
-    }
-  }
-
   addToScene(
     obj: THREE.Object3D,
-    intersectionSolver?: (i: THREE.Intersection) => Selection,
+    intersectionSolver?: (i: THREE.Intersection) => Selectable,
     model?: Model
   ) {
     this.scene.add(obj);
@@ -163,7 +142,7 @@ export class Context {
     this.editor.removeModel(model);
   }
 
-  resolveIntersection(intersection: THREE.Intersection): Selection {
+  resolveIntersection(intersection: THREE.Intersection): Selectable {
     let curObj = intersection.object;
     while (curObj && curObj != this.scene) {
       const handler = this.intersectionSolvers.get(curObj);

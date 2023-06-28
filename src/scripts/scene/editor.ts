@@ -1,483 +1,123 @@
-import * as THREE from 'three';
 import { Context } from './context';
 import { Model } from '../models/model';
-import { Matrix4, Vector2, Vector3, Quaternion, Matrix } from 'three';
+import { Matrix4, Vector2, Vector3, Quaternion } from 'three';
+import {
+  BoxSelector,
+  Selectable,
+  SelectionTransformer,
+} from './selection_utils';
 
-export interface Selection {
-  owner: Model;
-  target: Selectable;
-}
-
-export abstract class Selectable {
-  abstract markSelect(): void;
-
-  abstract markHover(): void;
-
-  abstract markDefault(): void;
-
-  abstract getTooltip(): string;
-
-  getTransform(): Matrix4 {
-    return new Matrix4();
-  }
-
-  getPosition(): Vector3 {
-    return new Vector3();
-  }
-
-  getRotation(): Quaternion {
-    return new Quaternion();
-  }
-
-  getSize(): number {
-    return 0;
-  }
-
-  setTransform(m: Matrix4) {}
-
-  setPosition(pos: Vector3) {
-    console.log('TODO: Translation');
-  }
-
-  setRotation(rot: Quaternion) {
-    console.log('TODO: Rotation');
-  }
-
-  setSize(val: number) {
-    console.log('TODO: Scale');
-  }
-}
-
-class BoxSelector {
-  element: any;
-
-  constructor() {
-    const div = $('<div>', {
-      style: `position: fixed; 
-        width: 0px; 
-        height: 0px; 
-        background-color: rgba(50,50,200,0.25);  
-        z-index: 1000; 
-        border-style: solid; 
-        border-width: 1px; 
-        pointer-events: none;`,
-    });
-    div.appendTo($('body'));
-    this.element = div;
-  }
-
-  createElement(c1: Vector2, c2: Vector2) {}
-
-  deleteElement() {
-    $(this.element).remove();
-  }
-
-  update(c1: Vector2, c2: Vector2) {
-    $(this.element).css({
-      left: Math.min(c1.x, c2.x),
-      top: Math.min(c1.y, c2.y),
-      width: Math.max(c1.x, c2.x) - Math.min(c1.x, c2.x),
-      height: Math.max(c1.y, c2.y) - Math.min(c1.y, c2.y),
-    });
-  }
-}
-
-type Axes = 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz' | 'xyz';
-type LockMode = 'local' | 'global';
-const AxesToVec: Record<Axes, Vector3> = {
-  x: new Vector3(1, 0, 0),
-  y: new Vector3(0, 1, 0),
-  z: new Vector3(0, 0, 1),
-  xy: new Vector3(1, 1, 0),
-  xz: new Vector3(1, 0, 1),
-  yz: new Vector3(0, 1, 1),
-  xyz: new Vector3(1, 1, 1),
-};
-
-class SelectionTransformer {
-  transform: Matrix4 = new Matrix4();
-  scale = 1;
-
-  children: Selectable[] = [];
-  cTransforms: Matrix4[] = [];
-  cRots: Quaternion[] = [];
-  cPositions: Vector3[] = [];
-  cSizes: number[] = [];
-
-  lockLabel: Axes = 'xyz';
-  lockMode: LockMode = 'global';
-  individualOrigins = false;
-  customValue = '';
-
-  tooltip: any;
-
-  constructor(...children: Selectable[]) {
-    const pos = new Vector3();
-    for (const c of children) {
-      this.children.push(c);
-      pos.add(c.getPosition());
-
-      this.cTransforms.push(c.getTransform().clone());
-      this.cRots.push(c.getRotation().clone());
-      this.cPositions.push(c.getPosition().clone());
-      this.cSizes.push(c.getSize());
-    }
-    pos.divideScalar(children.length);
-
-    this.transform = new Matrix4().makeTranslation(0, 0, 0);
-    this.scale = 1;
-
-    this.createTooltip();
-  }
-
-  input(key: string) {
-    switch (true) {
-      case key == 'x':
-        if (this.lockLabel != 'x') {
-          this.lockLabel = 'x';
-          this.lockMode = 'global';
-        } else {
-          if (this.lockMode == 'global') this.lockMode = 'local';
-          else {
-            this.lockMode = 'global';
-            this.lockLabel = 'xyz';
-          }
-        }
-        break;
-      case key == 'y':
-        if (this.lockLabel != 'y') {
-          this.lockLabel = 'y';
-          this.lockMode = 'global';
-        } else {
-          if (this.lockMode == 'global') this.lockMode = 'local';
-          else {
-            this.lockMode = 'global';
-            this.lockLabel = 'xyz';
-          }
-        }
-        break;
-      case key == 'z':
-        if (this.lockLabel != 'z') {
-          this.lockLabel = 'z';
-          this.lockMode = 'global';
-        } else {
-          if (this.lockMode == 'global') this.lockMode = 'local';
-          else {
-            this.lockMode = 'global';
-            this.lockLabel = 'xyz';
-          }
-        }
-        break;
-      case key == 'shift+shift':
-        this.individualOrigins = !this.individualOrigins;
-        break;
-      case key == '0' || !!parseInt(key) || key == '.':
-        this.customValue = this.customValue + key;
-        break;
-      case key == 'backspace':
-        const cVal = this.customValue;
-        if (cVal.length > 0) this.customValue = cVal.slice(0, cVal.length - 1);
-        break;
-    }
-  }
-
-  createTooltip() {
-    if (!this.tooltip) {
-      const div = $('<div>', {
-        style: `position: fixed;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: rgba(255,255,255,0.15);  
-          z-index: 1000;  
-          pointer-events: none;
-          bottom:5%;
-          left: 10 %;
-          text-align: center;`,
-      });
-      div.appendTo($('body'));
-      this.tooltip = div;
-    }
-  }
-
-  updateTooltip() {
-    this.tooltip.html(`
-    Axes: ${this.lockLabel} - 
-    Transform: ${this.lockLabel == 'xyz' ? 'screen' : this.lockMode} - 
-    Origin: ${this.individualOrigins ? 'individual' : 'mean'} 
-    ${this.customValue ? ' - Val: ' + this.customValue : ''}
-    <br>
-    X, Y, Z to change axes. Shift to change origins. [0-9] to input value.
-    `);
-  }
-
-  /**
-   * Remove the tooltip.
-   */
-  removeTooltip() {
-    if (!this.tooltip) return;
-    $(this.tooltip).remove();
-  }
-
-  handleValue(val: number, degrees = false) {
-    if (this.customValue) {
-      const tVal = parseFloat(this.customValue);
-      if (isNaN(tVal)) return val;
-      else if (degrees) return (tVal / 180) * Math.PI;
-      else return tVal;
-    }
-    return val;
-  }
-
-  handleTransLocks(v: Vector3, localTransform?: Matrix4): Vector3 {
-    if (this.lockLabel == 'xyz') return v;
-    const d = AxesToVec[this.lockLabel];
-    const v1 = new Vector3(1, 0, 0).multiply(d);
-    const v2 = new Vector3(0, 1, 0).multiply(d);
-    const v3 = new Vector3(0, 0, 1).multiply(d);
-    if (this.lockMode == 'local') {
-      const o = new Vector3().applyMatrix4(localTransform);
-      v1.applyMatrix4(localTransform).sub(o).normalize();
-      v2.applyMatrix4(localTransform).sub(o).normalize();
-      v3.applyMatrix4(localTransform).sub(o).normalize();
-    }
-
-    const res = new Vector3();
-    res.add(v1.clone().multiplyScalar(v.dot(v1)));
-    res.add(v2.clone().multiplyScalar(v.dot(v2)));
-    res.add(v3.clone().multiplyScalar(v.dot(v3)));
-
-    return res;
-  }
-
-  handleRotLocks(v: Vector3, localTransform?: Matrix4): Vector3 {
-    if (this.lockLabel == 'xyz') return v;
-    const d = AxesToVec[this.lockLabel].clone();
-    if (this.lockMode == 'local') {
-      const o = new Vector3().applyMatrix4(localTransform);
-      d.applyMatrix4(localTransform).sub(o).normalize();
-      d.multiplyScalar(v.dot(d) >= 0 ? 1 : -1);
-    } else {
-      d.multiplyScalar(v.dot(d) >= 0 ? 1 : -1);
-    }
-
-    return d;
-  }
-
-  getTransform(): Matrix4 {
-    return this.transform;
-  }
-
-  getPosition(): Vector3 {
-    const t = new Vector3();
-    const r = new Quaternion();
-    const s = new Vector3();
-    this.transform.decompose(t, r, s);
-    return t;
-  }
-
-  getRotation(): Quaternion {
-    const t = new Vector3();
-    const r = new Quaternion();
-    const s = new Vector3();
-    this.transform.decompose(t, r, s);
-    return r;
-  }
-
-  getSize(): number {
-    return this.scale;
-  }
-
-  setTransform() {
-    throw 'TODO';
-  }
-
-  setPosition(pos: Vector3) {
-    this.transform.setPosition(pos);
-  }
-
-  setRotation() {
-    throw 'TODO';
-  }
-
-  setSize() {
-    throw 'TODO';
-  }
-
-  getMedianPoint(): Vector3 {
-    const mPoint = new Vector3();
-    for (const p of this.cPositions) {
-      mPoint.add(p.clone().divideScalar(this.cPositions.length));
-    }
-    return mPoint;
-  }
-
-  /**
-   * Applies the given transform to all children.
-   *
-   * @param m
-   */
-  applyTransform(m: Matrix4) {
-    for (let i = 0; i < this.children.length; i++) {
-      const c = this.children[i];
-      c.setTransform(this.cTransforms[i].clone().premultiply(m));
-    }
-    this.updateTooltip();
-  }
-
-  /**
-   * Applies the given position to all children
-   *
-   * @param pos
-   */
-  applyPosition(pos: Vector3) {
-    for (let i = 0; i < this.children.length; i++) {
-      const c = this.children[i];
-      const lockedPos = this.handleTransLocks(pos, this.cTransforms[i]);
-      const pTransform = new Matrix4().setPosition(lockedPos);
-      const cTransform = this.cTransforms[i].clone().premultiply(pTransform);
-      c.setTransform(cTransform);
-    }
-    this.updateTooltip();
-  }
-
-  /**
-   * Applies the given rotation along the given axis to all children
-   *
-   * @param axis
-   * @param angle
-   */
-  applyRotation(axis: Vector3, angle: number) {
-    const tAngle = this.handleValue(angle, true);
-    if (!this.individualOrigins && this.lockMode != 'local') {
-      // median point origin
-      const lockedAxis = this.handleRotLocks(axis);
-      const mPoint = this.getMedianPoint();
-      const rot = new Matrix4().makeRotationAxis(lockedAxis, -tAngle);
-      const trans1 = new Matrix4().makeTranslation(
-        -mPoint.x,
-        -mPoint.y,
-        -mPoint.z
-      );
-      const trans2 = new Matrix4().makeTranslation(
-        mPoint.x,
-        mPoint.y,
-        mPoint.z
-      );
-
-      for (let i = 0; i < this.children.length; i++) {
-        const c = this.children[i];
-        const m = this.cTransforms[i].clone();
-        m.premultiply(trans1); // translate to origin
-        m.premultiply(rot); // rotate
-        m.premultiply(trans2); // translate back
-        c.setTransform(m);
-      }
-    } else {
-      // individual origins
-      for (let i = 0; i < this.children.length; i++) {
-        const c = this.children[i];
-        const lockedAxis = this.handleRotLocks(axis, this.cTransforms[i]);
-        const cRot = new Quaternion()
-          .setFromAxisAngle(lockedAxis, -tAngle)
-          .multiply(this.cRots[i]);
-        c.setRotation(cRot);
-        c.setPosition(this.cPositions[i]);
-      }
-    }
-    this.updateTooltip();
-  }
-
-  /**
-   * Applies the given size to all children
-   *
-   * @param val
-   */
-  applySize(val: number) {
-    this.scale = this.handleValue(val);
-
-    for (let i = 0; i < this.children.length; i++) {
-      const c = this.children[i];
-      const cSize = this.cSizes[i];
-      c.setSize(this.scale * cSize);
-    }
-    this.updateTooltip();
-  }
-
-  apply() {
-    this.removeTooltip();
-  }
-
-  revert() {
-    for (let i = 0; i < this.children.length; i++) {
-      const c = this.children[i];
-      c.setSize(this.cSizes[i]);
-      c.setTransform(this.cTransforms[i]);
-    }
-    this.removeTooltip();
-  }
+export interface Action {
+  reversible: boolean;
+  undo?: () => void;
+  redo?: () => void;
 }
 
 export class Editor {
   context: Context;
-  selections = new Map<Model, Set<Selectable>>();
-  hovers = new Set<Selection>();
+  activeModel: Model;
+  models = new Set<Model>();
+
+  selections = new Set<Selectable>();
+  hovers = new Set<Selectable>();
 
   selectionMode: 'none' | 'single' | 'limited' | 'connected' = 'connected';
 
-  undoStack: (() => void)[] = [];
-  redoStack: (() => void)[] = [];
+  undoStack: Action[] = [];
+  redoStack: Action[] = [];
 
   constructor(context: Context) {
     this.context = context;
+    this.populateHotkeys();
   }
 
   /**
-   * Tries to handle the given hotkey by calling any function or button associated with it.
    *
-   * @param key
-   * @returns true if the key was handled, false otherwise
+   *
    */
-  handleHotKey(key: string): boolean {
-    switch (key) {
-      case 'b':
-        this.boxSelect(false);
-        return true;
-      case 'shift+b':
-        this.boxSelect(true);
-        return true;
-      case 'g':
-        this.setPosition();
-        return true;
-      case 'r':
-        this.setRotation();
-        return true;
-      case 's':
-        this.setScale();
-        return true;
-      case 'alt+s':
-        this.resetScale();
-        return true;
-      case 'alt+g':
-        this.resetTranslation();
-        return true;
-      case 'alt+r':
-        this.resetRotation();
-        return true;
-    }
-    return false;
+  populateHotkeys() {
+    this.context.controls.registerHotkey('a', () => {
+      this.selectAll();
+    });
+    this.context.controls.registerHotkey('alt+a', () => {
+      this.deselectAll();
+    });
+    this.context.controls.registerHotkey('b', () => {
+      this.boxSelect(false);
+    });
+    this.context.controls.registerHotkey('shift+b', () => {
+      this.boxSelect(true);
+    });
+    this.context.controls.registerHotkey('g', () => {
+      this.setPosition();
+    });
+    this.context.controls.registerHotkey('r', () => {
+      this.setRotation();
+    });
+    this.context.controls.registerHotkey('s', () => {
+      this.setScale();
+    });
+    this.context.controls.registerHotkey('alt+s', () => {
+      this.resetScale();
+    });
+    this.context.controls.registerHotkey('alt+g', () => {
+      this.resetTranslation();
+    });
+    this.context.controls.registerHotkey('alt+r', () => {
+      this.resetRotation();
+    });
+    this.context.controls.registerHotkey('ctrl+z', () => {
+      this.undo();
+    });
+    this.context.controls.registerHotkey('ctrl+shift+z', () => {
+      this.redo();
+    });
   }
 
   addModel(model: Model) {
-    this.selections.set(model, new Set());
+    this.models.add(model);
+    this.do({
+      reversible: false,
+    }); //TODO;
   }
 
   removeModel(model: Model) {
-    this.selections.delete(model);
+    this.models.delete(model);
+    this.do({
+      reversible: false,
+    }); //TODO;
   }
 
-  undo() {}
+  getActiveModel(): Model {
+    if (this.activeModel && this.activeModel.isVisible) return this.activeModel;
+    for (const m of this.models) {
+      if (m.isVisible) {
+        return m;
+      }
+    }
+  }
 
-  redo() {}
+  do(action: Action) {
+    this.redoStack.length = 0;
+    if (action.reversible) this.undoStack.push(action);
+    else this.undoStack.length = 0;
+  }
+
+  undo() {
+    if (this.undoStack.length > 0) {
+      const t = this.undoStack.pop();
+      t.undo();
+      this.redoStack.push(t);
+    }
+  }
+
+  redo() {
+    if (this.redoStack.length > 0) {
+      const t = this.redoStack.pop();
+      t.redo();
+      this.undoStack.push(t);
+    }
+  }
 
   getPointerProjection2p(
     startPos: Vector2,
@@ -504,15 +144,13 @@ export class Editor {
     const minY = Math.min(c1.y, c2.y);
     const maxY = Math.max(c1.y, c2.y);
 
-    for (const se of this.selections) {
-      const m = se[0];
-      if (!m.isVisible) continue;
+    const m = this.getActiveModel();
+    if (!m) return;
 
-      for (const obj of m.getSelection('selectAll')) {
-        const pos = obj.getPosition().project(this.context.camera);
-        if (pos.x <= maxX && pos.x >= minX && pos.y <= maxY && pos.y >= minY) {
-          this.select({ owner: m, target: obj }, true);
-        }
+    for (const obj of m.getSelection('selectAll')) {
+      const pos = obj.getPosition().project(this.context.camera);
+      if (pos.x <= maxX && pos.x >= minX && pos.y <= maxY && pos.y >= minY) {
+        this.select(obj, true);
       }
     }
   }
@@ -551,7 +189,7 @@ export class Editor {
 
   setPosition() {
     const curSel = this.getSelection();
-    if (curSel.length <= 0) return;
+    if (curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
     const mouseStartPos = this.context.controls.pointer.clone();
@@ -566,7 +204,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        obj.apply();
+        this.do(obj.apply());
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -602,7 +240,7 @@ export class Editor {
 
   setRotation() {
     const curSel = this.getSelection();
-    if (curSel.length <= 0) return;
+    if (curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
     const mouseStartPos = this.context.controls.pointer.clone();
@@ -612,7 +250,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        obj.apply();
+        this.do(obj.apply());
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -634,7 +272,7 @@ export class Editor {
 
   setScale() {
     const curSel = this.getSelection();
-    if (curSel.length <= 0) return;
+    if (curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
     const mouseStartPos = this.context.controls.pointer.clone();
@@ -644,7 +282,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        obj.apply();
+        this.do(obj.apply());
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -665,74 +303,55 @@ export class Editor {
 
   resetTranslation() {
     const curSel = this.getSelection();
-    const curObj = curSel[0];
-    if (!curObj) return;
     console.log('TODO');
   }
 
   resetRotation() {
     const curSel = this.getSelection();
-    const curObj = curSel[0];
-    if (!curObj) return;
     console.log('TODO');
   }
 
   resetScale() {
     const curSel = this.getSelection();
-    const curObj = curSel[0];
-    if (!curObj) return;
     console.log('TODO');
   }
 
-  getSelection(): Selectable[] {
-    const curSel: Selectable[] = [];
-    for (const m of this.selections.keys()) {
-      if (m.isVisible) {
-        curSel.push(...this.selections.get(m));
-      }
-    }
-    return curSel;
+  getSelection(): Set<Selectable> {
+    const m = this.getActiveModel();
+    if (!m) return;
+
+    return this.selections;
   }
 
-  getSelectionOf(model: Model): Set<Selectable> {
-    return this.selections.get(model);
+  select(se: Selectable, add = false) {
+    if (!add) this.deselectAll();
+    this.selections.add(se);
+    se.markSelect();
   }
 
-  select(se: Selection, add = false) {
-    const owner = se.owner;
-    const target = se.target;
-    if (!add) this.deselectAllOf(owner);
-    this.selections.get(owner).add(target);
-    target.markSelect();
+  deSelect(se: Selectable) {
+    this.selections.delete(se);
+    se.markDefault();
   }
 
-  deSelect(se: Selection) {
-    const owner = se.owner;
-    const target = se.target;
-    this.selections.get(owner).delete(target);
-    target.markDefault();
-  }
-
-  selectConnected(se: Selection, add = false) {
-    const target = se.target;
+  selectConnected(se: Selectable, add = false) {
     const owner = se.owner;
     const selectionMode = this.selectionMode;
-    const selection = owner.getSelection('select', target, selectionMode);
+    const selection = owner.getSelection('select', se, selectionMode);
 
-    if (!add) this.deselectAllOf(owner);
+    if (!add) this.deselectAll();
     for (const s of selection) {
-      this.select({ owner: owner, target: s }, true);
+      this.select(s, true);
     }
   }
 
-  deSelectConnected(se: Selection) {
-    const target = se.target;
+  deSelectConnected(se: Selectable) {
     const owner = se.owner;
     const selectionMode = this.selectionMode;
-    const selection = owner.getSelection('select', target, selectionMode);
+    const selection = owner.getSelection('select', se, selectionMode);
 
     for (const s of selection) {
-      this.deSelect({ owner: owner, target: s });
+      this.deSelect(s);
     }
   }
 
@@ -740,16 +359,11 @@ export class Editor {
    * Select everything visible.
    */
   selectAll() {
-    for (const m of this.selections) {
-      if (m[0].isVisible) {
-        this.selectAllOf(m[0]);
-      }
-    }
-  }
-
-  selectAllOf(m: Model) {
+    const m = this.getActiveModel();
+    if (!m) return;
+    this.deselectAll();
     for (const s of m.getSelection('selectAll')) {
-      this.select({ owner: m, target: s }, true);
+      this.select(s, true);
     }
   }
 
@@ -757,28 +371,19 @@ export class Editor {
    * Deselect everything visible.
    */
   deselectAll() {
-    for (const m of this.selections) {
-      if (m[0].isVisible) {
-        this.deselectAllOf(m[0]);
-      }
-    }
+    for (const s of this.selections) this.deSelect(s);
   }
 
-  deselectAllOf(m: Model) {
-    const sel = this.selections.get(m);
-    for (const s of sel) this.deSelect({ owner: m, target: s });
-  }
-
-  setHover(se: Selection) {
+  setHover(se: Selectable) {
     this.clearHover();
     this.hovers.add(se);
-    se.target.markHover();
+    se.markHover();
   }
 
   clearHover() {
     for (const se of this.hovers) {
-      if (this.selections.get(se.owner).has(se.target)) se.target.markSelect();
-      else se.target.markDefault();
+      if (this.selections.has(se)) se.markSelect();
+      else se.markDefault();
     }
   }
 
@@ -788,5 +393,19 @@ export class Editor {
 
   removeToolTip() {
     this.context.removeTooltip();
+  }
+
+  click(se: Selectable, alt = false, ctrl = false, shift = false) {
+    if (!se) return this.deselectAll();
+    else {
+      if (se.owner != this.activeModel) this.deselectAll();
+      this.activeModel = se.owner;
+    }
+
+    if (alt) {
+      this.context.editor.deSelectConnected(se);
+    } else {
+      this.context.editor.selectConnected(se, shift);
+    }
   }
 }

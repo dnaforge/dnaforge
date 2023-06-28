@@ -63,21 +63,7 @@ export class FileMenu extends Menu {
     return;
   }
 
-  /**
-   * Tries to handle the given hotkey by calling any function or button associated with it.
-   *
-   * @param key
-   * @returns true if the key was handled, false otherwise
-   */
-  handleHotKey(key: string) {
-    switch (key) {
-      case 'asdf':
-        return true;
-
-      default:
-        return false;
-    }
-  }
+  populateHotkeys() {}
 
   regenerateVisible() {
     return;

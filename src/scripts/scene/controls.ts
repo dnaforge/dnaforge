@@ -2,16 +2,24 @@ import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
 import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
+import { Menu } from './menu';
 
 const MIN_DELTA = 0.01;
 
 const canvas = $('#canvas')[0];
 const body = $('body')[0];
 
+type Hotkey = {
+  target: any;
+  description?: string;
+};
+
 /**
  * Handles Mouse and keyboard clicks.
  */
 export class Controls {
+  #hotkeys = new Map<Menu | 'global', Map<string, Hotkey>>();
+
   pointer = new Vector2();
   pointerPrev = new Vector2();
   raycaster = new THREE.Raycaster();
@@ -39,6 +47,83 @@ export class Controls {
     this.context = context;
     this.scene = context.scene;
     this.setupEventListeners();
+  }
+
+  /**
+   * Associates hotkeys with functions or buttons.
+   */
+  populateHotkeys() {
+    return;
+  }
+
+  /**
+   * Sets up the hotkey handler according to the pouplated hotkeys. Also adds HTML hints about the keys.
+   */
+  registerHotkey(
+    key: string,
+    target: any,
+    context: Menu | 'global' = 'global',
+    description?: string
+  ) {
+    if (!this.#hotkeys.get(context)) this.#hotkeys.set(context, new Map());
+    if (
+      this.#hotkeys.get(context)?.has(key) ||
+      this.#hotkeys.get('global')?.has(key)
+    )
+      throw `Key ${key} already in use`;
+
+    let f;
+    if (typeof target == 'function') f = target;
+    else {
+      f = () => {
+        const t = target[0];
+        t.click();
+      };
+      let el = target;
+      if ($.type(el[0]) != 'htmlbuttonelement') {
+        let i = 0;
+        while (el.attr('data-role') != 'hint') {
+          el = el.parent();
+          if (i++ > 5) {
+            console.error(`Could not set hotkey hint for ${key}`);
+            break;
+          }
+        }
+      }
+      el.attr(
+        'data-hint-text',
+        el.attr('data-hint-text') + `<br><br><b>Hotkey: ${key}</b>`
+      );
+    }
+    this.#hotkeys
+      .get(context)
+      .set(key, { target: f, description: description });
+  }
+
+  /**
+   * Tries to handle the given hotkey by calling any function or button associated with it.
+   *
+   * @param key
+   */
+  handleHotKey(key: string) {
+    if (this.modal) {
+      switch (key) {
+        case 'escape':
+          this.cancelModal();
+          return;
+        case 'enter':
+          this.completeModal();
+          return;
+      }
+      this.modal.onKey(key);
+      return;
+    } else {
+      const hk = this.#hotkeys.get(this.context.activeContext)?.get(key);
+      const hkGlobal = this.#hotkeys.get('global')?.get(key);
+
+      if (hk) return hk.target.call(this);
+      if (hkGlobal) return hkGlobal.target.call(this);
+    }
   }
 
   raycast() {
@@ -69,6 +154,7 @@ export class Controls {
     onLeftDrag?: (sp: Vector2) => void,
     onRightDrag?: (sp: Vector2) => void
   ) {
+    this.cancelModal();
     this.modal = {
       onComplete: onComplete,
       onUpdate: onUpdate,
@@ -114,7 +200,7 @@ export class Controls {
             const s = this.context.resolveIntersection(this.intersection);
             if (s) {
               this.context.editor.setHover(s);
-              this.context.editor.addToolTip(s.target, this.intersection.point);
+              this.context.editor.addToolTip(s, this.intersection.point);
               return;
             }
           }
@@ -126,23 +212,6 @@ export class Controls {
     }
     this.context.editor.clearHover();
     this.context.editor.removeToolTip();
-  }
-
-  //TODO: Create a global hotkey handler and stop hard-coding the shortcuts
-  handleHotKey(key: string) {
-    if (this.modal) {
-      switch (key) {
-        case 'escape':
-          this.cancelModal();
-          return;
-        case 'enter':
-          this.completeModal();
-          return;
-      }
-      this.modal.onKey(key);
-      return;
-    }
-    this.context.handleHotKey(key);
   }
 
   handleKeyDown(event: KeyboardEvent) {
@@ -191,16 +260,17 @@ export class Controls {
         this.intersection = intersects[i];
         const s = this.context.resolveIntersection(this.intersection);
         if (s) {
-          if (event.altKey) {
-            this.context.editor.deSelectConnected(s);
-          } else {
-            this.context.editor.selectConnected(s, event.shiftKey);
-          }
+          this.context.editor.click(
+            s,
+            event.altKey,
+            event.ctrlKey,
+            event.shiftKey
+          );
           return;
         }
       }
     }
-    this.context.editor.deselectAll();
+    this.context.editor.click(null);
   }
 
   handleMouseRightDown(event: PointerEvent) {

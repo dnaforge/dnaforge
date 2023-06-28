@@ -1,6 +1,6 @@
 import { Object3D } from 'three';
 import { Model } from './model';
-import { Selectable } from '../scene/editor';
+import { Selectable } from '../scene/selection_utils';
 import { ModuleMenu } from '../scene/module_menu';
 
 abstract class WiresModel extends Model {

@@ -104,19 +104,29 @@ export abstract class ModuleMenu extends Menu {
    * Assigns keys to functions or buttons.
    */
   populateHotkeys() {
-    this.hotkeys.set('1', this.wiresButton);
-    this.hotkeys.set('2', this.cylindersButton);
-    this.hotkeys.set('3', this.nucleotidesButton);
-    this.hotkeys.set('a', this.selectAll);
-    this.hotkeys.set('alt+a', this.deselectAll);
-    this.hotkeys.set('shift+r', this.relaxButton);
-    this.hotkeys.set('space', this.generateWiresButton);
-    this.hotkeys.set('c', () => {
-      this.select5p(true);
-    });
-    this.hotkeys.set('shift+c', () => {
-      this.select5p(false);
-    });
+    this.context.controls.registerHotkey('1', this.wiresButton, this);
+    this.context.controls.registerHotkey('2', this.cylindersButton, this);
+    this.context.controls.registerHotkey('3', this.nucleotidesButton, this);
+    this.context.controls.registerHotkey('shift+r', this.relaxButton, this);
+    this.context.controls.registerHotkey(
+      'space',
+      this.generateWiresButton,
+      this
+    );
+    this.context.controls.registerHotkey(
+      'c',
+      () => {
+        this.select5p(true);
+      },
+      this
+    );
+    this.context.controls.registerHotkey(
+      'shift+c',
+      () => {
+        this.select5p(false);
+      },
+      this
+    );
   }
 
   /**
@@ -179,44 +189,6 @@ export abstract class ModuleMenu extends Menu {
 
   updateVisuals() {
     this.nm?.updateObject();
-  }
-
-  /**
-   * Select all selectable visible models.
-   */
-  selectAll() {
-    this.context.editor.selectAll();
-  }
-
-  /**
-   * Deselect all selectable visible models.
-   */
-  deselectAll() {
-    this.context.editor.deselectAll();
-  }
-
-  selectWires() {
-    this.context.editor.selectAllOf(this.wires);
-  }
-
-  selectCylinders() {
-    this.context.editor.selectAllOf(this.cm);
-  }
-
-  deselectWires() {
-    this.context.editor.deselectAllOf(this.wires);
-  }
-
-  deselectCylinders() {
-    this.context.editor.deselectAllOf(this.cm);
-  }
-
-  selectNucleotides() {
-    this.context.editor.selectAllOf(this.nm);
-  }
-
-  deselectNucleotides() {
-    this.context.editor.deselectAllOf(this.nm);
   }
 
   select5p(onlyScaffold = true) {
@@ -296,6 +268,7 @@ export abstract class ModuleMenu extends Menu {
       `Cylinders relaxed.<br>Initial score: ${initialScore}<br>Final score: ${finalScore}`,
       'info'
     );
+    this.context.editor.do({ reversible: false }); // TODO:
   }
 
   /**
