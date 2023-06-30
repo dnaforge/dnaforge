@@ -24,6 +24,7 @@ export interface ModuleMenuParameters extends MenuParameters {
   customScaffold?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
+  greedyOffset?: boolean;
 }
 
 export interface RelaxParameters {

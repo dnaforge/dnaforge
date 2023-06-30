@@ -36,6 +36,7 @@ export class CycleCoverMenu extends ModuleMenu {
   psIterationsInput: any;
   psTrialsInput: any;
   psEtaInput: any;
+  greedySwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -116,6 +117,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
     this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
     this.params.addNicks = this.addNicksSwitch[0].checked;
+    this.params.greedyOffset = this.greedySwitch[0].checked;
 
     this.psParams.gcContent = parseFloat(this.psGGContentInput[0].value) / 100;
     this.psParams.linkers = this.psLinkersInput[0].value.split(',');
@@ -136,6 +138,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.strandLengthMaxInput[0].value = json.maxStrandLength;
     this.strandLengthMinInput[0].value = json.minStrandLength;
     this.addNicksSwitch[0].checked = json.addNicks;
+    this.greedySwitch[0].value = json.greedyOffset; 
   }
 
   setupEventListeners() {
@@ -156,6 +159,8 @@ export class CycleCoverMenu extends ModuleMenu {
     this.psIterationsInput = $('#cycle-cover-ps-iterations');
     this.psTrialsInput = $('#cycle-cover-ps-trials');
     this.psEtaInput = $('#cycle-cover-ps-eta');
+    this.greedySwitch = $('#cycle-cover-greedy');
+    
 
     this.generatePrimaryButton.on('click', () => {
       try {

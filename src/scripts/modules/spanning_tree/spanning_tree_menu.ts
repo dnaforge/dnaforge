@@ -27,6 +27,7 @@ export class SpanningTreeMenu extends ModuleMenu {
   scaffoldOffsetInput: any;
   scaffoldStartInput: any;
   gcContentInput: any;
+  greedySwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -98,6 +99,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
     this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
+    this.params.greedyOffset = this.greedySwitch[0].checked;
   }
 
   loadParameters(json: JSONObject) {
@@ -110,6 +112,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
     this.scaffoldStartInput[0].value = json.scaffoldStart;
     this.gcContentInput[0].value = <number>json.gcContent * 100;
+    this.greedySwitch[0].value = json.greedyOffset; 
   }
 
   setupEventListeners() {
@@ -121,6 +124,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.scaffoldOffsetInput = $('#spanning-tree-scaffold-offset');
     this.scaffoldStartInput = $('#spanning-tree-scaffold-start');
     this.gcContentInput = $('#veneziano-gc-content');
+    this.greedySwitch = $('#veneziano-greedy');
 
     this.venezianoScaffold.on('change', () => {
       if ($('#veneziano-scaffold')[0].value == 'custom') {

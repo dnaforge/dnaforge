@@ -410,7 +410,7 @@ export function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
         nor.multiplyScalar(2 * -cm.scale * cm.nucParams.RADIUS * bundle.length)
       );
     }
-    const c = createCylinder(cm, trail[i], offset);
+    const c = createCylinder(cm, trail[i], offset, params.greedyOffset);
     if (bundle) bundle.push(c);
 
     // for connecting cylinders:
@@ -474,14 +474,15 @@ export function cylindersToNucleotides(
 function createCylinder(
   cm: CylinderModel,
   he: HalfEdge,
-  offset = new Vector3()
+  offset = new Vector3(),
+  greedyOffset: boolean
 ) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
 
   const dir = v2.coords.clone().sub(v1.coords).normalize();
-  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2));
-  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1));
+  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2, greedyOffset));
+  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1, greedyOffset));
   const p1 = v1.coords.clone().add(offset1);
   const p2 = v2.coords.clone().add(offset2);
   let length =

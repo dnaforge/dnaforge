@@ -27,6 +27,7 @@ export class SternaMenu extends ModuleMenu {
   gcContentInput: any;
   addNicksSwitch: any;
   generatePrimaryButton: any;
+  greedySwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -106,6 +107,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
     this.params.addNicks = this.addNicksSwitch[0].checked;
+    this.params.greedyOffset = this.greedySwitch[0].checked;
   }
 
   loadParameters(json: JSONObject) {
@@ -117,6 +119,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.gcContentInput[0].value = <number>json.gcContent * 100;
     this.addNicksSwitch[0].checked = json.addNicks;
+    this.greedySwitch[0].value = json.greedyOffset; 
   }
 
   setupEventListeners() {
@@ -128,6 +131,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.gcContentInput = $('#sterna-gc-content');
     this.addNicksSwitch = $('#sterna-add-nicks');
+    this.greedySwitch = $('#sterna-greedy');
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
     this.generatePrimaryButton.on('click', () => {

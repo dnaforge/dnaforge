@@ -269,7 +269,7 @@ export function wiresToCylinders(cc: CycleCover, params: CCParameters) {
       } else {
         const v1 = hEdge.vertex;
         const v2 = next.vertex;
-        cyl = createCylinder(cm, v1, v2);
+        cyl = createCylinder(cm, v1, v2, params.greedyOffset);
       }
       edgeToCyl.set(hEdge, cyl);
     }
@@ -311,9 +311,9 @@ export function cylindersToNucleotides(
   return nm;
 }
 
-function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex) {
-  const offset1 = cm.getVertexOffset(v1, v2);
-  const offset2 = cm.getVertexOffset(v2, v1);
+function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex, greedyOffset: boolean) {
+  const offset1 = cm.getVertexOffset(v1, v2, greedyOffset);
+  const offset2 = cm.getVertexOffset(v2, v1, greedyOffset);
   const p1 = v1.coords.clone().add(offset1);
   const p2 = v2.coords.clone().add(offset2);
   const dir = v2.coords.clone().sub(v1.coords).normalize();

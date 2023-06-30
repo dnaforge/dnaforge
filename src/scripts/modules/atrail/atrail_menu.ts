@@ -36,6 +36,7 @@ export class ATrailMenu extends ModuleMenu {
   gcContentInput: any;
   reinforceButton: any;
   checkerboardSwitch: any;
+  greedySwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -145,6 +146,7 @@ export class ATrailMenu extends ModuleMenu {
     this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
     this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
     this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
+    this.params.greedyOffset = this.greedySwitch[0].checked;
   }
 
   loadParameters(json: JSONObject) {
@@ -162,6 +164,7 @@ export class ATrailMenu extends ModuleMenu {
     this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
     this.scaffoldStartInput[0].value = json.scaffoldStart;
     this.gcContentInput[0].value = <number>json.gcContent * 100;
+    this.greedySwitch[0].value = json.greedyOffset; 
   }
 
   setupEventListeners() {
@@ -181,6 +184,7 @@ export class ATrailMenu extends ModuleMenu {
     this.scaffoldStartInput = $('#atrail-scaffold-start');
     this.gcContentInput = $('#atrail-gc-content');
     this.reinforceButton = $('#atrail-reinforce-cylinders');
+    this.greedySwitch = $('#atrail-greedy');
 
     this.reinforceButton.on('click', () => {
       try {

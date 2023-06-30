@@ -240,7 +240,7 @@ export function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
     if (edgeToCyl.get(edge.edge)) {
       cyl = edgeToCyl.get(edge.edge);
     } else {
-      cyl = createCylinder(cm, edge);
+      cyl = createCylinder(cm, edge, params.greedyOffset);
     }
 
     if (!st.has(edge.edge)) cyl.routingStrategy = RoutingStrategy.Pseudoknot;
@@ -304,15 +304,15 @@ export function cylindersToNucleotides(
   return nm;
 }
 
-function createCylinder(cm: CylinderModel, halfEdge: HalfEdge) {
+function createCylinder(cm: CylinderModel, halfEdge: HalfEdge, greedyOffset: boolean) {
   const v1 = halfEdge.twin.vertex;
   const v2 = halfEdge.vertex;
   const dir = v2.coords.clone().sub(v1.coords).normalize();
   const inclination = dir
     .clone()
     .multiplyScalar(cm.nucParams.INCLINATION * cm.scale);
-  const offset1 = cm.getVertexOffset(v1, v2);
-  const offset2 = cm.getVertexOffset(v2, v1);
+  const offset1 = cm.getVertexOffset(v1, v2, greedyOffset);
+  const offset2 = cm.getVertexOffset(v2, v1, greedyOffset);
   const p1 = v1.coords.clone().add(offset1).sub(inclination);
   const p2 = v2.coords.clone().add(offset2);
   const length =

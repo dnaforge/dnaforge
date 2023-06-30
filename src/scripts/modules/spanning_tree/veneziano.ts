@@ -230,7 +230,7 @@ export function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
       edgeToBundle.set(edge, b);
     }
     const bundle = edgeToBundle.get(edge);
-    const c = createCylinder(cm, trail[i]);
+    const c = createCylinder(cm, trail[i], params.greedyOffset);
     bundle.push(c);
 
     if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
@@ -269,7 +269,7 @@ export function cylindersToNucleotides(
   return nm;
 }
 
-function createCylinder(cm: CylinderModel, he: HalfEdge) {
+function createCylinder(cm: CylinderModel, he: HalfEdge, greedyOffset: boolean) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
 
@@ -278,8 +278,8 @@ function createCylinder(cm: CylinderModel, he: HalfEdge) {
   const tan = nor.cross(dir).normalize();
 
   const offset = tan.multiplyScalar(-cm.scale * cm.nucParams.RADIUS);
-  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2, false));
-  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1, false));
+  const offset1 = offset.clone().add(cm.getVertexOffset(v1, v2, greedyOffset));
+  const offset2 = offset.clone().add(cm.getVertexOffset(v2, v1, greedyOffset));
   const p1_t = v1.coords.clone().add(offset1);
   const p2_t = v2.coords.clone().add(offset2);
   let length = p2_t.clone().sub(p1_t.clone()).length();
