@@ -260,7 +260,7 @@ export class NucleotideModel extends Model {
           if (cur.prev) cur = cur.prev;
           else break;
         } while (cur != start);
-        const newStrand = new Strand(this, s.naType);
+        const newStrand = new Strand(this);
         newStrand.isScaffold = s.isScaffold;
         newStrands.push(newStrand);
         do {
@@ -399,6 +399,18 @@ export class NucleotideModel extends Model {
       forces.push('{\n' + force.join('\n') + '\n}\n');
     }
     return forces.join('\n');
+  }
+
+  /**
+   * Returns a csv-file containing the primary strcuture
+   *
+   * @returns string
+   */
+  toStrands(): string {
+    const strands = this.strands.map((s: Strand) => {
+      return s.toPrimary();
+    });
+    return strands.join('\n');
   }
 
   /**

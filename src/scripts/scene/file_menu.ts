@@ -63,7 +63,7 @@ export class FileMenu extends Menu {
     return;
   }
 
-  populateHotkeys() {}
+  registerHotkeys() {}
 
   regenerateVisible() {
     return;

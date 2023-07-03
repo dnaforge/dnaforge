@@ -48,8 +48,8 @@ export class SternaMenu extends ModuleMenu {
     this.nm && this.nm.addToScene(this, this.showNucleotides);
   }
 
-  populateHotkeys() {
-    super.populateHotkeys();
+  registerHotkeys() {
+    super.registerHotkeys();
   }
 
   graphToWires(graph: Graph, params: SternaParameters) {
@@ -119,7 +119,7 @@ export class SternaMenu extends ModuleMenu {
 
     this.gcContentInput[0].value = <number>json.gcContent * 100;
     this.addNicksSwitch[0].checked = json.addNicks;
-    this.greedySwitch[0].value = json.greedyOffset; 
+    this.greedySwitch[0].value = json.greedyOffset;
   }
 
   setupEventListeners() {

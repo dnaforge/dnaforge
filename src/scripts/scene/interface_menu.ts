@@ -85,7 +85,7 @@ export class InterfaceMenu extends Menu {
     return;
   }
 
-  populateHotkeys() {
+  registerHotkeys() {
     this.context.controls.registerHotkey('z', this.showAxesButton);
     this.context.controls.registerHotkey('shift+z', this.showGridButton);
     this.context.controls.registerHotkey(

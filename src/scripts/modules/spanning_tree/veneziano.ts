@@ -269,7 +269,11 @@ export function cylindersToNucleotides(
   return nm;
 }
 
-function createCylinder(cm: CylinderModel, he: HalfEdge, greedyOffset: boolean) {
+function createCylinder(
+  cm: CylinderModel,
+  he: HalfEdge,
+  greedyOffset: boolean
+) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
 

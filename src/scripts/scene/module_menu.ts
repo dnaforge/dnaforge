@@ -7,8 +7,6 @@ import { Menu, MenuParameters } from './menu';
 import { downloadTXT } from '../io/download';
 import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA } from '../globals/consts';
 
-//TODO: make a separate selection handler class
-
 //TODO: Get rid of the question marks.
 export interface ModuleMenuParameters extends MenuParameters {
   naType?: 'DNA' | 'RNA';
@@ -73,7 +71,7 @@ export abstract class ModuleMenu extends Menu {
   generateNucleotidesButton: any;
   downloadUNFButton: any;
   downloadOxButton: any;
-  downloadForcesButton: any;
+  downloadStrandsButton: any;
 
   /**
    *
@@ -104,7 +102,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Assigns keys to functions or buttons.
    */
-  populateHotkeys() {
+  registerHotkeys() {
     this.context.controls.registerHotkey('1', this.wiresButton, this);
     this.context.controls.registerHotkey('2', this.cylindersButton, this);
     this.context.controls.registerHotkey('3', this.nucleotidesButton, this);
@@ -384,8 +382,10 @@ export abstract class ModuleMenu extends Menu {
     try {
       const top = this.nm.toTop();
       const dat = this.nm.toDat();
+      const forces = this.nm.toExternalForces();
       downloadTXT(`${this.elementId}.top`, top);
       downloadTXT(`${this.elementId}.dat`, dat);
+      downloadTXT(`${this.elementId}-forces`, forces);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -395,6 +395,15 @@ export abstract class ModuleMenu extends Menu {
     try {
       const forces = this.nm.toExternalForces();
       downloadTXT(`${this.elementId}-forces`, forces);
+    } catch (error) {
+      throw `Nucleotide model not defined.`;
+    }
+  }
+
+  downloadStrands() {
+    try {
+      const strands = this.nm.toStrands();
+      downloadTXT(`${this.elementId}-strands`, strands);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -419,7 +428,7 @@ export abstract class ModuleMenu extends Menu {
     );
     this.downloadUNFButton = $(`#${this.elementId}-download-unf`);
     this.downloadOxButton = $(`#${this.elementId}-download-ox`);
-    this.downloadForcesButton = $(`#${this.elementId}-download-forces`);
+    this.downloadStrandsButton = $(`#${this.elementId}-download-strands`);
 
     const blur = () => {
       (document.activeElement as HTMLElement).blur();
@@ -441,9 +450,9 @@ export abstract class ModuleMenu extends Menu {
       }
     });
 
-    this.downloadForcesButton.on('click', () => {
+    this.downloadStrandsButton.on('click', () => {
       try {
-        this.downloadForces();
+        this.downloadStrands();
       } catch (error) {
         this.context.addMessage(error, 'alert');
       }

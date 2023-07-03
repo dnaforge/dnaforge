@@ -164,7 +164,7 @@ export class ATrailMenu extends ModuleMenu {
     this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
     this.scaffoldStartInput[0].value = json.scaffoldStart;
     this.gcContentInput[0].value = <number>json.gcContent * 100;
-    this.greedySwitch[0].value = json.greedyOffset; 
+    this.greedySwitch[0].value = json.greedyOffset;
   }
 
   setupEventListeners() {

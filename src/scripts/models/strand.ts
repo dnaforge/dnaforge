@@ -27,11 +27,11 @@ export class Strand {
    * @param scale
    * @param naType DNA | RNA
    */
-  constructor(nm: NucleotideModel, naType: NATYPE = 'DNA') {
+  constructor(nm: NucleotideModel) {
     this.owner = nm;
     this.scale = nm.scale;
-    this.naType = naType;
-    this.nucParams = naType == 'DNA' ? DNA : RNA;
+    this.naType = nm.naType;
+    this.nucParams = nm.nucParams;
   }
 
   toJSON(): JSONObject {
@@ -41,7 +41,6 @@ export class Strand {
       }),
       id: this.id,
       scale: this.scale,
-      naType: this.naType,
       isScaffold: this.isScaffold,
       isLinker: this.isLinker,
       isPseudo: this.isPseudo,
@@ -51,7 +50,7 @@ export class Strand {
   }
 
   static loadJSON(nm: NucleotideModel, json: any): Strand {
-    const s = new Strand(nm, json.naType);
+    const s = new Strand(nm);
     s.id = json.id;
     s.isScaffold = json.isScaffold;
     s.isLinker = json.isLinker;
@@ -78,7 +77,7 @@ export class Strand {
    */
   generateNucleotides(...matrices: Matrix4[]) {
     for (let i = 0; i < matrices.length; i++) {
-      const nuc = new Nucleotide(this.owner, this.naType);
+      const nuc = new Nucleotide(this.owner);
       nuc.isLinker = this.isLinker;
       nuc.isScaffold = this.isScaffold;
 
@@ -155,12 +154,25 @@ export class Strand {
     if (N == 0) return;
 
     const linkers = n1.linkNucleotides(n2, N);
-    const s = new Strand(this.owner, this.naType);
+    const s = new Strand(this.owner);
     s.isScaffold = this.isScaffold;
     s.addNucleotides(...linkers);
     s.isLinker = true;
 
     return s;
+  }
+
+  /**
+   * Returns the primary structure of this strand as a string
+   *
+   * @returns string
+   */
+  toPrimary(): string {
+    return this.nucleotides
+      .map((n: Nucleotide) => {
+        return n.base;
+      })
+      .join('');
   }
 
   /**

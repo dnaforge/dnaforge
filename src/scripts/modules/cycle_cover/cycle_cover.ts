@@ -311,7 +311,12 @@ export function cylindersToNucleotides(
   return nm;
 }
 
-function createCylinder(cm: CylinderModel, v1: Vertex, v2: Vertex, greedyOffset: boolean) {
+function createCylinder(
+  cm: CylinderModel,
+  v1: Vertex,
+  v2: Vertex,
+  greedyOffset: boolean
+) {
   const offset1 = cm.getVertexOffset(v1, v2, greedyOffset);
   const offset2 = cm.getVertexOffset(v2, v1, greedyOffset);
   const p1 = v1.coords.clone().add(offset1);

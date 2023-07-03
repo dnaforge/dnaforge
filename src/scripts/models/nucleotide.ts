@@ -56,13 +56,15 @@ const backboneGeometryBall = (nucParams: Record<string, any>) => {
   );
   return backbone;
 };
-const baseGeometry = (nucParams: Record<string, any>) => {
+const baseGeometry = (nucParams: typeof DNA | typeof RNA) => {
   const base = new THREE.SphereGeometry(0.2, 16, 8);
   base.scale(1, 0.5, 1);
-  base.translate(...(nucParams.NUCLEOBASE_CENTER as [number, number, number]));
+  base.translate(
+    ...(nucParams.NUCLEOBASE_CENTER as any as [number, number, number])
+  );
   return base;
 };
-const nucleotideGeometry = (nucParams: Record<string, any>) => {
+const nucleotideGeometry = (nucParams: typeof DNA | typeof RNA) => {
   const base = new THREE.CylinderGeometry(0.1, 0.1, 0.75, 8);
   base.applyMatrix4(
     get2PointTransform(nucParams.BACKBONE_CENTER, nucParams.NUCLEOBASE_CENTER)
@@ -105,13 +107,13 @@ export class Nucleotide extends Selectable {
    * @param naType DNA | RNA
    * @param base IUPAC code
    */
-  constructor(nm: NucleotideModel, naType: NATYPE = 'DNA', base = 'N') {
+  constructor(nm: NucleotideModel, base = 'N') {
     super();
-    this.owner = nm;
+    this.owner = nm; // TODO: replace with a strand
     this.base = base;
     this.scale = nm.scale;
-    this.naType = naType;
-    this.nucParams = naType == 'DNA' ? DNA : RNA;
+    this.naType = nm.naType;
+    this.nucParams = nm.nucParams;
 
     this.setTransform(new Matrix4());
   }
@@ -121,7 +123,6 @@ export class Nucleotide extends Selectable {
       id: this.id,
       base: this.base,
       scale: this.scale,
-      naType: this.naType,
       isLinker: this.isLinker,
       isScaffold: this.isScaffold,
       isPseudo: this.isPseudo,
@@ -134,7 +135,7 @@ export class Nucleotide extends Selectable {
   }
 
   static loadJSON(nm: NucleotideModel, json: any): Nucleotide {
-    const n = new Nucleotide(nm, json.naType, json.base);
+    const n = new Nucleotide(nm, json.base);
     n.id = json.id;
     n.isLinker = json.isLinker;
     n.isScaffold = json.isScaffold;
@@ -347,7 +348,7 @@ export class Nucleotide extends Selectable {
       const qt = q1.clone().slerp(q2, z);
       const transform = new Matrix4().compose(pt, qt, scale);
 
-      const nt = new Nucleotide(this.owner, this.naType);
+      const nt = new Nucleotide(this.owner);
       nt.isLinker = true;
       if (this.isScaffold) nt.isScaffold = true;
       nt.setTransform(transform);

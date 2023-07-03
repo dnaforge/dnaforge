@@ -58,8 +58,8 @@ export class CycleCoverMenu extends ModuleMenu {
     this.nm && this.nm.addToScene(this, this.showNucleotides);
   }
 
-  populateHotkeys() {
-    super.populateHotkeys();
+  registerHotkeys() {
+    super.registerHotkeys();
     //this.hotkeys.set('ctrl+shift+r', this.generatePrimaryButton);
   }
 
@@ -138,7 +138,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.strandLengthMaxInput[0].value = json.maxStrandLength;
     this.strandLengthMinInput[0].value = json.minStrandLength;
     this.addNicksSwitch[0].checked = json.addNicks;
-    this.greedySwitch[0].value = json.greedyOffset; 
+    this.greedySwitch[0].value = json.greedyOffset;
   }
 
   setupEventListeners() {
@@ -160,7 +160,6 @@ export class CycleCoverMenu extends ModuleMenu {
     this.psTrialsInput = $('#cycle-cover-ps-trials');
     this.psEtaInput = $('#cycle-cover-ps-eta');
     this.greedySwitch = $('#cycle-cover-greedy');
-    
 
     this.generatePrimaryButton.on('click', () => {
       try {

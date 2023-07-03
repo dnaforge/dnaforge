@@ -41,14 +41,14 @@ export abstract class Menu {
     context.registerMenu(this);
 
     this.setupEventListeners();
-    this.populateHotkeys();
+    this.registerHotkeys();
   }
 
   abstract toJSON(selection: JSONObject): JSONObject;
 
   abstract loadJSON(json: JSONObject): void;
 
-  abstract populateHotkeys(): void;
+  abstract registerHotkeys(): void;
 
   /**
    * Activate this context.

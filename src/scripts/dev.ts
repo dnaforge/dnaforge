@@ -39,7 +39,7 @@ export function dev(context: Context) {
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.addWires();
   //cc.addCylinders();
-  cc.addNucleotides();
+  //cc.addNucleotides();
   //cc.generatePrimary();
   //cc.downloadOxDNA();
 
@@ -62,7 +62,7 @@ export function dev(context: Context) {
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.addWires();
   //sterna.addCylinders();
-  //sterna.addNucleotides();
+  sterna.addNucleotides();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
   //sterna.generatePrimary();
