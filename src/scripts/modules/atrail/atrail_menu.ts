@@ -24,20 +24,6 @@ export interface ATrailParameters extends ModuleMenuParameters {
 export class ATrailMenu extends ModuleMenu {
   params: ATrailParameters;
 
-  scaleInput: any;
-  linkersMinInput: any;
-  linkersMaxInput: any;
-  strandLengthMaxInput: any;
-  strandLengthMinInput: any;
-  addNicksSwitch: any;
-  atrailScaffold: any;
-  scaffoldOffsetInput: any;
-  scaffoldStartInput: any;
-  gcContentInput: any;
-  reinforceButton: any;
-  checkerboardSwitch: any;
-  greedySwitch: any;
-
   constructor(context: Context) {
     super(context, html);
     this.params.naType = 'DNA';
@@ -131,62 +117,42 @@ export class ATrailMenu extends ModuleMenu {
     this.params.customScaffold = scaffold;
   }
 
-  collectParameters() {
-    super.collectParameters();
-
-    this.params.scale = 1 / parseFloat(this.scaleInput[0].value);
-    this.params.minLinkers = parseInt(this.linkersMinInput[0].value);
-    this.params.maxLinkers = parseInt(this.linkersMaxInput[0].value);
-
-    this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
-    this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
-    this.params.addNicks = this.addNicksSwitch[0].checked;
-    this.params.checkerBoard = this.checkerboardSwitch[0].checked;
-    this.params.scaffoldName = this.atrailScaffold[0].value;
-    this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
-    this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
-    this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
-    this.params.greedyOffset = this.greedySwitch[0].checked;
-  }
-
-  loadParameters(json: JSONObject) {
-    super.loadParameters(json);
-
-    this.scaleInput[0].value = 1 / <number>json.scale;
-    this.linkersMinInput[0].value = json.minLinkers;
-    this.linkersMaxInput[0].value = json.maxLinkers;
-
-    this.strandLengthMaxInput[0].value = json.maxStrandLength;
-    this.strandLengthMinInput[0].value = json.minStrandLength;
-    this.addNicksSwitch[0].checked = json.addNicks;
-    this.checkerboardSwitch[0].checked = json.checkerBoard;
-    this.atrailScaffold[0].value = json.scaffoldName;
-    this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
-    this.scaffoldStartInput[0].value = json.scaffoldStart;
-    this.gcContentInput[0].value = <number>json.gcContent * 100;
-    this.greedySwitch[0].value = json.greedyOffset;
-  }
-
   setupEventListeners() {
     super.setupEventListeners();
 
-    this.scaleInput = $('#atrail-scale');
-    this.linkersMinInput = $('#atrail-linkers-min');
-    this.linkersMaxInput = $('#atrail-linkers-max');
+    this.registerParameter(
+      'scale',
+      'atrail-scale',
+      (t: number) => {
+        return 1 / t;
+      },
+      (t: number) => {
+        return 1 / t;
+      }
+    );
+    this.registerParameter('minLinkers', 'atrail-linkers-min');
+    this.registerParameter('maxLinkers', 'atrail-linkers-max');
 
-    this.strandLengthMaxInput = $('#atrail-strand-length-max');
-    this.strandLengthMinInput = $('#atrail-strand-length-min');
-    this.addNicksSwitch = $('#atrail-add-nicks');
-    this.checkerboardSwitch = $('#atrail-checkerboard');
+    this.registerParameter('maxStrandLength', 'atrail-strand-length-max');
+    this.registerParameter('minStrandLength', 'atrail-strand-length-min');
+    this.registerParameter('addNicks', 'atrail-add-nicks');
+    this.registerParameter('checkerBoard', 'atrail-checkerboard');
+    this.registerParameter('scaffoldName', 'atrail-scaffold');
+    this.registerParameter('scaffoldOffset', 'atrail-scaffold-offset');
+    this.registerParameter('scaffoldStart', 'atrail-scaffold-start');
+    this.registerParameter(
+      'gcContent',
+      'atrail-gc-content',
+      (t: number) => {
+        return t / 100;
+      },
+      (t: number) => {
+        return t / 100;
+      }
+    );
+    this.registerParameter('greedyOffset', 'atrail-greedy');
 
-    this.atrailScaffold = $('#atrail-scaffold');
-    this.scaffoldOffsetInput = $('#atrail-scaffold-offset');
-    this.scaffoldStartInput = $('#atrail-scaffold-start');
-    this.gcContentInput = $('#atrail-gc-content');
-    this.reinforceButton = $('#atrail-reinforce-cylinders');
-    this.greedySwitch = $('#atrail-greedy');
-
-    this.reinforceButton.on('click', () => {
+    $('#atrail-reinforce-cylinders').on('click', () => {
       try {
         this.reinforce();
       } catch (error) {
@@ -195,7 +161,7 @@ export class ATrailMenu extends ModuleMenu {
       }
     });
 
-    this.atrailScaffold.on('change', () => {
+    $('#atrail-scaffold').on('change', () => {
       if ($('#atrail-scaffold')[0].value == 'custom') {
         Metro.dialog.open('#atrail-scaffold-dialog');
         $('#atrail-scaffold-dialog-text').focus();

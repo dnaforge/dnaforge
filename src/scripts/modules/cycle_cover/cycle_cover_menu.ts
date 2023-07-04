@@ -20,23 +20,8 @@ import {
 export type CCParameters = ModuleMenuParameters;
 
 export class CycleCoverMenu extends ModuleMenu {
-  psParams: Partial<OptimiserParams> = {};
-
-  scaleInput: any;
-  linkersMinInput: any;
-  linkersMaxInput: any;
-  strandLengthMaxInput: any;
-  strandLengthMinInput: any;
-  addNicksSwitch: any;
-
+  params: CCParameters;
   generatePrimaryButton: any;
-  psGGContentInput: any;
-  psLinkersInput: any;
-  psBannedInput: any;
-  psIterationsInput: any;
-  psTrialsInput: any;
-  psEtaInput: any;
-  greedySwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -96,7 +81,7 @@ export class CycleCoverMenu extends ModuleMenu {
 
     this.collectParameters();
 
-    const pgen = new PrimaryGenerator(this.nm, this.psParams);
+    const pgen = new PrimaryGenerator(this.nm, this.params);
     pgen.optimise();
 
     this.context.addMessage(
@@ -107,59 +92,61 @@ export class CycleCoverMenu extends ModuleMenu {
     );
   }
 
-  collectParameters() {
-    super.collectParameters();
-
-    this.params.scale = 1 / parseFloat(this.scaleInput[0].value);
-    this.params.minLinkers = parseInt(this.linkersMinInput[0].value);
-    this.params.maxLinkers = parseInt(this.linkersMaxInput[0].value);
-
-    this.params.maxStrandLength = parseInt(this.strandLengthMaxInput[0].value);
-    this.params.minStrandLength = parseInt(this.strandLengthMinInput[0].value);
-    this.params.addNicks = this.addNicksSwitch[0].checked;
-    this.params.greedyOffset = this.greedySwitch[0].checked;
-
-    this.psParams.gcContent = parseFloat(this.psGGContentInput[0].value) / 100;
-    this.psParams.linkers = this.psLinkersInput[0].value.split(',');
-    this.psParams.bannedSeqs = this.psBannedInput[0].value.split(',');
-    this.psParams.iterations = parseInt(this.psIterationsInput[0].value);
-    this.psParams.maxTrials = parseInt(this.psTrialsInput[0].value);
-    this.psParams.eta = parseInt(this.psEtaInput[0].value);
-  }
-
-  loadParameters(json: JSONObject) {
-    super.loadParameters(json);
-
-    this.scaleInput[0].value = 1 / <number>json.scale;
-    this.linkersMinInput[0].value = json.minLinkers;
-    this.linkersMaxInput[0].value = json.maxLinkers;
-
-    this.psGGContentInput[0].value = <number>json.gcContent * 100;
-    this.strandLengthMaxInput[0].value = json.maxStrandLength;
-    this.strandLengthMinInput[0].value = json.minStrandLength;
-    this.addNicksSwitch[0].checked = json.addNicks;
-    this.greedySwitch[0].value = json.greedyOffset;
-  }
-
   setupEventListeners() {
     super.setupEventListeners();
-
-    this.scaleInput = $('#cycle-cover-scale');
-    this.linkersMinInput = $('#cycle-cover-linkers-min');
-    this.linkersMaxInput = $('#cycle-cover-linkers-max');
-    this.strandLengthMaxInput = $('#cycle-cover-strand-length-max');
-    this.strandLengthMinInput = $('#cycle-cover-strand-length-min');
-    this.addNicksSwitch = $('#cycle-cover-add-nicks');
-
-    // Primary structure:
     this.generatePrimaryButton = $('#cycle-cover-generate-primary');
-    this.psGGContentInput = $('#cycle-cover-ps-gc-content');
-    this.psLinkersInput = $('#cycle-cover-ps-linkers');
-    this.psBannedInput = $('#cycle-cover-ps-banned');
-    this.psIterationsInput = $('#cycle-cover-ps-iterations');
-    this.psTrialsInput = $('#cycle-cover-ps-trials');
-    this.psEtaInput = $('#cycle-cover-ps-eta');
-    this.greedySwitch = $('#cycle-cover-greedy');
+
+    this.registerParameter(
+      'scale',
+      'cycle-cover-scale',
+      (t: number) => {
+        return 1 / t;
+      },
+      (t: number) => {
+        return 1 / t;
+      }
+    );
+    this.registerParameter('minLinkers', 'cycle-cover-linkers-min');
+    this.registerParameter('maxLinkers', 'cycle-cover-linkers-max');
+    this.registerParameter('maxStrandLength', 'cycle-cover-strand-length-max');
+    this.registerParameter('minStrandLength', 'cycle-cover-strand-length-min');
+    this.registerParameter('addNicks', 'cycle-cover-add-nicks');
+
+    this.registerParameter(
+      'gcContent',
+      'cycle-cover-ps-gc-content',
+      (t: number) => {
+        return t / 100;
+      },
+      (t: number) => {
+        return t / 100;
+      }
+    );
+    this.registerParameter(
+      'linkers',
+      'cycle-cover-ps-linkers',
+      (t: string) => {
+        return t.split(',');
+      },
+      (t: string[]) => {
+        return t.join(',');
+      }
+    );
+    this.registerParameter(
+      'bannedSeqs',
+      'cycle-cover-ps-banned',
+      (t: string) => {
+        return t.split(',');
+      },
+      (t: string[]) => {
+        return t.join(',');
+      }
+    );
+    this.registerParameter('iterations', 'cycle-cover-ps-iterations');
+    this.registerParameter('maxTrials', 'cycle-cover-ps-trials');
+    this.registerParameter('eta', 'cycle-cover-ps-eta');
+
+    this.registerParameter('greedyOffset', 'cycle-cover-greedy');
 
     this.generatePrimaryButton.on('click', () => {
       try {

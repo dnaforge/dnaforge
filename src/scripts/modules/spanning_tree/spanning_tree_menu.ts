@@ -21,14 +21,6 @@ export interface STParameters extends ModuleMenuParameters {
 export class SpanningTreeMenu extends ModuleMenu {
   params: STParameters;
 
-  scaleInput: any;
-  addNicksSwitch: any;
-  venezianoScaffold: any;
-  scaffoldOffsetInput: any;
-  scaffoldStartInput: any;
-  gcContentInput: any;
-  greedySwitch: any;
-
   constructor(context: Context) {
     super(context, html);
     this.params.naType = 'DNA';
@@ -89,44 +81,37 @@ export class SpanningTreeMenu extends ModuleMenu {
     else this.removeNucleotides();
   }
 
-  collectParameters() {
-    super.collectParameters();
-
-    this.params.scale = 1 / parseFloat(this.scaleInput[0].value);
-
-    this.params.addNicks = this.addNicksSwitch[0].checked;
-    this.params.scaffoldName = this.venezianoScaffold[0].value;
-    this.params.scaffoldOffset = parseInt(this.scaffoldOffsetInput[0].value);
-    this.params.scaffoldStart = parseInt(this.scaffoldStartInput[0].value);
-    this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
-    this.params.greedyOffset = this.greedySwitch[0].checked;
-  }
-
-  loadParameters(json: JSONObject) {
-    super.loadParameters(json);
-
-    this.scaleInput[0].value = 1 / <number>json.scale;
-
-    this.addNicksSwitch[0].checked = json.addNicks;
-    this.venezianoScaffold[0].value = json.scaffoldName;
-    this.scaffoldOffsetInput[0].value = json.scaffoldOffset;
-    this.scaffoldStartInput[0].value = json.scaffoldStart;
-    this.gcContentInput[0].value = <number>json.gcContent * 100;
-    this.greedySwitch[0].value = json.greedyOffset;
-  }
-
   setupEventListeners() {
     super.setupEventListeners();
 
-    this.scaleInput = $('#veneziano-scale');
-    this.addNicksSwitch = $('#veneziano-add-nicks');
-    this.venezianoScaffold = $('#veneziano-scaffold');
-    this.scaffoldOffsetInput = $('#spanning-tree-scaffold-offset');
-    this.scaffoldStartInput = $('#spanning-tree-scaffold-start');
-    this.gcContentInput = $('#veneziano-gc-content');
-    this.greedySwitch = $('#veneziano-greedy');
+    this.registerParameter(
+      'scale',
+      'veneziano-scale',
+      (t: number) => {
+        return 1 / t;
+      },
+      (t: number) => {
+        return 1 / t;
+      }
+    );
 
-    this.venezianoScaffold.on('change', () => {
+    this.registerParameter('addNicks', 'veneziano-add-nicks');
+    this.registerParameter('scaffoldName', 'veneziano-scaffold');
+    this.registerParameter('scaffoldOffset', 'spanning-tree-scaffold-offset');
+    this.registerParameter('scaffoldStart', 'spanning-tree-scaffold-start');
+    this.registerParameter(
+      'gcContent',
+      'veneziano-gc-content',
+      (t: number) => {
+        return t / 100;
+      },
+      (t: number) => {
+        return t / 100;
+      }
+    );
+    this.registerParameter('greedyOffset', 'veneziano-greedy');
+
+    $('#veneziano-scaffold').on('change', () => {
       if ($('#veneziano-scaffold')[0].value == 'custom') {
         Metro.dialog.open('#veneziano-scaffold-dialog');
         $('#veneziano-scaffold-dialog-text').focus();

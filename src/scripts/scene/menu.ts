@@ -4,15 +4,23 @@ interface MenuParameters {}
 
 export { MenuParameters };
 
+type UIVal = boolean | number | string | string[];
+type UIParameter = {
+  get: () => void;
+  set: (json: JSONObject) => void;
+};
+
 /**
  * The parent class for all menus.
  */
 export abstract class Menu {
+  params: MenuParameters = {};
+
+  uiParameters: Map<string, UIParameter> = new Map();
   title: string;
   elementId: string;
   isGlobal: boolean;
   context: Context;
-  params: MenuParameters = {};
   scene: THREE.Scene;
 
   /**
@@ -79,14 +87,65 @@ export abstract class Menu {
   }
 
   /**
+   * Register a parameter. Connects html elements to the params-dictionary.
+   *
+   * @param parameter Name of the parameter
+   * @param id ID of the HTML elemenet
+   * @param fromHTMLTrans Transformation from HTML value to params-value
+   * @param toHTMLTrans  Transformation to HTML value from params-value
+   */
+  registerParameter(
+    parameter: string,
+    id: string,
+    fromHTMLTrans = (t: UIVal) => {
+      return t;
+    },
+    toHTMLTrans = (t: UIVal) => {
+      return t;
+    }
+  ) {
+    const element = $('#' + id);
+    if (!element[0]) throw `No such element: ${id}`;
+    if (this.uiParameters.has(parameter))
+      throw `Name already in use: ${parameter}`;
+    const get = () => {
+      let val;
+      const t = element[0].type;
+      if (t == 'checkbox') val = element[0].checked;
+      else if (t == 'number') val = Number(element[0].value);
+      else val = element[0].value;
+
+      const tVal = fromHTMLTrans(val) as MenuParameters[keyof MenuParameters];
+      this.params[parameter as keyof MenuParameters] = tVal;
+    };
+    const set = (json: JSONObject) => {
+      const tVal = toHTMLTrans(
+        json[parameter] as MenuParameters[keyof MenuParameters]
+      );
+
+      if (element[0].type == 'checkbox') element[0].checked = tVal;
+      else element[0].value = tVal;
+    };
+
+    this.uiParameters.set(parameter, {
+      get: get,
+      set: set,
+    });
+  }
+
+  /**
    * Collects all the user parameters from the frontend into the params-dictionary.
    */
   collectParameters() {
-    return;
+    for (let uiObj of this.uiParameters) {
+      uiObj[1].get();
+    }
   }
 
   loadParameters(json: JSONObject) {
-    return;
+    for (let uiObj of this.uiParameters) {
+      uiObj[1].set(json);
+    }
   }
 
   /**

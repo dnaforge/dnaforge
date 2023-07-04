@@ -104,26 +104,34 @@ export class Controls {
    * Tries to handle the given hotkey by calling any function or button associated with it.
    *
    * @param key
+   * @returns boolean whether the key was handled or not
    */
   handleHotKey(key: string) {
     if (this.modal) {
       switch (key) {
         case 'escape':
           this.cancelModal();
-          return;
+          return true;
         case 'enter':
           this.completeModal();
-          return;
+          return true;
       }
       this.modal.onKey(key);
-      return;
+      return true;
     } else {
       const hk = this.#hotkeys.get(this.context.activeContext)?.get(key);
       const hkGlobal = this.#hotkeys.get('global')?.get(key);
 
-      if (hk) return hk.target.call(this);
-      if (hkGlobal) return hkGlobal.target.call(this);
+      if (hk) {
+        hk.target.call(this);
+        return true;
+      }
+      if (hkGlobal) {
+        hkGlobal.target.call(this);
+        return true;
+      }
     }
+    return false;
   }
 
   raycast() {
@@ -229,7 +237,7 @@ export class Controls {
     if (event.metaKey) prefix.push('meta+');
 
     const key = (prefix.join('') + keyCode).toLowerCase();
-    this.handleHotKey(key);
+    if (this.handleHotKey(key)) event.preventDefault();
   }
 
   handleKeyUp(event: KeyboardEvent) {

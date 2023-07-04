@@ -47,7 +47,7 @@ export function dev(context: Context) {
   //atrail.params.checkerBoard = true;
   //atrail.addWires();
   //atrail.addCylinders();
-  //atrail.addNucleotides();
+  atrail.addNucleotides();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
@@ -62,7 +62,7 @@ export function dev(context: Context) {
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.addWires();
   //sterna.addCylinders();
-  sterna.addNucleotides();
+  //sterna.addNucleotides();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
   //sterna.generatePrimary();

@@ -69,9 +69,6 @@ export abstract class ModuleMenu extends Menu {
   generateWiresButton: any;
   generateCylindersButton: any;
   generateNucleotidesButton: any;
-  downloadUNFButton: any;
-  downloadOxButton: any;
-  downloadStrandsButton: any;
 
   /**
    *
@@ -426,109 +423,76 @@ export abstract class ModuleMenu extends Menu {
     this.generateNucleotidesButton = $(
       `#${this.elementId}-generate-nucleotides`
     );
-    this.downloadUNFButton = $(`#${this.elementId}-download-unf`);
-    this.downloadOxButton = $(`#${this.elementId}-download-ox`);
-    this.downloadStrandsButton = $(`#${this.elementId}-download-strands`);
 
     const blur = () => {
       (document.activeElement as HTMLElement).blur();
     };
 
-    this.downloadUNFButton.on('click', () => {
+    const tryError = (f: () => void) => {
       try {
-        this.downloadUNF();
+        f.call(this);
       } catch (error) {
         this.context.addMessage(error, 'alert');
       }
+      blur();
+    };
+
+    $(`#${this.elementId}-download-unf`).on('click', () => {
+      tryError(this.downloadUNF);
     });
 
-    this.downloadOxButton.on('click', () => {
-      try {
-        this.downloadOx();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-      }
+    $(`#${this.elementId}-download-ox`).on('click', () => {
+      tryError(this.downloadOx);
     });
 
-    this.downloadStrandsButton.on('click', () => {
-      try {
-        this.downloadStrands();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-      }
+    $(`#${this.elementId}-download-strands`).on('click', () => {
+      tryError(this.downloadStrands);
     });
 
     this.wiresButton.on('click', () => {
-      try {
+      tryError(() => {
         this.showWires = this.wiresButton[0].checked;
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-      }
-      blur();
+      });
     });
 
     this.cylindersButton.on('click', () => {
-      try {
+      tryError(() => {
         this.showCylinders = this.cylindersButton[0].checked;
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-      }
-      blur();
+      });
     });
 
     this.nucleotidesButton.on('click', () => {
-      try {
+      tryError(() => {
         this.showNucleotides = this.nucleotidesButton[0].checked;
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-      }
-      blur();
+      });
     });
 
     this.relaxButton.on('click', () => {
-      try {
-        this.relaxCylinders();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-      blur();
+      tryError(this.relaxCylinders);
     });
 
     this.generateWiresButton.on('click', () => {
-      try {
+      tryError(() => {
         this.generateWires();
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-      blur();
+      });
     });
 
     this.generateCylindersButton.on('click', () => {
-      try {
+      tryError(() => {
         this.generateCylinderModel();
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-      blur();
+      });
     });
 
     this.generateNucleotidesButton.on('click', () => {
-      try {
+      tryError(() => {
         this.generateNucleotideModel();
         this.regenerateVisible();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-      blur();
+      });
     });
   }
 }

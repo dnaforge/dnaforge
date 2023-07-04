@@ -21,13 +21,9 @@ import { NucleotideModel } from '../../models/nucleotide_model';
 export type SternaParameters = ModuleMenuParameters;
 
 export class SternaMenu extends ModuleMenu {
-  scaleInput: any;
-  linkersMinInput: any;
-  linkersMaxInput: any;
-  gcContentInput: any;
-  addNicksSwitch: any;
+  params: SternaParameters;
+
   generatePrimaryButton: any;
-  greedySwitch: any;
 
   constructor(context: Context) {
     super(context, html);
@@ -98,42 +94,37 @@ export class SternaMenu extends ModuleMenu {
     this.context.addMessage(`Primary structure changed.`, 'info');
   }
 
-  collectParameters() {
-    super.collectParameters();
-
-    this.params.scale = 1 / parseFloat(this.scaleInput[0].value);
-    this.params.minLinkers = parseInt(this.linkersMinInput[0].value);
-    this.params.maxLinkers = parseInt(this.linkersMaxInput[0].value);
-
-    this.params.gcContent = parseFloat(this.gcContentInput[0].value) / 100;
-    this.params.addNicks = this.addNicksSwitch[0].checked;
-    this.params.greedyOffset = this.greedySwitch[0].checked;
-  }
-
-  loadParameters(json: JSONObject) {
-    super.loadParameters(json);
-
-    this.scaleInput[0].value = 1 / <number>json.scale;
-    this.linkersMinInput[0].value = json.minLinkers;
-    this.linkersMaxInput[0].value = json.maxLinkers;
-
-    this.gcContentInput[0].value = <number>json.gcContent * 100;
-    this.addNicksSwitch[0].checked = json.addNicks;
-    this.greedySwitch[0].value = json.greedyOffset;
-  }
-
   setupEventListeners() {
     super.setupEventListeners();
 
-    this.scaleInput = $('#sterna-scale');
-    this.linkersMinInput = $('#sterna-linkers-min');
-    this.linkersMaxInput = $('#sterna-linkers-max');
+    this.registerParameter(
+      'scale',
+      'sterna-scale',
+      (t: number) => {
+        return 1 / t;
+      },
+      (t: number) => {
+        return 1 / t;
+      }
+    );
+    this.registerParameter('minLinkers', 'sterna-linkers-min');
+    this.registerParameter('maxLinkers', 'sterna-linkers-max');
 
-    this.gcContentInput = $('#sterna-gc-content');
-    this.addNicksSwitch = $('#sterna-add-nicks');
-    this.greedySwitch = $('#sterna-greedy');
+    this.registerParameter(
+      'gcContent',
+      'sterna-gc-content',
+      (t: number) => {
+        return t / 100;
+      },
+      (t: number) => {
+        return t / 100;
+      }
+    );
+    this.registerParameter('addNicks', 'sterna-add-nicks');
+    this.registerParameter('greedyOffset', 'sterna-greedy');
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
+
     this.generatePrimaryButton.on('click', () => {
       try {
         this.generatePrimary();
