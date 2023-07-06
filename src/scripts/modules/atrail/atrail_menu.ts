@@ -38,9 +38,7 @@ export class ATrailMenu extends ModuleMenu {
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.wires && this.wires.addToScene(this, this.showWires);
-    this.cm && this.cm.addToScene(this, this.showCylinders);
-    this.nm && this.nm.addToScene(this, this.showNucleotides);
+    this.addToScene();
   }
 
   graphToWires(graph: Graph, params: ATrailParameters) {
@@ -68,9 +66,11 @@ export class ATrailMenu extends ModuleMenu {
     const selection = this.context.editor.getSelection();
     if (!this.cm || selection.size == 0) return;
     reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
-    this.cm.dispose(); // make sure the old model is deleted
-    this.cm.addToScene(this, this.showCylinders);
+    
+    this.context.editor.removeModel(this.cm); // make sure the old model is deleted
     this.removeNucleotides(true);
+
+    this.context.editor.addModel(this.cm);
 
     this.regenerateVisible();
     this.context.editor.do({ reversible: false }); // TODO:
@@ -109,7 +109,7 @@ export class ATrailMenu extends ModuleMenu {
     atrail.setATrail(trail);
 
     this.wires = atrail;
-    this.wires.addToScene(this, this.showWires);
+    this.context.editor.addModel(this.wires, this.params.showWires);
   }
 
   setCustomScaffold(scaffold: string) {

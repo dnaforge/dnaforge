@@ -23,6 +23,10 @@ export interface ModuleMenuParameters extends MenuParameters {
   scaffoldOffset?: number;
   scaffoldStart?: number;
   greedyOffset?: boolean;
+
+  showWires?: boolean,
+  showCylinders?: boolean,
+  showNucleotides?: boolean,
 }
 
 export interface RelaxParameters {
@@ -53,10 +57,6 @@ function setupHTML(html: string) {
  */
 export abstract class ModuleMenu extends Menu {
   params: ModuleMenuParameters;
-
-  showWires = false;
-  showCylinders = false;
-  showNucleotides = false;
 
   wires: WiresModel;
   cm: CylinderModel;
@@ -95,6 +95,12 @@ export abstract class ModuleMenu extends Menu {
   }
 
   abstract loadJSON(json: any): void;
+
+  addToScene(){
+    this.wires && this.context.editor.addModel(this.wires, this.params.showWires);
+    this.cm && this.context.editor.addModel(this.cm, this.params.showCylinders);
+    this.nm && this.context.editor.addModel(this.nm, this.params.showNucleotides);
+  }
 
   /**
    * Assigns keys to functions or buttons.
@@ -160,9 +166,9 @@ export abstract class ModuleMenu extends Menu {
    * Activate this context and unhide the associated models.
    */
   activate() {
-    this.showWires && this.wires?.show();
-    this.showCylinders && this.cm?.show();
-    this.showNucleotides && this.nm?.show();
+    this.params.showWires && this.wires?.show();
+    this.params.showCylinders && this.cm?.show();
+    this.params.showNucleotides && this.nm?.show();
   }
 
   /**
@@ -188,7 +194,7 @@ export abstract class ModuleMenu extends Menu {
   }
 
   select5p(onlyScaffold = true) {
-    //this.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
+    //this.params.showNucleotides && this.nm && this.nm.select5p(onlyScaffold);
   }
 
   /**
@@ -205,7 +211,7 @@ export abstract class ModuleMenu extends Menu {
     const graph = this.context.graph;
     if (!graph) throw 'No model is loaded.';
     this.wires = this.graphToWires(graph, this.params);
-    this.wires.addToScene(this, this.showWires);
+    this.context.editor.addModel(this.wires, this.params.showWires);
   }
 
   /**
@@ -221,7 +227,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.wires) this.generateWires();
 
     this.cm = this.wiresToCylinders(this.wires, this.params);
-    this.cm.addToScene(this, this.showCylinders);
+    this.context.editor.addModel(this.cm, this.params.showCylinders);
   }
 
   /**
@@ -236,7 +242,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.cm) this.generateCylinderModel();
 
     this.nm = this.cylindersToNucleotides(this.cm, this.params);
-    this.nm.addToScene(this, this.showNucleotides);
+    this.context.editor.addModel(this.nm, this.params.showNucleotides);
     this.context.addMessage(
       `Created: ${this.nm.length()} nucleotides.`,
       'info'
@@ -254,7 +260,7 @@ export abstract class ModuleMenu extends Menu {
       return;
     }
     const initialScore = Math.round(this.cm.calculateRelaxScore());
-    await this.cm.relax();
+    this.context.editor.relaxCylinders(this.cm);
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.removeNucleotides(true);
@@ -264,7 +270,6 @@ export abstract class ModuleMenu extends Menu {
       `Cylinders relaxed.<br>Initial score: ${initialScore}<br>Final score: ${finalScore}`,
       'info'
     );
-    this.context.editor.do({ reversible: false }); // TODO:
   }
 
   /**
@@ -337,33 +342,14 @@ export abstract class ModuleMenu extends Menu {
    * Add all models marked as shown to the scene. Generate them if they do not exist.
    */
   regenerateVisible() {
-    if (this.showWires) this.addWires();
+    if (this.params.showWires) this.addWires();
     else this.removeWires();
-    if (this.showCylinders) this.addCylinders();
+    if (this.params.showCylinders) this.addCylinders();
     else this.removeCylinders();
-    if (this.showNucleotides) this.addNucleotides();
+    if (this.params.showNucleotides) this.addNucleotides();
     else this.removeNucleotides();
 
     this.updateVisuals();
-  }
-
-  /**
-   * Collect all user parameters from the HTML elements.
-   */
-  collectParameters() {
-    super.collectParameters();
-
-    this.showWires = this.wiresButton[0].checked;
-    this.showCylinders = this.cylindersButton[0].checked;
-    this.showNucleotides = this.nucleotidesButton[0].checked;
-  }
-
-  loadParameters(json: JSONObject) {
-    super.loadParameters(json);
-
-    this.wiresButton[0].checked = this.showWires;
-    this.cylindersButton[0].checked = this.showCylinders;
-    this.nucleotidesButton[0].checked = this.showNucleotides;
   }
 
   downloadUNF() {
@@ -412,6 +398,10 @@ export abstract class ModuleMenu extends Menu {
   setupEventListeners() {
     super.setupEventListeners();
 
+    this.registerParameter("showWires", `${this.elementId}-toggle-wires`);
+    this.registerParameter("showCylinders", `${this.elementId}-toggle-cylinders`);
+    this.registerParameter("showNucleotides", `${this.elementId}-toggle-nucleotides`);
+
     this.wiresButton = $(`#${this.elementId}-toggle-wires`);
     this.cylindersButton = $(`#${this.elementId}-toggle-cylinders`);
     this.nucleotidesButton = $(`#${this.elementId}-toggle-nucleotides`);
@@ -451,21 +441,21 @@ export abstract class ModuleMenu extends Menu {
 
     this.wiresButton.on('click', () => {
       tryError(() => {
-        this.showWires = this.wiresButton[0].checked;
+        this.params.showWires = this.wiresButton[0].checked;
         this.regenerateVisible();
       });
     });
 
     this.cylindersButton.on('click', () => {
       tryError(() => {
-        this.showCylinders = this.cylindersButton[0].checked;
+        this.params.showCylinders = this.cylindersButton[0].checked;
         this.regenerateVisible();
       });
     });
 
     this.nucleotidesButton.on('click', () => {
       tryError(() => {
-        this.showNucleotides = this.nucleotidesButton[0].checked;
+        this.params.showNucleotides = this.nucleotidesButton[0].checked;
         this.regenerateVisible();
       });
     });

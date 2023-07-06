@@ -48,6 +48,7 @@ export function dev(context: Context) {
   //atrail.addWires();
   //atrail.addCylinders();
   atrail.addNucleotides();
+  atrail.relaxCylinders();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);

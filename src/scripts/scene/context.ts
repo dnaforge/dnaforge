@@ -52,10 +52,6 @@ export class Context {
   cameraControls: OrbitControls;
   controls: Controls;
   callbacks: { (): void }[];
-  intersectionSolvers = new Map<
-    THREE.Object3D,
-    (i: THREE.Intersection) => Selectable
-  >();
 
   graph: Graph;
   editor: Editor;
@@ -124,32 +120,6 @@ export class Context {
       this.labelRenderer.render(this.scene, this.camera);
     };
     renderT();
-  }
-
-  addToScene(
-    obj: THREE.Object3D,
-    intersectionSolver?: (i: THREE.Intersection) => Selectable,
-    model?: Model
-  ) {
-    this.scene.add(obj);
-    this.intersectionSolvers.set(obj, intersectionSolver);
-    this.editor.addModel(model);
-  }
-
-  removeFromScene(obj: THREE.Object3D, model?: Model) {
-    this.scene.remove(obj);
-    this.intersectionSolvers.delete(obj);
-    this.editor.removeModel(model);
-  }
-
-  resolveIntersection(intersection: THREE.Intersection): Selectable {
-    let curObj = intersection.object;
-    while (curObj && curObj != this.scene) {
-      const handler = this.intersectionSolvers.get(curObj);
-      if (handler) return handler(intersection);
-      else curObj = curObj.parent;
-    }
-    return null;
   }
 
   /**

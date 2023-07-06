@@ -6,6 +6,7 @@ import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph_model';
 import { CCParameters } from './cycle_cover_menu';
+import { Selectable } from '../../scene/selection_utils';
 
 const cyclesColorHover = 0xff8822;
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -181,46 +182,13 @@ export class CycleCover extends WiresModel {
       }
     }
     this.obj = lines;
-    this.setupEventListeners(indexToCycle);
+
+    return this.obj;
   }
 
-  setupEventListeners(indexToCycle: Record<number, Array<number>>) {
-    const color = new THREE.Color(0xffffff);
-    const originalColor = new THREE.Color(0xffffff);
-
-    let lastI = -1;
-    indexToCycle[-1] = []; // just in case it gets called somehow.
-
-    const onMouseOver = (intersection: Intersection) => {
-      const i = intersection.instanceId;
-      if (i == lastI) return;
-      if (lastI != -1 && i != lastI)
-        (intersection.object as any).onMouseOverExit();
-      lastI = i;
-      color.setHex(cyclesColorHover);
-      for (const j of indexToCycle[i]) {
-        this.obj.getColorAt(j, originalColor);
-        this.obj.setColorAt(j, color);
-      }
-      this.obj.instanceColor.needsUpdate = true;
-    };
-
-    const onMouseOverExit = () => {
-      for (const j of indexToCycle[lastI]) {
-        this.obj.setColorAt(j, originalColor);
-      }
-      this.obj.instanceColor.needsUpdate = true;
-      lastI = -1;
-    };
-
-    Object.defineProperty(this.obj, 'onMouseOver', {
-      value: onMouseOver,
-      writable: false,
-    });
-    Object.defineProperty(this.obj, 'onMouseOverExit', {
-      value: onMouseOverExit,
-      writable: false,
-    });
+  
+  handleIntersection(i: Intersection): Selectable {
+    return null;
   }
 
   selectAll(): void {

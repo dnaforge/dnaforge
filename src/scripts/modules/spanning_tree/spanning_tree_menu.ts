@@ -37,9 +37,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.wires && this.wires.addToScene(this, this.showWires);
-    this.cm && this.cm.addToScene(this, this.showCylinders);
-    this.nm && this.nm.addToScene(this, this.showNucleotides);
+    this.addToScene();
   }
 
   graphToWires(graph: Graph, params: STParameters) {
@@ -70,15 +68,6 @@ export class SpanningTreeMenu extends ModuleMenu {
   setCustomScaffold(scaffold: string) {
     this.params.scaffoldName = 'custom';
     this.params.customScaffold = scaffold;
-  }
-
-  regenerateVisible() {
-    if (this.showWires) this.addWires();
-    else this.removeWires();
-    if (this.showCylinders) this.addCylinders();
-    else this.removeCylinders();
-    if (this.showNucleotides) this.addNucleotides();
-    else this.removeNucleotides();
   }
 
   setupEventListeners() {

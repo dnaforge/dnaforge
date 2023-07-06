@@ -280,19 +280,19 @@ export class SelectionTransformer {
     return this.scale;
   }
 
-  setTransform() {
+  setTransformP() {
     throw 'TODO';
   }
 
-  setPosition(pos: Vector3) {
+  setPositionP(pos: Vector3) {
     this.transform.setPosition(pos);
   }
 
-  setRotation() {
+  setRotationP() {
     throw 'TODO';
   }
 
-  setSize() {
+  setSizeP() {
     throw 'TODO';
   }
 
@@ -309,7 +309,7 @@ export class SelectionTransformer {
    *
    * @param m
    */
-  applyTransform(m: Matrix4) {
+  setTransform(m: Matrix4) {
     for (let i = 0; i < this.children.length; i++) {
       const c = this.children[i];
       c.setTransform(this.cTransforms[i].clone().premultiply(m));
@@ -322,7 +322,7 @@ export class SelectionTransformer {
    *
    * @param pos
    */
-  applyPosition(pos: Vector3) {
+  setPosition(pos: Vector3) {
     for (let i = 0; i < this.children.length; i++) {
       const c = this.children[i];
       const lockedPos = this.handleTransLocks(pos, this.cTransforms[i]);
@@ -339,7 +339,7 @@ export class SelectionTransformer {
    * @param axis
    * @param angle
    */
-  applyRotation(axis: Vector3, angle: number) {
+  setRotation(axis: Vector3, angle: number) {
     const tAngle = this.handleValue(angle, true);
     if (!this.individualOrigins && this.lockMode != 'local') {
       // median point origin
@@ -385,7 +385,7 @@ export class SelectionTransformer {
    *
    * @param val
    */
-  applySize(val: number) {
+  setSize(val: number) {
     this.scale = this.handleValue(val);
 
     for (let i = 0; i < this.children.length; i++) {

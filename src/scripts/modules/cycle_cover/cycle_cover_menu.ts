@@ -38,9 +38,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.wires && this.wires.addToScene(this, this.showWires);
-    this.cm && this.cm.addToScene(this, this.showCylinders);
-    this.nm && this.nm.addToScene(this, this.showNucleotides);
+    this.addToScene();
   }
 
   registerHotkeys() {
@@ -119,11 +117,11 @@ export class CycleCoverMenu extends ModuleMenu {
         return t / 100;
       },
       (t: number) => {
-        return t / 100;
+        return t * 100;
       }
     );
     this.registerParameter(
-      'linkers',
+      'linkerOptions',
       'cycle-cover-ps-linkers',
       (t: string) => {
         return t.split(',');

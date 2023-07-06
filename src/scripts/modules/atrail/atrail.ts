@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
-import { Matrix4, Object3D, Vector3 } from 'three';
+import { Matrix4, Object3D, Vector3, Intersection } from 'three';
 import {
   Cylinder,
   CylinderBundle,
@@ -320,7 +320,7 @@ export class ATrail extends WiresModel {
     return this.trail.length;
   }
 
-  generateObject(): void {
+  generateObject(): Object3D {
     if (!this.trail) return null;
     const color = new THREE.Color(0xffffff);
     const count = this.trail.length;
@@ -346,6 +346,12 @@ export class ATrail extends WiresModel {
 
       co1 = co2;
     }
+
+    return this.obj;
+  }
+
+  handleIntersection(i: Intersection): Selectable {
+    return null;
   }
 
   selectAll(): void {

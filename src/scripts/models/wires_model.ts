@@ -1,4 +1,4 @@
-import { Object3D } from 'three';
+import { Event, Intersection, Object3D } from 'three';
 import { Model } from './model';
 import { Selectable } from '../scene/selection_utils';
 import { ModuleMenu } from '../scene/module_menu';
@@ -15,7 +15,9 @@ abstract class WiresModel extends Model {
 
   abstract deselectAll(): void;
 
-  abstract generateObject(): void;
+  abstract generateObject(): Object3D;
+
+  abstract handleIntersection(i: Intersection): Selectable;
 
   /**
    * Delete the 3d model and free up the resources.
@@ -23,21 +25,6 @@ abstract class WiresModel extends Model {
   dispose() {
     this.obj.geometry.dispose();
     delete this.obj;
-  }
-
-  /**
-   * Adds the 3d object associated with this nucleotide model to the given scene.
-   * Generates it if it does not already exist.
-   *
-   * @param scene
-   * @param visible
-   */
-  addToScene(owner: ModuleMenu, visible = true) {
-    this.owner = owner;
-    if (!this.obj) this.generateObject();
-    owner.context.scene.add(this.obj);
-    if (visible) this.show();
-    else this.hide();
   }
 
   show() {

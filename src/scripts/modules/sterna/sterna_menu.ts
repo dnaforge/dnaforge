@@ -39,9 +39,7 @@ export class SternaMenu extends ModuleMenu {
     this.cm = json.cm && CylinderModel.loadJSON(json.cm);
     this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
 
-    this.wires && this.wires.addToScene(this, this.showWires);
-    this.cm && this.cm.addToScene(this, this.showCylinders);
-    this.nm && this.nm.addToScene(this, this.showNucleotides);
+    this.addToScene();
   }
 
   registerHotkeys() {

@@ -6,6 +6,7 @@ import {
   Selectable,
   SelectionTransformer,
 } from './selection_utils';
+import { CylinderModel } from '../models/cylinder_model';
 
 export interface Action {
   reversible: boolean;
@@ -17,6 +18,7 @@ export class Editor {
   context: Context;
   activeModel: Model;
   models = new Set<Model>();
+  modelsVisbile = new Set<Model>();
 
   selections = new Set<Selectable>();
   hovers = new Set<Selectable>();
@@ -74,8 +76,14 @@ export class Editor {
     });
   }
 
-  addModel(model: Model) {
+  addModel(model: Model, visible = true) {
     this.models.add(model);
+    const obj = model.generateObject();
+    this.context.scene.add(obj);
+    this.context.controls.intersectionSolvers.set(obj, (i) => {return model.handleIntersection(i)});
+    if(visible) model.show();
+    else model.hide();
+
     this.do({
       reversible: false,
     }); //TODO;
@@ -83,10 +91,15 @@ export class Editor {
 
   removeModel(model: Model) {
     this.models.delete(model);
+    const obj = model.obj;
+    this.context.scene.remove(obj);
+    this.context.controls.intersectionSolvers.delete(obj);
+
     this.do({
       reversible: false,
     }); //TODO;
   }
+
 
   getActiveModel(): Model {
     if (this.activeModel && this.activeModel.isVisible) return this.activeModel;
@@ -225,8 +238,8 @@ export class Editor {
         );
 
         const nPos = objCurPos.clone().add(pointerProj);
-        obj.applyPosition(nPos);
         obj.setPosition(nPos);
+        obj.setPositionP(nPos);
       },
       () => {
         obj.revert();
@@ -259,7 +272,7 @@ export class Editor {
           Math.atan2(mouseStartPos.y, mouseStartPos.x);
         const axis = cam.getWorldDirection(new Vector3());
 
-        obj.applyRotation(axis, angle);
+        obj.setRotation(axis, angle);
       },
       () => {
         obj.revert();
@@ -290,7 +303,7 @@ export class Editor {
           mouseCurPos.distanceTo(new Vector2()) /
           mouseStartPos.distanceTo(new Vector2());
 
-        obj.applySize(scale * objSize);
+        obj.setSize(scale * objSize);
       },
       () => {
         obj.revert();
@@ -408,4 +421,24 @@ export class Editor {
       this.context.editor.selectConnected(se, shift);
     }
   }
+
+  focus(se: Selectable){
+    this.activeModel = se.owner;
+  }
+
+  relaxCylinders(cm: CylinderModel){
+    cm.relax();
+    this.context.editor.do({ reversible: false }); // TODO:
+  }
+}
+
+
+
+function editOp(target: any, methodName: string, descriptor?: PropertyDescriptor) {
+  let originalFunction = target[methodName];
+  let auditFunction = function (this: any) {
+    originalFunction.apply(this, arguments);
+  }
+  target[methodName] = auditFunction;
+  return target;
 }

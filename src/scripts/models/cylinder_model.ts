@@ -694,45 +694,11 @@ export class CylinderModel extends Model {
     }
   }
 
-  /**
-   * Adds the 3d object associated with this cylinder model to the scene.
-   * Generates it if it does not already exist.
-   *
-   * @param scene
-   * @param visible
-   */
-  addToScene(owner: ModuleMenu, visible = true) {
-    this.owner = owner;
-    if (!this.obj) {
-      this.generateObject();
-      this.updateObject();
-    }
-    if (visible) this.show();
-    else this.hide();
-
-    const intersectionToCylinder = (intersection: Intersection) => {
-      const obj = intersection.object;
-      if (obj == this.meshes.main) {
-        return this.cylinders[intersection.instanceId];
-      } else {
-        return this.cylinders[Math.floor(intersection.instanceId / 4)];
-      }
-    };
-
-    owner.context.addToScene(
-      this.obj,
-      (i: Intersection) => {
-        return intersectionToCylinder(i);
-      },
-      this
-    );
-  }
 
   /**
    * Deletes all the objects associated with this cylinder model.
    */
   dispose() {
-    this.owner && this.owner.context.removeFromScene(this.obj);
     for (const k of _.keys(this.meshes)) {
       const mesh = this.meshes[k];
       mesh.geometry.dispose();
@@ -742,6 +708,8 @@ export class CylinderModel extends Model {
 
   /**
    * Generates the 3d object and its meshes.
+   * 
+   * @returns Returns an intersection solver, which maps intersections to seletable objects.
    */
   generateObject() {
     const meshMain = new THREE.InstancedMesh(
@@ -769,6 +737,18 @@ export class CylinderModel extends Model {
     const group = new THREE.Group();
     group.add(meshes.main, meshes.prime, meshes.linker);
     this.obj = group;
+
+    this.updateObject();
+    return this.obj;
+  }
+
+  handleIntersection(i: Intersection): Selectable {
+    const obj = i.object;
+    if (obj == this.meshes.main) {
+      return this.cylinders[i.instanceId];
+    } else {
+      return this.cylinders[Math.floor(i.instanceId / 4)];
+    }
   }
 
   /**

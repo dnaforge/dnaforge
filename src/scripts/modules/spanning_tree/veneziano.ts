@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/transforms';
-import { Vector3 } from 'three';
+import { Vector3, Intersection } from 'three';
 import {
   Cylinder,
   CylinderBundle,
@@ -15,6 +15,7 @@ import { STParameters } from './spanning_tree_menu';
 import { Nucleotide } from '../../models/nucleotide';
 import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';
+import { Selectable } from '../../scene/selection_utils';
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 export class Veneziano extends WiresModel {
@@ -183,6 +184,10 @@ export class Veneziano extends WiresModel {
       this.obj = lines;
     }
     return this.obj;
+  }
+
+  handleIntersection(i: Intersection): Selectable {
+    return null;
   }
 
   selectAll(): void {

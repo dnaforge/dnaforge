@@ -637,41 +637,17 @@ export class NucleotideModel extends Model {
   }
 
   /**
-   * Adds the 3d object associated with this nucleotide model to the scene.
-   * Generates it if it does not already exist.
-   *
-   * @param owner
-   * @param visible
-   */
-  addToScene(owner: ModuleMenu, visible = true) {
-    this.owner = owner;
-    if (!this.obj) {
-      this.generateObject();
-      this.updateObject();
-    }
-    if (visible) this.show();
-    else this.hide();
-
-    owner.context.addToScene(
-      this.obj,
-      (i: Intersection) => {
-        return this.idToNuc.get(i.instanceId);
-      },
-      this
-    );
-  }
-
-  /**
    * Deletes all the meshes associated with this model.
    */
   dispose() {
-    this.owner && this.owner.context.removeFromScene(this.obj);
     for (const m of this.obj.children) (m as THREE.Mesh).geometry.dispose();
     delete this.obj;
   }
 
   /**
    * Generates the 3d object associated with this model.
+   * 
+   * @returns Object3D.
    */
   generateObject() {
     const meshes = Nucleotide.createInstanceMesh(this.nucParams, this.length());
@@ -682,6 +658,13 @@ export class NucleotideModel extends Model {
     this.obj = new THREE.Group();
     let n: keyof NucleotideMeshes;
     for (n in meshes) this.obj.add(meshes[n]);
+
+    this.updateObject();
+    return this.obj;
+  }
+
+  handleIntersection(i: Intersection){
+    return this.idToNuc.get(i.instanceId);
   }
 
   /**

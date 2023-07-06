@@ -3,6 +3,7 @@ import { Vector2, Vector3 } from 'three';
 import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
 import { Menu } from './menu';
+import { Selectable } from './selection_utils';
 
 const MIN_DELTA = 0.01;
 
@@ -31,6 +32,10 @@ export class Controls {
   leftClicked = false;
   rightClicked = false;
   intersection: THREE.Intersection;
+  intersectionSolvers = new Map<
+    THREE.Object3D,
+    (i: THREE.Intersection) => Selectable
+  >();
 
   hover = false;
 
@@ -154,6 +159,16 @@ export class Controls {
     return intersects;
   }
 
+  resolveIntersection(intersection: THREE.Intersection): Selectable {
+    let curObj = intersection.object;
+    while (curObj && curObj != this.scene) {
+      const handler = this.intersectionSolvers.get(curObj);
+      if (handler) return handler(intersection);
+      else curObj = curObj.parent;
+    }
+    return null;
+  }
+
   addModal(
     onComplete: () => void,
     onUpdate: () => void,
@@ -205,7 +220,7 @@ export class Controls {
         if (intersects.length > 0 && this.pointerOnCanvas) {
           for (let i = 0; i < intersects.length; i++) {
             this.intersection = intersects[i];
-            const s = this.context.resolveIntersection(this.intersection);
+            const s = this.resolveIntersection(this.intersection);
             if (s) {
               this.context.editor.setHover(s);
               this.context.editor.addToolTip(s, this.intersection.point);
@@ -266,7 +281,7 @@ export class Controls {
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
-        const s = this.context.resolveIntersection(this.intersection);
+        const s = this.resolveIntersection(this.intersection);
         if (s) {
           this.context.editor.click(
             s,
@@ -361,9 +376,10 @@ export class Controls {
     if (intersects.length > 0) {
       for (let i = 0; i < intersects.length; i++) {
         this.intersection = intersects[i];
-        const s = this.context.resolveIntersection(this.intersection);
+        const s = this.resolveIntersection(this.intersection);
         if (s) {
           this.context.focusCamera(this.intersection.point);
+          this.context.editor.focus(s);
           return;
         }
       }
