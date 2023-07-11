@@ -14,7 +14,7 @@ interface ScaffoldParams {
   customScaffold?: string;
   gcContent?: number;
   naType?: NATYPE;
-  linkerOptions?: string;
+  linkerOptions?: string[];
   scaffoldOffset?: number;
   scaffoldStart?: number;
 }
@@ -34,7 +34,7 @@ export function setPrimaryFromScaffold(
   const customScaffold = params.customScaffold || '';
   const gcContent = params.gcContent || 0.5;
   const naType = params.naType || 'DNA';
-  const linkerOptions = params.linkerOptions || 'W';
+  const linkerOptions = params.linkerOptions || ['W'];
   const scaffoldOffset = params.scaffoldOffset || 0;
   const scaffoldStart = params.scaffoldStart || 0;
 
@@ -68,7 +68,8 @@ export function setPrimaryFromScaffold(
     }
   }
   for (const n of nm.getNucleotides()) {
-    if (n.isLinker && !n.isScaffold) n.base = linkerOptions;
+    const r = Math.floor(Math.random() * linkerOptions.length);
+    if (n.isLinker && !n.isScaffold) n.base = linkerOptions[r];
   }
 
   return setRandomPrimary(nm, gcContent, naType); // fill the remaining non-scaffold bases randomly

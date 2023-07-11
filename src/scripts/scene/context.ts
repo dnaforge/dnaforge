@@ -81,7 +81,6 @@ export class Context {
     this.setupEventListeners();
     this.resetCamera(false);
     this.render();
-    this.camera.layers.disable(1);
   }
 
   /**

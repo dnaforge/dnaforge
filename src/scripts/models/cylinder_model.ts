@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { InstancedMesh, Intersection, Matrix4 } from 'three';
 import { Vector3, Quaternion } from 'three';
-import { get2PointTransform } from '../utils/transforms';
+import { get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Vertex } from './graph_model';
 import { Relaxer } from './relaxer';
@@ -608,6 +608,16 @@ export class CylinderModel extends Model {
   }
 
   /**
+   * Creates a deep copy of the model.
+   *
+   * @returns NM
+   */
+  clone(): CylinderModel {
+    const t = this.toJSON();
+    return CylinderModel.loadJSON(t);
+  }
+
+  /**
    * Adds the given cylinders to this model. Make sure to dispose the old model
    * in case it is already generated, since this won't update the models.
    *
@@ -694,7 +704,6 @@ export class CylinderModel extends Model {
     }
   }
 
-
   /**
    * Deletes all the objects associated with this cylinder model.
    */
@@ -708,7 +717,7 @@ export class CylinderModel extends Model {
 
   /**
    * Generates the 3d object and its meshes.
-   * 
+   *
    * @returns Returns an intersection solver, which maps intersections to seletable objects.
    */
   generateObject() {

@@ -17,7 +17,9 @@ import {
   PrimaryGenerator,
 } from '../../utils/primary_generator';
 
-export type CCParameters = ModuleMenuParameters;
+export interface CCParameters
+  extends ModuleMenuParameters,
+    Partial<OptimiserParams> {}
 
 export class CycleCoverMenu extends ModuleMenu {
   params: CCParameters;
@@ -28,22 +30,13 @@ export class CycleCoverMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
-  loadJSON(json: any) {
-    this.reset();
-    this.collectParameters();
-
-    json.params && this.loadParameters(json.params);
-    this.wires =
-      json.wires && CycleCover.loadJSON(this.context.graph, json.wires);
-    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
-    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
-
-    this.addToScene();
-  }
-
   registerHotkeys() {
     super.registerHotkeys();
     //this.hotkeys.set('ctrl+shift+r', this.generatePrimaryButton);
+  }
+
+  jsonToWires(json: JSONObject): WiresModel {
+    return CycleCover.loadJSON(json);
   }
 
   graphToWires(graph: Graph, params: CCParameters) {
@@ -92,6 +85,8 @@ export class CycleCoverMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
+    const register = this.registerParameter<CCParameters>.bind(this);
+
     this.generatePrimaryButton = $('#cycle-cover-generate-primary');
 
     this.registerParameter(
@@ -104,13 +99,13 @@ export class CycleCoverMenu extends ModuleMenu {
         return 1 / t;
       }
     );
-    this.registerParameter('minLinkers', 'cycle-cover-linkers-min');
-    this.registerParameter('maxLinkers', 'cycle-cover-linkers-max');
-    this.registerParameter('maxStrandLength', 'cycle-cover-strand-length-max');
-    this.registerParameter('minStrandLength', 'cycle-cover-strand-length-min');
-    this.registerParameter('addNicks', 'cycle-cover-add-nicks');
+    register('minLinkers', 'cycle-cover-linkers-min');
+    register('maxLinkers', 'cycle-cover-linkers-max');
+    register('maxStrandLength', 'cycle-cover-strand-length-max');
+    register('minStrandLength', 'cycle-cover-strand-length-min');
+    register('addNicks', 'cycle-cover-add-nicks');
 
-    this.registerParameter(
+    register(
       'gcContent',
       'cycle-cover-ps-gc-content',
       (t: number) => {
@@ -120,7 +115,7 @@ export class CycleCoverMenu extends ModuleMenu {
         return t * 100;
       }
     );
-    this.registerParameter(
+    register(
       'linkerOptions',
       'cycle-cover-ps-linkers',
       (t: string) => {
@@ -130,7 +125,7 @@ export class CycleCoverMenu extends ModuleMenu {
         return t.join(',');
       }
     );
-    this.registerParameter(
+    register(
       'bannedSeqs',
       'cycle-cover-ps-banned',
       (t: string) => {
@@ -140,11 +135,11 @@ export class CycleCoverMenu extends ModuleMenu {
         return t.join(',');
       }
     );
-    this.registerParameter('iterations', 'cycle-cover-ps-iterations');
-    this.registerParameter('maxTrials', 'cycle-cover-ps-trials');
-    this.registerParameter('eta', 'cycle-cover-ps-eta');
+    register('iterations', 'cycle-cover-ps-iterations');
+    register('maxTrials', 'cycle-cover-ps-trials');
+    register('eta', 'cycle-cover-ps-eta');
 
-    this.registerParameter('greedyOffset', 'cycle-cover-greedy');
+    register('greedyOffset', 'cycle-cover-greedy');
 
     this.generatePrimaryButton.on('click', () => {
       try {

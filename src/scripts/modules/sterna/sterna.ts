@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { get2PointTransform } from '../../utils/transforms';
+import { get2PointTransform } from '../../utils/misc_utils';
 import { InstancedMesh, Vector3, Intersection } from 'three';
 import {
   Cylinder,
@@ -37,10 +37,12 @@ export class Sterna extends WiresModel {
   toJSON(): JSONObject {
     const st: number[] = [];
     for (const e of this.st) st.push(e.id);
-    return { st: st };
+    const graph = this.graph.toJSON();
+    return { graph: graph, st: st };
   }
 
-  static loadJSON(graph: Graph, json: any) {
+  static loadJSON(json: any) {
+    const graph = Graph.loadJSON(json.graph);
     const sterna = new Sterna(graph);
     const idToEdge = new Map<number, Edge>();
     for (const e of graph.edges) idToEdge.set(e.id, e);
@@ -199,7 +201,6 @@ export class Sterna extends WiresModel {
     return this.obj;
   }
 
-  
   handleIntersection(i: Intersection): Selectable {
     return null;
   }

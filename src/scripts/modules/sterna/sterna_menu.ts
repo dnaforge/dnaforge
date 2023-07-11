@@ -30,20 +30,12 @@ export class SternaMenu extends ModuleMenu {
     this.params.naType = 'RNA';
   }
 
-  loadJSON(json: any) {
-    this.reset();
-    this.collectParameters();
-
-    json.params && this.loadParameters(json.params);
-    this.wires = json.wires && Sterna.loadJSON(this.context.graph, json.wires);
-    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
-    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
-
-    this.addToScene();
-  }
-
   registerHotkeys() {
     super.registerHotkeys();
+  }
+
+  jsonToWires(json: JSONObject): WiresModel {
+    return Sterna.loadJSON(json);
   }
 
   graphToWires(graph: Graph, params: SternaParameters) {
@@ -94,8 +86,9 @@ export class SternaMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
+    const register = this.registerParameter<SternaParameters>.bind(this);
 
-    this.registerParameter(
+    register(
       'scale',
       'sterna-scale',
       (t: number) => {
@@ -105,10 +98,10 @@ export class SternaMenu extends ModuleMenu {
         return 1 / t;
       }
     );
-    this.registerParameter('minLinkers', 'sterna-linkers-min');
-    this.registerParameter('maxLinkers', 'sterna-linkers-max');
+    register('minLinkers', 'sterna-linkers-min');
+    register('maxLinkers', 'sterna-linkers-max');
 
-    this.registerParameter(
+    register(
       'gcContent',
       'sterna-gc-content',
       (t: number) => {
@@ -118,8 +111,8 @@ export class SternaMenu extends ModuleMenu {
         return t / 100;
       }
     );
-    this.registerParameter('addNicks', 'sterna-add-nicks');
-    this.registerParameter('greedyOffset', 'sterna-greedy');
+    register('addNicks', 'sterna-add-nicks');
+    register('greedyOffset', 'sterna-greedy');
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
 

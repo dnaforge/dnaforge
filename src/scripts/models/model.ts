@@ -4,13 +4,22 @@ import { Selectable } from '../scene/selection_utils';
 
 export abstract class Model {
   isVisible = false;
-  obj?: Object3D
+  obj?: Object3D;
 
   abstract getSelection(
     event: string,
     target?: Selectable,
     mode?: typeof GLOBALS.selectionMode
   ): Selectable[];
+
+  abstract toJSON(): JSONObject;
+
+  //abstract loadJSON(json: any): Model; // Must be implemented, but typescript does not allow for abstract statics
+
+  clone(): Model {
+    const t = this.toJSON();
+    return Object.getPrototypeOf(this).loadJSON(t);
+  }
 
   abstract show(): void;
 

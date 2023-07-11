@@ -1,5 +1,11 @@
 import { SuffixArray } from 'mnemonist';
-import { NATYPE, WATSON_CHAR_DNA, WATSON_CHAR_RNA } from '../globals/consts';
+import {
+  IUPAC_CHAR_DNA,
+  IUPAC_CHAR_RNA,
+  NATYPE,
+  WATSON_CHAR_DNA,
+  WATSON_CHAR_RNA,
+} from '../globals/consts';
 import { NucleotideModel } from '../models/nucleotide_model';
 import {
   getPairing,
@@ -16,7 +22,7 @@ export interface OptimiserParams {
   eta: number; // Acceptance probability of a change to the worse
 
   gcContent: number;
-  linkers: string[];
+  linkerOptions: IUPAC_CHAR_DNA[] | IUPAC_CHAR_RNA[];
   bannedSeqs: string[];
 }
 
@@ -39,7 +45,7 @@ export class PrimaryGenerator {
     eta: 0.05, // Acceptance probability of a change to the worse
 
     gcContent: 0.5,
-    linkers: ['W'],
+    linkerOptions: ['W'],
     bannedSeqs: ['KKKKKK', 'MMMMMM', 'RRRRRR', 'SSSSSS', 'WWWWWW', 'YYYYYY'],
   };
 
@@ -84,7 +90,7 @@ export class PrimaryGenerator {
    */
   private setupOptimiser(): void {
     this.linkerOptions = Array.from(
-      iupacToOptions(this.params.linkers.join(''))
+      iupacToOptions(this.params.linkerOptions.join(''))
     );
     if (this.linkerOptions.length == 0) throw `Undefined linker options.`;
     this.setupInitialPrimary();

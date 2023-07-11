@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { get2PointTransform } from '../../utils/transforms';
+import { get2PointTransform } from '../../utils/misc_utils';
 import { InstancedMesh, Intersection, Vector3 } from 'three';
 import { Cylinder, CylinderModel, PrimePos } from '../../models/cylinder_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
@@ -23,15 +23,17 @@ export class CycleCover extends WiresModel {
   }
 
   toJSON(): JSONObject {
+    const graph = this.graph.toJSON();
     const cycles = this.cycles.map((c: Array<HalfEdge>) => {
       return c.map((he: HalfEdge) => {
         return he.vertex.id;
       });
     });
-    return { cycles: cycles };
+    return { graph: graph, cycles: cycles };
   }
 
-  static loadJSON(graph: Graph, json: any) {
+  static loadJSON(json: any) {
+    const graph = Graph.loadJSON(json.graph);
     const cc = new CycleCover(graph);
     const cycles: HalfEdge[][] = [];
     cc.cycles = cycles;
@@ -91,6 +93,16 @@ export class CycleCover extends WiresModel {
       traverse(e.halfEdges[1]);
     }
     return cycles;
+  }
+
+  /**
+   * Creates a deep copy of the model.
+   *
+   * @returns NM
+   */
+  clone(): CycleCover {
+    const t = this.toJSON();
+    return CycleCover.loadJSON(t);
   }
 
   length() {
@@ -186,7 +198,6 @@ export class CycleCover extends WiresModel {
     return this.obj;
   }
 
-  
   handleIntersection(i: Intersection): Selectable {
     return null;
   }

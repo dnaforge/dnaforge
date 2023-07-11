@@ -9,5 +9,6 @@
     "allowJs": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
+    "strictBindCallApply": true,
   }
 }

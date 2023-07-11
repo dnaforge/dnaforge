@@ -1,8 +1,6 @@
 import { Context } from './context';
 
-interface MenuParameters {}
-
-export { MenuParameters };
+export interface MenuParameters {}
 
 type UIVal = boolean | number | string | string[];
 type UIParameter = {
@@ -94,8 +92,8 @@ export abstract class Menu {
    * @param fromHTMLTrans Transformation from HTML value to params-value
    * @param toHTMLTrans  Transformation to HTML value from params-value
    */
-  registerParameter(
-    parameter: string,
+  registerParameter<T extends MenuParameters>(
+    parameter: keyof T,
     id: string,
     fromHTMLTrans = (t: UIVal) => {
       return t;
@@ -106,8 +104,8 @@ export abstract class Menu {
   ) {
     const element = $('#' + id);
     if (!element[0]) throw `No such element: ${id}`;
-    if (this.uiParameters.has(parameter))
-      throw `Name already in use: ${parameter}`;
+    if (this.uiParameters.has(<string>parameter))
+      throw `Name already in use: ${<string>parameter}`;
     const get = () => {
       let val;
       const t = element[0].type;
@@ -127,7 +125,7 @@ export abstract class Menu {
       else element[0].value = tVal;
     };
 
-    this.uiParameters.set(parameter, {
+    this.uiParameters.set(<string>parameter, {
       get: get,
       set: set,
     });

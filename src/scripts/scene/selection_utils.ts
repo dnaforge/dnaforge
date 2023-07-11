@@ -1,6 +1,6 @@
 import { Matrix4, Vector3, Quaternion, Vector2 } from 'three';
 import { Model } from '../models/model';
-import { Action } from './editor';
+import { OP } from './editor';
 
 type Axes = 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz' | 'xyz';
 type LockMode = 'local' | 'global';
@@ -396,7 +396,7 @@ export class SelectionTransformer {
     this.updateTooltip();
   }
 
-  apply(): Action {
+  apply(): OP {
     this.removeTooltip();
     const sizes = this.children.map((c) => {
       return c.getSize();
@@ -408,7 +408,6 @@ export class SelectionTransformer {
       return c.getPosition().clone();
     });
     return {
-      reversible: true,
       undo: () => {
         this.revert();
       },

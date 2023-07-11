@@ -13,7 +13,7 @@ export interface ModuleMenuParameters extends MenuParameters {
   scale?: number;
   minLinkers?: number;
   maxLinkers?: number;
-  linkerOptions?: IUPAC_CHAR_DNA | IUPAC_CHAR_RNA;
+  linkerOptions?: IUPAC_CHAR_DNA[] | IUPAC_CHAR_RNA[];
   minStrandLength?: number;
   maxStrandLength?: number;
   gcContent?: number;
@@ -24,9 +24,9 @@ export interface ModuleMenuParameters extends MenuParameters {
   scaffoldStart?: number;
   greedyOffset?: boolean;
 
-  showWires?: boolean,
-  showCylinders?: boolean,
-  showNucleotides?: boolean,
+  showWires?: boolean;
+  showCylinders?: boolean;
+  showNucleotides?: boolean;
 }
 
 export interface RelaxParameters {
@@ -80,7 +80,7 @@ export abstract class ModuleMenu extends Menu {
     const [id, title] = setupHTML(html);
     super(context, id, title, false);
     this.title = title;
-    this.params.linkerOptions = 'W';
+    this.params.linkerOptions = ['W'];
   }
 
   toJSON(selection: JSONObject): JSONObject {
@@ -94,12 +94,20 @@ export abstract class ModuleMenu extends Menu {
     return { params: params, wires: wires, cm: cm, nm: nm };
   }
 
-  abstract loadJSON(json: any): void;
+  loadJSON(json: any) {
+    this.reset();
+    this.collectParameters();
 
-  addToScene(){
-    this.wires && this.context.editor.addModel(this.wires, this.params.showWires);
+    json.params && this.loadParameters(json.params);
+    this.wires = json.wires && this.jsonToWires(json.wires);
+    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
+    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
+
+    this.wires &&
+      this.context.editor.addModel(this.wires, this.params.showWires);
     this.cm && this.context.editor.addModel(this.cm, this.params.showCylinders);
-    this.nm && this.context.editor.addModel(this.nm, this.params.showNucleotides);
+    this.nm &&
+      this.context.editor.addModel(this.nm, this.params.showNucleotides);
   }
 
   /**
@@ -130,6 +138,8 @@ export abstract class ModuleMenu extends Menu {
       this
     );
   }
+
+  abstract jsonToWires(json: JSONObject): WiresModel;
 
   /**
    * Creates a routing model from the graph.
@@ -187,10 +197,6 @@ export abstract class ModuleMenu extends Menu {
     this.removeWires(true);
     this.removeCylinders(true);
     this.removeNucleotides(true);
-  }
-
-  updateVisuals() {
-    this.nm?.updateObject();
   }
 
   select5p(onlyScaffold = true) {
@@ -252,6 +258,8 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Relax the cylinder model by rotating its constituent cylinders.
    */
+  @editOp('cm')
+  @editOp('nm')
   async relaxCylinders() {
     try {
       if (!this.cm) this.generateCylinderModel();
@@ -260,7 +268,7 @@ export abstract class ModuleMenu extends Menu {
       return;
     }
     const initialScore = Math.round(this.cm.calculateRelaxScore());
-    this.context.editor.relaxCylinders(this.cm);
+    await this.cm.relax();
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.removeNucleotides(true);
@@ -342,14 +350,26 @@ export abstract class ModuleMenu extends Menu {
    * Add all models marked as shown to the scene. Generate them if they do not exist.
    */
   regenerateVisible() {
-    if (this.params.showWires) this.addWires();
-    else this.removeWires();
-    if (this.params.showCylinders) this.addCylinders();
-    else this.removeCylinders();
-    if (this.params.showNucleotides) this.addNucleotides();
-    else this.removeNucleotides();
+    this.params.showWires && this.addWires();
+    this.params.showCylinders && this.addCylinders();
+    this.params.showNucleotides && this.addNucleotides();
 
     this.updateVisuals();
+  }
+
+  updateVisuals() {
+    const active = this.context.activeContext == this;
+
+    if (this.params.showWires && active) this.wires?.show();
+    else this.wires?.hide();
+    if (this.params.showCylinders && active) this.cm?.show();
+    else this.cm?.hide();
+    if (this.params.showNucleotides && active) this.nm?.show();
+    else this.nm?.hide();
+
+    //this.wires?.updateObject();
+    this.cm?.updateObject();
+    this.nm?.updateObject();
   }
 
   downloadUNF() {
@@ -397,10 +417,11 @@ export abstract class ModuleMenu extends Menu {
    */
   setupEventListeners() {
     super.setupEventListeners();
+    const register = this.registerParameter<ModuleMenuParameters>.bind(this);
 
-    this.registerParameter("showWires", `${this.elementId}-toggle-wires`);
-    this.registerParameter("showCylinders", `${this.elementId}-toggle-cylinders`);
-    this.registerParameter("showNucleotides", `${this.elementId}-toggle-nucleotides`);
+    register('showWires', `${this.elementId}-toggle-wires`);
+    register('showCylinders', `${this.elementId}-toggle-cylinders`);
+    register('showNucleotides', `${this.elementId}-toggle-nucleotides`);
 
     this.wiresButton = $(`#${this.elementId}-toggle-wires`);
     this.cylindersButton = $(`#${this.elementId}-toggle-cylinders`);
@@ -485,4 +506,45 @@ export abstract class ModuleMenu extends Menu {
       });
     });
   }
+}
+
+export function editOp(t: any) {
+  return function (
+    target: any,
+    methodName: string,
+    descriptor?: PropertyDescriptor
+  ) {
+    let originalFunction = target[methodName];
+    let auditFunction = async function (this: any) {
+      this.context.editor.startOP();
+      // clone the current model and use the clone for the operation, so the original
+      // model and anything depending on it stays unaffected and the operation undoable
+      const prev = this[t];
+      this.context.editor.removeModel(this[t]);
+      this[t] = prev ? prev.clone() : null;
+      this.context.editor.addModel(this[t]);
+      this.updateVisuals();
+
+      await originalFunction.apply(this, arguments);
+      const after = this[t];
+
+      this.context.editor.do({
+        undo: () => {
+          this.context.editor.removeModel(this[t]);
+          this[t] = prev;
+          this.context.editor.addModel(this[t]);
+          this.updateVisuals();
+        },
+        redo: () => {
+          this.context.editor.removeModel(this[t]);
+          this[t] = after;
+          this.context.editor.addModel(this[t]);
+          this.updateVisuals();
+        },
+      });
+      this.context.editor.finishOP();
+    };
+    target[methodName] = auditFunction;
+    return target;
+  };
 }

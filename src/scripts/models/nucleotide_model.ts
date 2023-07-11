@@ -84,6 +84,16 @@ export class NucleotideModel extends Model {
   }
 
   /**
+   * Creates a deep copy of the model.
+   *
+   * @returns NM
+   */
+  clone(): NucleotideModel {
+    const t = this.toJSON();
+    return NucleotideModel.loadJSON(t);
+  }
+
+  /**
    * Adds the given strand to this model.
    *
    * @param strand
@@ -646,7 +656,7 @@ export class NucleotideModel extends Model {
 
   /**
    * Generates the 3d object associated with this model.
-   * 
+   *
    * @returns Object3D.
    */
   generateObject() {
@@ -663,7 +673,7 @@ export class NucleotideModel extends Model {
     return this.obj;
   }
 
-  handleIntersection(i: Intersection){
+  handleIntersection(i: Intersection) {
     return this.idToNuc.get(i.instanceId);
   }
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { get2PointTransform } from '../../utils/transforms';
+import { get2PointTransform } from '../../utils/misc_utils';
 import { Vector3, Intersection } from 'three';
 import {
   Cylinder,
@@ -35,10 +35,12 @@ export class Veneziano extends WiresModel {
   toJSON(): JSONObject {
     const st: number[] = [];
     for (const e of this.st) st.push(e.id);
-    return { st: st };
+    const graph = this.graph.toJSON();
+    return { graph: graph, st: st };
   }
 
-  static loadJSON(graph: Graph, json: any) {
+  static loadJSON(json: any) {
+    const graph = Graph.loadJSON(json.graph);
     const v = new Veneziano(graph);
     const idToEdge = new Map<number, Edge>();
     for (const e of graph.edges) idToEdge.set(e.id, e);

@@ -24,20 +24,11 @@ export class SpanningTreeMenu extends ModuleMenu {
   constructor(context: Context) {
     super(context, html);
     this.params.naType = 'DNA';
-    this.params.linkerOptions = 'T';
+    this.params.linkerOptions = ['T'];
   }
 
-  loadJSON(json: any) {
-    this.reset();
-    this.collectParameters();
-
-    json.params && this.loadParameters(json.params);
-    this.wires =
-      json.wires && Veneziano.loadJSON(this.context.graph, json.wires);
-    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
-    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
-
-    this.addToScene();
+  jsonToWires(json: JSONObject): WiresModel {
+    return Veneziano.loadJSON(json);
   }
 
   graphToWires(graph: Graph, params: STParameters) {
@@ -72,8 +63,9 @@ export class SpanningTreeMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
+    const register = this.registerParameter<STParameters>.bind(this);
 
-    this.registerParameter(
+    register(
       'scale',
       'veneziano-scale',
       (t: number) => {
@@ -84,11 +76,11 @@ export class SpanningTreeMenu extends ModuleMenu {
       }
     );
 
-    this.registerParameter('addNicks', 'veneziano-add-nicks');
-    this.registerParameter('scaffoldName', 'veneziano-scaffold');
-    this.registerParameter('scaffoldOffset', 'spanning-tree-scaffold-offset');
-    this.registerParameter('scaffoldStart', 'spanning-tree-scaffold-start');
-    this.registerParameter(
+    register('addNicks', 'veneziano-add-nicks');
+    register('scaffoldName', 'veneziano-scaffold');
+    register('scaffoldOffset', 'spanning-tree-scaffold-offset');
+    register('scaffoldStart', 'spanning-tree-scaffold-start');
+    register(
       'gcContent',
       'veneziano-gc-content',
       (t: number) => {
@@ -98,7 +90,7 @@ export class SpanningTreeMenu extends ModuleMenu {
         return t / 100;
       }
     );
-    this.registerParameter('greedyOffset', 'veneziano-greedy');
+    register('greedyOffset', 'veneziano-greedy');
 
     $('#veneziano-scaffold').on('change', () => {
       if ($('#veneziano-scaffold')[0].value == 'custom') {

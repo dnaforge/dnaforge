@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { get2PointTransform } from '../../utils/transforms';
+import { get2PointTransform } from '../../utils/misc_utils';
 import { Matrix4, Object3D, Vector3, Intersection } from 'three';
 import {
   Cylinder,
@@ -41,10 +41,14 @@ export class ATrail extends WiresModel {
     for (const he of this.trail) {
       trail.push(he.vertex.id);
     }
-    return { trail: trail };
+    const graph = this.graph.toJSON();
+    return { graph: graph, trail: trail };
   }
 
-  static loadJSON(graph: Graph, json: any) {
+  static loadJSON(json: any) {
+    console.log(json);
+
+    const graph = Graph.loadJSON(json.graph);
     const atrail = new ATrail(graph);
     atrail.setATrail(json.trail);
     return atrail;

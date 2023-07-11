@@ -1,4 +1,4 @@
-import { Matrix4, Vector3 } from 'three';
+import { Matrix4, Vector2, Vector3 } from 'three';
 
 const r1 = new Vector3().randomDirection();
 
@@ -25,4 +25,23 @@ export function get2PointTransform(p1: Vector3, p2: Vector3): Matrix4 {
     .setPosition(center);
 
   return transform;
+}
+
+export function getPointerProjection2p(
+  startPos: Vector2,
+  curPos: Vector2,
+  transform: Matrix4,
+  z: number
+) {
+  const SENSITIVITY = 0.75;
+
+  const pointerProjInit = new Vector3(startPos.x, startPos.y, 0).applyMatrix4(
+    transform
+  );
+  const pointerProj = new Vector3(curPos.x, curPos.y, 0)
+    .applyMatrix4(transform)
+    .sub(pointerProjInit)
+    .multiplyScalar(z * SENSITIVITY);
+
+  return pointerProj;
 }

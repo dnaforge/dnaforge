@@ -29,16 +29,8 @@ export class ATrailMenu extends ModuleMenu {
     this.params.naType = 'DNA';
   }
 
-  loadJSON(json: any) {
-    this.reset();
-    this.collectParameters();
-
-    json.params && this.loadParameters(json.params);
-    this.wires = json.wires && ATrail.loadJSON(this.context.graph, json.wires);
-    this.cm = json.cm && CylinderModel.loadJSON(json.cm);
-    this.nm = json.nm && NucleotideModel.loadJSON(json.nm);
-
-    this.addToScene();
+  jsonToWires(json: JSONObject): WiresModel {
+    return ATrail.loadJSON(json);
   }
 
   graphToWires(graph: Graph, params: ATrailParameters) {
@@ -63,17 +55,15 @@ export class ATrailMenu extends ModuleMenu {
 
   reinforce() {
     if (this.context.editor.getActiveModel() != this.cm) return;
+
     const selection = this.context.editor.getSelection();
     if (!this.cm || selection.size == 0) return;
     reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
-    
-    this.context.editor.removeModel(this.cm); // make sure the old model is deleted
-    this.removeNucleotides(true);
 
-    this.context.editor.addModel(this.cm);
+    this.removeNucleotides(true); // make sure the old model is deleted
+    this.context.editor.updateModel(this.cm);
 
     this.regenerateVisible();
-    this.context.editor.do({ reversible: false }); // TODO:
   }
 
   generatePrimary() {
@@ -119,8 +109,9 @@ export class ATrailMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
+    const register = this.registerParameter<ATrailParameters>.bind(this);
 
-    this.registerParameter(
+    register(
       'scale',
       'atrail-scale',
       (t: number) => {
@@ -130,17 +121,17 @@ export class ATrailMenu extends ModuleMenu {
         return 1 / t;
       }
     );
-    this.registerParameter('minLinkers', 'atrail-linkers-min');
-    this.registerParameter('maxLinkers', 'atrail-linkers-max');
+    register('minLinkers', 'atrail-linkers-min');
+    register('maxLinkers', 'atrail-linkers-max');
 
-    this.registerParameter('maxStrandLength', 'atrail-strand-length-max');
-    this.registerParameter('minStrandLength', 'atrail-strand-length-min');
-    this.registerParameter('addNicks', 'atrail-add-nicks');
-    this.registerParameter('checkerBoard', 'atrail-checkerboard');
-    this.registerParameter('scaffoldName', 'atrail-scaffold');
-    this.registerParameter('scaffoldOffset', 'atrail-scaffold-offset');
-    this.registerParameter('scaffoldStart', 'atrail-scaffold-start');
-    this.registerParameter(
+    register('maxStrandLength', 'atrail-strand-length-max');
+    register('minStrandLength', 'atrail-strand-length-min');
+    register('addNicks', 'atrail-add-nicks');
+    register('checkerBoard', 'atrail-checkerboard');
+    register('scaffoldName', 'atrail-scaffold');
+    register('scaffoldOffset', 'atrail-scaffold-offset');
+    register('scaffoldStart', 'atrail-scaffold-start');
+    register(
       'gcContent',
       'atrail-gc-content',
       (t: number) => {
@@ -150,7 +141,7 @@ export class ATrailMenu extends ModuleMenu {
         return t / 100;
       }
     );
-    this.registerParameter('greedyOffset', 'atrail-greedy');
+    register('greedyOffset', 'atrail-greedy');
 
     $('#atrail-reinforce-cylinders').on('click', () => {
       try {

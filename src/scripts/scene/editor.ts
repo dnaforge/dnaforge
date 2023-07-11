@@ -8,10 +8,13 @@ import {
 } from './selection_utils';
 import { CylinderModel } from '../models/cylinder_model';
 
-export interface Action {
-  reversible: boolean;
+export interface OP {
   undo?: () => void;
   redo?: () => void;
+}
+
+export interface OPGroup {
+  ops: OP[];
 }
 
 export class Editor {
@@ -25,8 +28,10 @@ export class Editor {
 
   selectionMode: 'none' | 'single' | 'limited' | 'connected' = 'connected';
 
-  undoStack: Action[] = [];
-  redoStack: Action[] = [];
+  opG: OPGroup;
+  opCounter = 0;
+  undoStack: OPGroup[] = [];
+  redoStack: OPGroup[] = [];
 
   constructor(context: Context) {
     this.context = context;
@@ -77,29 +82,35 @@ export class Editor {
   }
 
   addModel(model: Model, visible = true) {
+    if (!model || this.models.has(model)) return;
+
     this.models.add(model);
     const obj = model.generateObject();
     this.context.scene.add(obj);
-    this.context.controls.intersectionSolvers.set(obj, (i) => {return model.handleIntersection(i)});
-    if(visible) model.show();
+    this.context.controls.intersectionSolvers.set(obj, (i) => {
+      return model.handleIntersection(i);
+    });
+    if (visible) model.show();
     else model.hide();
-
-    this.do({
-      reversible: false,
-    }); //TODO;
   }
 
   removeModel(model: Model) {
+    if (!model || !this.models.has(model)) return;
+
     this.models.delete(model);
     const obj = model.obj;
     this.context.scene.remove(obj);
     this.context.controls.intersectionSolvers.delete(obj);
-
-    this.do({
-      reversible: false,
-    }); //TODO;
   }
 
+  updateModel(model: Model) {
+    this.context.scene.remove(model.obj);
+    this.context.controls.intersectionSolvers.delete(model.obj);
+    this.context.scene.add(model.generateObject());
+    this.context.controls.intersectionSolvers.set(model.obj, (i) => {
+      return model.handleIntersection(i);
+    });
+  }
 
   getActiveModel(): Model {
     if (this.activeModel && this.activeModel.isVisible) return this.activeModel;
@@ -110,25 +121,46 @@ export class Editor {
     }
   }
 
-  do(action: Action) {
+  startOP() {
+    if (!this.opG) this.opG = { ops: [] };
+    this.opCounter++;
+  }
+
+  cancelOP() {
+    this.opCounter = 0;
+    this.undoStack.push(this.opG);
     this.redoStack.length = 0;
-    if (action.reversible) this.undoStack.push(action);
-    else this.undoStack.length = 0;
+    this.opG = null;
+  }
+
+  finishOP() {
+    if (this.opCounter > 1) {
+      this.opCounter--;
+    } else {
+      this.opCounter = 0;
+      this.undoStack.push(this.opG);
+      this.redoStack.length = 0;
+      this.opG = null;
+    }
+  }
+
+  do(action: OP, reversible = true) {
+    this.opG.ops.push(action);
   }
 
   undo() {
     if (this.undoStack.length > 0) {
-      const t = this.undoStack.pop();
-      t.undo();
-      this.redoStack.push(t);
+      const opg = this.undoStack.pop();
+      for (let op of opg.ops) op.undo();
+      this.redoStack.push(opg);
     }
   }
 
   redo() {
     if (this.redoStack.length > 0) {
-      const t = this.redoStack.pop();
-      t.redo();
-      this.undoStack.push(t);
+      const opg = this.redoStack.pop();
+      for (let i = opg.ops.length - 1; i >= 0; i--) opg.ops[i].redo();
+      this.undoStack.push(opg);
     }
   }
 
@@ -217,7 +249,9 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
+        this.startOP();
         this.do(obj.apply());
+        this.finishOP();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -263,7 +297,9 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
+        this.startOP();
         this.do(obj.apply());
+        this.finishOP();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -295,7 +331,9 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
+        this.startOP();
         this.do(obj.apply());
+        this.finishOP();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -422,23 +460,11 @@ export class Editor {
     }
   }
 
-  focus(se: Selectable){
+  focus(se: Selectable) {
     this.activeModel = se.owner;
   }
 
-  relaxCylinders(cm: CylinderModel){
+  relaxCylinders(cm: CylinderModel) {
     cm.relax();
-    this.context.editor.do({ reversible: false }); // TODO:
   }
-}
-
-
-
-function editOp(target: any, methodName: string, descriptor?: PropertyDescriptor) {
-  let originalFunction = target[methodName];
-  let auditFunction = function (this: any) {
-    originalFunction.apply(this, arguments);
-  }
-  target[methodName] = auditFunction;
-  return target;
 }
