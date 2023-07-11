@@ -9,7 +9,7 @@ export abstract class Model {
   abstract getSelection(
     event: string,
     target?: Selectable,
-    mode?: typeof GLOBALS.selectionMode
+    mode?: typeof GLOBALS.selectionMode,
   ): Selectable[];
 
   abstract toJSON(): JSONObject;

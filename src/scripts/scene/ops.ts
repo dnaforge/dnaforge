@@ -86,9 +86,9 @@ export class OPS {
         endPos.copy(this.context.controls.pointer);
         b.update(
           this.context.controls.toClientCoords(sp.x, sp.y),
-          this.context.controls.toClientCoords(endPos.x, endPos.y)
+          this.context.controls.toClientCoords(endPos.x, endPos.y),
         );
-      }
+      },
     );
   }
 
@@ -128,7 +128,7 @@ export class OPS {
           mouseStartPos,
           mouseCurPos,
           camMatrix,
-          distToCam
+          distToCam,
         );
 
         const nPos = objCurPos.clone().add(pointerProj);
@@ -141,7 +141,7 @@ export class OPS {
       (k: string) => {
         objCurPos.copy(objPos);
         obj.input(k);
-      }
+      },
     );
   }
 
@@ -175,7 +175,7 @@ export class OPS {
       },
       (k: string) => {
         obj.input(k);
-      }
+      },
     );
   }
   setScale() {
@@ -207,7 +207,7 @@ export class OPS {
       },
       (k: string) => {
         obj.input(k);
-      }
+      },
     );
   }
 

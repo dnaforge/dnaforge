@@ -63,7 +63,7 @@ const geometryCylinderMain = (nucParams: Record<string, any>) => {
     nucParams.RADIUS,
     nucParams.RADIUS,
     1,
-    8
+    8,
   );
   geo.translate(0, 0.5, 0);
   return geo;
@@ -141,7 +141,7 @@ export class Cylinder extends Selectable {
     id: number,
     length: number,
     naType: NATYPE = 'DNA',
-    routingStrategy = RoutingStrategy.Normal
+    routingStrategy = RoutingStrategy.Normal,
   ) {
     super();
     this.owner = cm;
@@ -220,7 +220,7 @@ export class Cylinder extends Selectable {
       .multiplyScalar(
         (this.nucParams.INCLINATION < 0 ? 1 : 0) *
           this.nucParams.INCLINATION *
-          this.scale
+          this.scale,
       );
     const p1 = startP.clone().add(inclination);
     const translation = new Matrix4().makeTranslation(p1.x, p1.y, p1.z);
@@ -230,7 +230,7 @@ export class Cylinder extends Selectable {
     const nor2 = dir.clone().cross(nor1);
     const rotation = new Matrix4().makeBasis(nor2, dir, nor1);
     const scale = new Matrix4().scale(
-      new Vector3(this.scale, this.scale, this.scale)
+      new Vector3(this.scale, this.scale, this.scale),
     );
 
     this.transform = translation.multiply(rotation).multiply(scale);
@@ -256,7 +256,7 @@ export class Cylinder extends Selectable {
       .makeBasis(nor2, dir, nor1)
       .copyPosition(this.transform);
     const scale = new Matrix4().scale(
-      new Vector3(this.scale, this.scale, this.scale)
+      new Vector3(this.scale, this.scale, this.scale),
     );
 
     this.transform = transform.multiply(scale);
@@ -272,7 +272,7 @@ export class Cylinder extends Selectable {
     this.transform.compose(
       this.getPosition(),
       rot,
-      new Vector3(this.scale, this.scale, this.scale)
+      new Vector3(this.scale, this.scale, this.scale),
     );
     this.updateTransform();
   }
@@ -283,8 +283,8 @@ export class Cylinder extends Selectable {
       new Vector3(
         0,
         -this.getCylinderLength() / this.scale / 2,
-        0
-      ).applyMatrix4(this.transform)
+        0,
+      ).applyMatrix4(this.transform),
     );
     this.updateTransform();
   }
@@ -300,7 +300,7 @@ export class Cylinder extends Selectable {
     return new Vector3(
       0,
       this.getCylinderLength() / this.scale / 2,
-      0
+      0,
     ).applyMatrix4(this.transform);
   }
 
@@ -496,7 +496,7 @@ export class Cylinder extends Selectable {
       if (p1 && p2) {
         const length = p2.clone().sub(p1).length();
         transformLinker = get2PointTransform(p1, p2).scale(
-          new Vector3(this.scale, length, this.scale)
+          new Vector3(this.scale, length, this.scale),
         );
       } else {
         transformLinker = new Matrix4().scale(new Vector3(0, 0, 0));
@@ -581,7 +581,7 @@ export class CylinderModel extends Model {
         id,
         jCyl.length,
         jCyl.naType,
-        jCyl.routingStrategy
+        jCyl.routingStrategy,
       );
       const transform = new Matrix4().fromArray(jCyl.transform);
       cyl.transform = transform;
@@ -724,17 +724,17 @@ export class CylinderModel extends Model {
     const meshMain = new THREE.InstancedMesh(
       geometryCylinderMain(this.nucParams),
       materialCylinders,
-      this.cylinders.length
+      this.cylinders.length,
     );
     const meshPrime = new THREE.InstancedMesh(
       geometryCylinderTips,
       materialCylinders,
-      4 * this.cylinders.length
+      4 * this.cylinders.length,
     );
     const meshLinker = new THREE.InstancedMesh(
       geometryLinker,
       materialCylinders,
-      4 * this.cylinders.length
+      4 * this.cylinders.length,
     );
 
     const meshes = {
@@ -820,7 +820,7 @@ export class CylinderModel extends Model {
   getSelection(
     event: string,
     target?: Selectable,
-    mode?: typeof GLOBALS.selectionMode
+    mode?: typeof GLOBALS.selectionMode,
   ): Selectable[] {
     switch (event) {
       case 'select':
@@ -834,7 +834,7 @@ export class CylinderModel extends Model {
 
   getConnected(
     target: Cylinder,
-    mode: typeof GLOBALS.selectionMode
+    mode: typeof GLOBALS.selectionMode,
   ): Cylinder[] {
     const selection: Cylinder[] = [];
     if (mode == 'limited' || mode == 'connected') {

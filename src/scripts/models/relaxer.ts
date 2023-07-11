@@ -80,7 +80,7 @@ export class Relaxer {
       cylinderBody.velocity.set(
         randFloat(-0.2, 0.2),
         randFloat(-0.2, 0.2),
-        randFloat(-0.2, 0.2)
+        randFloat(-0.2, 0.2),
       );
 
       this.cylToMesh.set(cyl, cylinderBody);
@@ -99,7 +99,7 @@ export class Relaxer {
       const offset1 = new Vector3(
         0,
         -cyl.getCylinderLength() / 2 / cyl.scale,
-        0
+        0,
       );
 
       for (const prime of Object.values(PrimePos)) {
@@ -110,7 +110,7 @@ export class Relaxer {
         const offset2 = new Vector3(
           0,
           -cyl2.getCylinderLength() / 2 / cyl.scale,
-          0
+          0,
         );
 
         const pos1 = cyl
@@ -175,7 +175,7 @@ export class Relaxer {
         new Vector3() as unknown as CANNON.Vec3,
         this.floor,
         floorPos,
-        cStr
+        cStr,
       );
 
       this.world.addConstraint(constraint);
@@ -198,7 +198,7 @@ export class Relaxer {
       const len = cyl.getCylinderLength();
       const scale = new Vector3(cyl.scale, cyl.scale, cyl.scale);
       const rot = new Quaternion().copy(
-        mesh.quaternion as unknown as Quaternion
+        mesh.quaternion as unknown as Quaternion,
       );
       const pos = new Vector3().copy(mesh.position as unknown as Vector3);
       pos.sub(new Vector3(0, len / 2, 0).applyQuaternion(rot));

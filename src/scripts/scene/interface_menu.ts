@@ -90,19 +90,19 @@ export class InterfaceMenu extends Menu {
     this.context.controls.registerHotkey('shift+z', this.showGridButton);
     this.context.controls.registerHotkey(
       'shift+1',
-      $($('#selection-mode').children()[0])
+      $($('#selection-mode').children()[0]),
     );
     this.context.controls.registerHotkey(
       'shift+2',
-      $($('#selection-mode').children()[1])
+      $($('#selection-mode').children()[1]),
     );
     this.context.controls.registerHotkey(
       'shift+3',
-      $($('#selection-mode').children()[2])
+      $($('#selection-mode').children()[2]),
     );
     this.context.controls.registerHotkey(
       'shift+4',
-      $($('#selection-mode').children()[3])
+      $($('#selection-mode').children()[3]),
     );
     this.context.controls.registerHotkey('4', this.wiresButton);
     this.context.controls.registerHotkey('5', this.solidButton);
@@ -159,19 +159,19 @@ export class InterfaceMenu extends Menu {
         new THREE.Vector3(1, 0, 0),
         origin,
         length,
-        0xff0000
+        0xff0000,
       );
       const Y = new THREE.ArrowHelper(
         new THREE.Vector3(0, 1, 0),
         origin,
         length,
-        0x000000
+        0x000000,
       );
       const Z = new THREE.ArrowHelper(
         new THREE.Vector3(0, 0, 1),
         origin,
         length,
-        0x0000ff
+        0x0000ff,
       );
 
       const xDiv = document.createElement('div');
@@ -371,30 +371,30 @@ export class InterfaceMenu extends Menu {
           vertices.push(
             ...(<any>v1.coords),
             ...(<any>v2.coords),
-            ...(<any>v3.coords)
+            ...(<any>v3.coords),
           );
         } else {
           vertices.push(
             ...(<any>v1.coords),
             ...(<any>v3.coords),
-            ...(<any>v2.coords)
+            ...(<any>v2.coords),
           );
         }
         normals.push(
           ...(<any>f.normal),
           ...(<any>f.normal),
-          ...(<any>f.normal)
+          ...(<any>f.normal),
         );
       }
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       'position',
-      new THREE.Float32BufferAttribute(vertices, 3)
+      new THREE.Float32BufferAttribute(vertices, 3),
     );
     geometry.setAttribute(
       'normal',
-      new THREE.Float32BufferAttribute(normals, 3)
+      new THREE.Float32BufferAttribute(normals, 3),
     );
     const mesh = new THREE.Mesh(geometry, meshMaterial);
     this.mesh = mesh;
@@ -450,8 +450,8 @@ export class InterfaceMenu extends Menu {
           new Vector3(
             (i < 4 ? 1 : 0) - 0.5,
             i % 2,
-            (i < 2 || (i >= 4 && i < 6) ? 1 : 0) - 0.5
-          ).multiplyScalar(BOUNDING_BOX_SCALE)
+            (i < 2 || (i >= 4 && i < 6) ? 1 : 0) - 0.5,
+          ).multiplyScalar(BOUNDING_BOX_SCALE),
         );
       const pairs = [];
       for (const p1 of coords)
@@ -643,7 +643,7 @@ export class InterfaceMenu extends Menu {
 
     $('#toggle-nucleotides-backbone').on('click', () => {
       GLOBALS.visibilityNucBackbone = $(
-        '#toggle-nucleotides-backbone'
+        '#toggle-nucleotides-backbone',
       )[0].checked;
       this.context.activeContext?.updateVisuals();
     });

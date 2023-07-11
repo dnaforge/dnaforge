@@ -31,12 +31,12 @@ export function getPointerProjection2p(
   startPos: Vector2,
   curPos: Vector2,
   transform: Matrix4,
-  z: number
+  z: number,
 ) {
   const SENSITIVITY = 0.75;
 
   const pointerProjInit = new Vector3(startPos.x, startPos.y, 0).applyMatrix4(
-    transform
+    transform,
   );
   const pointerProj = new Vector3(curPos.x, curPos.y, 0)
     .applyMatrix4(transform)

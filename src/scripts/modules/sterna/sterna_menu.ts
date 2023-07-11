@@ -42,7 +42,7 @@ export class SternaMenu extends ModuleMenu {
     const wires = graphToWires(graph, params);
     this.context.addMessage(
       `Generated a route around the spanning tree with ${wires.trail.length} edges.`,
-      'info'
+      'info',
     );
     return wires;
   }
@@ -86,7 +86,7 @@ export class SternaMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
-    const register = this.registerParameter<SternaParameters>.bind(this);
+    const register = (this.registerParameter<SternaParameters>).bind(this);
 
     register(
       'scale',
@@ -96,7 +96,7 @@ export class SternaMenu extends ModuleMenu {
       },
       (t: number) => {
         return 1 / t;
-      }
+      },
     );
     register('minLinkers', 'sterna-linkers-min');
     register('maxLinkers', 'sterna-linkers-max');
@@ -109,7 +109,7 @@ export class SternaMenu extends ModuleMenu {
       },
       (t: number) => {
         return t / 100;
-      }
+      },
     );
     register('addNicks', 'sterna-add-nicks');
     register('greedyOffset', 'sterna-greedy');
@@ -138,7 +138,7 @@ export class SternaMenu extends ModuleMenu {
     $('#sterna-primary-dialog-confirm').on('click', () => {
       try {
         this.uploadPrimary(
-          $('#sterna-primary-dialog-text').val().toUpperCase()
+          $('#sterna-primary-dialog-text').val().toUpperCase(),
         );
       } catch (error) {
         this.context.addMessage(error, 'alert');

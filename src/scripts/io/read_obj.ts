@@ -13,7 +13,7 @@ export class OBJLoader extends Loader {
     url: string,
     onLoad: (g: Graph) => void,
     onProgress: (e: Event) => void,
-    onError: (e: Event) => void
+    onError: (e: Event) => void,
   ) {
     const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
@@ -25,7 +25,7 @@ export class OBJLoader extends Loader {
         onLoad(this.parse(<string>text));
       },
       onProgress,
-      onError
+      onError,
     );
   }
 
@@ -58,8 +58,8 @@ export class OBJLoader extends Loader {
               new THREE.Vector3(
                 parseFloat(data[1]),
                 parseFloat(data[2]),
-                parseFloat(data[3])
-              )
+                parseFloat(data[3]),
+              ),
             );
             break;
           case 'vn':
@@ -67,8 +67,8 @@ export class OBJLoader extends Loader {
               new THREE.Vector3(
                 parseFloat(data[1]),
                 parseFloat(data[2]),
-                parseFloat(data[3])
-              ).normalize()
+                parseFloat(data[3]),
+              ).normalize(),
             );
             break;
           case 'vt':
@@ -128,7 +128,7 @@ export class OBJLoader extends Loader {
     for (let i = 0; i < vertices.length; i++) {
       const v = graph.addVertex(
         vertices[i].sub(com).multiplyScalar(scale),
-        normals[i]
+        normals[i],
       );
       gVertices.push(v);
     }
@@ -182,6 +182,6 @@ export function read_obj(path: string, callback: (g: Graph) => void) {
     undefined,
     function (error) {
       console.error(error);
-    }
+    },
   );
 }

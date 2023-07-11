@@ -49,7 +49,7 @@ describe('Sterna routing', function () {
       const visited = new Map(
         sterna.graph.edges.map((e) => {
           return [e, 0];
-        })
+        }),
       );
 
       for (const e of trail) {

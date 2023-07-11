@@ -89,7 +89,7 @@ describe('Graph - edge splits', function () {
       assert.equal(
         g[1].getFaces().length + g[1].getEdges().length ==
           graph.getFaces().length,
-        true
+        true,
       );
     });
   });
@@ -113,7 +113,7 @@ describe('Graph - edge splits', function () {
 
       assert.equal(
         g[1].getVertices().length == graph.getVertices().length,
-        true
+        true,
       );
     });
   });

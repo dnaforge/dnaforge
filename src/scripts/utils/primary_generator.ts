@@ -61,7 +61,7 @@ export class PrimaryGenerator {
 
   constructor(
     nm: NucleotideModel,
-    optimiserParams: Partial<OptimiserParams> = {}
+    optimiserParams: Partial<OptimiserParams> = {},
   ) {
     this.nm = nm;
     this.pairs = getPairing(nm.getNucleotides());
@@ -90,7 +90,7 @@ export class PrimaryGenerator {
    */
   private setupOptimiser(): void {
     this.linkerOptions = Array.from(
-      iupacToOptions(this.params.linkerOptions.join(''))
+      iupacToOptions(this.params.linkerOptions.join('')),
     );
     if (this.linkerOptions.length == 0) throw `Undefined linker options.`;
     this.setupInitialPrimary();
@@ -152,7 +152,7 @@ export class PrimaryGenerator {
   private setupConflicts(): void {
     this.isConflict = this.getBannedRegex(
       this.params.bannedSeqs,
-      this.nm.naType
+      this.nm.naType,
     );
     this.conflicts = new ListDict<string>();
     for (const len of this.subSeqs.keys()) {
@@ -172,7 +172,7 @@ export class PrimaryGenerator {
    */
   private getBannedRegex(
     bannedSeqs: string[],
-    naType: NATYPE = 'DNA'
+    naType: NATYPE = 'DNA',
   ): (sequence: string) => boolean {
     //TODO: use some clever data structure for this instead
     const bannedSeqsSet = new Set<string>();
@@ -315,7 +315,7 @@ export class PrimaryGenerator {
     };
     const randComplement = (
       base: WATSON_CHAR_DNA | WATSON_CHAR_RNA,
-      naType: string
+      naType: string,
     ): WATSON_CHAR_DNA | WATSON_CHAR_RNA => {
       const compDNA = { A: 'T', T: 'A', G: 'C', C: 'G' };
       if (base != 'U' && base != 'A') return compDNA[base] as WATSON_CHAR_DNA;
@@ -497,7 +497,7 @@ export class PrimaryGenerator {
     this.savePrimary();
 
     console.log(
-      `Optimised for ${(performance.now() - startT) / 1000} seconds.`
+      `Optimised for ${(performance.now() - startT) / 1000} seconds.`,
     );
   }
 }

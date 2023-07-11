@@ -126,7 +126,7 @@ export class CycleCover extends WiresModel {
         e1,
         distsT.sort((a, b) => {
           return a[1] - b[1];
-        })
+        }),
       );
     }
     // traverse to NN
@@ -183,7 +183,7 @@ export class CycleCover extends WiresModel {
 
         color.setHex(oColor);
         const transform = get2PointTransform(p1, p2).scale(
-          new Vector3(1, p2.clone().sub(p1).length(), 1)
+          new Vector3(1, p2.clone().sub(p1).length(), 1),
         );
         lines.setColorAt(i, color);
         lines.setMatrixAt(i, transform);
@@ -283,7 +283,7 @@ export function wiresToCylinders(cc: CycleCover, params: CCParameters) {
  */
 export function cylindersToNucleotides(
   cm: CylinderModel,
-  params: CCParameters
+  params: CCParameters,
 ) {
   const nm = NucleotideModel.compileFromGenericCylinderModel(cm, params, false);
 
@@ -294,7 +294,7 @@ function createCylinder(
   cm: CylinderModel,
   v1: Vertex,
   v2: Vertex,
-  greedyOffset: boolean
+  greedyOffset: boolean,
 ) {
   const offset1 = cm.getVertexOffset(v1, v2, greedyOffset);
   const offset2 = cm.getVertexOffset(v2, v1, greedyOffset);

@@ -439,7 +439,7 @@ class Graph {
     const calculateFaceNormal = (
       face: Face,
       adjFace: Face,
-      commonEdge: Edge
+      commonEdge: Edge,
     ) => {
       const edges1 = new Set(face.getEdges());
       const edges2 = new Set(adjFace.getEdges());
@@ -544,7 +544,7 @@ class Graph {
   addVertex(
     coords: Vector3,
     normal: Vector3 = undefined,
-    id = this.vertices.length + 1
+    id = this.vertices.length + 1,
   ) {
     const v = new Vertex(id, coords, normal);
     this.vertices.push(v);
@@ -555,7 +555,7 @@ class Graph {
     v1: Vertex,
     v2: Vertex,
     normal: Vector3 = undefined,
-    id = this.edges.length + 1
+    id = this.edges.length + 1,
   ) {
     const edge = new Edge(id, v1, v2, normal);
     this.edges.push(edge);
@@ -567,7 +567,7 @@ class Graph {
   addFace(
     edges: Edge[],
     normal: Vector3 = undefined,
-    id = this.faces.length + 1
+    id = this.faces.length + 1,
   ) {
     const f = new Face(id, edges, normal);
     this.faces.push(f);
@@ -710,7 +710,7 @@ class Graph {
 
     // minimum matching between the odd vertices
     const getMatching = (
-      paths: Map<string, { path: Edge[]; length: number }>
+      paths: Map<string, { path: Edge[]; length: number }>,
     ) => {
       const vertToIndex = new Map();
       const indextoVert = new Map();

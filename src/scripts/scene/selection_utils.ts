@@ -349,12 +349,12 @@ export class SelectionTransformer {
       const trans1 = new Matrix4().makeTranslation(
         -mPoint.x,
         -mPoint.y,
-        -mPoint.z
+        -mPoint.z,
       );
       const trans2 = new Matrix4().makeTranslation(
         mPoint.x,
         mPoint.y,
-        mPoint.z
+        mPoint.z,
       );
 
       for (let i = 0; i < this.children.length; i++) {

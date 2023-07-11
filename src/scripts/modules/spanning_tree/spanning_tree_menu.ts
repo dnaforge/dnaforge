@@ -35,7 +35,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     const wires = graphToWires(graph, params);
     this.context.addMessage(
       `Generated a route around the spanning tree with ${wires.trail.length} edges.`,
-      'info'
+      'info',
     );
     return wires;
   }
@@ -63,7 +63,7 @@ export class SpanningTreeMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
-    const register = this.registerParameter<STParameters>.bind(this);
+    const register = (this.registerParameter<STParameters>).bind(this);
 
     register(
       'scale',
@@ -73,7 +73,7 @@ export class SpanningTreeMenu extends ModuleMenu {
       },
       (t: number) => {
         return 1 / t;
-      }
+      },
     );
 
     register('addNicks', 'veneziano-add-nicks');
@@ -88,7 +88,7 @@ export class SpanningTreeMenu extends ModuleMenu {
       },
       (t: number) => {
         return t / 100;
-      }
+      },
     );
     register('greedyOffset', 'veneziano-greedy');
 
@@ -102,7 +102,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     $('#veneziano-scaffold-dialog-confirm').on('click', () => {
       try {
         this.setCustomScaffold(
-          $('#veneziano-scaffold-dialog-text').val().toUpperCase()
+          $('#veneziano-scaffold-dialog-text').val().toUpperCase(),
         );
       } catch (error) {
         this.context.addMessage(error, 'alert');

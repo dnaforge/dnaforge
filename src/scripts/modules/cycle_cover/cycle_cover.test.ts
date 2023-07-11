@@ -55,7 +55,7 @@ describe('Cycle cover routing', function () {
       const visited = new Map(
         cc.graph.edges.map((e) => {
           return [e, 0];
-        })
+        }),
       );
 
       for (const c of cycles) {

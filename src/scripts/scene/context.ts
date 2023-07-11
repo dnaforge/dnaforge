@@ -172,13 +172,13 @@ export class Context {
       case 'down':
         this.camera.position.applyAxisAngle(
           new Vector3(0, 1, 0),
-          -Math.PI / 24
+          -Math.PI / 24,
         );
         break;
       case 'left':
         this.camera.position.applyAxisAngle(
           new Vector3(0, 1, 0),
-          -Math.PI / 24
+          -Math.PI / 24,
         );
         break;
       case 'right':
@@ -199,7 +199,7 @@ export class Context {
     const tPos = this.cameraControls.target;
     this.camera.position.copy(new Vector3(-cPos.x, -(cPos.y - 5) + 5, -cPos.z));
     this.cameraControls.target.copy(
-      new Vector3(-tPos.x, -(tPos.y - 5) + 5, -tPos.z)
+      new Vector3(-tPos.x, -(tPos.y - 5) + 5, -tPos.z),
     );
     this.cameraControls.update();
   }
@@ -209,7 +209,7 @@ export class Context {
     this.cameraControls.dispose();
     this.cameraControls = new OrbitControls(
       this.camera,
-      document.querySelector('#canvas')
+      document.querySelector('#canvas'),
     );
     this.cameraControls.update();
   }
@@ -232,20 +232,20 @@ export class Context {
         cameraParams.top,
         cameraParams.bottom,
         -1000,
-        cameraParams.far
+        cameraParams.far,
       );
     } else {
       this.camera = new THREE.PerspectiveCamera(
         cameraParams.fov,
         cameraParams.aspect,
         cameraParams.near,
-        cameraParams.far
+        cameraParams.far,
       );
     }
     this.cameraControls && this.cameraControls.dispose();
     this.cameraControls = new OrbitControls(
       this.camera,
-      document.querySelector('#canvas')
+      document.querySelector('#canvas'),
     );
     this.camera.position.copy(new Vector3(0, 5, 20));
     this.cameraControls.target = new Vector3(0, 5, 0);
@@ -351,7 +351,7 @@ export class Context {
       `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${
         graph.getEdges().length
       } edges<br>${graph.getFaces().length} faces`,
-      'info'
+      'info',
     );
   }
 

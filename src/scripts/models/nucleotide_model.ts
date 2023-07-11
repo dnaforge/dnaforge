@@ -126,7 +126,7 @@ export class NucleotideModel extends Model {
   static compileFromGenericCylinderModel(
     cm: CylinderModel,
     params: ModuleMenuParameters,
-    hasScaffold = false
+    hasScaffold = false,
   ): NucleotideModel {
     const minLinkers = params.minLinkers;
     const maxLinkers = params.maxLinkers;
@@ -213,7 +213,7 @@ export class NucleotideModel extends Model {
     cm: CylinderModel,
     cylToStrands: Map<Cylinder, [Strand, Strand]>,
     minLinkers: number,
-    maxLinkers: number
+    maxLinkers: number,
   ) {
     const cyls = cm.getCylinders();
     for (let i = 0; i < cyls.length; i++) {
@@ -347,13 +347,13 @@ export class NucleotideModel extends Model {
             a1
               .clone()
               .multiplyScalar(0.34)
-              .add(a2.clone().multiplyScalar(0.3408))
+              .add(a2.clone().multiplyScalar(0.3408)),
           );
         lines.push(
           cm
             .toArray()
             .concat(a1.toArray(), a3.toArray(), [0, 0, 0, 0, 0, 0])
-            .join(' ')
+            .join(' '),
         );
       }
     }
@@ -694,7 +694,7 @@ export class NucleotideModel extends Model {
   getSelection(
     event: string,
     target?: Selectable,
-    mode?: typeof GLOBALS.selectionMode
+    mode?: typeof GLOBALS.selectionMode,
   ): Selectable[] {
     switch (event) {
       case 'select':
@@ -725,7 +725,7 @@ export class NucleotideModel extends Model {
    */
   getConnected(
     target: Nucleotide,
-    mode: typeof GLOBALS.selectionMode
+    mode: typeof GLOBALS.selectionMode,
   ): Nucleotide[] {
     let nucs = [target];
     if (mode == 'none') nucs = [];

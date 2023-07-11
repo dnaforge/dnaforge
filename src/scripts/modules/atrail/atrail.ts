@@ -83,7 +83,7 @@ export class ATrail extends WiresModel {
   }
 
   private getNeighbourhoodFunction(
-    transitions: Map<Vertex, number>
+    transitions: Map<Vertex, number>,
   ): (e: HalfEdge) => Array<HalfEdge> {
     // Neighbourhoods for left-right-orderings:
     const vToN = new Map(); // vertex to neighbour, changes depending on the orientation
@@ -130,7 +130,7 @@ export class ATrail extends WiresModel {
    */
   private splitAndCheck(
     transitions: Map<Vertex, number>,
-    neighbours: (e: HalfEdge) => Array<HalfEdge>
+    neighbours: (e: HalfEdge) => Array<HalfEdge>,
   ) {
     // only consider vertices of degree 4 or higher, since  vertices of degree 4
     // or less can be oriented whatever way.Also sort them so that vertices in
@@ -202,7 +202,7 @@ export class ATrail extends WiresModel {
   }
 
   private getEuler(
-    neighbours: (e: HalfEdge) => Array<HalfEdge>
+    neighbours: (e: HalfEdge) => Array<HalfEdge>,
   ): Array<HalfEdge> {
     //Hierholzer:
     const trail: Array<HalfEdge> = [];
@@ -341,7 +341,7 @@ export class ATrail extends WiresModel {
 
       const length = co2.clone().sub(co1).length();
       const transform = get2PointTransform(co1, co2).scale(
-        new Vector3(1, length, 1)
+        new Vector3(1, length, 1),
       );
 
       color.setHex(0xff0000);
@@ -417,7 +417,7 @@ export function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
       bundle = edgeToBundle.get(edge);
       const nor = edge.normal.clone();
       offset.copy(
-        nor.multiplyScalar(2 * -cm.scale * cm.nucParams.RADIUS * bundle.length)
+        nor.multiplyScalar(2 * -cm.scale * cm.nucParams.RADIUS * bundle.length),
       );
     }
     const c = createCylinder(cm, trail[i], offset, params.greedyOffset);
@@ -458,7 +458,7 @@ export function wiresToCylinders(atrail: ATrail, params: ATrailParameters) {
  */
 export function cylindersToNucleotides(
   cm: CylinderModel,
-  params: ATrailParameters
+  params: ATrailParameters,
 ) {
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;
@@ -485,7 +485,7 @@ function createCylinder(
   cm: CylinderModel,
   he: HalfEdge,
   offset = new Vector3(),
-  greedyOffset: boolean
+  greedyOffset: boolean,
 ) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
@@ -509,7 +509,7 @@ function createCylinder(
 function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
   const reinforce = (sCyl: Cylinder, offDir: Vector3) => {
     const p = new Vector3().applyMatrix4(
-      new Matrix4().copyPosition(sCyl.transform)
+      new Matrix4().copyPosition(sCyl.transform),
     );
     const offset = offDir
       .clone()
@@ -533,10 +533,10 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
   else {
     const cyl2 = cyl.bundle.cylinders[1];
     const p2 = new Vector3().applyMatrix4(
-      new Matrix4().copyPosition(cyl2.transform)
+      new Matrix4().copyPosition(cyl2.transform),
     );
     const p1 = new Vector3().applyMatrix4(
-      new Matrix4().copyPosition(cyl.transform)
+      new Matrix4().copyPosition(cyl.transform),
     );
     const t = p2.sub(p1).normalize();
     dir.copy(t.clone().sub(cdir.multiplyScalar(t.dot(cdir)))).normalize();
@@ -553,7 +553,7 @@ function reinforceCylinder(cm: CylinderModel, inCyl: Cylinder) {
 
 export function reinforceCylinders(
   cm: CylinderModel,
-  selection: Iterable<Cylinder>
+  selection: Iterable<Cylinder>,
 ) {
   for (const c of selection) {
     if (!c.bundle || c.bundle.length <= 2) {
@@ -568,7 +568,7 @@ function connectReinforcedNucleotides(
   cm: CylinderModel,
   nm: NucleotideModel,
   cylToStrands: Map<Cylinder, [Strand, Strand]>,
-  params: ATrailParameters
+  params: ATrailParameters,
 ) {
   const reroute = (s1: Strand, s2: Strand, idx1: number, idx2: number) => {
     const nucs1 = s1.nucleotides;

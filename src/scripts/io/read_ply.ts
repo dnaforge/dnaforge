@@ -13,7 +13,7 @@ export class OBJLoader extends Loader {
     url: string,
     onLoad: (g: Graph) => void,
     onProgress: (e: Event) => void,
-    onError: (e: Event) => void
+    onError: (e: Event) => void,
   ) {
     const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
@@ -25,7 +25,7 @@ export class OBJLoader extends Loader {
         onLoad(this.parse(<string>text));
       },
       onProgress,
-      onError
+      onError,
     );
   }
 
@@ -47,6 +47,6 @@ export function read_obj(path: string, callback: (g: Graph) => void) {
     undefined,
     function (error) {
       console.error(error);
-    }
+    },
   );
 }

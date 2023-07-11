@@ -68,7 +68,7 @@ export class Controls {
     key: string,
     target: any,
     context: Menu | 'global' = 'global',
-    description?: string
+    description?: string,
   ) {
     if (!this.#hotkeys.get(context)) this.#hotkeys.set(context, new Map());
     if (
@@ -97,7 +97,7 @@ export class Controls {
       }
       el.attr(
         'data-hint-text',
-        el.attr('data-hint-text') + `<br><br><b>Hotkey: ${key}</b>`
+        el.attr('data-hint-text') + `<br><br><b>Hotkey: ${key}</b>`,
       );
     }
     this.#hotkeys
@@ -144,7 +144,7 @@ export class Controls {
     if ((cam as THREE.OrthographicCamera).isOrthographicCamera) {
       const worldDir = cam.getWorldDirection(new Vector3());
       const pos = new Vector3(this.pointer.x, this.pointer.y, -1).unproject(
-        cam
+        cam,
       );
       this.raycaster.set(pos, worldDir);
     } else {
@@ -153,7 +153,7 @@ export class Controls {
 
     const intersects = this.raycaster.intersectObjects(
       this.scene.children,
-      true
+      true,
     );
 
     return intersects;
@@ -175,7 +175,7 @@ export class Controls {
     onCancel: () => void,
     onKey: (k: string) => void,
     onLeftDrag?: (sp: Vector2) => void,
-    onRightDrag?: (sp: Vector2) => void
+    onRightDrag?: (sp: Vector2) => void,
   ) {
     this.cancelModal();
     this.modal = {
@@ -287,7 +287,7 @@ export class Controls {
             s,
             event.altKey,
             event.ctrlKey,
-            event.shiftKey
+            event.shiftKey,
           );
           return;
         }
@@ -395,7 +395,7 @@ export class Controls {
     const rect = canvas.getBoundingClientRect();
     return new Vector2(
       ((clientX - rect.x) / window.innerWidth) * 2 - 1,
-      -((clientY - rect.y) / window.innerHeight) * 2 + 1
+      -((clientY - rect.y) / window.innerHeight) * 2 + 1,
     );
   }
 
@@ -403,7 +403,7 @@ export class Controls {
     const rect = canvas.getBoundingClientRect();
     return new Vector2(
       ((stdX + 1) / 2) * window.innerWidth + rect.x,
-      -(((stdY - 1) / 2) * window.innerHeight + rect.y)
+      -(((stdY - 1) / 2) * window.innerHeight + rect.y),
     );
   }
 

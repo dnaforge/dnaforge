@@ -10,7 +10,7 @@ export class JSONLoader extends Loader {
     url: string,
     onLoad: (json: JSONObject) => void,
     onProgress: (e: Event) => void,
-    onError: (e: Event) => void
+    onError: (e: Event) => void,
   ) {
     const loader = new FileLoader(this.manager);
     loader.setPath(this.path);
@@ -22,7 +22,7 @@ export class JSONLoader extends Loader {
         onLoad(this.parse(<string>text));
       },
       onProgress,
-      onError
+      onError,
     );
   }
 
@@ -42,6 +42,6 @@ export function read_json(path: string, callback: (json: JSONObject) => void) {
     undefined,
     function (error) {
       console.error(error);
-    }
+    },
   );
 }

@@ -46,7 +46,7 @@ abstract class WiresModel extends Model {
   getSelection(
     event: string,
     target?: Selectable,
-    mode?: 'none' | 'single' | 'limited' | 'connected'
+    mode?: 'none' | 'single' | 'limited' | 'connected',
   ): Selectable[] {
     //TODO
     return [];

@@ -38,7 +38,7 @@ export class ATrailMenu extends ModuleMenu {
     if (genus > 0 && !params.checkerBoard)
       this.context.addMessage(
         `Graph genus appears to be ${genus}. Consider using checkerboard-colouring.`,
-        'warning'
+        'warning',
       );
     const atrail = graphToWires(graph, params);
     this.context.addMessage(`Found an atrail.`, 'info');
@@ -109,7 +109,7 @@ export class ATrailMenu extends ModuleMenu {
 
   setupEventListeners() {
     super.setupEventListeners();
-    const register = this.registerParameter<ATrailParameters>.bind(this);
+    const register = (this.registerParameter<ATrailParameters>).bind(this);
 
     register(
       'scale',
@@ -119,7 +119,7 @@ export class ATrailMenu extends ModuleMenu {
       },
       (t: number) => {
         return 1 / t;
-      }
+      },
     );
     register('minLinkers', 'atrail-linkers-min');
     register('maxLinkers', 'atrail-linkers-max');
@@ -139,7 +139,7 @@ export class ATrailMenu extends ModuleMenu {
       },
       (t: number) => {
         return t / 100;
-      }
+      },
     );
     register('greedyOffset', 'atrail-greedy');
 
@@ -162,7 +162,7 @@ export class ATrailMenu extends ModuleMenu {
     $('#atrail-scaffold-dialog-confirm').on('click', () => {
       try {
         this.setCustomScaffold(
-          $('#atrail-scaffold-dialog-text').val().toUpperCase()
+          $('#atrail-scaffold-dialog-text').val().toUpperCase(),
         );
       } catch (error) {
         this.context.addMessage(error, 'alert');

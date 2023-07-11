@@ -138,7 +138,7 @@ export class Veneziano extends WiresModel {
         e1,
         distsT.sort((a, b) => {
           return a[1] - b[1];
-        })
+        }),
       );
     }
     // traverse to NN
@@ -175,7 +175,7 @@ export class Veneziano extends WiresModel {
 
         const length = co2.clone().sub(co1).length();
         const transform = get2PointTransform(co1, co2).scale(
-          new Vector3(1, length, 1)
+          new Vector3(1, length, 1),
         );
 
         color.setHex(0xff0000);
@@ -257,7 +257,7 @@ export function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
  */
 export function cylindersToNucleotides(
   cm: CylinderModel,
-  params: STParameters
+  params: STParameters,
 ) {
   const scale = cm.scale;
   const addNicks = params.addNicks;
@@ -279,7 +279,7 @@ export function cylindersToNucleotides(
 function createCylinder(
   cm: CylinderModel,
   he: HalfEdge,
-  greedyOffset: boolean
+  greedyOffset: boolean,
 ) {
   const v1 = he.twin.vertex;
   const v2 = he.vertex;
@@ -296,7 +296,7 @@ function createCylinder(
   let length = p2_t.clone().sub(p1_t.clone()).length();
   if (p2_t.clone().sub(p1_t).dot(dir) < 0) length = 0;
   const length_bp = Math.floor(
-    Math.round(length / cm.scale / cm.nucParams.RISE / 10.5) * 10.5
+    Math.round(length / cm.scale / cm.nucParams.RISE / 10.5) * 10.5,
   );
   const length_n = length_bp * cm.scale * cm.nucParams.RISE;
 
@@ -336,15 +336,15 @@ function connectCylinders(cm: CylinderModel) {
 function connectStrands(
   nm: NucleotideModel,
   cm: CylinderModel,
-  cylToStrands: Map<Cylinder, [Strand, Strand]>
+  cylToStrands: Map<Cylinder, [Strand, Strand]>,
 ) {
   const visited = new Set<Cylinder>();
   for (const cyl of cm.cylinders) {
     const scaffold_next = cylToStrands.get(
-      cyl.neighbours[PrimePos.first3][0]
+      cyl.neighbours[PrimePos.first3][0],
     )[0];
     const staple_next = cylToStrands.get(
-      cyl.neighbours[PrimePos.second3][0]
+      cyl.neighbours[PrimePos.second3][0],
     )[1];
 
     const otherCyl =
@@ -374,7 +374,7 @@ function connectStrands(
       nucs1: Nucleotide[],
       nucs2: Nucleotide[],
       idx1: number,
-      idx2: number
+      idx2: number,
     ) => {
       nucs1[idx1].next = nucs2[idx2];
       nucs2[idx2].prev = nucs1[idx1];

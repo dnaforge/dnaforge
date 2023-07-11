@@ -148,7 +148,7 @@ export class Strand {
 
     let N = Math.floor(
       n1.backboneCenter.clone().sub(n2.backboneCenter).length() /
-        (this.nucParams.BB_DIST * this.scale)
+        (this.nucParams.BB_DIST * this.scale),
     );
     N = Math.min(Math.max(N, min), max);
     if (N == 0) return;

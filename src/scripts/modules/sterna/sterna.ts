@@ -147,7 +147,7 @@ export class Sterna extends WiresModel {
         e1,
         distsT.sort((a, b) => {
           return a[1] - b[1];
-        })
+        }),
       );
     }
     // traverse to NN
@@ -188,7 +188,7 @@ export class Sterna extends WiresModel {
 
         const length = co2.clone().sub(co1).length();
         const transform = get2PointTransform(co1, co2).scale(
-          new Vector3(1, length, 1)
+          new Vector3(1, length, 1),
         );
 
         color.setHex(0xff0000);
@@ -269,7 +269,7 @@ export function wiresToCylinders(sterna: Sterna, params: SternaParameters) {
  */
 export function cylindersToNucleotides(
   cm: CylinderModel,
-  params: SternaParameters
+  params: SternaParameters,
 ) {
   const scale = cm.scale;
   const minLinkers = params.minLinkers;
@@ -315,7 +315,7 @@ export function cylindersToNucleotides(
 function createCylinder(
   cm: CylinderModel,
   halfEdge: HalfEdge,
-  greedyOffset: boolean
+  greedyOffset: boolean,
 ) {
   const v1 = halfEdge.twin.vertex;
   const v2 = halfEdge.vertex;
@@ -379,7 +379,7 @@ function createPseudoknot(strand1: Strand, strand2: Strand) {
     nucs1: Nucleotide[],
     nucs2: Nucleotide[],
     idx1: number,
-    idx2: number
+    idx2: number,
   ) => {
     nucs1[idx1].next = nucs2[idx2];
     nucs2[idx2].prev = nucs1[idx1];

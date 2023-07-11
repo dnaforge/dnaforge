@@ -79,13 +79,13 @@ export class CycleCoverMenu extends ModuleMenu {
       `Generated a primary with longest repeated subsequence of ${pgen.getLongestRepeat()} and a gc-content of ${pgen
         .getGCContent()
         .toFixed(2)}`,
-      'info'
+      'info',
     );
   }
 
   setupEventListeners() {
     super.setupEventListeners();
-    const register = this.registerParameter<CCParameters>.bind(this);
+    const register = (this.registerParameter<CCParameters>).bind(this);
 
     this.generatePrimaryButton = $('#cycle-cover-generate-primary');
 
@@ -97,7 +97,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
       (t: number) => {
         return 1 / t;
-      }
+      },
     );
     register('minLinkers', 'cycle-cover-linkers-min');
     register('maxLinkers', 'cycle-cover-linkers-max');
@@ -113,7 +113,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
       (t: number) => {
         return t * 100;
-      }
+      },
     );
     register(
       'linkerOptions',
@@ -123,7 +123,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
       (t: string[]) => {
         return t.join(',');
-      }
+      },
     );
     register(
       'bannedSeqs',
@@ -133,7 +133,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
       (t: string[]) => {
         return t.join(',');
-      }
+      },
     );
     register('iterations', 'cycle-cover-ps-iterations');
     register('maxTrials', 'cycle-cover-ps-trials');

@@ -28,7 +28,7 @@ interface ScaffoldParams {
  */
 export function setPrimaryFromScaffold(
   nm: NucleotideModel,
-  params: ScaffoldParams
+  params: ScaffoldParams,
 ) {
   const scaffoldName = params.scaffoldName || 'none';
   const customScaffold = params.customScaffold || '';
@@ -92,7 +92,7 @@ function* getPKs(): IterableIterator<[string, string]> {
  * @returns
  */
 export function getPairing(
-  nucleotides: Array<Nucleotide>
+  nucleotides: Array<Nucleotide>,
 ): Map<number, number> {
   const pairs = new Map<number, number>();
   const nucToIdx = new Map<Nucleotide, number>();
@@ -309,7 +309,7 @@ export function setRandomPrimary(
   nm: NucleotideModel,
   gcContent: number,
   naType: NATYPE,
-  ignoreExisting = false
+  ignoreExisting = false,
 ): string[] {
   const iupac = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
   const getBase = naType == 'DNA' ? getBaseDNA : getBaseRNA;
@@ -397,7 +397,7 @@ export function getNP(nm: NucleotideModel): string {
  */
 export function validatePairs(
   nucleotides: Nucleotide[],
-  naType: NATYPE
+  naType: NATYPE,
 ): boolean {
   for (const n of nucleotides) {
     if (naType == 'DNA' && n.pair && 'ATGC'.includes(n.base)) {

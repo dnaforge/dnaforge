@@ -121,21 +121,21 @@ export abstract class ModuleMenu extends Menu {
     this.context.controls.registerHotkey(
       'space',
       this.generateWiresButton,
-      this
+      this,
     );
     this.context.controls.registerHotkey(
       'c',
       () => {
         this.select5p(true);
       },
-      this
+      this,
     );
     this.context.controls.registerHotkey(
       'shift+c',
       () => {
         this.select5p(false);
       },
-      this
+      this,
     );
   }
 
@@ -157,7 +157,7 @@ export abstract class ModuleMenu extends Menu {
    */
   abstract wiresToCylinders(
     wires: WiresModel,
-    params: ModuleMenuParameters
+    params: ModuleMenuParameters,
   ): CylinderModel;
 
   /**
@@ -169,7 +169,7 @@ export abstract class ModuleMenu extends Menu {
    */
   abstract cylindersToNucleotides(
     cm: CylinderModel,
-    params: ModuleMenuParameters
+    params: ModuleMenuParameters,
   ): NucleotideModel;
 
   /**
@@ -251,7 +251,7 @@ export abstract class ModuleMenu extends Menu {
     this.context.editor.addModel(this.nm, this.params.showNucleotides);
     this.context.addMessage(
       `Created: ${this.nm.length()} nucleotides.`,
-      'info'
+      'info',
     );
   }
 
@@ -276,7 +276,7 @@ export abstract class ModuleMenu extends Menu {
 
     this.context.addMessage(
       `Cylinders relaxed.<br>Initial score: ${initialScore}<br>Final score: ${finalScore}`,
-      'info'
+      'info',
     );
   }
 
@@ -417,7 +417,7 @@ export abstract class ModuleMenu extends Menu {
    */
   setupEventListeners() {
     super.setupEventListeners();
-    const register = this.registerParameter<ModuleMenuParameters>.bind(this);
+    const register = (this.registerParameter<ModuleMenuParameters>).bind(this);
 
     register('showWires', `${this.elementId}-toggle-wires`);
     register('showCylinders', `${this.elementId}-toggle-cylinders`);
@@ -432,7 +432,7 @@ export abstract class ModuleMenu extends Menu {
     this.generateWiresButton = $(`#${this.elementId}-generate-wires`);
     this.generateCylindersButton = $(`#${this.elementId}-generate-cylinders`);
     this.generateNucleotidesButton = $(
-      `#${this.elementId}-generate-nucleotides`
+      `#${this.elementId}-generate-nucleotides`,
     );
 
     const blur = () => {
@@ -512,7 +512,7 @@ export function editOp(t: any) {
   return function (
     target: any,
     methodName: string,
-    descriptor?: PropertyDescriptor
+    descriptor?: PropertyDescriptor,
   ) {
     let originalFunction = target[methodName];
     let auditFunction = async function (this: any) {

@@ -34,7 +34,7 @@ export abstract class Menu {
     context: Context,
     elementId: string,
     title: string,
-    isGlobal = true
+    isGlobal = true,
   ) {
     this.title = title;
     this.elementId = elementId; // connects the HTML element to this object
@@ -100,7 +100,7 @@ export abstract class Menu {
     },
     toHTMLTrans = (t: UIVal) => {
       return t;
-    }
+    },
   ) {
     const element = $('#' + id);
     if (!element[0]) throw `No such element: ${id}`;
@@ -118,7 +118,7 @@ export abstract class Menu {
     };
     const set = (json: JSONObject) => {
       const tVal = toHTMLTrans(
-        json[parameter] as MenuParameters[keyof MenuParameters]
+        json[parameter] as MenuParameters[keyof MenuParameters],
       );
 
       if (element[0].type == 'checkbox') element[0].checked = tVal;

@@ -68,7 +68,7 @@ describe('Atrail-routing', function () {
 
       assert.equal(
         trail[0].twin.vertex == trail[trail.length - 1].vertex,
-        true
+        true,
       );
     });
 

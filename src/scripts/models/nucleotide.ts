@@ -52,7 +52,7 @@ const backboneGeometryCone = new THREE.ConeGeometry(0.15, 1, 6);
 const backboneGeometryBall = (nucParams: Record<string, any>) => {
   const backbone = new THREE.SphereGeometry(0.15, 16, 8);
   backbone.translate(
-    ...(nucParams.BACKBONE_CENTER as [number, number, number])
+    ...(nucParams.BACKBONE_CENTER as [number, number, number]),
   );
   return backbone;
 };
@@ -60,14 +60,14 @@ const baseGeometry = (nucParams: typeof DNA | typeof RNA) => {
   const base = new THREE.SphereGeometry(0.2, 16, 8);
   base.scale(1, 0.5, 1);
   base.translate(
-    ...(nucParams.NUCLEOBASE_CENTER as any as [number, number, number])
+    ...(nucParams.NUCLEOBASE_CENTER as any as [number, number, number]),
   );
   return base;
 };
 const nucleotideGeometry = (nucParams: typeof DNA | typeof RNA) => {
   const base = new THREE.CylinderGeometry(0.1, 0.1, 0.75, 8);
   base.applyMatrix4(
-    get2PointTransform(nucParams.BACKBONE_CENTER, nucParams.NUCLEOBASE_CENTER)
+    get2PointTransform(nucParams.BACKBONE_CENTER, nucParams.NUCLEOBASE_CENTER),
   );
   return base;
 };
@@ -153,27 +153,27 @@ export class Nucleotide extends Selectable {
    */
   static createInstanceMesh(
     nucParams: typeof DNA | typeof RNA,
-    count: number
+    count: number,
   ): NucleotideMeshes {
     const meshBases = new THREE.InstancedMesh(
       baseGeometry(nucParams),
       materialNucleotides,
-      count
+      count,
     );
     const meshNucleotides = new THREE.InstancedMesh(
       nucleotideGeometry(nucParams),
       materialNucleotides,
-      count
+      count,
     );
     const meshBackbone1 = new THREE.InstancedMesh(
       backboneGeometryCone,
       materialNucleotides,
-      count
+      count,
     );
     const meshBackbone2 = new THREE.InstancedMesh(
       backboneGeometryBall(nucParams),
       materialNucleotides,
-      count
+      count,
     );
 
     const meshes = {
@@ -201,7 +201,7 @@ export class Nucleotide extends Selectable {
    */
   setNucleotideVectors() {
     this.backboneCenter = this.nucParams.BACKBONE_CENTER.clone().applyMatrix4(
-      this.transform
+      this.transform,
     );
     this.nucleobaseCenter =
       this.nucParams.NUCLEOBASE_CENTER.clone().applyMatrix4(this.transform);
@@ -239,7 +239,7 @@ export class Nucleotide extends Selectable {
       const p2 = this.next.backboneCenter;
       const length = p2.clone().sub(p1).length();
       bbTransform = get2PointTransform(p1, p2).scale(
-        new Vector3(this.scale, length, this.scale)
+        new Vector3(this.scale, length, this.scale),
       );
     } else {
       bbTransform = new Matrix4().scale(new Vector3(0, 0, 0));
@@ -429,7 +429,7 @@ export class Nucleotide extends Selectable {
     this.transform.compose(
       this.getPosition(),
       rot,
-      new Vector3(this.scale, this.scale, this.scale)
+      new Vector3(this.scale, this.scale, this.scale),
     );
     this.updateVisuals();
   }
