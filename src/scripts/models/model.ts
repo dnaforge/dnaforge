@@ -18,7 +18,7 @@ export abstract class Model {
 
   clone(): Model {
     const t = this.toJSON();
-    return Object.getPrototypeOf(this).loadJSON(t);
+    return (<any>this.constructor).loadJSON(t);
   }
 
   abstract show(): void;
@@ -26,6 +26,8 @@ export abstract class Model {
   abstract hide(): void;
 
   abstract generateObject(): Object3D;
+
+  abstract dispose(): void;
 
   abstract handleIntersection(i: Intersection): Selectable;
 }

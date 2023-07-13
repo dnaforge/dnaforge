@@ -6,6 +6,7 @@ import { Context } from './context';
 import { Menu, MenuParameters } from './menu';
 import { downloadTXT } from '../io/download';
 import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA } from '../globals/consts';
+import { Model } from '../models/model';
 
 //TODO: Get rid of the question marks.
 export interface ModuleMenuParameters extends MenuParameters {
@@ -16,13 +17,14 @@ export interface ModuleMenuParameters extends MenuParameters {
   linkerOptions?: IUPAC_CHAR_DNA[] | IUPAC_CHAR_RNA[];
   minStrandLength?: number;
   maxStrandLength?: number;
-  gcContent?: number;
   addNicks?: boolean;
+  greedyOffset?: boolean;
+
+  gcContent?: number;
   scaffoldName?: string;
   customScaffold?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
-  greedyOffset?: boolean;
 
   showWires?: boolean;
   showCylinders?: boolean;
@@ -176,18 +178,14 @@ export abstract class ModuleMenu extends Menu {
    * Activate this context and unhide the associated models.
    */
   activate() {
-    this.params.showWires && this.wires?.show();
-    this.params.showCylinders && this.cm?.show();
-    this.params.showNucleotides && this.nm?.show();
+    this.updateVisuals();
   }
 
   /**
    * Inactivate this context and hide the associated models.
    */
   inactivate() {
-    this.wires?.hide();
-    this.cm?.hide();
-    this.nm?.hide();
+    this.updateVisuals();
   }
 
   /**
@@ -206,6 +204,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Generate a wireframe / routing model based on the current graph and parameters. Remove the previous version.
    */
+  @editOp('wires', 'cm', 'nm')
   generateWires() {
     // remove old:
     this.removeWires(true);
@@ -223,6 +222,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Generate a cylinder model based on the current routing model and parameters. Remove the previous version.
    */
+  @editOp('cm', 'nm')
   generateCylinderModel() {
     // remove old:
     this.removeCylinders(true);
@@ -239,6 +239,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Generate a nucleotide model based on the current cylinder model and parameters. Remove the previous version.
    */
+  @editOp('nm')
   generateNucleotideModel() {
     // remove old:
     this.removeNucleotides(true);
@@ -258,8 +259,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Relax the cylinder model by rotating its constituent cylinders.
    */
-  @editOp('cm')
-  @editOp('nm')
+  @editOpAsync('cm', 'nm')
   async relaxCylinders() {
     try {
       if (!this.cm) this.generateCylinderModel();
@@ -272,7 +272,7 @@ export abstract class ModuleMenu extends Menu {
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.removeNucleotides(true);
-    if (this.context.activeContext == this) this.regenerateVisible();
+    if (this.context.activeContext == this) this.generateVisible();
 
     this.context.addMessage(
       `Cylinders relaxed.<br>Initial score: ${initialScore}<br>Final score: ${finalScore}`,
@@ -281,18 +281,11 @@ export abstract class ModuleMenu extends Menu {
   }
 
   /**
-   * Add the wireframe model to the scene. Generate the model if it does not exist.
-   */
-  addWires() {
-    if (!this.wires) this.generateWires();
-    if (this.wires) this.wires.show();
-  }
-
-  /**
    * Remove the wireframe model from the scene.
    *
    * @param dispose Delete the model entirely.
    */
+  @editOp('wires')
   removeWires(dispose = false) {
     if (!this.wires) return;
     this.wires.hide();
@@ -303,18 +296,11 @@ export abstract class ModuleMenu extends Menu {
   }
 
   /**
-   * Add the cylinder model to the scene. Generate it if it does not exist.
-   */
-  addCylinders() {
-    if (!this.cm) this.generateCylinderModel();
-    if (this.cm) this.cm.show();
-  }
-
-  /**
    * Remove the cylinder model from the scene.
    *
    * @param dispose Delete the model entirely.
    */
+  @editOp('cm')
   removeCylinders(dispose = false) {
     if (!this.cm) return;
     this.cm.hide();
@@ -325,18 +311,11 @@ export abstract class ModuleMenu extends Menu {
   }
 
   /**
-   * Add the nucleotide model to the scene. Generate it if it does not exist.
-   */
-  addNucleotides() {
-    if (!this.nm) this.generateNucleotideModel();
-    if (this.nm) this.nm.show();
-  }
-
-  /**
    * Remove the nucleotide model from the scene.
    *
    * @param dispose Delete the model entirely.
    */
+  @editOp('nm')
   removeNucleotides(dispose = false) {
     if (!this.nm) return;
     this.nm.hide();
@@ -349,14 +328,19 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Add all models marked as shown to the scene. Generate them if they do not exist.
    */
-  regenerateVisible() {
-    this.params.showWires && this.addWires();
-    this.params.showCylinders && this.addCylinders();
-    this.params.showNucleotides && this.addNucleotides();
+  @editOp('wires', 'cm', 'nm')
+  generateVisible() {
+    this.params.showWires && !this.wires && this.generateWires();
+    this.params.showCylinders && !this.cm && this.generateCylinderModel();
+    this.params.showNucleotides && !this.nm && this.generateNucleotideModel();
 
     this.updateVisuals();
   }
 
+  /**
+   * Update the visibility of the 3d models associated with this model.
+   *
+   */
   updateVisuals() {
     const active = this.context.activeContext == this;
 
@@ -412,6 +396,24 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
+  @editOp('wires', 'cm', 'nm')
+  generateWiresOP() {
+    this.generateWires();
+    this.generateVisible();
+  }
+
+  @editOp('wires', 'cm', 'nm')
+  generateCylindersOP() {
+    this.generateCylinderModel();
+    this.generateVisible();
+  }
+
+  @editOp('wires', 'cm', 'nm')
+  generateNucleotidesOP() {
+    this.generateNucleotideModel();
+    this.generateVisible();
+  }
+
   /**
    * Connect all the HTML elements to this object. Add their event listeners.
    */
@@ -463,21 +465,21 @@ export abstract class ModuleMenu extends Menu {
     this.wiresButton.on('click', () => {
       tryError(() => {
         this.params.showWires = this.wiresButton[0].checked;
-        this.regenerateVisible();
+        this.generateVisible();
       });
     });
 
     this.cylindersButton.on('click', () => {
       tryError(() => {
         this.params.showCylinders = this.cylindersButton[0].checked;
-        this.regenerateVisible();
+        this.generateVisible();
       });
     });
 
     this.nucleotidesButton.on('click', () => {
       tryError(() => {
         this.params.showNucleotides = this.nucleotidesButton[0].checked;
-        this.regenerateVisible();
+        this.generateVisible();
       });
     });
 
@@ -487,64 +489,121 @@ export abstract class ModuleMenu extends Menu {
 
     this.generateWiresButton.on('click', () => {
       tryError(() => {
-        this.generateWires();
-        this.regenerateVisible();
+        this.generateWiresOP();
       });
     });
 
     this.generateCylindersButton.on('click', () => {
       tryError(() => {
-        this.generateCylinderModel();
-        this.regenerateVisible();
+        this.generateCylindersOP();
       });
     });
 
     this.generateNucleotidesButton.on('click', () => {
       tryError(() => {
-        this.generateNucleotideModel();
-        this.regenerateVisible();
+        this.generateNucleotidesOP();
       });
     });
   }
+
+  /**
+   * Creates a checkpoint of the given models by cloning them.
+   *
+   * @param models
+   * @returns a map of the original models
+   */
+  createCheckPoint(...models: ('wires' | 'cm' | 'nm')[]) {
+    const prevs = new Map<'wires' | 'cm' | 'nm', Model>();
+    for (let m of models) {
+      const prev = this[m];
+      prevs.set(m, prev);
+      this.context.editor.removeModel(prev);
+      this[m] = prev ? <any>prev.clone() : null;
+      this.context.editor.addModel(this[m]);
+      this.updateVisuals();
+    }
+    return prevs;
+  }
+
+  /**
+   * Loads the given checkpoint.
+   *
+   * @param prevs: a map of the original models
+   */
+  loadCheckPoint(prevs: Map<'wires' | 'cm' | 'nm', Model>) {
+    for (let m of prevs.keys()) {
+      this.context.editor.removeModel(this[m]);
+      this[m] = <any>prevs.get(m);
+      this.context.editor.addModel(this[m]);
+    }
+    this.updateVisuals();
+  }
+
+  /**
+   * Creates an undoable edit job in the editor.
+   *
+   * @param prevs: the checkpoint before the edit
+   */
+  createEditOP(prevs: Map<'wires' | 'cm' | 'nm', Model>) {
+    const afters: typeof prevs = new Map();
+    for (let m of prevs.keys()) {
+      const after = this[m];
+      afters.set(m, after);
+    }
+
+    this.context.editor.startOP();
+    this.context.editor.addUndoable({
+      undo: () => {
+        this.loadCheckPoint(prevs);
+      },
+      redo: () => {
+        this.loadCheckPoint(afters);
+      },
+    });
+    this.context.editor.finishOP();
+  }
 }
 
-export function editOp(t: any) {
-  return function (
-    target: any,
-    methodName: string,
-    descriptor?: PropertyDescriptor,
-  ) {
+export function editOp(...t: ('wires' | 'cm' | 'nm')[]) {
+  return function (target: any, methodName: string) {
     let originalFunction = target[methodName];
-    let auditFunction = async function (this: any) {
-      this.context.editor.startOP();
-      // clone the current model and use the clone for the operation, so the original
-      // model and anything depending on it stays unaffected and the operation undoable
-      const prev = this[t];
-      this.context.editor.removeModel(this[t]);
-      this[t] = prev ? prev.clone() : null;
-      this.context.editor.addModel(this[t]);
-      this.updateVisuals();
+    let modFunction = function (this: ModuleMenu) {
+      //use editOPStarted to prevent creating extra checkpoints for every operator call.
+      if ((<any>this).editOPStarted)
+        return originalFunction.apply(this, arguments);
 
-      await originalFunction.apply(this, arguments);
-      const after = this[t];
-
-      this.context.editor.do({
-        undo: () => {
-          this.context.editor.removeModel(this[t]);
-          this[t] = prev;
-          this.context.editor.addModel(this[t]);
-          this.updateVisuals();
-        },
-        redo: () => {
-          this.context.editor.removeModel(this[t]);
-          this[t] = after;
-          this.context.editor.addModel(this[t]);
-          this.updateVisuals();
-        },
-      });
-      this.context.editor.finishOP();
+      const prevs = this.createCheckPoint(...t);
+      try {
+        (<any>this).editOPStarted = true;
+        originalFunction.apply(this, arguments);
+      } finally {
+        this.createEditOP(prevs);
+        (<any>this).editOPStarted = false;
+      }
     };
-    target[methodName] = auditFunction;
+    target[methodName] = modFunction;
+    return target;
+  };
+}
+
+export function editOpAsync(...t: ('wires' | 'cm' | 'nm')[]) {
+  return function (target: any, methodName: string) {
+    let originalFunction = target[methodName];
+    let modFunction = async function (this: ModuleMenu) {
+      //use editOPStarted to prevent creating extra checkpoints for every operator call.
+      if ((<any>this).editOPStarted)
+        return await originalFunction.apply(this, arguments);
+
+      const prevs = this.createCheckPoint(...t);
+      try {
+        (<any>this).editOPStarted = true;
+        await originalFunction.apply(this, arguments);
+      } finally {
+        this.createEditOP(prevs);
+        (<any>this).editOPStarted = false;
+      }
+    };
+    target[methodName] = modFunction;
     return target;
   };
 }

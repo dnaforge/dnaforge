@@ -63,7 +63,7 @@ export class ATrailMenu extends ModuleMenu {
     this.removeNucleotides(true); // make sure the old model is deleted
     this.context.editor.updateModel(this.cm);
 
-    this.regenerateVisible();
+    this.generateVisible();
   }
 
   generatePrimary() {
@@ -173,7 +173,7 @@ export class ATrailMenu extends ModuleMenu {
     $('#atrail-dialog-confirm').on('click', () => {
       try {
         this.uploadATrail($('#atrail-dialog-text').val().toUpperCase());
-        this.regenerateVisible();
+        this.generateVisible();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

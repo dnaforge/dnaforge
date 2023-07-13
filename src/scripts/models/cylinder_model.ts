@@ -618,8 +618,7 @@ export class CylinderModel extends Model {
   }
 
   /**
-   * Adds the given cylinders to this model. Make sure to dispose the old model
-   * in case it is already generated, since this won't update the models.
+   * Adds the given cylinders to this model. Make sure to regenerate the object
    *
    * @param cyls
    */
@@ -705,7 +704,7 @@ export class CylinderModel extends Model {
   }
 
   /**
-   * Deletes all the objects associated with this cylinder model.
+   * Deletes all the meshes associated with this cylinder model.
    */
   dispose() {
     for (const k of _.keys(this.meshes)) {

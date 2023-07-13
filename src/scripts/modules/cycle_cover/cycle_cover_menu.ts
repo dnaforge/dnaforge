@@ -144,7 +144,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.generatePrimaryButton.on('click', () => {
       try {
         this.generatePrimary();
-        this.regenerateVisible();
+        this.generateVisible();
       } catch (error) {
         this.context.addMessage(error, 'alert');
       }

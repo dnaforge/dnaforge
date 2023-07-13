@@ -110,7 +110,7 @@ export class OPS {
     this.context.controls.addModal(
       () => {
         this.editor.startOP();
-        this.editor.do(obj.apply());
+        this.editor.addUndoable(obj.apply());
         this.editor.finishOP();
       },
       () => {
@@ -158,7 +158,7 @@ export class OPS {
     this.context.controls.addModal(
       () => {
         this.editor.startOP();
-        this.editor.do(obj.apply());
+        this.editor.addUndoable(obj.apply());
         this.editor.finishOP();
       },
       () => {
@@ -191,7 +191,7 @@ export class OPS {
     this.context.controls.addModal(
       () => {
         this.editor.startOP();
-        this.editor.do(obj.apply());
+        this.editor.addUndoable(obj.apply());
         this.editor.finishOP();
       },
       () => {

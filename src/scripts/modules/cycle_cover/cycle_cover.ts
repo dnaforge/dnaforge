@@ -52,7 +52,7 @@ export class CycleCover extends WiresModel {
         let halfEdge;
         for (const edge of edges) {
           halfEdge =
-            edge.halfEdges[0].vertex == next
+            edge.halfEdges[0].vertex == cur
               ? edge.halfEdges[0]
               : edge.halfEdges[1];
           if (!visited.has(halfEdge)) break;
@@ -98,7 +98,7 @@ export class CycleCover extends WiresModel {
   /**
    * Creates a deep copy of the model.
    *
-   * @returns NM
+   * @returns CycleCover
    */
   clone(): CycleCover {
     const t = this.toJSON();

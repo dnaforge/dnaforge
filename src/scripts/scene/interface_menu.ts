@@ -25,7 +25,7 @@ interface CSSOBject {
  * Interface menu.
  */
 export class InterfaceMenu extends Menu {
-  cameraLight = new THREE.PointLight(0xffffff, 0.75);
+  cameraLight = new THREE.PointLight(0xffffff, 1);
   ambientLight = new THREE.AmbientLight(0xbbbbbb);
 
   showCamLightButton: any;
@@ -67,14 +67,14 @@ export class InterfaceMenu extends Menu {
     });
 
     this.scene.add(this.cameraLight);
-    this.regenerateVisible();
+    this.generateVisible();
   }
 
   /**
    * Activate this context.
    */
   activate() {
-    this.regenerateVisible();
+    this.generateVisible();
   }
 
   toJSON(): JSONObject {
@@ -535,7 +535,7 @@ export class InterfaceMenu extends Menu {
   /**
    * Add all visible objects to the scene and remove all invisible ones.
    */
-  regenerateVisible() {
+  generateVisible() {
     if (this.showCamLightButton[0].checked) this.addCamLight();
     else this.removeCamLight();
     if (this.showAmbLightButton[0].checked) this.addAmbLight();
@@ -584,39 +584,39 @@ export class InterfaceMenu extends Menu {
     this.hoverButton = $('#toggle-hover');
 
     this.showCamLightButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.showAmbLightButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.showFogButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.showAxesButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.showGridButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.solidButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.wiresButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.boundingBoxButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.showScaleButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     this.resetCameraButton.on('click', () => {
@@ -632,7 +632,7 @@ export class InterfaceMenu extends Menu {
     });
 
     this.indicesButton.on('click', () => {
-      this.regenerateVisible();
+      this.generateVisible();
     });
 
     $('#selection-mode').on('click', () => {

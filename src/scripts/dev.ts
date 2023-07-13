@@ -47,8 +47,8 @@ export function dev(context: Context) {
   //atrail.params.checkerBoard = true;
   //atrail.addWires();
   //atrail.addCylinders();
-  atrail.addNucleotides();
-  atrail.relaxCylinders();
+  //atrail.generateNucleotideModel();
+  //atrail.relaxCylinders();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);

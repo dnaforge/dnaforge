@@ -11,19 +11,16 @@ abstract class WiresModel extends Model {
 
   //abstract static loadJSON(json: any): WiresModel; // Typescript does not support abstract static, but all wires models should implement this.
 
-  abstract selectAll(): void;
-
-  abstract deselectAll(): void;
-
   abstract generateObject(): Object3D;
 
   abstract handleIntersection(i: Intersection): Selectable;
 
   /**
-   * Delete the 3d model and free up the resources.
+   * Deletes all the mehses associated with this model.
    */
   dispose() {
-    this.obj.geometry.dispose();
+    if (!this.obj) return;
+    this.obj?.geometry.dispose();
     delete this.obj;
   }
 

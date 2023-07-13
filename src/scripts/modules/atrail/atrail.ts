@@ -46,8 +46,6 @@ export class ATrail extends WiresModel {
   }
 
   static loadJSON(json: any) {
-    console.log(json);
-
     const graph = Graph.loadJSON(json.graph);
     const atrail = new ATrail(graph);
     atrail.setATrail(json.trail);

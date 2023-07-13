@@ -65,7 +65,7 @@ export class FileMenu extends Menu {
 
   registerHotkeys() {}
 
-  regenerateVisible() {
+  generateVisible() {
     return;
   }
 

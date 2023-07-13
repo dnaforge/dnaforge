@@ -650,6 +650,7 @@ export class NucleotideModel extends Model {
    * Deletes all the meshes associated with this model.
    */
   dispose() {
+    if (!this.obj) return;
     for (const m of this.obj.children) (m as THREE.Mesh).geometry.dispose();
     delete this.obj;
   }

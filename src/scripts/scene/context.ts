@@ -336,6 +336,7 @@ export class Context {
     this.graph = null;
     for (const ctx of this.menus.values()) ctx.reset();
     this.activeContext = null;
+    this.editor.reset();
   }
 
   /**
@@ -404,9 +405,10 @@ export class Context {
    * @param context
    */
   switchContext(context: ModuleMenu) {
-    this.activeContext && this.activeContext.inactivate();
-    context.activate();
+    const prevContext = this.activeContext;
     this.activeContext = context;
+    prevContext && prevContext.inactivate();
+    context.activate();
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
   }
 

@@ -8,6 +8,8 @@ import {
 } from './selection_utils';
 import { CylinderModel } from '../models/cylinder_model';
 
+const UNDO_LIMIT = 50;
+
 export interface OP {
   undo?: () => void;
   redo?: () => void;
@@ -21,7 +23,6 @@ export class Editor {
   context: Context;
   activeModel: Model;
   models = new Set<Model>();
-  modelsVisbile = new Set<Model>();
 
   selections = new Set<Selectable>();
   hovers = new Set<Selectable>();
@@ -35,14 +36,14 @@ export class Editor {
 
   constructor(context: Context) {
     this.context = context;
-    this.populateHotkeys();
+    this.setupHotkeys();
   }
 
   /**
    *
    *
    */
-  populateHotkeys() {
+  setupHotkeys() {
     this.context.controls.registerHotkey('a', () => {
       this.selectAll();
     });
@@ -81,6 +82,11 @@ export class Editor {
     });
   }
 
+  reset() {
+    for (let model of this.models) this.removeModel(model);
+    this.clearOPStack();
+  }
+
   addModel(model: Model, visible = true) {
     if (!model || this.models.has(model)) return;
 
@@ -97,10 +103,12 @@ export class Editor {
   removeModel(model: Model) {
     if (!model || !this.models.has(model)) return;
 
+    if (model == this.activeModel) this.activeModel = null;
     this.models.delete(model);
     const obj = model.obj;
     this.context.scene.remove(obj);
     this.context.controls.intersectionSolvers.delete(obj);
+    model.dispose();
   }
 
   updateModel(model: Model) {
@@ -139,12 +147,21 @@ export class Editor {
     } else {
       this.opCounter = 0;
       this.undoStack.push(this.opG);
+      if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
       this.redoStack.length = 0;
       this.opG = null;
     }
   }
 
-  do(action: OP, reversible = true) {
+  clearOPStack() {
+    this.undoStack.length = 0;
+    this.redoStack.length = 0;
+    this.opCounter = 0;
+    this.opG = null;
+  }
+
+  addUndoable(action: OP) {
+    if (this.opCounter > 1) return;
     this.opG.ops.push(action);
   }
 
@@ -250,7 +267,7 @@ export class Editor {
     this.context.controls.addModal(
       () => {
         this.startOP();
-        this.do(obj.apply());
+        this.addUndoable(obj.apply());
         this.finishOP();
       },
       () => {
@@ -298,7 +315,7 @@ export class Editor {
     this.context.controls.addModal(
       () => {
         this.startOP();
-        this.do(obj.apply());
+        this.addUndoable(obj.apply());
         this.finishOP();
       },
       () => {
@@ -332,7 +349,7 @@ export class Editor {
     this.context.controls.addModal(
       () => {
         this.startOP();
-        this.do(obj.apply());
+        this.addUndoable(obj.apply());
         this.finishOP();
       },
       () => {

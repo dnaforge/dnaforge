@@ -119,7 +119,7 @@ export class SternaMenu extends ModuleMenu {
     this.generatePrimaryButton.on('click', () => {
       try {
         this.generatePrimary();
-        this.regenerateVisible();
+        this.generateVisible();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -149,7 +149,7 @@ export class SternaMenu extends ModuleMenu {
     $('#generate-sterna-template').on('click', () => {
       try {
         this.generatePartialPrimary();
-        this.regenerateVisible();
+        this.generateVisible();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

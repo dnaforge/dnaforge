@@ -80,7 +80,7 @@ export abstract class Menu {
   /**
    * Adds all the visible models to the scene.
    */
-  regenerateVisible() {
+  generateVisible() {
     return;
   }
 
