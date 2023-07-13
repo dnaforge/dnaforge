@@ -204,12 +204,12 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Generate a wireframe / routing model based on the current graph and parameters. Remove the previous version.
    */
-  @editOp('wires', 'cm', 'nm')
+  @editOp('wires')
   generateWires() {
     // remove old:
-    this.removeWires(true);
-    this.removeCylinders(true);
-    this.removeNucleotides(true);
+    this.wires && this.removeWires(true);
+    this.cm && this.removeCylinders(true);
+    this.nm && this.removeNucleotides(true);
 
     this.collectParameters();
 
@@ -222,11 +222,11 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Generate a cylinder model based on the current routing model and parameters. Remove the previous version.
    */
-  @editOp('cm', 'nm')
+  @editOp('cm')
   generateCylinderModel() {
     // remove old:
-    this.removeCylinders(true);
-    this.removeNucleotides(true);
+    this.cm && this.removeCylinders(true);
+    this.nm && this.removeNucleotides(true);
 
     this.collectParameters();
 
@@ -242,7 +242,7 @@ export abstract class ModuleMenu extends Menu {
   @editOp('nm')
   generateNucleotideModel() {
     // remove old:
-    this.removeNucleotides(true);
+    this.nm && this.removeNucleotides(true);
 
     this.collectParameters();
 
@@ -271,7 +271,7 @@ export abstract class ModuleMenu extends Menu {
     await this.cm.relax();
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
-    this.removeNucleotides(true);
+    this.nm && this.removeNucleotides(true);
     if (this.context.activeContext == this) this.generateVisible();
 
     this.context.addMessage(
@@ -328,7 +328,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Add all models marked as shown to the scene. Generate them if they do not exist.
    */
-  @editOp('wires', 'cm', 'nm')
+  @editOp()
   generateVisible() {
     this.params.showWires && !this.wires && this.generateWires();
     this.params.showCylinders && !this.cm && this.generateCylinderModel();
@@ -396,19 +396,19 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
-  @editOp('wires', 'cm', 'nm')
+  @editOp('wires')
   generateWiresOP() {
     this.generateWires();
     this.generateVisible();
   }
 
-  @editOp('wires', 'cm', 'nm')
+  @editOp('cm')
   generateCylindersOP() {
     this.generateCylinderModel();
     this.generateVisible();
   }
 
-  @editOp('wires', 'cm', 'nm')
+  @editOp('nm')
   generateNucleotidesOP() {
     this.generateNucleotideModel();
     this.generateVisible();
@@ -505,80 +505,115 @@ export abstract class ModuleMenu extends Menu {
       });
     });
   }
-
-  /**
-   * Creates a checkpoint of the given models by cloning them.
-   *
-   * @param models
-   * @returns a map of the original models
-   */
-  createCheckPoint(...models: ('wires' | 'cm' | 'nm')[]) {
-    const prevs = new Map<'wires' | 'cm' | 'nm', Model>();
-    for (let m of models) {
-      const prev = this[m];
-      prevs.set(m, prev);
-      this.context.editor.removeModel(prev);
-      this[m] = prev ? <any>prev.clone() : null;
-      this.context.editor.addModel(this[m]);
-      this.updateVisuals();
-    }
-    return prevs;
-  }
-
-  /**
-   * Loads the given checkpoint.
-   *
-   * @param prevs: a map of the original models
-   */
-  loadCheckPoint(prevs: Map<'wires' | 'cm' | 'nm', Model>) {
-    for (let m of prevs.keys()) {
-      this.context.editor.removeModel(this[m]);
-      this[m] = <any>prevs.get(m);
-      this.context.editor.addModel(this[m]);
-    }
-    this.updateVisuals();
-  }
-
-  /**
-   * Creates an undoable edit job in the editor.
-   *
-   * @param prevs: the checkpoint before the edit
-   */
-  createEditOP(prevs: Map<'wires' | 'cm' | 'nm', Model>) {
-    const afters: typeof prevs = new Map();
-    for (let m of prevs.keys()) {
-      const after = this[m];
-      afters.set(m, after);
-    }
-
-    this.context.editor.startOP();
-    this.context.editor.addUndoable({
-      undo: () => {
-        this.loadCheckPoint(prevs);
-      },
-      redo: () => {
-        this.loadCheckPoint(afters);
-      },
-    });
-    this.context.editor.finishOP();
-  }
 }
 
+/**
+ * Initiates the edit OP. Marks target as having editOP in progress, creates
+ * a checkpoint of the given models by cloning them, and stores them in the target.
+ * Only clones the models for which no checkpoint exists.
+ *
+ * @param target: ModuleMenu
+ * @param t: names of the models
+ * @returns a map of the original models
+ */
+function initiateEditOP(target: ModuleMenu, ...t: ('wires' | 'cm' | 'nm')[]) {
+  if (!(<any>target).initiatedEditOP) {
+    (<any>target).initiatedEditOP = true;
+    (<any>target).curCheckPoints = new Map<'wires' | 'cm' | 'nm', Model>();
+  }
+  const models = new Set(t);
+  for (let m of t) {
+    if ((<any>target).curCheckPoints.has(m)) models.delete(m);
+  }
+  const prevs = new Map<'wires' | 'cm' | 'nm', Model>();
+  for (let m of models) {
+    const prev = target[m];
+    prevs.set(m, prev);
+    target.context.editor.removeModel(prev);
+    target[m] = prev ? <any>prev.clone() : null;
+    target.context.editor.addModel(target[m]);
+    target.updateVisuals();
+    (<any>target).curCheckPoints.set(m, prev);
+  }
+  return prevs;
+}
+
+/**
+ * Finalises the editOP on target ModuleMenu. Adds an undoable action to the
+ * editor and removes all temporary values added by initiateEditOP.
+ *
+ * @param target
+ */
+function finaliseEditOP(target: ModuleMenu) {
+  const prevs: Map<'wires' | 'cm' | 'nm', Model> = (<any>target).curCheckPoints;
+  const afters: typeof prevs = new Map();
+  for (let m of prevs.keys()) {
+    const after = target[m];
+    afters.set(m, after);
+  }
+
+  console.log(prevs.size, prevs.keys());
+
+  // Only create the editOP if something was edited
+  if (prevs.size > 0) {
+    target.context.editor.startOP();
+    target.context.editor.addUndoable({
+      undo: () => {
+        loadCheckPoint(target, prevs);
+      },
+      redo: () => {
+        loadCheckPoint(target, afters);
+      },
+    });
+    target.context.editor.finishOP();
+  }
+
+  delete (<any>target).curCheckPoints;
+  delete (<any>target).initiatedEditOP;
+}
+
+/**
+ * Loads the given checkpoint.
+ *
+ * @param target
+ * @param prevs: a map of the original models
+ */
+function loadCheckPoint(
+  target: ModuleMenu,
+  prevs: Map<'wires' | 'cm' | 'nm', Model>,
+) {
+  for (let m of prevs.keys()) {
+    target.context.editor.removeModel(target[m]);
+    target[m] = <any>prevs.get(m);
+    target.context.editor.addModel(target[m]);
+  }
+  target.updateVisuals();
+}
+
+/**
+ * A decorator for edit operations. Creates a checkpoint
+ * of the current supplied models and adds an undoable action in the
+ * editor.
+ *
+ * Needs to be used for all undoable functions which modify the models
+ * directly. Should be used without arguments if the models are edited
+ * only with other edit operations.
+ *
+ * @param t: names of the models
+ * @returns decorated function
+ */
 export function editOp(...t: ('wires' | 'cm' | 'nm')[]) {
   return function (target: any, methodName: string) {
     let originalFunction = target[methodName];
     let modFunction = function (this: ModuleMenu) {
-      //use editOPStarted to prevent creating extra checkpoints for every operator call.
-      if ((<any>this).editOPStarted)
-        return originalFunction.apply(this, arguments);
-
-      const prevs = this.createCheckPoint(...t);
+      const initiatedEditOP = !(<any>this).initiatedEditOP;
+      initiateEditOP(this, ...t);
       try {
-        (<any>this).editOPStarted = true;
         originalFunction.apply(this, arguments);
       } finally {
-        this.createEditOP(prevs);
-        (<any>this).editOPStarted = false;
+        if (initiatedEditOP) {
+          finaliseEditOP(this);
+        }
       }
     };
     target[methodName] = modFunction;
@@ -586,21 +621,30 @@ export function editOp(...t: ('wires' | 'cm' | 'nm')[]) {
   };
 }
 
+/**
+ * A decorator for async edit operations. Creates a checkpoint
+ * of the current supplied models and adds an undoable action in the
+ * editor.
+ *
+ * Needs to be used for all undoable functions which modify the models
+ * directly. Should be used without arguments if the models are edited
+ * only with other edit operations.
+ *
+ * @param t: names of the models
+ * @returns decorated async function
+ */
 export function editOpAsync(...t: ('wires' | 'cm' | 'nm')[]) {
   return function (target: any, methodName: string) {
     let originalFunction = target[methodName];
     let modFunction = async function (this: ModuleMenu) {
-      //use editOPStarted to prevent creating extra checkpoints for every operator call.
-      if ((<any>this).editOPStarted)
-        return await originalFunction.apply(this, arguments);
-
-      const prevs = this.createCheckPoint(...t);
+      const initiatedEditOP = !(<any>this).initiatedEditOP;
+      initiateEditOP(this, ...t);
       try {
-        (<any>this).editOPStarted = true;
         await originalFunction.apply(this, arguments);
       } finally {
-        this.createEditOP(prevs);
-        (<any>this).editOPStarted = false;
+        if (initiatedEditOP) {
+          finaliseEditOP(this);
+        }
       }
     };
     target[methodName] = modFunction;

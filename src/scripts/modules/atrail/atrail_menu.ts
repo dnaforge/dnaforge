@@ -7,7 +7,11 @@ import {
 } from './atrail';
 import { downloadTXT } from '../../io/download';
 import html from './atrail_ui.htm';
-import { ModuleMenu, ModuleMenuParameters } from '../../scene/module_menu';
+import {
+  ModuleMenu,
+  ModuleMenuParameters,
+  editOp,
+} from '../../scene/module_menu';
 import { Context } from '../../scene/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
@@ -53,6 +57,7 @@ export class ATrailMenu extends ModuleMenu {
     return cylindersToNucleotides(cm, params);
   }
 
+  @editOp('cm')
   reinforce() {
     if (this.context.editor.getActiveModel() != this.cm) return;
 
@@ -66,6 +71,7 @@ export class ATrailMenu extends ModuleMenu {
     this.generateVisible();
   }
 
+  @editOp('nm')
   generatePrimary() {
     if (!this.nm) this.generateNucleotideModel();
 
@@ -74,6 +80,7 @@ export class ATrailMenu extends ModuleMenu {
     setPrimaryFromScaffold(this.nm, this.params);
   }
 
+  @editOp('wires')
   uploadATrail(str: string) {
     // remove old:
     this.removeWires(true);

@@ -5,7 +5,11 @@ import {
   cylindersToNucleotides,
 } from './veneziano';
 import html from './spanning_tree_ui.htm';
-import { ModuleMenu, ModuleMenuParameters } from '../../scene/module_menu';
+import {
+  ModuleMenu,
+  ModuleMenuParameters,
+  editOp,
+} from '../../scene/module_menu';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../scene/context';
@@ -48,6 +52,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     return cylindersToNucleotides(cm, params);
   }
 
+  @editOp('nm')
   generatePrimary() {
     if (!this.nm) this.generateNucleotideModel();
 
