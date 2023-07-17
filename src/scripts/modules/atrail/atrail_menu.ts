@@ -7,16 +7,19 @@ import {
 } from './atrail';
 import { downloadTXT } from '../../io/download';
 import html from './atrail_ui.htm';
-import {
-  ModuleMenu,
-  ModuleMenuParameters,
-  editOp,
-} from '../../scene/module_menu';
-import { Context } from '../../scene/context';
+import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
+import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
-import { Cylinder, CylinderModel } from '../../models/cylinder_model';
+import { CylinderModel } from '../../models/cylinder_model';
+import {
+  Cylinder,
+  CylinderBundle,
+  PrimePos,
+  RoutingStrategy,
+} from '../../models/cylinder';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
+import { editOp, editOpAsync } from '../../editor/editOPs';
 import { NucleotideModel } from '../../models/nucleotide_model';
 
 export interface ATrailParameters extends ModuleMenuParameters {
@@ -59,10 +62,8 @@ export class ATrailMenu extends ModuleMenu {
 
   @editOp('cm')
   reinforce() {
-    if (this.context.editor.getActiveModel() != this.cm) return;
-
-    const selection = this.context.editor.getSelection();
-    if (!this.cm || selection.size == 0) return;
+    const selection = this.cm?.selection;
+    if (!this.cm || selection?.size == 0) return;
     reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
 
     this.removeNucleotides(true); // make sure the old model is deleted
@@ -107,6 +108,7 @@ export class ATrailMenu extends ModuleMenu {
 
     this.wires = atrail;
     this.context.editor.addModel(this.wires, this.params.showWires);
+    this.generateVisible();
   }
 
   setCustomScaffold(scaffold: string) {
@@ -145,14 +147,19 @@ export class ATrailMenu extends ModuleMenu {
         return t / 100;
       },
       (t: number) => {
-        return t / 100;
+        return t * 100;
       },
     );
     register('greedyOffset', 'atrail-greedy');
 
+    const blur = () => {
+      (document.activeElement as HTMLElement).blur();
+    };
+
     $('#atrail-reinforce-cylinders').on('click', () => {
       try {
         this.reinforce();
+        blur();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -171,6 +178,7 @@ export class ATrailMenu extends ModuleMenu {
         this.setCustomScaffold(
           $('#atrail-scaffold-dialog-text').val().toUpperCase(),
         );
+        blur();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -180,7 +188,7 @@ export class ATrailMenu extends ModuleMenu {
     $('#atrail-dialog-confirm').on('click', () => {
       try {
         this.uploadATrail($('#atrail-dialog-text').val().toUpperCase());
-        this.generateVisible();
+        blur();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

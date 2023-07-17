@@ -28,9 +28,9 @@
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
                         type="number" data-role="input" data-default-value="15" min="0.01" max="1000" step="0.01"
-                        data-size="225" data-prepend="Scale" data-append="nm" id="veneziano-scale"></li>
+                        data-size="225" data-prepend="Scale" data-append="nm" id="spanning-tree-scale"></li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
-                    <select data-prepend="Scaffold" data-role="select" id="veneziano-scaffold">
+                    <select data-prepend="Scaffold" data-role="select" id="spanning-tree-scaffold">
                         <optgroup label="Scaffold strand">
                             <option value="none">Blank</option>
                             <option value="m13mp18">M13mp18 (7249)</option>
@@ -47,7 +47,7 @@
                 </li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Add strand gaps in linker strands.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add strand gaps"
-                        id="veneziano-add-nicks">
+                        id="spanning-tree-add-nicks">
                 </li>
             </ul>
             <button class="ribbon-button" onclick="Metro.dialog.open('#spanning-tree-parameters');" data-role="hint"
@@ -108,17 +108,17 @@
         </div>
     </div>
 </div>
-<div class="dialog" data-role="dialog" id="veneziano-scaffold-dialog">
+<div class="dialog" data-role="dialog" id="spanning-tree-scaffold-dialog">
     <div class="dialog-title">Input a custom scaffold</div>
     <div class="dialog-content">
-        <textarea data-role="textarea" data-chars-counter="#veneziano-chars-counter"
-            data-chars-counter-template="Length $1 bases" id="veneziano-scaffold-dialog-text"
+        <textarea data-role="textarea" data-chars-counter="#spanning-tree-chars-counter"
+            data-chars-counter-template="Length $1 bases" id="spanning-tree-scaffold-dialog-text"
             data-auto-size="false"></textarea>
-        <p id="veneziano-chars-counter">Length: 0 bases</p>
+        <p id="spanning-tree-chars-counter">Length: 0 bases</p>
     </div>
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
-        <button class="button primary js-dialog-close" id="veneziano-scaffold-dialog-confirm">Set Scaffold</button>
+        <button class="button primary js-dialog-close" id="spanning-tree-scaffold-dialog-confirm">Set Scaffold</button>
     </div>
 </div>
 
@@ -131,7 +131,7 @@
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Bring cylinders as close to the vertex as possible.">
                 <input type="checkbox" data-role="checkbox" data-caption="Greedy vertices"
-                    id="veneziano-greedy">
+                    id="spanning-tree-greedy">
             </li>
         </ul>
         <p>Strand parameters:</p>
@@ -149,7 +149,28 @@
             <li hidden data-role="hint" data-hint-position="right"
                 data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
                     type="number" data-role="input" data-default-value="50" data-size="260"
-                    data-prepend="GC-content" data-append="%" id="veneziano-gc-content"></li>
+                    data-prepend="GC-content" data-append="%" id="spanning-tree-gc-content"></li>
+        </ul>
+        <p>Relaxation parameters:</p>
+        <ul class="group-list">
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
+                    data-default-value="50" data-prepend="GC-content" data-append="%" id="spanning-tree-relax-iterations"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between the 3d-model and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Floor Constraints"
+                    id="spanning-tree-floor-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Bundle Constraints"
+                    id="spanning-tree-bundle-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
+                    id="spanning-tree-spring-constraints">
+            </li>
         </ul>
     </div>
     <div class="dialog-actions">

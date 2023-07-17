@@ -5,7 +5,7 @@ import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
-import { Selectable } from '../scene/selection_utils';
+import { Selectable, SelectionColourIds } from './selectable';
 import { NucleotideModel } from './nucleotide_model';
 
 export interface NucleotideMeshes {
@@ -40,7 +40,7 @@ const nucleotideColours: Record<string, THREE.Color> = {
   backbone: new THREE.Color(0xffffff),
 };
 
-const selectionColours = {
+const selectionColours: Record<SelectionColourIds, THREE.Color> = {
   default: new THREE.Color(0xffffff),
   selection: new THREE.Color(0x5555ff),
   hover: new THREE.Color(0xff5555),
@@ -79,6 +79,7 @@ export class Nucleotide extends Selectable {
   owner: NucleotideModel;
   id: number;
   instanceMeshes: NucleotideMeshes;
+  instanceColours = selectionColours['default'];
 
   base: string;
   scale: number;
@@ -246,12 +247,18 @@ export class Nucleotide extends Selectable {
     }
     this.instanceMeshes.backbone1.setMatrixAt(this.id, bbTransform);
     this.instanceMeshes.backbone2.setMatrixAt(this.id, this.transform);
+
+    let m: keyof NucleotideMeshes;
+    for (m in this.instanceMeshes) {
+      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
+    }
   }
 
   /**
    * Set the object instance colours.
    */
-  updateObjectColours(colour = selectionColours.default) {
+  updateObjectColours() {
+    const colour = this.instanceColours;
     this.instanceMeshes.backbone1.setColorAt(this.id, colour);
     this.instanceMeshes.backbone2.setColorAt(this.id, colour);
     this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
@@ -267,6 +274,12 @@ export class Nucleotide extends Selectable {
     this.instanceMeshes.backbone2.visible = GLOBALS.visibilityNucBackbone;
     this.instanceMeshes.nucleotides.visible = GLOBALS.visibilityNucBase;
     this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
+  }
+
+  setColours(cid: SelectionColourIds) {
+    const colour = selectionColours[cid];
+    this.instanceColours = colour;
+    this.updateObjectColours();
   }
 
   /**
@@ -373,22 +386,6 @@ export class Nucleotide extends Selectable {
     this.updateObjectMatrices();
     this.next?.updateObjectMatrices();
     this.prev?.updateObjectMatrices();
-    let m: keyof NucleotideMeshes;
-    for (m in this.instanceMeshes) {
-      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
-    }
-  }
-
-  markSelect() {
-    this.updateObjectColours(selectionColours.selection);
-  }
-
-  markHover() {
-    this.updateObjectColours(selectionColours.hover);
-  }
-
-  markDefault(): void {
-    this.updateObjectColours();
   }
 
   getTooltip(): string {

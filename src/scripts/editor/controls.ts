@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
 import { GLOBALS } from '../globals/globals';
-import { Context } from './context';
-import { Menu } from './menu';
-import { Selectable } from './selection_utils';
+import { Context } from '../menus/context';
+import { Menu } from '../menus/menu';
+import { Selectable } from '../models/selectable';
 
 const MIN_DELTA = 0.01;
 

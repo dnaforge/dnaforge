@@ -1,38 +1,27 @@
-import { Context } from './context';
+import { Context } from '../menus/context';
 import { Model } from '../models/model';
 import { Matrix4, Vector2, Vector3, Quaternion } from 'three';
-import {
-  BoxSelector,
-  Selectable,
-  SelectionTransformer,
-} from './selection_utils';
+import { Selectable } from '../models/selectable';
 import { CylinderModel } from '../models/cylinder_model';
+import { BoxSelector, SelectionTransformer } from './selection_utils';
+import { OP } from './editOPs';
 
 const UNDO_LIMIT = 50;
 
-export interface OP {
-  undo?: () => void;
-  redo?: () => void;
-}
-
-export interface OPGroup {
-  ops: OP[];
-}
+export type SelectionModes = 'none' | 'single' | 'limited' | 'connected';
 
 export class Editor {
   context: Context;
   activeModel: Model;
   models = new Set<Model>();
 
-  selections = new Set<Selectable>();
+  //selections = new Set<Selectable>();
   hovers = new Set<Selectable>();
 
-  selectionMode: 'none' | 'single' | 'limited' | 'connected' = 'connected';
+  selectionMode: SelectionModes = 'connected';
 
-  opG: OPGroup;
-  opCounter = 0;
-  undoStack: OPGroup[] = [];
-  redoStack: OPGroup[] = [];
+  undoStack: OP[] = [];
+  redoStack: OP[] = [];
 
   constructor(context: Context) {
     this.context = context;
@@ -94,7 +83,7 @@ export class Editor {
     const obj = model.generateObject();
     this.context.scene.add(obj);
     this.context.controls.intersectionSolvers.set(obj, (i) => {
-      return model.handleIntersection(i);
+      return model.solveIntersection(i);
     });
     if (visible) model.show();
     else model.hide();
@@ -116,7 +105,7 @@ export class Editor {
     this.context.controls.intersectionSolvers.delete(model.obj);
     this.context.scene.add(model.generateObject());
     this.context.controls.intersectionSolvers.set(model.obj, (i) => {
-      return model.handleIntersection(i);
+      return model.solveIntersection(i);
     });
   }
 
@@ -129,55 +118,30 @@ export class Editor {
     }
   }
 
-  startOP() {
-    if (!this.opG) this.opG = { ops: [] };
-    this.opCounter++;
-  }
-
-  cancelOP() {
-    this.opCounter = 0;
-    this.undoStack.push(this.opG);
-    this.redoStack.length = 0;
-    this.opG = null;
-  }
-
-  finishOP() {
-    if (this.opCounter > 1) {
-      this.opCounter--;
-    } else {
-      this.opCounter = 0;
-      this.undoStack.push(this.opG);
-      if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
-      this.redoStack.length = 0;
-      this.opG = null;
-    }
-  }
-
   clearOPStack() {
     this.undoStack.length = 0;
     this.redoStack.length = 0;
-    this.opCounter = 0;
-    this.opG = null;
   }
 
   addUndoable(action: OP) {
-    if (this.opCounter > 1) return;
-    this.opG.ops.push(action);
+    this.undoStack.push(action);
+    if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
+    this.redoStack.length = 0;
   }
 
   undo() {
     if (this.undoStack.length > 0) {
-      const opg = this.undoStack.pop();
-      for (let op of opg.ops) op.undo();
-      this.redoStack.push(opg);
+      const op = this.undoStack.pop();
+      op.undo();
+      this.redoStack.push(op);
     }
   }
 
   redo() {
     if (this.redoStack.length > 0) {
-      const opg = this.redoStack.pop();
-      for (let i = opg.ops.length - 1; i >= 0; i--) opg.ops[i].redo();
-      this.undoStack.push(opg);
+      const op = this.redoStack.pop();
+      op.redo();
+      this.undoStack.push(op);
     }
   }
 
@@ -250,7 +214,7 @@ export class Editor {
   }
 
   setPosition() {
-    const curSel = this.getSelection();
+    const curSel = this.getSelected();
     if (curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
@@ -266,9 +230,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        this.startOP();
         this.addUndoable(obj.apply());
-        this.finishOP();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -303,7 +265,7 @@ export class Editor {
   }
 
   setRotation() {
-    const curSel = this.getSelection();
+    const curSel = this.getSelected();
     if (curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
@@ -314,9 +276,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        this.startOP();
         this.addUndoable(obj.apply());
-        this.finishOP();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -337,7 +297,7 @@ export class Editor {
   }
 
   setScale() {
-    const curSel = this.getSelection();
+    const curSel = this.getSelected();
     if (curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
@@ -348,9 +308,7 @@ export class Editor {
 
     this.context.controls.addModal(
       () => {
-        this.startOP();
         this.addUndoable(obj.apply());
-        this.finishOP();
       },
       () => {
         mouseCurPos.copy(this.context.controls.pointer);
@@ -370,36 +328,34 @@ export class Editor {
   }
 
   resetTranslation() {
-    const curSel = this.getSelection();
+    const curSel = this.getSelected();
     console.log('TODO');
   }
 
   resetRotation() {
-    const curSel = this.getSelection();
+    const curSel = this.getSelected();
     console.log('TODO');
   }
 
   resetScale() {
-    const curSel = this.getSelection();
+    const curSel = this.getSelected();
     console.log('TODO');
   }
 
-  getSelection(): Set<Selectable> {
+  getSelected(): Set<Selectable> {
     const m = this.getActiveModel();
     if (!m) return;
 
-    return this.selections;
+    return m.selection;
   }
 
   select(se: Selectable, add = false) {
     if (!add) this.deselectAll();
-    this.selections.add(se);
-    se.markSelect();
+    se.owner.select(se);
   }
 
   deSelect(se: Selectable) {
-    this.selections.delete(se);
-    se.markDefault();
+    se.owner.deselect(se);
   }
 
   selectConnected(se: Selectable, add = false) {
@@ -436,23 +392,19 @@ export class Editor {
   }
 
   /**
-   * Deselect everything visible.
+   * Deselect everything
    */
   deselectAll() {
-    for (const s of this.selections) this.deSelect(s);
+    for (const m of this.models) m.clearSelection();
   }
 
   setHover(se: Selectable) {
     this.clearHover();
-    this.hovers.add(se);
-    se.markHover();
+    se.owner.hover(se);
   }
 
   clearHover() {
-    for (const se of this.hovers) {
-      if (this.selections.has(se)) se.markSelect();
-      else se.markDefault();
-    }
+    for (const m of this.models) m.clearHover();
   }
 
   addToolTip(s: Selectable, point: Vector3) {
@@ -471,17 +423,13 @@ export class Editor {
     }
 
     if (alt) {
-      this.context.editor.deSelectConnected(se);
+      this.deSelectConnected(se);
     } else {
-      this.context.editor.selectConnected(se, shift);
+      this.selectConnected(se, shift);
     }
   }
 
   focus(se: Selectable) {
     this.activeModel = se.owner;
-  }
-
-  relaxCylinders(cm: CylinderModel) {
-    cm.relax();
   }
 }

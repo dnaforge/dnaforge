@@ -25,7 +25,7 @@ interface CSSOBject {
  * Interface menu.
  */
 export class InterfaceMenu extends Menu {
-  cameraLight = new THREE.PointLight(0xffffff, 1);
+  cameraLight = new THREE.PointLight(0xffffff, 0.95);
   ambientLight = new THREE.AmbientLight(0xbbbbbb);
 
   showCamLightButton: any;

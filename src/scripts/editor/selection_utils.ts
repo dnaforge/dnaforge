@@ -1,6 +1,6 @@
 import { Matrix4, Vector3, Quaternion, Vector2 } from 'three';
-import { Model } from '../models/model';
-import { OP } from './editor';
+import { Selectable } from '../models/selectable';
+import { OP } from './editOPs';
 
 type Axes = 'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz' | 'xyz';
 type LockMode = 'local' | 'global';
@@ -13,48 +13,6 @@ const AxesToVec: Record<Axes, Vector3> = {
   yz: new Vector3(0, 1, 1),
   xyz: new Vector3(1, 1, 1),
 };
-
-export abstract class Selectable {
-  owner: Model = undefined;
-
-  abstract markSelect(): void;
-
-  abstract markHover(): void;
-
-  abstract markDefault(): void;
-
-  abstract getTooltip(): string;
-
-  getTransform(): Matrix4 {
-    return new Matrix4();
-  }
-
-  getPosition(): Vector3 {
-    return new Vector3();
-  }
-
-  getRotation(): Quaternion {
-    return new Quaternion();
-  }
-
-  getSize(): number {
-    return 0;
-  }
-
-  setTransform(m: Matrix4) {}
-
-  setPosition(pos: Vector3) {
-    console.log('TODO: Translation');
-  }
-
-  setRotation(rot: Quaternion) {
-    console.log('TODO: Rotation');
-  }
-
-  setSize(val: number) {
-    console.log('TODO: Scale');
-  }
-}
 
 export class BoxSelector {
   element: any;

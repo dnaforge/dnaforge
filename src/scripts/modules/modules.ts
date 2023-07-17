@@ -1,4 +1,4 @@
-import { Context } from '../scene/context';
+import { Context } from '../menus/context';
 import { ATrailMenu } from './atrail/atrail_menu';
 import { CycleCoverMenu } from './cycle_cover/cycle_cover_menu';
 import { SpanningTreeMenu } from './spanning_tree/spanning_tree_menu';

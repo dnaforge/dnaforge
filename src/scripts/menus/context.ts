@@ -5,13 +5,13 @@ import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { Controls } from './controls';
+import { Controls } from '../editor/controls';
 import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
-import { Editor } from './editor';
+import { Editor } from '../editor/editor';
 import { Model } from '../models/model';
-import { Selectable } from './selection_utils';
+import { Selectable } from '../models/selectable';
 
 const canvas = document.querySelector('#canvas');
 

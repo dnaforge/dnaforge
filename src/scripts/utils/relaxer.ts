@@ -2,7 +2,15 @@ import * as CANNON from 'cannon-es';
 import { LockConstraint } from 'cannon-es';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import { randFloat } from 'three/src/math/MathUtils';
-import { Cylinder, CylinderModel, PrimePos } from './cylinder_model';
+import { CylinderModel } from '../models/cylinder_model';
+import { Cylinder, PrimePos } from '../models/cylinder';
+
+export interface RelaxParameters {
+  relaxIterations?: number;
+  springConstraints?: boolean;
+  floorConstraints?: boolean;
+  bundleConstraints?: boolean;
+}
 
 /**
  * A class for relaxing cylinder models via physics simulation.
@@ -16,10 +24,10 @@ export class Relaxer {
   cm: CylinderModel;
   cylToMesh = new Map<Cylinder, CANNON.Body>();
 
-  constructor(cm: CylinderModel) {
+  constructor(cm: CylinderModel, params: RelaxParameters) {
     this.setupWorld();
     this.setupFloor();
-    this.setupFromCM(cm);
+    this.setupFromCM(cm, params);
   }
 
   /**
@@ -51,13 +59,13 @@ export class Relaxer {
    *
    * @param cm Cylinder Model
    */
-  setupFromCM(cm: CylinderModel) {
+  setupFromCM(cm: CylinderModel, params: RelaxParameters) {
     this.cm = cm;
 
     this.createCylinderBodies();
-    this.createSpringConstraints();
-    this.createBundleConstraints();
-    this.createFloorConstraints();
+    params.springConstraints && this.createSpringConstraints();
+    params.bundleConstraints && this.createBundleConstraints();
+    params.floorConstraints && this.createFloorConstraints();
   }
 
   /**
@@ -206,5 +214,20 @@ export class Relaxer {
       const transform = new Matrix4().compose(pos, rot, scale);
       cyl.transform = transform;
     }
+  }
+
+  async relax(iterations = 400) {
+    if (!this.cm) return;
+    const wait = () => new Promise((resolve) => setTimeout(resolve, 1));
+    // rotations
+    for (let i = 0; i < iterations; i++) {
+      this.step();
+
+      if (i % 100 == 0) {
+        this.cm.updateObject();
+        await wait();
+      }
+    }
+    this.cm.updateObject();
   }
 }

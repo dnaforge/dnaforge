@@ -169,6 +169,27 @@
                     type="number" data-role="input" data-default-value="3"
                     data-prepend="Max Linkers" id="sterna-linkers-max"></li>
         </ul>
+        <p>Relaxation parameters:</p>
+        <ul class="group-list">
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
+                    data-default-value="50" data-prepend="GC-content" data-append="%" id="sterna-relax-iterations"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between the 3d-model and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Floor Constraints"
+                    id="sterna-floor-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Bundle Constraints"
+                    id="sterna-bundle-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
+                    id="sterna-spring-constraints">
+            </li>
+        </ul>
     </div>
     <div class="dialog-actions">
         <button class="button js-dialog-close">Close</button>

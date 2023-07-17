@@ -1,21 +1,17 @@
 import {
-  Veneziano,
+  SpanningTree,
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
-} from './veneziano';
+} from './spanning_tree';
 import html from './spanning_tree_ui.htm';
-import {
-  ModuleMenu,
-  ModuleMenuParameters,
-  editOp,
-} from '../../scene/module_menu';
+import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import { Context } from '../../scene/context';
+import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
-import { NucleotideModel } from '../../models/nucleotide_model';
+import { editOp, editOpAsync } from '../../editor/editOPs';
 
 export interface STParameters extends ModuleMenuParameters {
   scaffoldOffset: number;
@@ -32,7 +28,7 @@ export class SpanningTreeMenu extends ModuleMenu {
   }
 
   jsonToWires(json: JSONObject): WiresModel {
-    return Veneziano.loadJSON(json);
+    return SpanningTree.loadJSON(json);
   }
 
   graphToWires(graph: Graph, params: STParameters) {
@@ -45,7 +41,7 @@ export class SpanningTreeMenu extends ModuleMenu {
   }
 
   wiresToCylinders(wires: WiresModel, params: STParameters) {
-    return wiresToCylinders(<Veneziano>wires, params);
+    return wiresToCylinders(<SpanningTree>wires, params);
   }
 
   cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
@@ -72,7 +68,7 @@ export class SpanningTreeMenu extends ModuleMenu {
 
     register(
       'scale',
-      'veneziano-scale',
+      'spanning-tree-scale',
       (t: number) => {
         return 1 / t;
       },
@@ -81,33 +77,33 @@ export class SpanningTreeMenu extends ModuleMenu {
       },
     );
 
-    register('addNicks', 'veneziano-add-nicks');
-    register('scaffoldName', 'veneziano-scaffold');
+    register('addNicks', 'spanning-tree-add-nicks');
+    register('scaffoldName', 'spanning-tree-scaffold');
     register('scaffoldOffset', 'spanning-tree-scaffold-offset');
     register('scaffoldStart', 'spanning-tree-scaffold-start');
     register(
       'gcContent',
-      'veneziano-gc-content',
+      'spanning-tree-gc-content',
       (t: number) => {
         return t / 100;
       },
       (t: number) => {
-        return t / 100;
+        return t * 100;
       },
     );
-    register('greedyOffset', 'veneziano-greedy');
+    register('greedyOffset', 'spanning-tree-greedy');
 
-    $('#veneziano-scaffold').on('change', () => {
-      if ($('#veneziano-scaffold')[0].value == 'custom') {
-        Metro.dialog.open('#veneziano-scaffold-dialog');
-        $('#veneziano-scaffold-dialog-text').focus();
+    $('#spanning-tree-scaffold').on('change', () => {
+      if ($('#spanning-tree-scaffold')[0].value == 'custom') {
+        Metro.dialog.open('#spanning-tree-scaffold-dialog');
+        $('#spanning-tree-scaffold-dialog-text').focus();
       }
     });
 
-    $('#veneziano-scaffold-dialog-confirm').on('click', () => {
+    $('#spanning-tree-scaffold-dialog-confirm').on('click', () => {
       try {
         this.setCustomScaffold(
-          $('#veneziano-scaffold-dialog-text').val().toUpperCase(),
+          $('#spanning-tree-scaffold-dialog-text').val().toUpperCase(),
         );
       } catch (error) {
         this.context.addMessage(error, 'alert');

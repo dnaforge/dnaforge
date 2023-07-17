@@ -5,17 +5,13 @@ import {
   cylindersToNucleotides,
 } from './cycle_cover';
 import html from './cycle_cover_ui.htm';
-import {
-  ModuleMenu,
-  ModuleMenuParameters,
-  editOp,
-} from '../../scene/module_menu';
-import { Context } from '../../scene/context';
+import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
+import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';
-import { NucleotideModel } from '../../models/nucleotide_model';
+import { editOp, editOpAsync } from '../../editor/editOPs';
 import {
   OptimiserParams,
   PrimaryGenerator,

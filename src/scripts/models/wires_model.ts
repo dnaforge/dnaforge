@@ -1,7 +1,7 @@
 import { Event, Intersection, Object3D } from 'three';
 import { Model } from './model';
-import { Selectable } from '../scene/selection_utils';
-import { ModuleMenu } from '../scene/module_menu';
+import { Selectable } from './selectable';
+import { ModuleMenu } from '../menus/module_menu';
 
 abstract class WiresModel extends Model {
   obj?: THREE.InstancedMesh;
@@ -13,7 +13,7 @@ abstract class WiresModel extends Model {
 
   abstract generateObject(): Object3D;
 
-  abstract handleIntersection(i: Intersection): Selectable;
+  abstract solveIntersection(i: Intersection): Selectable;
 
   /**
    * Deletes all the mehses associated with this model.

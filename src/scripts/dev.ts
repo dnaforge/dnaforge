@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { OBJLoader } from './io/read_obj';
-import { Context } from './scene/context';
-import { ModuleMenu } from './scene/module_menu';
+import { Context } from './menus/context';
+import { ModuleMenu } from './menus/module_menu';
 import { Matrix4, Vector3 } from 'three';
 import { SpanningTreeMenu } from './modules/spanning_tree/spanning_tree_menu';
 import { ATrailMenu } from './modules/atrail/atrail_menu';
 import { CycleCoverMenu } from './modules/cycle_cover/cycle_cover_menu';
 import { SternaMenu } from './modules/sterna/sterna_menu';
 import * as _ from 'lodash';
-import { Relaxer } from './models/relaxer';
-import { Cylinder, CylinderBundle } from './models/cylinder_model';
-import { FileMenu } from './scene/file_menu';
+import { Relaxer } from './utils/relaxer';
+import { Cylinder, CylinderBundle } from './models/cylinder';
+import { FileMenu } from './menus/file_menu';
 import { PrimaryGenerator } from './utils/primary_generator';
 
 /**

@@ -11,16 +11,12 @@ import {
 } from '../../utils/primary_utils';
 import { downloadTXT } from '../../io/download';
 import html from './sterna_ui.htm';
-import {
-  ModuleMenu,
-  ModuleMenuParameters,
-  editOp,
-} from '../../scene/module_menu';
-import { Context } from '../../scene/context';
+import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
+import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import { NucleotideModel } from '../../models/nucleotide_model';
+import { editOp, editOpAsync } from '../../editor/editOPs';
 
 export type SternaParameters = ModuleMenuParameters;
 
@@ -115,7 +111,7 @@ export class SternaMenu extends ModuleMenu {
         return t / 100;
       },
       (t: number) => {
-        return t / 100;
+        return t * 100;
       },
     );
     register('addNicks', 'sterna-add-nicks');

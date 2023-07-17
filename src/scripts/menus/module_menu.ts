@@ -6,10 +6,11 @@ import { Context } from './context';
 import { Menu, MenuParameters } from './menu';
 import { downloadTXT } from '../io/download';
 import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA } from '../globals/consts';
-import { Model } from '../models/model';
+import { editOp, editOpAsync } from '../editor/editOPs';
 
 //TODO: Get rid of the question marks.
 export interface ModuleMenuParameters extends MenuParameters {
+  //secondary structure
   naType?: 'DNA' | 'RNA';
   scale?: number;
   minLinkers?: number;
@@ -20,22 +21,23 @@ export interface ModuleMenuParameters extends MenuParameters {
   addNicks?: boolean;
   greedyOffset?: boolean;
 
+  //primary structure
   gcContent?: number;
   scaffoldName?: string;
   customScaffold?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
 
+  //visibility
   showWires?: boolean;
   showCylinders?: boolean;
   showNucleotides?: boolean;
-}
 
-export interface RelaxParameters {
-  iterations: number;
-  floorConstraints: boolean;
-  bundleConstraints: boolean;
-  springConstraints: boolean;
+  //relaxer
+  relaxIterations?: number;
+  springConstraints?: boolean;
+  floorConstraints?: boolean;
+  bundleConstraints?: boolean;
 }
 
 function setupHTML(html: string) {
@@ -267,8 +269,10 @@ export abstract class ModuleMenu extends Menu {
       this.context.addMessage(error, 'alert');
       return;
     }
+    this.collectParameters();
+
     const initialScore = Math.round(this.cm.calculateRelaxScore());
-    await this.cm.relax();
+    await this.cm.relax(this.params);
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.nm && this.removeNucleotides(true);
@@ -425,6 +429,10 @@ export abstract class ModuleMenu extends Menu {
     register('showCylinders', `${this.elementId}-toggle-cylinders`);
     register('showNucleotides', `${this.elementId}-toggle-nucleotides`);
 
+    register('bundleConstraints', `${this.elementId}-bundle-constraints`);
+    register('floorConstraints', `${this.elementId}-floor-constraints`);
+    register('springConstraints', `${this.elementId}-spring-constraints`);
+
     this.wiresButton = $(`#${this.elementId}-toggle-wires`);
     this.cylindersButton = $(`#${this.elementId}-toggle-cylinders`);
     this.nucleotidesButton = $(`#${this.elementId}-toggle-nucleotides`);
@@ -505,149 +513,4 @@ export abstract class ModuleMenu extends Menu {
       });
     });
   }
-}
-
-/**
- * Initiates the edit OP. Marks target as having editOP in progress, creates
- * a checkpoint of the given models by cloning them, and stores them in the target.
- * Only clones the models for which no checkpoint exists.
- *
- * @param target: ModuleMenu
- * @param t: names of the models
- * @returns a map of the original models
- */
-function initiateEditOP(target: ModuleMenu, ...t: ('wires' | 'cm' | 'nm')[]) {
-  if (!(<any>target).initiatedEditOP) {
-    (<any>target).initiatedEditOP = true;
-    (<any>target).curCheckPoints = new Map<'wires' | 'cm' | 'nm', Model>();
-  }
-  const models = new Set(t);
-  for (let m of t) {
-    if ((<any>target).curCheckPoints.has(m)) models.delete(m);
-  }
-  const prevs = new Map<'wires' | 'cm' | 'nm', Model>();
-  for (let m of models) {
-    const prev = target[m];
-    prevs.set(m, prev);
-    target.context.editor.removeModel(prev);
-    target[m] = prev ? <any>prev.clone() : null;
-    target.context.editor.addModel(target[m]);
-    target.updateVisuals();
-    (<any>target).curCheckPoints.set(m, prev);
-  }
-  return prevs;
-}
-
-/**
- * Finalises the editOP on target ModuleMenu. Adds an undoable action to the
- * editor and removes all temporary values added by initiateEditOP.
- *
- * @param target
- */
-function finaliseEditOP(target: ModuleMenu) {
-  const prevs: Map<'wires' | 'cm' | 'nm', Model> = (<any>target).curCheckPoints;
-  const afters: typeof prevs = new Map();
-  for (let m of prevs.keys()) {
-    const after = target[m];
-    afters.set(m, after);
-  }
-
-  console.log(prevs.size, prevs.keys());
-
-  // Only create the editOP if something was edited
-  if (prevs.size > 0) {
-    target.context.editor.startOP();
-    target.context.editor.addUndoable({
-      undo: () => {
-        loadCheckPoint(target, prevs);
-      },
-      redo: () => {
-        loadCheckPoint(target, afters);
-      },
-    });
-    target.context.editor.finishOP();
-  }
-
-  delete (<any>target).curCheckPoints;
-  delete (<any>target).initiatedEditOP;
-}
-
-/**
- * Loads the given checkpoint.
- *
- * @param target
- * @param prevs: a map of the original models
- */
-function loadCheckPoint(
-  target: ModuleMenu,
-  prevs: Map<'wires' | 'cm' | 'nm', Model>,
-) {
-  for (let m of prevs.keys()) {
-    target.context.editor.removeModel(target[m]);
-    target[m] = <any>prevs.get(m);
-    target.context.editor.addModel(target[m]);
-  }
-  target.updateVisuals();
-}
-
-/**
- * A decorator for edit operations. Creates a checkpoint
- * of the current supplied models and adds an undoable action in the
- * editor.
- *
- * Needs to be used for all undoable functions which modify the models
- * directly. Should be used without arguments if the models are edited
- * only with other edit operations.
- *
- * @param t: names of the models
- * @returns decorated function
- */
-export function editOp(...t: ('wires' | 'cm' | 'nm')[]) {
-  return function (target: any, methodName: string) {
-    let originalFunction = target[methodName];
-    let modFunction = function (this: ModuleMenu) {
-      const initiatedEditOP = !(<any>this).initiatedEditOP;
-      initiateEditOP(this, ...t);
-      try {
-        originalFunction.apply(this, arguments);
-      } finally {
-        if (initiatedEditOP) {
-          finaliseEditOP(this);
-        }
-      }
-    };
-    target[methodName] = modFunction;
-    return target;
-  };
-}
-
-/**
- * A decorator for async edit operations. Creates a checkpoint
- * of the current supplied models and adds an undoable action in the
- * editor.
- *
- * Needs to be used for all undoable functions which modify the models
- * directly. Should be used without arguments if the models are edited
- * only with other edit operations.
- *
- * @param t: names of the models
- * @returns decorated async function
- */
-export function editOpAsync(...t: ('wires' | 'cm' | 'nm')[]) {
-  return function (target: any, methodName: string) {
-    let originalFunction = target[methodName];
-    let modFunction = async function (this: ModuleMenu) {
-      const initiatedEditOP = !(<any>this).initiatedEditOP;
-      initiateEditOP(this, ...t);
-      try {
-        await originalFunction.apply(this, arguments);
-      } finally {
-        if (initiatedEditOP) {
-          finaliseEditOP(this);
-        }
-      }
-    };
-    target[methodName] = modFunction;
-    return target;
-  };
 }

@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/misc_utils';
 import { Vector3, Intersection } from 'three';
+import { CylinderModel } from '../../models/cylinder_model';
 import {
   Cylinder,
   CylinderBundle,
-  CylinderModel,
   PrimePos,
   RoutingStrategy,
-} from '../../models/cylinder_model';
+} from '../../models/cylinder';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge, HalfEdge, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
@@ -15,10 +15,10 @@ import { STParameters } from './spanning_tree_menu';
 import { Nucleotide } from '../../models/nucleotide';
 import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';
-import { Selectable } from '../../scene/selection_utils';
+import { Selectable } from '../../models/selectable';
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-export class Veneziano extends WiresModel {
+export class SpanningTree extends WiresModel {
   graph: Graph;
   st: Set<Edge>;
   trail: HalfEdge[];
@@ -41,7 +41,7 @@ export class Veneziano extends WiresModel {
 
   static loadJSON(json: any) {
     const graph = Graph.loadJSON(json.graph);
-    const v = new Veneziano(graph);
+    const v = new SpanningTree(graph);
     const idToEdge = new Map<number, Edge>();
     for (const e of graph.edges) idToEdge.set(e.id, e);
 
@@ -188,7 +188,7 @@ export class Veneziano extends WiresModel {
     return this.obj;
   }
 
-  handleIntersection(i: Intersection): Selectable {
+  solveIntersection(i: Intersection): Selectable {
     return null;
   }
 
@@ -209,7 +209,7 @@ export class Veneziano extends WiresModel {
  * @returns
  */
 export function graphToWires(graph: Graph, params: STParameters) {
-  const veneziano = new Veneziano(graph);
+  const veneziano = new SpanningTree(graph);
   return veneziano;
 }
 
@@ -220,7 +220,10 @@ export function graphToWires(graph: Graph, params: STParameters) {
  * @param params
  * @returns
  */
-export function wiresToCylinders(veneziano: Veneziano, params: STParameters) {
+export function wiresToCylinders(
+  veneziano: SpanningTree,
+  params: STParameters,
+) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 

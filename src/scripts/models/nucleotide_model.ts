@@ -3,18 +3,13 @@ import * as THREE from 'three';
 import { Intersection } from 'three';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
-import {
-  CylinderModel,
-  Cylinder,
-  RoutingStrategy,
-  PrimePos,
-} from './cylinder_model';
-import { ModuleMenu, ModuleMenuParameters } from '../scene/module_menu';
+import { CylinderModel } from './cylinder_model';
+import { Cylinder, RoutingStrategy, PrimePos } from './cylinder';
+import { ModuleMenu, ModuleMenuParameters } from '../menus/module_menu';
 import { Strand } from './strand';
 import { Nucleotide, NucleotideMeshes } from './nucleotide';
-import { Context } from '../scene/context';
 import { Model } from './model';
-import { Selectable } from '../scene/selection_utils';
+import { Selectable } from './selectable';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
@@ -49,6 +44,9 @@ export class NucleotideModel extends Model {
       }),
       scale: this.scale,
       naType: this.naType,
+      selection: Array.from(this.selection).map((n: Nucleotide) => {
+        return n.id;
+      }),
     };
   }
 
@@ -80,17 +78,10 @@ export class NucleotideModel extends Model {
         }
       }
     }
+    for (const nid of json.selection) {
+      nm.selection.add(nm.idToNuc.get(nid));
+    }
     return nm;
-  }
-
-  /**
-   * Creates a deep copy of the model.
-   *
-   * @returns NM
-   */
-  clone(): NucleotideModel {
-    const t = this.toJSON();
-    return NucleotideModel.loadJSON(t);
   }
 
   /**
@@ -674,7 +665,7 @@ export class NucleotideModel extends Model {
     return this.obj;
   }
 
-  handleIntersection(i: Intersection) {
+  solveIntersection(i: Intersection) {
     return this.idToNuc.get(i.instanceId);
   }
 
