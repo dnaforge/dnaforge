@@ -81,10 +81,8 @@ export class Editor {
 
     this.models.add(model);
     const obj = model.generateObject();
+    obj.userData.model = model; // gives access to the intersection handler
     this.context.scene.add(obj);
-    this.context.controls.intersectionSolvers.set(obj, (i) => {
-      return model.solveIntersection(i);
-    });
     if (visible) model.show();
     else model.hide();
   }
@@ -96,17 +94,12 @@ export class Editor {
     this.models.delete(model);
     const obj = model.obj;
     this.context.scene.remove(obj);
-    this.context.controls.intersectionSolvers.delete(obj);
     model.dispose();
   }
 
   updateModel(model: Model) {
     this.context.scene.remove(model.obj);
-    this.context.controls.intersectionSolvers.delete(model.obj);
     this.context.scene.add(model.generateObject());
-    this.context.controls.intersectionSolvers.set(model.obj, (i) => {
-      return model.solveIntersection(i);
-    });
   }
 
   getActiveModel(): Model {

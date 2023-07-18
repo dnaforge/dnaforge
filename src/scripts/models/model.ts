@@ -16,7 +16,6 @@ export abstract class Model {
   clone(): Model {
     const t = this.toJSON();
     const n = (<any>this.constructor).loadJSON(t);
-    //for(let i)
     return n;
   }
 

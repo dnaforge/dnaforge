@@ -4,6 +4,7 @@ import { GLOBALS } from '../globals/globals';
 import { Context } from '../menus/context';
 import { Menu } from '../menus/menu';
 import { Selectable } from '../models/selectable';
+import { Model } from '../models/model';
 
 const MIN_DELTA = 0.01;
 
@@ -32,10 +33,6 @@ export class Controls {
   leftClicked = false;
   rightClicked = false;
   intersection: THREE.Intersection;
-  intersectionSolvers = new Map<
-    THREE.Object3D,
-    (i: THREE.Intersection) => Selectable
-  >();
 
   hover = false;
 
@@ -52,13 +49,20 @@ export class Controls {
     this.context = context;
     this.scene = context.scene;
     this.setupEventListeners();
+    this.setupHotkeys();
   }
 
   /**
    * Associates hotkeys with functions or buttons.
    */
-  populateHotkeys() {
-    return;
+  setupHotkeys() {
+    this.registerHotkey(
+      'escape',
+      () => {
+        return this.escClose();
+      },
+      'global',
+    );
   }
 
   /**
@@ -139,6 +143,13 @@ export class Controls {
     return false;
   }
 
+  escClose() {
+    const dialogs = $('.dialog');
+    for (let i = 0; i < dialogs.length; i++) {
+      Metro.dialog.close(dialogs[i]);
+    }
+  }
+
   raycast() {
     const cam = this.context.getCamera();
     if ((cam as THREE.OrthographicCamera).isOrthographicCamera) {
@@ -162,8 +173,8 @@ export class Controls {
   resolveIntersection(intersection: THREE.Intersection): Selectable {
     let curObj = intersection.object;
     while (curObj && curObj != this.scene) {
-      const handler = this.intersectionSolvers.get(curObj);
-      if (handler) return handler(intersection);
+      const model: Model = curObj.userData.model;
+      if (model) return model.solveIntersection(intersection);
       else curObj = curObj.parent;
     }
     return null;
@@ -238,7 +249,7 @@ export class Controls {
   }
 
   handleKeyDown(event: KeyboardEvent) {
-    if (event.target != body) return;
+    if (event.target != body && event.code != 'Escape') return;
     let keyCode = event.key;
     if (keyCode == ' ') keyCode = 'space';
     if (event.code.startsWith('Digit'))
