@@ -10,6 +10,7 @@ import { Strand } from './strand';
 import { Nucleotide, NucleotideMeshes } from './nucleotide';
 import { Model } from './model';
 import { Selectable } from './selectable';
+import { SelectionModes } from '../editor/editor';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
@@ -686,7 +687,7 @@ export class NucleotideModel extends Model {
   getSelection(
     event: string,
     target?: Selectable,
-    mode?: typeof GLOBALS.selectionMode,
+    mode?: SelectionModes,
   ): Selectable[] {
     switch (event) {
       case 'select':
@@ -717,7 +718,7 @@ export class NucleotideModel extends Model {
    */
   getConnected(
     target: Nucleotide,
-    mode: typeof GLOBALS.selectionMode,
+    mode: SelectionModes,
   ): Nucleotide[] {
     let nucs = [target];
     if (mode == 'none') nucs = [];

@@ -10,6 +10,7 @@ import { ModuleMenu } from '../menus/module_menu';
 import { GLOBALS } from '../globals/globals';
 import { Selectable } from './selectable';
 import { Cylinder, CylinderBundle, CylinderMeshes, PrimePos } from './cylinder';
+import { SelectionModes } from '../editor/editor';
 
 export class CylinderModel extends Model {
   cylinders: Cylinder[] = [];
@@ -88,6 +89,7 @@ export class CylinderModel extends Model {
     for (const jid of json.selection) {
       cm.selection.add(indexToCyl.get(jid));
     }
+    cm.updateObject();
     return cm;
   }
 
@@ -264,7 +266,7 @@ export class CylinderModel extends Model {
   getSelection(
     event: string,
     target?: Selectable,
-    mode?: typeof GLOBALS.selectionMode,
+    mode?: SelectionModes,
   ): Selectable[] {
     switch (event) {
       case 'select':
@@ -278,7 +280,7 @@ export class CylinderModel extends Model {
 
   getConnected(
     target: Cylinder,
-    mode: typeof GLOBALS.selectionMode,
+    mode: SelectionModes,
   ): Cylinder[] {
     const selection: Cylinder[] = [];
     if (mode == 'limited' || mode == 'connected') {

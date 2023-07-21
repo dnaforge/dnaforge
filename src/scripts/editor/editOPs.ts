@@ -143,6 +143,12 @@ export function editOpAsync(...t: string[]) {
   };
 }
 
+
+/**
+ * Combines multiple edit operations into one edit operation.
+ * 
+ * @param ops - list of operations
+ */
 export function composeOPs(ops: OP[]) {
   const op: OP = {
     undo: () => {

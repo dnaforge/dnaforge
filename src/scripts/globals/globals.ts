@@ -1,8 +1,6 @@
-interface GLOBALS_TYPE {
-  [key: string]: any;
-}
-
-export const GLOBALS: GLOBALS_TYPE = {
+export const GLOBALS = {
   visibilityNucBackbone: true,
   visibilityNucBase: true,
+  overlayTorque: true,
+  overlayTension: true,
 };

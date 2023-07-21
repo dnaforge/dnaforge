@@ -3,7 +3,7 @@ import { OrthographicCamera, Vector3 } from 'three';
 import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
-import { Menu } from './menu';
+import { Menu, MenuParameters } from './menu';
 
 const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
@@ -136,9 +136,7 @@ export class InterfaceMenu extends Menu {
     this.context.controls.registerHotkey('np9', () => {
       this.context.flipCameraView();
     });
-    this.context.controls.registerHotkey('np,', () => {
-      this.resetCamera();
-    });
+    this.context.controls.registerHotkey('np,', this.resetCameraButton);
   }
 
   reset() {
@@ -633,6 +631,20 @@ export class InterfaceMenu extends Menu {
 
     this.indicesButton.on('click', () => {
       this.generateVisible();
+    });
+
+    $('#toggle-cylinder-tension-overlay').on('click', () => {
+      GLOBALS.overlayTension = $(
+        '#toggle-cylinder-tension-overlay',
+      )[0].checked;
+      this.context.activeContext?.updateVisuals();
+    });
+
+    $('#toggle-cylinder-torque-overlay').on('click', () => {
+      GLOBALS.overlayTorque = $(
+        '#toggle-cylinder-torque-overlay',
+      )[0].checked;
+      this.context.activeContext?.updateVisuals();
     });
 
     $('#selection-mode').on('click', () => {

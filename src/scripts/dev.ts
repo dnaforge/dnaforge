@@ -37,8 +37,8 @@ export function dev(context: Context) {
   context.setGraph(graph);
 
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
-  //cc.addWires();
-  //cc.addCylinders();
+  //cc.generateWires();
+  cc.generateCylinderModel();
   //cc.addNucleotides();
   //cc.generatePrimary();
   //cc.downloadOxDNA();

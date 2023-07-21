@@ -138,6 +138,7 @@ export abstract class Menu {
     for (let uiObj of this.uiParameters) {
       uiObj[1].get();
     }
+    return this.params;
   }
 
   loadParameters(json: JSONObject) {
