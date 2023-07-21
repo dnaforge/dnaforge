@@ -16,7 +16,7 @@ import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import { editOp, editOpAsync } from '../../editor/editOPs';
+import { editOp } from '../../editor/editOPs';
 
 export type SternaParameters = ModuleMenuParameters;
 

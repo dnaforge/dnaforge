@@ -11,7 +11,7 @@ import { CylinderModel } from '../../models/cylinder_model';
 import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
-import { editOp, editOpAsync } from '../../editor/editOPs';
+import { editOp } from '../../editor/editOPs';
 
 export interface STParameters extends ModuleMenuParameters {
   scaffoldOffset: number;

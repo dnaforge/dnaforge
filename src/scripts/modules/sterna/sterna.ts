@@ -2,12 +2,7 @@ import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/misc_utils';
 import { InstancedMesh, Vector3, Intersection } from 'three';
 import { CylinderModel } from '../../models/cylinder_model';
-import {
-  Cylinder,
-  CylinderBundle,
-  PrimePos,
-  RoutingStrategy,
-} from '../../models/cylinder';
+import { Cylinder, PrimePos, RoutingStrategy } from '../../models/cylinder';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge, Vertex, HalfEdge } from '../../models/graph_model';
 import { SternaParameters } from './sterna_menu';

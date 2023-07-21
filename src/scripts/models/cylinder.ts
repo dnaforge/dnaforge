@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
-import { InstancedMesh, Intersection, Matrix4 } from 'three';
+import { InstancedMesh, Matrix4 } from 'three';
 import { Vector3, Quaternion } from 'three';
 import { get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';
@@ -36,7 +36,10 @@ type CylinderColour = {
 
 type OverlayColourIds = 'null' | 'tension' | 'torque';
 
-const ColourSchemes: Record<SelectionColourIds | OverlayColourIds, CylinderColour> = {
+const ColourSchemes: Record<
+  SelectionColourIds | OverlayColourIds,
+  CylinderColour
+> = {
   null: {
     cylinder: new THREE.Color(0x000000),
     prime: new THREE.Color(0x000000),
@@ -66,9 +69,8 @@ const ColourSchemes: Record<SelectionColourIds | OverlayColourIds, CylinderColou
     cylinder: new THREE.Color(0x0000ff),
     prime: new THREE.Color(0xff9999),
     linker: new THREE.Color(0xff9999),
-  }
+  },
 };
-
 
 const materialCylinders = new THREE.MeshPhongMaterial({ color: 0xffffff });
 
@@ -368,18 +370,12 @@ export class Cylinder extends Selectable {
   }
 
   update() {
-    this.updateTransform();
-    this.updateObjectColours();
-  }
-
-  updateTransform(){
     this.updateObjectMatrices();
+    this.updateObjectColours();
     for (const n in this.neighbours) {
       const neighbour = this.neighbours[n as PrimePos];
       neighbour && neighbour[0].updateObjectMatrices();
-    }
-    for (const m in this.instanceMeshes) {
-      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
+      neighbour && neighbour[0].updateObjectColours();
     }
   }
 
@@ -560,16 +556,19 @@ export class Cylinder extends Selectable {
       this.instanceMeshes.linker.setMatrixAt(4 * this.id + i, transformLinker);
       this.instanceMeshes.prime.setMatrixAt(4 * this.id + i, transformPrime);
     }
+    for (const m in this.instanceMeshes) {
+      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
+    }
   }
 
   updateObjectColours() {
-    const colours = {...this.instanceColours};
+    const colours = { ...this.instanceColours };
     const overlay = this.getOverlayColours();
 
-    if(overlay){
-      for(const k of Object.keys(colours)){
+    if (overlay) {
+      for (const k of Object.keys(colours)) {
         const kt = k as keyof CylinderColour;
-        const colour = this.instanceColours[kt].clone();   
+        const colour = this.instanceColours[kt].clone();
         colours[kt] = colour.lerp(overlay[kt], 0.8);
       }
     }
@@ -589,45 +588,51 @@ export class Cylinder extends Selectable {
     this.updateObjectColours();
   }
 
-  getOverlayColours(){
-    const colours = {...ColourSchemes.null};
+  getOverlayColours() {
+    const colours = { ...ColourSchemes.null };
     let count = 0;
-    if(GLOBALS.overlayTorque){
+    if (GLOBALS.overlayTorque) {
       count += 1;
       const tColours = this.getTorqueOverlay();
-      for(const k of Object.keys(colours)){
+      for (const k of Object.keys(colours)) {
         const kt = k as keyof CylinderColour;
         const colour = tColours[kt].clone();
         colours[kt] = colour.add(colours[kt]);
       }
     }
-    if(GLOBALS.overlayTension){
+    if (GLOBALS.overlayTension) {
       count += 1;
       const tColours = this.getTensionOverlay();
-      for(const k of Object.keys(colours)){
+      for (const k of Object.keys(colours)) {
         const kt = k as keyof CylinderColour;
         const colour = tColours[kt].clone();
         colours[kt] = colour.add(colours[kt]);
       }
     }
-    if(count > 0){
-      for(const k of Object.keys(colours)){
+    if (count > 0) {
+      for (const k of Object.keys(colours)) {
         const kt = k as keyof CylinderColour;
         colours[kt] = colours[kt].multiplyScalar(1 / count);
       }
       return colours;
+    } else return null;
+  }
+
+  getTorqueOverlay() {
+    const colours = { ...ColourSchemes.null };
+    const torque = this.calculateTorque();
+    for (const k of Object.keys(colours)) {
+      const kt = k as keyof CylinderColour;
+      const colour = ColourSchemes.default[kt].clone();
+      colours[kt] = colour.lerp(ColourSchemes.torque[kt], torque);
     }
-    else return null;
+    return colours;
   }
 
-  getTorqueOverlay(){
-    return ColourSchemes.torque;
-  }
-
-  getTensionOverlay(){
-    const colours = {...ColourSchemes.null};
+  getTensionOverlay() {
+    const colours = { ...ColourSchemes.null };
     const tension = this.calculateTension();
-    for(const k of Object.keys(colours)){
+    for (const k of Object.keys(colours)) {
       const kt = k as keyof CylinderColour;
       const colour = ColourSchemes.default[kt].clone();
       colours[kt] = colour.lerp(ColourSchemes.tension[kt], tension);
@@ -635,23 +640,55 @@ export class Cylinder extends Selectable {
     return colours;
   }
 
-  calculateTorque(){
-    return 0.5;
+  calculateTorque() {
+    let torque = 0;
+    let count = 0;
+    const root = new Vector3().applyMatrix4(this.transform);
+    const dir = new Vector3(0, 1, 0)
+      .applyMatrix4(this.transform)
+      .sub(root)
+      .normalize();
+
+    const primes = this.getPrimePairs();
+    for (const [p1, p2] of primes) {
+      if (!p1 || !p2) continue;
+      const rel = p2.sub(p1);
+      const p1Rel = p1.clone().sub(root);
+      const pos = p1Rel.sub(dir.clone().multiplyScalar(p1Rel.dot(dir)));
+
+      const top = pos.dot(
+        rel.clone().sub(dir.clone().multiplyScalar(rel.dot(dir))),
+      );
+      const bot =
+        pos.length() *
+        rel
+          .clone()
+          .sub(dir.clone().multiplyScalar(rel.dot(dir)))
+          .length();
+      const alpha = Math.acos(top / bot);
+
+      torque += alpha / Math.PI;
+      count += 1;
+    }
+    if (count) torque = torque / count;
+
+    return torque;
   }
 
-  calculateTension(){
+  calculateTension() {
     let tension = 0;
     let count = 0;
     const primes = this.getPrimePairs();
     for (const [p1, p2] of primes) {
       if (!p1 || !p2) continue;
       const EXPECTED = 3;
-      const len = Math.abs(p2.sub(p1).length() / this.nucParams.BB_DIST) / this.scale;
+      const len =
+        Math.abs(p2.sub(p1).length() / this.nucParams.BB_DIST) / this.scale;
       tension += 0.5 / (0.5 + Math.exp(5 * (-len + EXPECTED)));
       count += 1;
     }
-    if(count) tension = tension / count;
-    
+    if (count) tension = tension / count;
+
     return tension;
   }
 

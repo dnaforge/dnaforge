@@ -1,4 +1,3 @@
-import { SuffixArray } from 'mnemonist';
 import {
   IUPAC_CHAR_DNA,
   IUPAC_CHAR_RNA,

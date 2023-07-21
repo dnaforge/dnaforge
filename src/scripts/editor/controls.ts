@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Vector2, Vector3 } from 'three';
-import { GLOBALS } from '../globals/globals';
 import { Context } from '../menus/context';
 import { Menu } from '../menus/menu';
 import { Selectable } from '../models/selectable';

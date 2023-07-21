@@ -2,19 +2,13 @@ import * as THREE from 'three';
 import { get2PointTransform } from '../../utils/misc_utils';
 import { InstancedMesh, Intersection, Vector3 } from 'three';
 import { CylinderModel } from '../../models/cylinder_model';
-import {
-  Cylinder,
-  CylinderBundle,
-  PrimePos,
-  RoutingStrategy,
-} from '../../models/cylinder';
+import { Cylinder, PrimePos } from '../../models/cylinder';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph_model';
 import { CCParameters } from './cycle_cover_menu';
 import { Selectable } from '../../models/selectable';
 
-const cyclesColorHover = 0xff8822;
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 export class CycleCover extends WiresModel {

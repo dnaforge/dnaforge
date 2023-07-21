@@ -1,8 +1,6 @@
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { Intersection } from 'three';
 import { DNA, NATYPE, RNA } from '../globals/consts';
-import { GLOBALS } from '../globals/globals';
 import { CylinderModel } from './cylinder_model';
 import { Cylinder, RoutingStrategy, PrimePos } from './cylinder';
 import { ModuleMenu, ModuleMenuParameters } from '../menus/module_menu';
@@ -716,10 +714,7 @@ export class NucleotideModel extends Model {
    * @param target
    * @returns
    */
-  getConnected(
-    target: Nucleotide,
-    mode: SelectionModes,
-  ): Nucleotide[] {
+  getConnected(target: Nucleotide, mode: SelectionModes): Nucleotide[] {
     let nucs = [target];
     if (mode == 'none') nucs = [];
     else if (mode == 'single') {

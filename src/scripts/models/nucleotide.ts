@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
-import { InstancedMesh, Intersection, Matrix4, Quaternion } from 'three';
+import { InstancedMesh, Matrix4, Quaternion } from 'three';
 import { Vector3 } from 'three';
 import { get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';

@@ -7,7 +7,6 @@ import { Vertex } from './graph_model';
 import { RelaxParameters, Relaxer } from '../utils/relaxer';
 import { Model } from './model';
 import { ModuleMenu } from '../menus/module_menu';
-import { GLOBALS } from '../globals/globals';
 import { Selectable } from './selectable';
 import { Cylinder, CylinderBundle, CylinderMeshes, PrimePos } from './cylinder';
 import { SelectionModes } from '../editor/editor';
@@ -278,10 +277,7 @@ export class CylinderModel extends Model {
     }
   }
 
-  getConnected(
-    target: Cylinder,
-    mode: SelectionModes,
-  ): Cylinder[] {
+  getConnected(target: Cylinder, mode: SelectionModes): Cylinder[] {
     const selection: Cylinder[] = [];
     if (mode == 'limited' || mode == 'connected') {
       if (target.bundle) {

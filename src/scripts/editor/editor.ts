@@ -1,8 +1,7 @@
 import { Context } from '../menus/context';
 import { Model } from '../models/model';
-import { Matrix4, Vector2, Vector3, Quaternion } from 'three';
+import { Matrix4, Vector2, Vector3 } from 'three';
 import { Selectable } from '../models/selectable';
-import { CylinderModel } from '../models/cylinder_model';
 import { BoxSelector, SelectionTransformer } from './selection_utils';
 import { OP } from './editOPs';
 
@@ -72,7 +71,7 @@ export class Editor {
   }
 
   reset() {
-    for (let model of this.models) this.removeModel(model);
+    for (const model of this.models) this.removeModel(model);
     this.clearOPStack();
   }
 
@@ -321,17 +320,14 @@ export class Editor {
   }
 
   resetTranslation() {
-    const curSel = this.getSelected();
     console.log('TODO');
   }
 
   resetRotation() {
-    const curSel = this.getSelected();
     console.log('TODO');
   }
 
   resetScale() {
-    const curSel = this.getSelected();
     console.log('TODO');
   }
 

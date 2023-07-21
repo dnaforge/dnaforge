@@ -20,11 +20,11 @@ function initiateEditOP(target: any, ...t: string[]) {
     (<any>target).curCheckPoints = new Map<string, Model>();
   }
   const models = new Set(t);
-  for (let m of t) {
+  for (const m of t) {
     if ((<any>target).curCheckPoints.has(m)) models.delete(m);
   }
   const prevs = new Map<string, Model>();
-  for (let m of models) {
+  for (const m of models) {
     const prev: Model = target[m];
     prevs.set(m, prev);
     target.context.editor.removeModel(prev);
@@ -45,7 +45,7 @@ function initiateEditOP(target: any, ...t: string[]) {
 function finaliseEditOP(target: any) {
   const prevs: Map<string, Model> = (<any>target).curCheckPoints;
   const afters: typeof prevs = new Map();
-  for (let m of prevs.keys()) {
+  for (const m of prevs.keys()) {
     const after: Model = target[m];
     afters.set(m, after);
   }
@@ -73,7 +73,7 @@ function finaliseEditOP(target: any) {
  * @param prevs: a map of the original models
  */
 function loadCheckPoint(target: any, prevs: Map<string, Model>) {
-  for (let m of prevs.keys()) {
+  for (const m of prevs.keys()) {
     target.context.editor.removeModel(target[m]);
     target[m] = prevs.get(m);
     target.context.editor.addModel(target[m]);
@@ -95,8 +95,8 @@ function loadCheckPoint(target: any, prevs: Map<string, Model>) {
  */
 export function editOp(...t: string[]) {
   return function (target: any, methodName: string) {
-    let originalFunction = target[methodName];
-    let modFunction = function () {
+    const originalFunction = target[methodName];
+    const modFunction = function () {
       const initiatedEditOP = !(<any>this).initiatedEditOP;
       initiateEditOP(this, ...t);
       try {
@@ -126,8 +126,8 @@ export function editOp(...t: string[]) {
  */
 export function editOpAsync(...t: string[]) {
   return function (target: any, methodName: string) {
-    let originalFunction = target[methodName];
-    let modFunction = async function () {
+    const originalFunction = target[methodName];
+    const modFunction = async function () {
       const initiatedEditOP = !(<any>this).initiatedEditOP;
       initiateEditOP(this, ...t);
       try {
@@ -143,13 +143,12 @@ export function editOpAsync(...t: string[]) {
   };
 }
 
-
 /**
  * Combines multiple edit operations into one edit operation.
- * 
+ *
  * @param ops - list of operations
  */
-export function composeOPs(ops: OP[]) {
+export function composeOPs(ops: OP[]): OP {
   const op: OP = {
     undo: () => {
       ops.map((o) => {
@@ -165,4 +164,5 @@ export function composeOPs(ops: OP[]) {
         });
     },
   };
+  return op;
 }

@@ -5,22 +5,15 @@ import {
   cylindersToNucleotides,
   reinforceCylinders,
 } from './atrail';
-import { downloadTXT } from '../../io/download';
 import html from './atrail_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
 import { Context } from '../../menus/context';
 import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
-import {
-  Cylinder,
-  CylinderBundle,
-  PrimePos,
-  RoutingStrategy,
-} from '../../models/cylinder';
+import { Cylinder } from '../../models/cylinder';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
-import { editOp, editOpAsync } from '../../editor/editOPs';
-import { NucleotideModel } from '../../models/nucleotide_model';
+import { editOp } from '../../editor/editOPs';
 
 export interface ATrailParameters extends ModuleMenuParameters {
   scaffoldOffset: number;

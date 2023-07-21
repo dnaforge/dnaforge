@@ -135,14 +135,14 @@ export abstract class Menu {
    * Collects all the user parameters from the frontend into the params-dictionary.
    */
   collectParameters() {
-    for (let uiObj of this.uiParameters) {
+    for (const uiObj of this.uiParameters) {
       uiObj[1].get();
     }
     return this.params;
   }
 
   loadParameters(json: JSONObject) {
-    for (let uiObj of this.uiParameters) {
+    for (const uiObj of this.uiParameters) {
       uiObj[1].set(json);
     }
   }

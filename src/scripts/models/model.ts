@@ -1,5 +1,4 @@
 import { Intersection, Object3D } from 'three';
-import { GLOBALS } from '../globals/globals';
 import { Selectable } from './selectable';
 import { SelectionModes } from '../editor/editor';
 
@@ -36,28 +35,28 @@ export abstract class Model {
   ): Selectable[];
 
   select(...selection: Selectable[]) {
-    for (let s of selection) {
+    for (const s of selection) {
       this.selection.add(s);
       s.setColours('selection');
     }
   }
 
   deselect(...selection: Selectable[]) {
-    for (let s of selection) {
+    for (const s of selection) {
       this.selection.delete(s);
       s.setColours('default');
     }
   }
 
   hover(...selection: Selectable[]) {
-    for (let s of selection) {
+    for (const s of selection) {
       this.hovers.add(s);
       s.setColours('hover');
     }
   }
 
   clearHover() {
-    for (let s of this.hovers) {
+    for (const s of this.hovers) {
       if (this.selection.has(s)) s.setColours('selection');
       else s.setColours('default');
     }

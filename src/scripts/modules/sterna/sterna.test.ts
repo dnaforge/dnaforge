@@ -3,12 +3,7 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from '../../io/read_obj';
 import { CylinderModel } from '../../models/cylinder_model';
-import {
-  Cylinder,
-  CylinderBundle,
-  PrimePos,
-  RoutingStrategy,
-} from '../../models/cylinder';
+import { PrimePos } from '../../models/cylinder';
 import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { MenuParameters } from '../../menus/menu';

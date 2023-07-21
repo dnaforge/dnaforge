@@ -32,8 +32,6 @@ export class BoxSelector {
     this.element = div;
   }
 
-  createElement(c1: Vector2, c2: Vector2) {}
-
   deleteElement() {
     $(this.element).remove();
   }

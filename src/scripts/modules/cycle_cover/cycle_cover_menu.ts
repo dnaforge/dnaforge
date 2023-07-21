@@ -11,7 +11,7 @@ import { Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { setRandomPrimary } from '../../utils/primary_utils';
-import { editOp, editOpAsync } from '../../editor/editOPs';
+import { editOp } from '../../editor/editOPs';
 import {
   OptimiserParams,
   PrimaryGenerator,

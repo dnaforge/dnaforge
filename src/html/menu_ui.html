@@ -73,7 +73,8 @@
                 </li>
                 <li>
                     <div hidden data-role="hint" data-hint-position="right" data-hint-text="Toggle scale bar display.">
-                        <input type="checkbox" data-role="switch" data-caption="Scale" id="toggle-scale"></div>
+                        <input type="checkbox" data-role="switch" data-caption="Scale" id="toggle-scale">
+                    </div>
                 </li>
             </ul>
             <span class="title">Scene</span>
@@ -83,23 +84,24 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh surface display.">
-                        <input checked type="checkbox" data-role="switch" data-caption="Solid" id="toggle-solid"></div>
+                        <input checked type="checkbox" data-role="switch" data-caption="Solid" id="toggle-solid">
+                    </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh wireframe display.">
                         <input checked type="checkbox" data-role="switch" data-caption="Wireframe"
-                            id="toggle-wireframe"></div>
+                            id="toggle-wireframe">
+                    </div>
                 </li>
                 <li>
-                    <div data-role="hint" data-hint-position="right"
-                        data-hint-text="Toggle mesh bounding box display."><input type="checkbox" data-role="switch"
-                            data-caption="Bounding box" id="toggle-bounding-box"></div>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh bounding box display.">
+                        <input type="checkbox" data-role="switch" data-caption="Bounding box" id="toggle-bounding-box">
+                    </div>
                 </li>
-            </ul>
-            <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh vertex id display.">
-                        <input type="checkbox" data-role="switch" data-caption="Indices" id="toggle-indices"></div>
+                        <input type="checkbox" data-role="switch" data-caption="Indices" id="toggle-indices">
+                    </div>
                 </li>
             </ul>
             <span class="title">Graph</span>
@@ -108,31 +110,39 @@
         <div class="group">
             <ul class="tight-list">
                 <li>
-                    <div data-role="hint" data-hint-position="right" data-hint-text="Draw backbones">
-                        <input checked type="checkbox" data-role="switch" data-caption="Draw Backbones" id="toggle-nucleotides-backbone"></div>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Colour cylinders by the torque exerted by the neighbouring cylinders.">
+                        <input type="checkbox" data-role="switch"
+                            data-caption="Torque Overlay"
+                            id="toggle-cylinder-torque-overlay">
+                    </div>
                 </li>
                 <li>
-                    <div data-role="hint" data-hint-position="right" data-hint-text="Draw bases.">
-                        <input checked type="checkbox" data-role="switch" data-caption="Draw Bases"
-                            id="toggle-nucleotides-bases"></div>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Colour cylinders by the tension exerted by the neighbouring cylinders.">
+                        <input type="checkbox" data-role="switch"
+                            data-caption="Tension Overlay"
+                            id="toggle-cylinder-tension-overlay">
+                    </div>
                 </li>
             </ul>
-            <span class="title">Nucleotides</span>
+            <span class="title">Cylinders</span>
         </div>
 
         <div class="group">
             <ul class="tight-list">
                 <li>
-                    <div data-role="hint" data-hint-position="right" data-hint-text="Torque overlay">
-                        <input checked type="checkbox" data-role="switch" data-caption="Torque Overlay" id="toggle-cylinder-torque-overlay"></div>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Draw backbones">
+                        <input checked type="checkbox" data-role="switch" data-caption="Draw Backbones"
+                            id="toggle-nucleotides-backbone">
+                    </div>
                 </li>
                 <li>
-                    <div data-role="hint" data-hint-position="right" data-hint-text="Tension overlay.">
-                        <input checked type="checkbox" data-role="switch" data-caption="Tension Overlay"
-                            id="toggle-cylinder-tension-overlay"></div>
+                    <div data-role="hint" data-hint-position="right" data-hint-text="Draw bases.">
+                        <input checked type="checkbox" data-role="switch" data-caption="Draw Bases"
+                            id="toggle-nucleotides-bases">
+                    </div>
                 </li>
             </ul>
-            <span class="title">Cylinders</span>
+            <span class="title">Nucleotides</span>
         </div>
 
         <div class="group">

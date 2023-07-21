@@ -634,16 +634,12 @@ export class InterfaceMenu extends Menu {
     });
 
     $('#toggle-cylinder-tension-overlay').on('click', () => {
-      GLOBALS.overlayTension = $(
-        '#toggle-cylinder-tension-overlay',
-      )[0].checked;
+      GLOBALS.overlayTension = $('#toggle-cylinder-tension-overlay')[0].checked;
       this.context.activeContext?.updateVisuals();
     });
 
     $('#toggle-cylinder-torque-overlay').on('click', () => {
-      GLOBALS.overlayTorque = $(
-        '#toggle-cylinder-torque-overlay',
-      )[0].checked;
+      GLOBALS.overlayTorque = $('#toggle-cylinder-torque-overlay')[0].checked;
       this.context.activeContext?.updateVisuals();
     });
 
