@@ -114,7 +114,7 @@ export class ATrailMenu extends ModuleMenu {
     const register = (this.registerParameter<ATrailParameters>).bind(this);
 
     register(
-      this.params, 
+      this.params,
       'scale',
       'atrail-scale',
       (t: number) => {
@@ -135,7 +135,7 @@ export class ATrailMenu extends ModuleMenu {
     register(this.params, 'scaffoldOffset', 'atrail-scaffold-offset');
     register(this.params, 'scaffoldStart', 'atrail-scaffold-start');
     register(
-      this.params, 
+      this.params,
       'gcContent',
       'atrail-gc-content',
       (t: number) => {

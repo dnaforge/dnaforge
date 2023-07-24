@@ -1,11 +1,11 @@
-import { SelectionModes } from "../editor/editor";
+import { SelectionModes } from '../editor/editor';
 
-interface GlobalParams{
-  visibilityNucBackbone: boolean,
-  visibilityNucBase: boolean,
-  overlayTorque: boolean,
-  overlayTension: boolean,
-  selectionMode: SelectionModes,
+interface GlobalParams {
+  visibilityNucBackbone: boolean;
+  visibilityNucBase: boolean;
+  overlayTorque: boolean;
+  overlayTension: boolean;
+  selectionMode: SelectionModes;
 }
 
 export const GLOBALS: GlobalParams = {

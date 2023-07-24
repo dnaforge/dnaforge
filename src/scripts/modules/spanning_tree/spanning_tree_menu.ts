@@ -67,7 +67,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     const register = (this.registerParameter<STParameters>).bind(this);
 
     register(
-      this.params, 
+      this.params,
       'scale',
       'spanning-tree-scale',
       (t: number) => {
@@ -83,7 +83,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     register(this.params, 'scaffoldOffset', 'spanning-tree-scaffold-offset');
     register(this.params, 'scaffoldStart', 'spanning-tree-scaffold-start');
     register(
-      this.params, 
+      this.params,
       'gcContent',
       'spanning-tree-gc-content',
       (t: number) => {

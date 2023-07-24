@@ -92,7 +92,7 @@ export class SternaMenu extends ModuleMenu {
     const register = (this.registerParameter<SternaParameters>).bind(this);
 
     register(
-      this.params, 
+      this.params,
       'scale',
       'sterna-scale',
       (t: number) => {
@@ -106,7 +106,7 @@ export class SternaMenu extends ModuleMenu {
     register(this.params, 'maxLinkers', 'sterna-linkers-max');
 
     register(
-      this.params, 
+      this.params,
       'gcContent',
       'sterna-gc-content',
       (t: number) => {

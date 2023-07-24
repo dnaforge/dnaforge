@@ -92,7 +92,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.generatePrimaryButton = $('#cycle-cover-generate-primary');
 
     this.registerParameter(
-      this.params, 
+      this.params,
       'scale',
       'cycle-cover-scale',
       (t: number) => {
@@ -109,7 +109,7 @@ export class CycleCoverMenu extends ModuleMenu {
     register(this.params, 'addNicks', 'cycle-cover-add-nicks');
 
     register(
-      this.params, 
+      this.params,
       'gcContent',
       'cycle-cover-ps-gc-content',
       (t: number) => {
@@ -120,7 +120,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
     );
     register(
-      this.params, 
+      this.params,
       'linkerOptions',
       'cycle-cover-ps-linkers',
       (t: string) => {
@@ -131,7 +131,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
     );
     register(
-      this.params, 
+      this.params,
       'bannedSeqs',
       'cycle-cover-ps-banned',
       (t: string) => {
