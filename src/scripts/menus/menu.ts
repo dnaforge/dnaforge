@@ -93,6 +93,7 @@ export abstract class Menu {
    * @param toHTMLTrans  Transformation to HTML value from params-value
    */
   registerParameter<T extends MenuParameters>(
+    dict: T,
     parameter: keyof T,
     id: string,
     fromHTMLTrans = (t: UIVal) => {
@@ -114,7 +115,7 @@ export abstract class Menu {
       else val = element[0].value;
 
       const tVal = fromHTMLTrans(val) as MenuParameters[keyof MenuParameters];
-      this.params[parameter as keyof MenuParameters] = tVal;
+      dict[parameter as keyof MenuParameters] = tVal;
     };
     const set = (json: JSONObject) => {
       const tVal = toHTMLTrans(
@@ -129,6 +130,7 @@ export abstract class Menu {
       get: get,
       set: set,
     });
+    get();
   }
 
   /**

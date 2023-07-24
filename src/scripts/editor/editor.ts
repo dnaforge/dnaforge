@@ -4,6 +4,7 @@ import { Matrix4, Vector2, Vector3 } from 'three';
 import { Selectable } from '../models/selectable';
 import { BoxSelector, SelectionTransformer } from './selection_utils';
 import { OP } from './editOPs';
+import { GLOBALS } from '../globals/globals';
 
 const UNDO_LIMIT = 50;
 
@@ -16,8 +17,6 @@ export class Editor {
 
   //selections = new Set<Selectable>();
   hovers = new Set<Selectable>();
-
-  selectionMode: SelectionModes = 'connected';
 
   undoStack: OP[] = [];
   redoStack: OP[] = [];
@@ -349,7 +348,7 @@ export class Editor {
 
   selectConnected(se: Selectable, add = false) {
     const owner = se.owner;
-    const selectionMode = this.selectionMode;
+    const selectionMode = GLOBALS.selectionMode;
     const selection = owner.getSelection('select', se, selectionMode);
 
     if (!add) this.deselectAll();
@@ -360,7 +359,7 @@ export class Editor {
 
   deSelectConnected(se: Selectable) {
     const owner = se.owner;
-    const selectionMode = this.selectionMode;
+    const selectionMode = GLOBALS.selectionMode;
     const selection = owner.getSelection('select', se, selectionMode);
 
     for (const s of selection) {

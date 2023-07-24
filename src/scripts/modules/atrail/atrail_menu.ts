@@ -114,6 +114,7 @@ export class ATrailMenu extends ModuleMenu {
     const register = (this.registerParameter<ATrailParameters>).bind(this);
 
     register(
+      this.params, 
       'scale',
       'atrail-scale',
       (t: number) => {
@@ -123,17 +124,18 @@ export class ATrailMenu extends ModuleMenu {
         return 1 / t;
       },
     );
-    register('minLinkers', 'atrail-linkers-min');
-    register('maxLinkers', 'atrail-linkers-max');
+    register(this.params, 'minLinkers', 'atrail-linkers-min');
+    register(this.params, 'maxLinkers', 'atrail-linkers-max');
 
-    register('maxStrandLength', 'atrail-strand-length-max');
-    register('minStrandLength', 'atrail-strand-length-min');
-    register('addNicks', 'atrail-add-nicks');
-    register('checkerBoard', 'atrail-checkerboard');
-    register('scaffoldName', 'atrail-scaffold');
-    register('scaffoldOffset', 'atrail-scaffold-offset');
-    register('scaffoldStart', 'atrail-scaffold-start');
+    register(this.params, 'maxStrandLength', 'atrail-strand-length-max');
+    register(this.params, 'minStrandLength', 'atrail-strand-length-min');
+    register(this.params, 'addNicks', 'atrail-add-nicks');
+    register(this.params, 'checkerBoard', 'atrail-checkerboard');
+    register(this.params, 'scaffoldName', 'atrail-scaffold');
+    register(this.params, 'scaffoldOffset', 'atrail-scaffold-offset');
+    register(this.params, 'scaffoldStart', 'atrail-scaffold-start');
     register(
+      this.params, 
       'gcContent',
       'atrail-gc-content',
       (t: number) => {
@@ -143,7 +145,7 @@ export class ATrailMenu extends ModuleMenu {
         return t * 100;
       },
     );
-    register('greedyOffset', 'atrail-greedy');
+    register(this.params, 'greedyOffset', 'atrail-greedy');
 
     const blur = () => {
       (document.activeElement as HTMLElement).blur();

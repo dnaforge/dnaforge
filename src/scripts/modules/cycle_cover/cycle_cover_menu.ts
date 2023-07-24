@@ -92,6 +92,7 @@ export class CycleCoverMenu extends ModuleMenu {
     this.generatePrimaryButton = $('#cycle-cover-generate-primary');
 
     this.registerParameter(
+      this.params, 
       'scale',
       'cycle-cover-scale',
       (t: number) => {
@@ -101,13 +102,14 @@ export class CycleCoverMenu extends ModuleMenu {
         return 1 / t;
       },
     );
-    register('minLinkers', 'cycle-cover-linkers-min');
-    register('maxLinkers', 'cycle-cover-linkers-max');
-    register('maxStrandLength', 'cycle-cover-strand-length-max');
-    register('minStrandLength', 'cycle-cover-strand-length-min');
-    register('addNicks', 'cycle-cover-add-nicks');
+    register(this.params, 'minLinkers', 'cycle-cover-linkers-min');
+    register(this.params, 'maxLinkers', 'cycle-cover-linkers-max');
+    register(this.params, 'maxStrandLength', 'cycle-cover-strand-length-max');
+    register(this.params, 'minStrandLength', 'cycle-cover-strand-length-min');
+    register(this.params, 'addNicks', 'cycle-cover-add-nicks');
 
     register(
+      this.params, 
       'gcContent',
       'cycle-cover-ps-gc-content',
       (t: number) => {
@@ -118,6 +120,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
     );
     register(
+      this.params, 
       'linkerOptions',
       'cycle-cover-ps-linkers',
       (t: string) => {
@@ -128,6 +131,7 @@ export class CycleCoverMenu extends ModuleMenu {
       },
     );
     register(
+      this.params, 
       'bannedSeqs',
       'cycle-cover-ps-banned',
       (t: string) => {
@@ -137,11 +141,11 @@ export class CycleCoverMenu extends ModuleMenu {
         return t.join(',');
       },
     );
-    register('iterations', 'cycle-cover-ps-iterations');
-    register('maxTrials', 'cycle-cover-ps-trials');
-    register('eta', 'cycle-cover-ps-eta');
+    register(this.params, 'iterations', 'cycle-cover-ps-iterations');
+    register(this.params, 'maxTrials', 'cycle-cover-ps-trials');
+    register(this.params, 'eta', 'cycle-cover-ps-eta');
 
-    register('greedyOffset', 'cycle-cover-greedy');
+    register(this.params, 'greedyOffset', 'cycle-cover-greedy');
 
     this.generatePrimaryButton.on('click', () => {
       try {

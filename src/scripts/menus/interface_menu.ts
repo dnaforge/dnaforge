@@ -644,7 +644,7 @@ export class InterfaceMenu extends Menu {
     });
 
     $('#selection-mode').on('click', () => {
-      this.context.editor.selectionMode = $('#selection-mode')
+      GLOBALS.selectionMode = $('#selection-mode')
         .children('.active')
         .attr('data-id');
     });

@@ -425,13 +425,13 @@ export abstract class ModuleMenu extends Menu {
     super.setupEventListeners();
     const register = (this.registerParameter<ModuleMenuParameters>).bind(this);
 
-    register('showWires', `${this.elementId}-toggle-wires`);
-    register('showCylinders', `${this.elementId}-toggle-cylinders`);
-    register('showNucleotides', `${this.elementId}-toggle-nucleotides`);
+    register(this.params, 'showWires', `${this.elementId}-toggle-wires`);
+    register(this.params, 'showCylinders', `${this.elementId}-toggle-cylinders`);
+    register(this.params, 'showNucleotides', `${this.elementId}-toggle-nucleotides`);
 
-    register('bundleConstraints', `${this.elementId}-bundle-constraints`);
-    register('floorConstraints', `${this.elementId}-floor-constraints`);
-    register('springConstraints', `${this.elementId}-spring-constraints`);
+    register(this.params, 'bundleConstraints', `${this.elementId}-bundle-constraints`);
+    register(this.params, 'floorConstraints', `${this.elementId}-floor-constraints`);
+    register(this.params, 'springConstraints', `${this.elementId}-spring-constraints`);
 
     this.wiresButton = $(`#${this.elementId}-toggle-wires`);
     this.cylindersButton = $(`#${this.elementId}-toggle-cylinders`);

@@ -67,6 +67,7 @@ export class SpanningTreeMenu extends ModuleMenu {
     const register = (this.registerParameter<STParameters>).bind(this);
 
     register(
+      this.params, 
       'scale',
       'spanning-tree-scale',
       (t: number) => {
@@ -77,11 +78,12 @@ export class SpanningTreeMenu extends ModuleMenu {
       },
     );
 
-    register('addNicks', 'spanning-tree-add-nicks');
-    register('scaffoldName', 'spanning-tree-scaffold');
-    register('scaffoldOffset', 'spanning-tree-scaffold-offset');
-    register('scaffoldStart', 'spanning-tree-scaffold-start');
+    register(this.params, 'addNicks', 'spanning-tree-add-nicks');
+    register(this.params, 'scaffoldName', 'spanning-tree-scaffold');
+    register(this.params, 'scaffoldOffset', 'spanning-tree-scaffold-offset');
+    register(this.params, 'scaffoldStart', 'spanning-tree-scaffold-start');
     register(
+      this.params, 
       'gcContent',
       'spanning-tree-gc-content',
       (t: number) => {
@@ -91,7 +93,7 @@ export class SpanningTreeMenu extends ModuleMenu {
         return t * 100;
       },
     );
-    register('greedyOffset', 'spanning-tree-greedy');
+    register(this.params, 'greedyOffset', 'spanning-tree-greedy');
 
     $('#spanning-tree-scaffold').on('change', () => {
       if ($('#spanning-tree-scaffold')[0].value == 'custom') {

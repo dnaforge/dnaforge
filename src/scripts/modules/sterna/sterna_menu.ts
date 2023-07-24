@@ -92,6 +92,7 @@ export class SternaMenu extends ModuleMenu {
     const register = (this.registerParameter<SternaParameters>).bind(this);
 
     register(
+      this.params, 
       'scale',
       'sterna-scale',
       (t: number) => {
@@ -101,10 +102,11 @@ export class SternaMenu extends ModuleMenu {
         return 1 / t;
       },
     );
-    register('minLinkers', 'sterna-linkers-min');
-    register('maxLinkers', 'sterna-linkers-max');
+    register(this.params, 'minLinkers', 'sterna-linkers-min');
+    register(this.params, 'maxLinkers', 'sterna-linkers-max');
 
     register(
+      this.params, 
       'gcContent',
       'sterna-gc-content',
       (t: number) => {
@@ -114,8 +116,8 @@ export class SternaMenu extends ModuleMenu {
         return t * 100;
       },
     );
-    register('addNicks', 'sterna-add-nicks');
-    register('greedyOffset', 'sterna-greedy');
+    register(this.params, 'addNicks', 'sterna-add-nicks');
+    register(this.params, 'greedyOffset', 'sterna-greedy');
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
 
