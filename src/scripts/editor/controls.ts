@@ -19,14 +19,12 @@ type Hotkey = {
  * Handles Mouse and keyboard clicks.
  */
 export class Controls {
+  context: Context;
   #hotkeys = new Map<Menu | 'global', Map<string, Hotkey>>();
 
   pointer = new Vector2();
   pointerPrev = new Vector2();
   raycaster = new THREE.Raycaster();
-
-  context: Context;
-  scene: THREE.Scene;
 
   pointerOnCanvas = false;
   leftClicked = false;
@@ -46,7 +44,6 @@ export class Controls {
 
   constructor(context: Context) {
     this.context = context;
-    this.scene = context.scene;
     this.setupEventListeners();
     this.setupHotkeys();
   }
@@ -162,7 +159,7 @@ export class Controls {
     }
 
     const intersects = this.raycaster.intersectObjects(
-      this.scene.children,
+      this.context.scene.children,
       true,
     );
 
@@ -171,7 +168,7 @@ export class Controls {
 
   resolveIntersection(intersection: THREE.Intersection): Selectable {
     let curObj = intersection.object;
-    while (curObj && curObj != this.scene) {
+    while (curObj && curObj != this.context.scene) {
       const model: Model = curObj.userData.model;
       if (model) return model.solveIntersection(intersection);
       else curObj = curObj.parent;

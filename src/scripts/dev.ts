@@ -12,6 +12,7 @@ import { Relaxer } from './utils/relaxer';
 import { Cylinder, CylinderBundle } from './models/cylinder';
 import { FileMenu } from './menus/file_menu';
 import { PrimaryGenerator } from './utils/primary_generator';
+import { SimulationAPI } from './utils/simulations';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -33,14 +34,15 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(plane);
   context.setGraph(graph);
 
+  $("#cycle-cover-scale")[0].value = 1;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
-  cc.generateCylinderModel();
-  //cc.addNucleotides();
-  //cc.generatePrimary();
+  //cc.generateCylinderModel();
+  cc.generateNucleotideModel();
+  cc.generatePrimary();
   //cc.downloadOxDNA();
 
   const atrail = <ATrailMenu>context.menus.get('atrail');

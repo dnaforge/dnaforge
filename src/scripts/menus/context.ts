@@ -10,6 +10,7 @@ import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
+import { SimulationAPI } from '../utils/simulations';
 
 const canvas = document.querySelector('#canvas');
 
@@ -45,15 +46,17 @@ const cameraParams = (() => {
  * sub modules and their interface elements etc.
  */
 export class Context {
-  scene: THREE.Scene;
+  controls: Controls = new Controls(this);
+  editor: Editor = new Editor(this);
+  simulator: SimulationAPI = new SimulationAPI(this);
+
+  scene: THREE.Scene = new THREE.Scene();
   camera: THREE.Camera;
   cameraControls: OrbitControls;
-  controls: Controls;
-  callbacks: { (): void }[];
+  callbacks: { (): void }[] = [];
 
-  graph: Graph;
-  editor: Editor;
-  activeContext: ModuleMenu;
+  graph: Graph = null;
+  activeContext: ModuleMenu = null;
   renderer: THREE.WebGLRenderer;
   labelRenderer: CSS2DRenderer;
 
@@ -65,15 +68,8 @@ export class Context {
   };
 
   constructor() {
-    this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
     this.scene.add(new THREE.AmbientLight(0x333333));
-    this.callbacks = [];
-
-    this.graph = null;
-    this.controls = new Controls(this);
-    this.editor = new Editor(this);
-    this.activeContext = null;
 
     this.setupRenderer();
     this.setupEventListeners();
@@ -295,8 +291,8 @@ export class Context {
     });
     notify.create(message, null, {
       cls: type,
+      onClick: () => {notify.killAll()}
     });
-
     //Metro.toast.create(message, null, null, null, null);
   }
 

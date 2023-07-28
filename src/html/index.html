@@ -11,6 +11,7 @@
             height: 24px;
             list-style-type: none;
         }
+
         .transparency {
             opacity: 0.8;
         }
@@ -33,7 +34,7 @@
         </ul>
     </aside>
 
-    <nav id = "main-tabs" data-role="ribbonmenu" class="shifted-content z-1" style="opacity: 0.9;">
+    <nav id="main-tabs" data-role="ribbonmenu" class="shifted-content z-1" style="opacity: 0.9;">
         <ul class="tabs-holder" style="background-color: white;" id="main-tabs-holder">
             <button class="app-bar-item c-pointer" id="sidebar-toggle-3">
                 <span class="mif-menu fg-red"></span>
@@ -42,9 +43,9 @@
             <li id="interface-tab"><a href="#ui">Interface</a></li>
         </ul>
 
-        <div class="content-holder" id = "content-holder">
+        <div class="content-holder" id="content-holder">
             <%= require('html-loader!./menu_file.html').default %>
-            <%= require('html-loader!./menu_ui.html').default %>
+                <%= require('html-loader!./menu_ui.html').default %>
         </div>
     </nav>
     <!--
@@ -55,6 +56,51 @@
         data-collapsible="true">
     </div>
     -->
+    <div data-title="Simulation" class="p-2" data-role="window" data-resizable="true" data-draggable="true"
+    data-width="800"
+    data-height="600">
+        <ul data-cls-tabs="flex-justify-start" data-role="tabs" data-expand="true">
+            <li><a href="#_target_1">Host</a></li>
+            <li><a href="#_target_2">Parameters</a></li>
+            <li><a href="#_target_3">Simulations</a></li>
+            <li class="disabled"><a href="#">Disabled</a></li>
+        </ul>
+        <div class="border bd-default no-border-top p-2">
+            <div id="_target_1">
+                <div class="inline-form">
+                    <input type="text" data-role="input" data-prepend="Host address: "
+                        data-default-value="http://0.0.0.0:8081" id="sim-host">
+                    <button class="button" id="sim-auth">Connect</button>
+                </div>
+                <div class="container" id="sim-auth-status"></div>
+            </div><div id="_target_2">
+                <div class="row">
+                    <div class="cell-md-12">
+                        <ul data-role="drag-items" class="step-list" id="sim-params">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="_target_3">
+                <div class="inline-form">
+                    <button class="button" id="sim-new">New simulation</button>
+                </div>
+                <ul class="items-list">
+                    <li>
+                        <img class="avatar" src="images/me.jpg">
+                        <span class="label">List item</span>
+                        <span class="second-label">second label</span>
+                        <span class="second-action mif-alarm fg-red"></span>
+                    </li>
+                    ...
+                    <li class="item ">
+                        <img class="avatar" src="images/me.jpg">
+                        <span class="label">List item</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <canvas id="canvas" style="position: absolute; top: 0; left: 0; z-index: 0;"></canvas>
 </body>
 
