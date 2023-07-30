@@ -291,7 +291,9 @@ export class Context {
     });
     notify.create(message, null, {
       cls: type,
-      onClick: () => {notify.killAll()}
+      onClick: () => {
+        notify.killAll();
+      },
     });
     //Metro.toast.create(message, null, null, null, null);
   }

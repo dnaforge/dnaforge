@@ -37,7 +37,7 @@ export function dev(context: Context) {
   const graph = new OBJLoader(new THREE.LoadingManager()).parse(plane);
   context.setGraph(graph);
 
-  $("#cycle-cover-scale")[0].value = 1;
+  $('#cycle-cover-scale')[0].value = 1;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
@@ -88,4 +88,5 @@ export function dev(context: Context) {
 
   //const pk = new PrimaryGenerator(cc.nm);
   //pk.optimise();
+  context.simulator.dev();
 }
