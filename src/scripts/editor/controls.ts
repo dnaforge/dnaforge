@@ -144,6 +144,7 @@ export class Controls {
     for (let i = 0; i < dialogs.length; i++) {
       Metro.dialog.close(dialogs[i]);
     }
+    Metro.notify.killAll();
   }
 
   raycast() {

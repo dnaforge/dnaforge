@@ -6,7 +6,7 @@
 
                     <div class="inline-form">
                         <input type="text" data-role="input" data-prepend="Address: "
-                            data-default-value="http://0.0.0.0:8081" id="sim-host">
+                            data-default-value="http://localhost:8081" id="sim-host">
                         <button class="button" id="sim-auth">Connect</button>
 
                     </div>
@@ -27,17 +27,28 @@
             </button>
             <button class="ribbon-button" onclick="Metro.dialog.open('#sim-sims');" data-role="hint"
                 data-hint-position="right" data-hint-text="">
-                <span class="mif-cogs mif-4x"></span>
+                <span class="mif-server mif-4x"></span>
                 <span class="caption">Simulation<br>Jobs</span>
             </button>
-            <span class="title">Configs</span>
+            <span class="title">Simulation Data</span>
+        </div>
+
+
+        <div class="group">
+            <button class="ribbon-button" id="sim-unsubscribe" data-role="hint" data-hint-position="right"
+                data-hint-text="">
+                <span class="mif-cancel mif-4x"></span>
+                <span class="caption">Unsubscribe</span>
+            </button>
+            <span class="title"></span>
         </div>
 
     </div>
 </div>
 
 
-<div class="dialog" data-role="dialog" id="sim-configs" data-width="600">
+<div class="dialog" data-role="dialog" id="sim-configs" data-width="600" data-height="100%"
+    data-overlay-click-close="true">
     <div class="dialog-title">Simulation Configuration Files</div>
     <div class="dialog-content" style="overflow-y: scroll;">
         <div class="inline-form">
@@ -59,9 +70,12 @@
 </div>
 
 
-<div class="dialog" data-role="dialog" id="sim-sims" data-width="600">
+<div class="dialog" data-role="dialog" id="sim-sims" data-width="600" data-height="100%"
+    data-overlay-click-close="true">
     <div class="dialog-title">Simulation Jobs</div>
     <div class="dialog-content" style="overflow-y: scroll;">
+        <input id="sim-sims-name" type="text" data-role="input" data-default-value="New Simulation" data-prepend="Name: ">
+        <textarea id="sim-sims-description" data-role="textarea" data-default-value="Description"></textarea>
         <div class="inline-form">
             <button class="button" id="sim-new">New simulation</button>
             <button class="button" id="sim-refresh">Refresh list</button>

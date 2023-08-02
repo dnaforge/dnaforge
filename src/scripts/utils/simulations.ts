@@ -1,9 +1,13 @@
+import { downloadTXT } from '../io/download';
 import { Context } from '../menus/context';
 import { NucleotideModel } from '../models/nucleotide_model';
+import * as streamSaver from 'streamsaver';
 
 interface SelectedProperty {
   name: string;
-  type: 'SelectedProperty';
+  configNames?: string[];
+  suffix?: string;
+  type: 'SelectedProperty' | 'Property';
   value: string;
 }
 
@@ -15,18 +19,63 @@ interface SelectedContainer {
 
 interface options {
   entries: (SelectedProperty | SelectedContainer)[];
+  fixedProperties?: { [key: string]: string };
   name: string;
 }
 
 interface Config {
   options: options;
   type: string;
+  title?: string;
+  description?: string;
+}
+
+interface Message {
+  type: string;
+  error: string;
+}
+
+interface Job {
+  id: string;
+  stages: number;
+  completedStages: number;
+  status: string;
+  progress: number;
+  extensions: number;
+  error: string;
+  metadata: Record<string, string>;
+}
+
+interface WebSocketAuthResponse {
+  type: 'WebSocketAuthResponse';
+  success: boolean;
+}
+
+interface JobUpdate {
+  type: 'JobUpdate';
+  JobId: string;
+  job?: Job;
+}
+
+interface DetailedJobUpdate {
+  type: 'DetailedUpdate';
+  job?: Job;
+  top: string;
+  conf: string;
+  forces: string;
+}
+
+enum JobStatus {
+  CANCELLED = 'CANCELED',
+  DONE = 'DONE',
+  RUNNING = 'RUNNING',
 }
 
 export class SimulationAPI {
   context: Context;
-  host = 'http://0.0.0.0:8081';
+  host = 'http://localhost:8081';
   token: string;
+  socket: WebSocket;
 
   constructor(context: Context) {
     this.context = context;
@@ -34,7 +83,38 @@ export class SimulationAPI {
   }
 
   dev() {
-    //this.auth();
+    this.auth();
+  }
+
+  handleWebSocketMessage(data: string) {
+    let message = JSON.parse(data);
+    if (message.type == 'JobUpdate') {
+      message = <JobUpdate>message;
+      this.getJobs();
+      if (message.job?.error) {
+        console.error(message.job.error);
+      }
+    } else if (message.type == 'DetailedUpdate') {
+      message = <DetailedJobUpdate>message;
+      this.getJobs();
+      if (message.job?.error) {
+        console.error(message.job.error);
+      } else {
+        this.detailedUpdate(message);
+      }
+    } else if (message.type == 'WebSocketAuthResponse') {
+      message = <WebSocketAuthResponse>message;
+      if (!message.success) {
+        console.error(message);
+      }
+    } else {
+      console.log(message);
+    }
+  }
+
+  detailedUpdate(t: DetailedJobUpdate) {
+    const conf = t.conf;
+    const top = t.top;
   }
 
   private setupEventListeners() {
@@ -112,9 +192,16 @@ export class SimulationAPI {
 
     $('#sim-confs-reset').on('click', () => {
       try {
-        console.log('asdf');
-
         this.getDefaultConfigs();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#sim-unsubscribe').on('click', () => {
+      try {
+        this.unsubscribe();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -129,6 +216,7 @@ export class SimulationAPI {
   setParams() {}
 
   async auth() {
+    console.log('Auth');
     await fetch(this.host + '/auth', {
       method: 'GET',
       headers: {
@@ -146,21 +234,41 @@ export class SimulationAPI {
         this.setAuthStatus(`Connected. ID: ${data}`);
         this.getDefaultConfigs();
         this.getJobs();
+        this.openWebSocket();
       })
       .catch((error) => {
+        console.error('Error:', error);
         this.token = null;
         this.setAuthStatus(`Failed to connect.`);
+        this.context.addMessage(error, 'alert');
       });
+  }
+
+  openWebSocket() {
+    console.log('Open Websocket');
+    this.socket = new WebSocket(this.host.replace('http://', 'ws://'));
+    this.socket.addEventListener('open', (event) => {
+      this.socket.send(
+        JSON.stringify({
+          type: 'WebSocketAuth',
+          bearerToken: this.token,
+        }),
+      );
+    });
+    this.socket.addEventListener('message', (event) => {
+      this.handleWebSocketMessage(event.data);
+    });
   }
 
   setupConfigComponents(configs: Config[]) {
     $('#sim-params').html('');
     for (const c of configs) {
-      console.log(c);
-
       const component = this.createConfigComponent(c);
       this.addConfigComponent(component);
     }
+
+    //console.log(configs[0].options.entries);
+    //console.log(this.readConfigs()[0].options.entries);
   }
 
   addConfigComponent(confComponent: any) {
@@ -172,7 +280,7 @@ export class SimulationAPI {
     const confComponent = $('<li>');
     const confContainer = $('<div>', {
       'data-role': 'panel',
-      'data-title-caption': `Config ${entries[0].value}`,
+      'data-title-caption': `${config.title}`,
       'data-collapsible': true,
     });
     confContainer.on('mousedown', (e: any) => {
@@ -218,6 +326,11 @@ export class SimulationAPI {
       }
       return items;
     };
+    const description = $('<textarea>', {
+      'data-role': 'textarea',
+      'data-default-value': config.description,
+    });
+    confContainer.append(description);
     for (const entry of entries) {
       const items = getItems(entry);
       for (const item of items) confContainer.append(item);
@@ -244,6 +357,7 @@ export class SimulationAPI {
       }
       const conf: Config = {
         type: 'ManualConfig',
+        title: 'New config',
         options: { entries: entries, name: 'Manual Config' },
       };
       confs.push(conf);
@@ -252,6 +366,7 @@ export class SimulationAPI {
   }
 
   async getDefaultConfigs(): Promise<Config[]> {
+    console.log('Get Default Configs');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -271,12 +386,13 @@ export class SimulationAPI {
       })
       .catch((error) => {
         console.error('Error:', error);
-        return '';
+        this.context.addMessage(error, 'alert');
       });
     return confs;
   }
 
   async getTemplateConfig() {
+    console.log('Get Config Template');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -295,7 +411,7 @@ export class SimulationAPI {
       })
       .catch((error) => {
         console.error('Error:', error);
-        return '';
+        this.context.addMessage(error, 'alert');
       });
     console.log(conf);
 
@@ -306,17 +422,36 @@ export class SimulationAPI {
     console.log(json);
   }
 
-  updateJobList(jobs: JSONObject[]) {
+  updateJobList(jobs: Job[]) {
     const jobsElement = $('#sim-jobs-list');
+
+    const needsRemake = (() => {
+      const children = jobsElement.children();
+      if (children.length != jobs.length) return true;
+      for (let i = 0; i < jobs.length; i++) {
+        const j = jobs[i];
+        const elId = $(children[i]).attr('data-job-id');
+        if (elId != j.id) {
+          return true;
+        }
+      }
+      return false;
+    })();
+
     jobsElement.html('');
-    for (const j of jobs) {
+    for (let i = 0; i < jobs.length; i++) {
+      const j = jobs[i];
       const jobElement = this.createJobComponent(j);
       jobsElement.append(jobElement);
     }
+
+    //TODO: Update onyl specific element.
   }
 
-  createJobComponent(job: any) {
-    const jobComponent = $('<li>');
+  createJobComponent(job: Job) {
+    const jobComponent = $('<li>', {
+      'data-job-id': job.id,
+    });
 
     const grid = $('<div>', { class: 'grid' });
     const row1 = $('<div>', { class: 'row' });
@@ -324,18 +459,18 @@ export class SimulationAPI {
 
     const status = $(`<div class="cell-4">${job.status}</div>`);
     const steps = $(
-      `<div class="cell-4">${job.completedSteps} / ${job.steps}</div>`,
+      `<div class="cell-4">${job.completedStages} / ${job.stages}</div>`,
     );
     const buttons = $(`<div class="cell-4 text-right">`);
 
-    const syncButton = $('<button></button>', {
-      class: 'button cycle mif-2x mif-3d-rotation',
+    const syncButton = $('<button>', {
+      class: 'button cycle mif-2x mif-3d-rotation outline primary',
     });
-    const downloadButton = $('<button></button>', {
-      class: 'button cycle mif-2x mif-download',
+    const downloadButton = $('<button>', {
+      class: 'button cycle mif-2x mif-download outline primary',
     });
-    const deleteButton = $('<button></button>', {
-      class: 'button cycle mif-2x mif-cross',
+    const deleteButton = $('<button>', {
+      class: 'button cycle mif-2x mif-cross outline alert',
     });
 
     row1.append(status);
@@ -346,7 +481,9 @@ export class SimulationAPI {
     buttons.append(deleteButton);
     row2.append(
       $(
-        `<div class="cell-12" data-role="progress" data-small="true" data-value="${job.progress}"></div>`,
+        `<div class="cell-12" data-role="progress" data-small="true" data-value="${
+          job.progress * 100
+        }"></div>`,
       ),
     );
 
@@ -356,19 +493,28 @@ export class SimulationAPI {
     grid.append(row2);
 
     syncButton.on('click', () => {
-      console.log('sync todo');
+      this.subscribe(job.id);
     });
     downloadButton.on('click', () => {
-      console.log('download todo');
+      this.downloadJob(job.id);
     });
     deleteButton.on('click', () => {
-      console.log('delete todo');
+      console.log('asdf');
+
+      if (job.status == JobStatus.CANCELLED || job.status == JobStatus.DONE) {
+        this.deleteJob(job.id);
+      } else {
+        this.cancelJob(job.id);
+      }
     });
 
     return jobComponent;
   }
 
+  updateJobComponent(component: any, job: Job) {}
+
   async getJobs() {
+    console.log('Get Jobs');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -386,12 +532,13 @@ export class SimulationAPI {
         this.updateJobList(JSON.parse(data));
       })
       .catch((error) => {
+        console.error('Error:', error);
         this.context.addMessage(error, 'alert');
-        throw error;
       });
   }
 
   async getJob(id: string) {
+    console.log('Get Job', id);
     if (!this.token) this.auth();
     console.log(this.token);
     const headers = new Headers();
@@ -412,12 +559,12 @@ export class SimulationAPI {
       })
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 
   async getJobDetails(id: string) {
-    if (!this.token) this.auth();
-    console.log(this.token);
+    console.log('Get Job Details', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -436,12 +583,12 @@ export class SimulationAPI {
       })
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 
   async downloadJob(id: string) {
-    if (!this.token) this.auth();
-    console.log(this.token);
+    console.log('Download Job', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -451,15 +598,20 @@ export class SimulationAPI {
     })
       .then((response) => {
         if (response.ok) {
-          return response.text();
+          const fileStream = streamSaver.createWriteStream(`job-${id}.zip`);
+          response.body.pipeTo(fileStream).then(
+            () => {},
+            (e: Error) => {
+              throw e;
+            },
+          );
+          return;
         }
         throw new Error(response.statusText);
       })
-      .then((data) => {
-        this.parseOptions(JSON.parse(data));
-      })
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 
@@ -469,20 +621,32 @@ export class SimulationAPI {
       throw `No nucleotide model found in the active context`;
     } else {
       const confs = this.readConfigs();
-      this.submitJob(confs, model);
+
+      this.submitJob(confs, model, {
+        name: $('#sim-sims-name').val(),
+        description: $('#sim-sims-description').val(),
+      });
     }
   }
 
-  async submitJob(confs: Config[], model: NucleotideModel) {
+  async submitJob(
+    confs: Config[],
+    model: NucleotideModel,
+    metadata: Record<string, string>,
+  ) {
+    console.log(metadata);
+
+    console.log('Submit Job');
     const dat = model.toDat();
     const top = model.toTop();
     const forces = model.toExternalForces();
 
     const job = {
-      configs: confs,
+      configs: await this.getDefaultConfigs(),
       top: top,
       dat: dat,
       forces: forces,
+      metadata: metadata,
     };
 
     const headers = new Headers();
@@ -504,14 +668,13 @@ export class SimulationAPI {
         this.getJobs();
       })
       .catch((error) => {
+        console.error('Error:', error);
         this.context.addMessage(error, 'alert');
-        throw error;
       });
   }
 
   async deleteJob(id: string) {
-    if (!this.token) this.auth();
-    console.log(this.token);
+    console.log('Delete Job', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -526,16 +689,16 @@ export class SimulationAPI {
         throw new Error(response.statusText);
       })
       .then((data) => {
-        this.parseOptions(JSON.parse(data));
+        this.getJobs();
       })
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 
   async cancelJob(id: string) {
-    if (!this.token) this.auth();
-    console.log(this.token);
+    console.log('Cancel Job', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -549,21 +712,19 @@ export class SimulationAPI {
         }
         throw new Error(response.statusText);
       })
-      .then((data) => {
-        this.parseOptions(JSON.parse(data));
-      })
+      .then((data) => {})
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 
   async getSubscription() {
-    if (!this.token) this.auth();
-    console.log(this.token);
+    console.log('GetSubscription');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    await fetch(this.host + '/job/subscribe', {
+    const id = await fetch(this.host + '/job/subscribe', {
       method: 'GET',
       headers: headers,
     })
@@ -574,16 +735,17 @@ export class SimulationAPI {
         throw new Error(response.statusText);
       })
       .then((data) => {
-        this.parseOptions(JSON.parse(data));
+        return data;
       })
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
+    return id;
   }
 
   async subscribe(id: string) {
-    if (!this.token) this.auth();
-    console.log(this.token);
+    console.log('Subscribe', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
@@ -598,20 +760,20 @@ export class SimulationAPI {
         throw new Error(response.statusText);
       })
       .then((data) => {
-        this.parseOptions(JSON.parse(data));
+        console.log(data);
       })
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 
-  async unsubscribe(id: string) {
-    if (!this.token) this.auth();
-    console.log(this.token);
+  async unsubscribe() {
+    console.log('Unsubscribe');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    await fetch(this.host + '/job/subscribe/' + id, {
+    await fetch(this.host + '/job/subscribe', {
       method: 'DELETE',
       headers: headers,
     })
@@ -621,11 +783,10 @@ export class SimulationAPI {
         }
         throw new Error(response.statusText);
       })
-      .then((data) => {
-        this.parseOptions(JSON.parse(data));
-      })
+      .then((data) => {})
       .catch((error) => {
         console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
       });
   }
 }
