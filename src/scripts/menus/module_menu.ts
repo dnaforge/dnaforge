@@ -5,7 +5,7 @@ import { WiresModel } from '../models/wires_model';
 import { Context } from './context';
 import { Menu, MenuParameters } from './menu';
 import { downloadTXT } from '../io/download';
-import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA } from '../globals/consts';
+import { IUPAC_CHAR_DNA, IUPAC_CHAR_RNA, NATYPE } from '../globals/consts';
 import { editOp, editOpAsync } from '../editor/editOPs';
 
 //TODO: Get rid of the question marks.
@@ -112,6 +112,18 @@ export abstract class ModuleMenu extends Menu {
     this.cm && this.context.editor.addModel(this.cm, this.params.showCylinders);
     this.nm &&
       this.context.editor.addModel(this.nm, this.params.showNucleotides);
+  }
+
+  loadOxDNA(top: string, conf: string, scale: number, naType: NATYPE) {
+    this.removeNucleotides(true);
+    this.nm = NucleotideModel.loadOxDNA(top, conf, scale, naType);
+    this.nm &&
+      this.context.editor.addModel(this.nm, this.params.showNucleotides);
+  }
+
+  //@editOp('nm')
+  updateFromOxDNA(conf: string) {
+    this.nm.updateFromOxDNA(conf);
   }
 
   /**

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Vector3 } from 'three';
 import { Intersection } from 'three';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { CylinderModel } from './cylinder_model';
@@ -81,6 +82,71 @@ export class NucleotideModel extends Model {
       nm.selection.add(nm.idToNuc.get(nid));
     }
     return nm;
+  }
+
+  static loadOxDNA(
+    top: string,
+    conf: string,
+    scale: number,
+    naType: NATYPE = 'DNA',
+  ) {
+    const nm = new NucleotideModel(scale, naType);
+    const nucs: Nucleotide[] = [];
+    const pairs: [number, number][] = [];
+    let strand: Strand;
+
+    top
+      .split('\n')
+      .slice(1)
+      .map((line: string, idx: number) => {
+        if (!line) return;
+        const sData = line.split(' ');
+        const sid = parseInt(sData[0]);
+        const base = sData[1];
+        const next = parseInt(sData[2]); // 5' -> 3'
+        const prev = parseInt(sData[3]);
+
+        if (!strand || strand.id != sid) {
+          strand = new Strand(nm);
+          strand.id = sid;
+          nm.addStrand(strand);
+        }
+        if (next >= 0) pairs.push([idx, next]);
+        if (prev >= 0) pairs.push([prev, idx]);
+        const n = new Nucleotide(nm, base);
+        nucs.push(n);
+        strand.addNucleotides(n);
+      });
+
+    for (const p of pairs) {
+      const n1 = nucs[p[0]];
+      const n2 = nucs[p[1]];
+      n1.next = n2;
+      n2.prev = n1;
+    }
+
+    nm.setIDs();
+    nm.updateFromOxDNA(conf);
+
+    return nm;
+  }
+
+  updateFromOxDNA(conf: string) {
+    const nucs = this.getNucleotides();
+
+    conf
+      .split('\n')
+      .slice(3)
+      .map((line: string, idx: number) => {
+        if (!line) return;
+        const nucData = line.split(' ').map((el) => parseFloat(el));
+        const com = new Vector3(...nucData.slice(0, 3));
+        const a1 = new Vector3(...nucData.slice(3, 6));
+        const a3 = new Vector3(...nucData.slice(6, 9));
+
+        const n = nucs[idx];
+        n.setTransformFromOxDNA(com, a1, a3);
+      });
   }
 
   /**
@@ -336,7 +402,7 @@ export class NucleotideModel extends Model {
           .add(
             a1
               .clone()
-              .multiplyScalar(0.34)
+              .multiplyScalar(0.3408)
               .add(a2.clone().multiplyScalar(0.3408)),
           );
         lines.push(
