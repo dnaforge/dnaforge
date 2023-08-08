@@ -52,19 +52,19 @@ interface Message {
 }
 
 interface Job {
+  metadata: Metadata;
   id: string;
   stages: number;
   completedStages: number;
   status: string;
+  initialSimSteps: number;
+  simSteps: number;
   progress: number;
+  initialStageSimSteps: number[];
+  stageSimSteps: number[];
+  stageProgress: number[];
   extensions: number;
   error: string;
-  metadata: Metadata;
-  initialSimSteps: number;
-  initialStageSimSteps: number[];
-  simSteps: number;
-  stageProgress: number[];
-  stageSimSteps: number[];
 }
 
 interface WebSocketAuthResponse {
@@ -520,6 +520,7 @@ export class SimulationAPI {
     const grid = $('<div>', { class: 'grid' });
     const row1 = $('<div>', { class: 'row' });
     const row2 = $('<div>', { class: 'row' });
+    const row3 = $('<div>', { class: 'row' });
 
     const status = $(`<div class="cell-4">${job.status}</div>`);
     const steps = $(
@@ -546,9 +547,16 @@ export class SimulationAPI {
     row2.append(
       $(
         `<div class="cell-12" data-role="progress" data-small="true" data-value="${
-          (job.stageProgress[job.completedStages - 1] /
-            job.initialStageSimSteps[job.completedStages - 1]) *
+          (job.stageProgress[job.completedStages] /
+            job.stageSimSteps[job.completedStages]) *
           100
+        }"></div>`,
+      ),
+    );
+    row3.append(
+      $(
+        `<div class="cell-12" data-role="progress" data-small="true" data-value="${
+          (job.progress / job.simSteps) * 100
         }"></div>`,
       ),
     );
@@ -557,6 +565,7 @@ export class SimulationAPI {
     jobComponent.append(grid);
     grid.append(row1);
     grid.append(row2);
+    grid.append(row3);
 
     syncButton.on('mousedown', () => {
       this.subscribe(job.id);
