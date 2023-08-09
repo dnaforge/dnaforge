@@ -388,16 +388,7 @@ export abstract class ModuleMenu extends Menu {
       const forces = this.nm.toExternalForces();
       downloadTXT(`${this.elementId}.top`, top);
       downloadTXT(`${this.elementId}.dat`, dat);
-      downloadTXT(`${this.elementId}-forces`, forces);
-    } catch (error) {
-      throw `Nucleotide model not defined.`;
-    }
-  }
-
-  downloadForces() {
-    try {
-      const forces = this.nm.toExternalForces();
-      downloadTXT(`${this.elementId}-forces`, forces);
+      downloadTXT(`${this.elementId}.forces`, forces);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -406,7 +397,7 @@ export abstract class ModuleMenu extends Menu {
   downloadStrands() {
     try {
       const strands = this.nm.toStrands();
-      downloadTXT(`${this.elementId}-strands`, strands);
+      downloadTXT(`${this.elementId}-strands.csv`, strands);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
