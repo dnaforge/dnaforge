@@ -4,18 +4,20 @@ DNA Forge is a tool for generating DNA and RNA wireframe nanostructures from 3D 
 
 ## Installation
 
-Rquires Node.
+Requires Node.
 
 Clone and run:
 
-```npm install```
+```bash
+npm install
+```
 
 ## Run
 
 Check out the package.json for scripts. E.g.:
 
-```
-npm build
+```bash
+npm run build
 ```
 
 The output is in the dist-directory and should be runnable on all modern browsers.

@@ -5,37 +5,17 @@ import { ModuleMenu } from '../menus/module_menu';
 import { NucleotideModel } from '../models/nucleotide_model';
 import * as streamSaver from 'streamsaver';
 
-interface SelectedProperty {
-  name: string;
-  configNames?: string[];
-  suffix?: string;
-  type: 'SelectedProperty' | 'Property';
-  value: string;
+enum ValueType {
+  UNSIGNED_INTEGER = 'UNSIGNED_INTEGER',
+  FLOAT = 'FLOAT',
+  ENUM = 'ENUM'
 }
 
-interface SelectedContainer {
+interface Property {
   name: string;
-  type: 'SelectedContainer';
-  value: options;
-}
-
-interface options {
-  entries: (SelectedProperty | SelectedContainer)[];
-  fixedProperties?: { [key: string]: string };
-  name: string;
-}
-
-interface Config {
-  options: options;
-  type: string;
-  metadata: Metadata;
-}
-
-interface Parameter {
-  name: string;
-  value: string;
-  valueType?: string;
-  possibleValues?: string;
+  valueType: ValueType;
+  possibleValues?: string[];
+  value?: string;
 }
 
 interface Metadata {
@@ -46,25 +26,33 @@ interface Metadata {
   naType?: string;
 }
 
+interface Config {
+  type: string;
+  metadata: Metadata;
+  autoExtendStage: boolean;
+  maxExtensions: number;
+  properties: Property[];
+}
+
 interface Message {
   type: string;
   error: string;
 }
 
 interface Job {
+  metadata: Metadata;
   id: string;
   stages: number;
   completedStages: number;
   status: string;
+  initialSimSteps: number;
+  simSteps: number;
   progress: number;
+  initialStageSimSteps: number[];
+  stageSimSteps: number[];
+  stageProgress: number[];
   extensions: number;
   error: string;
-  metadata: Metadata;
-  initialSimSteps: number;
-  initialStageSimSteps: number[];
-  simSteps: number;
-  stageProgress: number[];
-  stageSimSteps: number[];
 }
 
 interface WebSocketAuthResponse {
@@ -97,6 +85,9 @@ export class SimulationAPI {
   host = 'http://localhost:8081';
   token: string;
   socket: WebSocket;
+
+  availableProperties: Property[]
+  defaultConfigs: Config[]
 
   activeModel: NucleotideModel = null;
   mutex = false;
@@ -205,7 +196,7 @@ export class SimulationAPI {
 
     $('#sim-confs-new').on('click', () => {
       try {
-        this.getConfigFull();
+        console.error('TODO');
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -232,7 +223,7 @@ export class SimulationAPI {
 
     $('#sim-confs-reset').on('click', () => {
       try {
-        this.getDefaultConfigs();
+        this.setupConfigComponents(this.defaultConfigs);
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -272,9 +263,6 @@ export class SimulationAPI {
       .then((data) => {
         this.token = data;
         this.setAuthStatus(`Connected. ID: ${data}`);
-        this.getDefaultConfigs();
-        this.getJobs();
-        this.openWebSocket();
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -282,6 +270,14 @@ export class SimulationAPI {
         this.setAuthStatus(`Failed to connect.`);
         this.context.addMessage(error, 'alert');
       });
+
+      if (this.token !== null) {
+        this.availableProperties = await this.getAvailableProperties();
+        this.defaultConfigs = await this.getDefaultConfigs();
+        this.setupConfigComponents(this.defaultConfigs);
+        this.getJobs();
+        this.openWebSocket();
+      }
   }
 
   openWebSocket() {
@@ -305,60 +301,17 @@ export class SimulationAPI {
     for (const c of configs) {
       console.log(c);
 
-      const component = this.createConfigComponent(
-        this.confToList(c),
-        c.metadata,
-      );
-      this.addConfigComponent(component);
+      $('#sim-params').append(this.createConfigComponent(c.properties, c.metadata));
     }
-
-    //console.log(configs[0].options.entries);
-    //console.log(this.readConfigs()[0].options.entries);
   }
 
-  addConfigComponent(confComponent: any) {
-    $('#sim-params').append(confComponent);
-  }
-
-  confToList(config: Config) {
-    const parameters: Parameter[] = [];
-    const entries = config.options.entries;
-
-    const getItems = (
-      entry: SelectedContainer | SelectedProperty,
-    ): Parameter[] => {
-      const items: Parameter[] = [];
-      if (entry.type == 'SelectedContainer') {
-        const entries = entry.value.entries;
-        for (const entry of entries) {
-          for (const item of getItems(entry)) {
-            items.push(item);
-          }
-        }
-      }
-      if (entry.type == 'SelectedProperty') {
-        items.push({
-          name: entry.name,
-          value: entry.value,
-        });
-      }
-      return items;
-    };
-
-    for (const entry of entries) {
-      const items = getItems(entry);
-      for (const item of items) parameters.push(item);
-    }
-
-    return parameters;
-  }
-
-  createConfigComponent(parameters: Parameter[], metadata: Metadata) {
+  createConfigComponent(properties: Property[], metadata: Metadata) {
     const confComponent = $('<li>');
     const confContainer = $('<div>', {
       'data-role': 'panel',
       'data-title-caption': `${metadata.title}`,
       'data-collapsible': true,
+      'data-name': 'stage-title',
     });
     confContainer.on('mousedown', (e: any) => {
       e.stopPropagation();
@@ -384,17 +337,11 @@ export class SimulationAPI {
     const description = $('<textarea>', {
       'data-role': 'textarea',
       'data-default-value': metadata.description,
+      'data-name': 'stage-description',
     });
     confContainer.append(description);
-    for (const param of parameters) {
-      const el = $('<input>', {
-        type: 'text',
-        'data-prepend': param.name,
-        'data-role': 'input',
-        'data-default-value': param.value,
-        'data-name': param.name,
-      });
-      confContainer.append(el);
+    for (const prop of properties) {
+      confContainer.append(this.createPropertyElement(prop));
     }
 
     //const confFooter = $("<form>", {});
@@ -403,21 +350,122 @@ export class SimulationAPI {
     return confComponent;
   }
 
-  readParameters(): Parameter[][] {
-    const parameters: Parameter[][] = [];
+  createPropertyElement(prop: Property) {
+    let el;
+
+    switch (prop.valueType) {
+        case ValueType.UNSIGNED_INTEGER:
+            el = $('<input>', {
+                type: 'number',
+                min: 0,
+                'data-prepend': prop.name,
+                'data-role': 'input',
+                'data-default-value': prop.value,
+                'data-name': prop.name,
+            });
+            break;
+
+        case ValueType.FLOAT:
+            el = $('<input>', {
+                type: 'number',
+                step: 'any',
+                'data-prepend': prop.name,
+                'data-role': 'input',
+                'data-default-value': prop.value,
+                'data-name': prop.name,
+            });
+            break;
+
+        case ValueType.ENUM:
+            el = $('<select>', {
+                'data-prepend': prop.name,
+                'data-role': 'select',
+                'data-name': prop.name,
+            });
+
+            // needed for properties without default value
+            const blank = $('<option>', {
+              value: null,
+              text: null,
+            }).text(null);
+            el.append(blank);
+
+            if (prop.possibleValues) {
+                for (const value of prop.possibleValues) {
+                    const option = $('<option>', {
+                        value: value,
+                        text: value,
+                    }).text(value);
+                    el.append(option);
+                }
+            }
+
+            // select default value if available
+            if (prop.value) {
+              el = el.val(prop.value)
+            }
+            break;
+    }
+    return el;
+  }
+
+  readConfigs(): Config[] {
+    const configs: Config[] = [];
     for (const c of Array.from($('#sim-params').children())) {
-      const subParams: Parameter[] = [];
+      const props = structuredClone(this.availableProperties);
+      const propertyMap: { [id: string]: Property; } = {};
+      
+      props.forEach(prop => {
+        propertyMap[prop.name] = prop;
+      });
+      
       for (const i of Array.from($(c).find('input'))) {
         const el = $(i);
-        const param: Parameter = {
-          name: el.attr('data-name'),
-          value: el.val(),
-        };
-        subParams.push(param);
+        const propName = el.attr('data-name');
+        const prop = propertyMap[propName];
+        
+        if (prop !== undefined) {
+          prop.value = el.val();
+        }
       }
-      parameters.push(subParams);
+      for (const i of Array.from($(c).find('select'))) {
+        const el = $(i);
+        const propName = el.attr('data-name');
+        const prop = propertyMap[propName];
+        
+        if (prop !== undefined) {
+          prop.value = el.val();
+        }
+      }
+      
+      var title: string
+      for (const i of Array.from($(c).find('div'))) {
+        const el = $(i);
+        if (el.attr('data-name') === 'stage-title') {
+          title = el.attr('data-title-caption');
+        }
+      }
+      var description: string
+      for (const i of Array.from($(c).find('textarea'))) {
+        const el = $(i);
+        if (el.attr('data-name') === 'stage-description') {
+          description = el.val();
+        }
+      }
+      const meta: Metadata = {
+        title: title,
+        description: description,
+      }
+      const config: Config = {
+        type: 'PropertiesConfig',
+        metadata: meta,
+        autoExtendStage: true,
+        maxExtensions: 5,
+        properties: props
+      }
+      configs.push(config)
     }
-    return parameters;
+    return configs;
   }
 
   async getDefaultConfigs(): Promise<Config[]> {
@@ -425,7 +473,7 @@ export class SimulationAPI {
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    const confs = await fetch(this.host + '/options/default', {
+    const confs = await fetch(this.host + '/options/default/properties', {
       method: 'GET',
       headers: headers,
     })
@@ -436,7 +484,6 @@ export class SimulationAPI {
         throw new Error(response.statusText);
       })
       .then((data) => {
-        this.setupConfigComponents(JSON.parse(data));
         return JSON.parse(data);
       })
       .catch((error) => {
@@ -446,7 +493,7 @@ export class SimulationAPI {
     return confs;
   }
 
-  async getConfigFull() {
+  async getAvailableProperties(): Promise<Property[]> {
     console.log('Get Config Full');
     const headers = new Headers();
     headers.append('authorization', this.token);
@@ -520,6 +567,7 @@ export class SimulationAPI {
     const grid = $('<div>', { class: 'grid' });
     const row1 = $('<div>', { class: 'row' });
     const row2 = $('<div>', { class: 'row' });
+    const row3 = $('<div>', { class: 'row' });
 
     const status = $(`<div class="cell-4">${job.status}</div>`);
     const steps = $(
@@ -546,9 +594,16 @@ export class SimulationAPI {
     row2.append(
       $(
         `<div class="cell-12" data-role="progress" data-small="true" data-value="${
-          (job.stageProgress[job.completedStages - 1] /
-            job.initialStageSimSteps[job.completedStages - 1]) *
+          (job.stageProgress[job.completedStages] /
+            job.stageSimSteps[job.completedStages]) *
           100
+        }"></div>`,
+      ),
+    );
+    row3.append(
+      $(
+        `<div class="cell-12" data-role="progress" data-small="true" data-value="${
+          (job.progress / job.simSteps) * 100
         }"></div>`,
       ),
     );
@@ -557,6 +612,7 @@ export class SimulationAPI {
     jobComponent.append(grid);
     grid.append(row1);
     grid.append(row2);
+    grid.append(row3);
 
     syncButton.on('mousedown', () => {
       this.subscribe(job.id);
@@ -686,9 +742,7 @@ export class SimulationAPI {
     if (!model) {
       throw `No nucleotide model found in the active context`;
     } else {
-      const parameters = this.readParameters();
-
-      this.submitJob(parameters, model, {
+      this.submitJob(this.readConfigs(), model, {
         title: $('#sim-sims-name').val(),
         description: $('#sim-sims-description').val(),
         algorithm: this.context.activeContext.elementId,
@@ -699,7 +753,7 @@ export class SimulationAPI {
   }
 
   async submitJob(
-    parameters: Parameter[][],
+    configs: Config[],
     model: NucleotideModel,
     metadata: Metadata,
   ) {
@@ -709,7 +763,7 @@ export class SimulationAPI {
     const forces = model.toExternalForces();
 
     const job = {
-      configs: await this.getDefaultConfigs(),
+      configs: configs,
       top: top,
       dat: dat,
       forces: forces,
