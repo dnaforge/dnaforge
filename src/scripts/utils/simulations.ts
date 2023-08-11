@@ -8,7 +8,7 @@ import * as streamSaver from 'streamsaver';
 enum ValueType {
   UNSIGNED_INTEGER = 'UNSIGNED_INTEGER',
   FLOAT = 'FLOAT',
-  ENUM = 'ENUM'
+  ENUM = 'ENUM',
 }
 
 interface Property {
@@ -86,8 +86,8 @@ export class SimulationAPI {
   token: string;
   socket: WebSocket;
 
-  availableProperties: Property[]
-  defaultConfigs: Config[]
+  availableProperties: Property[];
+  defaultConfigs: Config[];
 
   activeModel: NucleotideModel = null;
   mutex = false;
@@ -271,13 +271,13 @@ export class SimulationAPI {
         this.context.addMessage(error, 'alert');
       });
 
-      if (this.token !== null) {
-        this.availableProperties = await this.getAvailableProperties();
-        this.defaultConfigs = await this.getDefaultConfigs();
-        this.setupConfigComponents(this.defaultConfigs);
-        this.getJobs();
-        this.openWebSocket();
-      }
+    if (this.token !== null) {
+      this.availableProperties = await this.getAvailableProperties();
+      this.defaultConfigs = await this.getDefaultConfigs();
+      this.setupConfigComponents(this.defaultConfigs);
+      this.getJobs();
+      this.openWebSocket();
+    }
   }
 
   openWebSocket() {
@@ -301,7 +301,9 @@ export class SimulationAPI {
     for (const c of configs) {
       console.log(c);
 
-      $('#sim-params').append(this.createConfigComponent(c.properties, c.metadata));
+      $('#sim-params').append(
+        this.createConfigComponent(c.properties, c.metadata),
+      );
     }
   }
 
@@ -354,57 +356,57 @@ export class SimulationAPI {
     let el;
 
     switch (prop.valueType) {
-        case ValueType.UNSIGNED_INTEGER:
-            el = $('<input>', {
-                type: 'number',
-                min: 0,
-                'data-prepend': prop.name,
-                'data-role': 'input',
-                'data-default-value': prop.value,
-                'data-name': prop.name,
-            });
-            break;
+      case ValueType.UNSIGNED_INTEGER:
+        el = $('<input>', {
+          type: 'number',
+          min: 0,
+          'data-prepend': prop.name,
+          'data-role': 'input',
+          'data-default-value': prop.value,
+          'data-name': prop.name,
+        });
+        break;
 
-        case ValueType.FLOAT:
-            el = $('<input>', {
-                type: 'number',
-                step: 'any',
-                'data-prepend': prop.name,
-                'data-role': 'input',
-                'data-default-value': prop.value,
-                'data-name': prop.name,
-            });
-            break;
+      case ValueType.FLOAT:
+        el = $('<input>', {
+          type: 'number',
+          step: 'any',
+          'data-prepend': prop.name,
+          'data-role': 'input',
+          'data-default-value': prop.value,
+          'data-name': prop.name,
+        });
+        break;
 
-        case ValueType.ENUM:
-            el = $('<select>', {
-                'data-prepend': prop.name,
-                'data-role': 'select',
-                'data-name': prop.name,
-            });
+      case ValueType.ENUM:
+        el = $('<select>', {
+          'data-prepend': prop.name,
+          'data-role': 'select',
+          'data-name': prop.name,
+        });
 
-            // needed for properties without default value
-            const blank = $('<option>', {
-              value: null,
-              text: null,
-            }).text(null);
-            el.append(blank);
+        // needed for properties without default value
+        const blank = $('<option>', {
+          value: null,
+          text: null,
+        }).text(null);
+        el.append(blank);
 
-            if (prop.possibleValues) {
-                for (const value of prop.possibleValues) {
-                    const option = $('<option>', {
-                        value: value,
-                        text: value,
-                    }).text(value);
-                    el.append(option);
-                }
-            }
+        if (prop.possibleValues) {
+          for (const value of prop.possibleValues) {
+            const option = $('<option>', {
+              value: value,
+              text: value,
+            }).text(value);
+            el.append(option);
+          }
+        }
 
-            // select default value if available
-            if (prop.value) {
-              el = el.val(prop.value)
-            }
-            break;
+        // select default value if available
+        if (prop.value) {
+          el = el.val(prop.value);
+        }
+        break;
     }
     return el;
   }
@@ -413,17 +415,17 @@ export class SimulationAPI {
     const configs: Config[] = [];
     for (const c of Array.from($('#sim-params').children())) {
       const props = structuredClone(this.availableProperties);
-      const propertyMap: { [id: string]: Property; } = {};
-      
-      props.forEach(prop => {
+      const propertyMap: { [id: string]: Property } = {};
+
+      props.forEach((prop) => {
         propertyMap[prop.name] = prop;
       });
-      
+
       for (const i of Array.from($(c).find('input'))) {
         const el = $(i);
         const propName = el.attr('data-name');
         const prop = propertyMap[propName];
-        
+
         if (prop !== undefined) {
           prop.value = el.val();
         }
@@ -432,20 +434,20 @@ export class SimulationAPI {
         const el = $(i);
         const propName = el.attr('data-name');
         const prop = propertyMap[propName];
-        
+
         if (prop !== undefined) {
           prop.value = el.val();
         }
       }
-      
-      var title: string
+
+      var title: string;
       for (const i of Array.from($(c).find('div'))) {
         const el = $(i);
         if (el.attr('data-name') === 'stage-title') {
           title = el.attr('data-title-caption');
         }
       }
-      var description: string
+      var description: string;
       for (const i of Array.from($(c).find('textarea'))) {
         const el = $(i);
         if (el.attr('data-name') === 'stage-description') {
@@ -455,15 +457,15 @@ export class SimulationAPI {
       const meta: Metadata = {
         title: title,
         description: description,
-      }
+      };
       const config: Config = {
         type: 'PropertiesConfig',
         metadata: meta,
         autoExtendStage: true,
         maxExtensions: 5,
-        properties: props
-      }
-      configs.push(config)
+        properties: props,
+      };
+      configs.push(config);
     }
     return configs;
   }

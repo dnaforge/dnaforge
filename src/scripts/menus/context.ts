@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; //'three/addons/controls/OrbitControls';
+import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls.js';
 import {
   CSS2DRenderer,
   CSS2DObject,
@@ -52,7 +53,7 @@ export class Context {
 
   scene: THREE.Scene = new THREE.Scene();
   camera: THREE.Camera;
-  cameraControls: OrbitControls;
+  cameraControls: ArcballControls;
   callbacks: { (): void }[] = [];
 
   graph: Graph = null;
@@ -135,14 +136,17 @@ export class Context {
     const dist = 20;
     switch (dir) {
       case 'front':
+        this.cameraControls.reset();
         this.camera.position.copy(new Vector3(0, 5, dist));
         this.cameraControls.target = new Vector3(0, 5, 0);
         break;
       case 'right':
+        this.cameraControls.reset();
         this.camera.position.copy(new Vector3(dist, 5, 0));
         this.cameraControls.target = new Vector3(0, 5, 0);
         break;
       case 'top':
+        this.cameraControls.reset();
         this.camera.position.copy(new Vector3(0, dist, 0));
         this.cameraControls.target = new Vector3(0, 0, 0);
         break;
@@ -198,16 +202,6 @@ export class Context {
     this.cameraControls.update();
   }
 
-  setCamera(cam: THREE.Camera) {
-    this.camera = cam;
-    this.cameraControls.dispose();
-    this.cameraControls = new OrbitControls(
-      this.camera,
-      document.querySelector('#canvas'),
-    );
-    this.cameraControls.update();
-  }
-
   getCamera(): THREE.Camera {
     return this.camera;
   }
@@ -237,10 +231,16 @@ export class Context {
       );
     }
     this.cameraControls && this.cameraControls.dispose();
-    this.cameraControls = new OrbitControls(
+    this.cameraControls = new ArcballControls(
       this.camera,
       document.querySelector('#canvas'),
+      this.scene,
     );
+    this.cameraControls.setGizmosVisible(false);
+    this.cameraControls.wMax = 5;
+    this.cameraControls.cursorZoom = true;
+    console.log(this.cameraControls);
+
     this.camera.position.copy(new Vector3(0, 5, 20));
     this.cameraControls.target = new Vector3(0, 5, 0);
     this.cameraControls.update();

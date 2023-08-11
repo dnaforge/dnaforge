@@ -333,7 +333,18 @@ export class Controls {
       return;
     }
 
-    this.handleDblClick(event);
+    const intersects = this.raycast();
+    if (intersects.length > 0) {
+      for (let i = 0; i < intersects.length; i++) {
+        this.intersection = intersects[i];
+        const s = this.resolveIntersection(this.intersection);
+        if (s) {
+          this.context.focusCamera(this.intersection.point);
+          this.context.editor.focus(s);
+          return;
+        }
+      }
+    }
   }
 
   handleMouseDown(event: PointerEvent) {
@@ -379,19 +390,6 @@ export class Controls {
   handleDblClick(event: PointerEvent) {
     if (event.target != canvas) return;
     event.preventDefault();
-
-    const intersects = this.raycast();
-    if (intersects.length > 0) {
-      for (let i = 0; i < intersects.length; i++) {
-        this.intersection = intersects[i];
-        const s = this.resolveIntersection(this.intersection);
-        if (s) {
-          this.context.focusCamera(this.intersection.point);
-          this.context.editor.focus(s);
-          return;
-        }
-      }
-    }
   }
 
   handlePointerMove(event: PointerEvent) {
