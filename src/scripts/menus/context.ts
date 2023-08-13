@@ -135,7 +135,7 @@ export class Context {
 
   getScreenshot() {
     const X = 7680;
-    const Y = 4320;
+    const Y = X * (canvas.height / canvas.width);
     canvas.width = X;
     canvas.height = Y;
     this.renderer.setSize(X, Y);
