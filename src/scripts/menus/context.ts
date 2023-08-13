@@ -6,14 +6,16 @@ import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { SVGRenderer } from 'three/examples/jsm/renderers/SVGRenderer';
 import { Controls } from '../editor/controls';
 import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
 import { SimulationAPI } from '../utils/simulations';
+import { downloadIMG } from '../io/download';
 
-const canvas = document.querySelector('#canvas');
+const canvas = <HTMLCanvasElement>document.querySelector('#canvas');
 
 //TODO: move camera controls to controls class and the interface class
 
@@ -74,8 +76,23 @@ export class Context {
 
     this.setupRenderer();
     this.setupEventListeners();
+    this.setupHotkeys();
     this.resetCamera(false);
     this.render();
+  }
+
+
+  /**
+   * Associates hotkeys with functions or buttons.
+   */
+  setupHotkeys() {
+    this.controls.registerHotkey(
+      'p',
+      () => {
+        return this.getScreenshot();
+      },
+      'global',
+    );
   }
 
   /**
@@ -91,7 +108,7 @@ export class Context {
   private setupRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas,
-      antialias: true,
+      antialias: true
     });
     this.labelRenderer = new CSS2DRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -114,6 +131,33 @@ export class Context {
       this.labelRenderer.render(this.scene, this.camera);
     };
     renderT();
+  }
+
+  getScreenshot() {
+    const X = 7680;
+    const Y = 4320;
+    canvas.width = X;
+    canvas.height = Y;
+    this.renderer.setSize(X, Y);
+    this.renderer.render(this.scene, this.camera);
+
+    const imgData = this.renderer.domElement.toDataURL("image/png");
+    downloadIMG("untitled.png", imgData);
+    this.resetSize();
+  }
+
+  resetSize() {
+    cameraParams.aspect = window.innerWidth / window.innerHeight;
+    cameraParams.left = (cameraParams.frustumSize * cameraParams.aspect) / -2;
+    cameraParams.right = (cameraParams.frustumSize * cameraParams.aspect) / 2;
+
+    (this.camera as any).aspect = cameraParams.aspect;
+    (this.camera as any).left = cameraParams.left;
+    (this.camera as any).right = cameraParams.right;
+
+    (this.camera as any).updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
   }
 
   /**
@@ -345,8 +389,7 @@ export class Context {
     this.graph = graph;
     for (const ctx of this.menus.values()) ctx.isGlobal && ctx.activate();
     this.addMessage(
-      `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${
-        graph.getEdges().length
+      `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${graph.getEdges().length
       } edges<br>${graph.getFaces().length} faces`,
       'info',
     );
@@ -430,17 +473,7 @@ export class Context {
     });
 
     window.onresize = () => {
-      cameraParams.aspect = window.innerWidth / window.innerHeight;
-      cameraParams.left = (cameraParams.frustumSize * cameraParams.aspect) / -2;
-      cameraParams.right = (cameraParams.frustumSize * cameraParams.aspect) / 2;
-
-      (this.camera as any).aspect = cameraParams.aspect;
-      (this.camera as any).left = cameraParams.left;
-      (this.camera as any).right = cameraParams.right;
-
-      (this.camera as any).updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+      this.resetSize();
     };
   }
 }
