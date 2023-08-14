@@ -81,7 +81,6 @@ export class Context {
     this.render();
   }
 
-
   /**
    * Associates hotkeys with functions or buttons.
    */
@@ -108,7 +107,7 @@ export class Context {
   private setupRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: canvas,
-      antialias: true
+      antialias: true,
     });
     this.labelRenderer = new CSS2DRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -141,8 +140,8 @@ export class Context {
     this.renderer.setSize(X, Y);
     this.renderer.render(this.scene, this.camera);
 
-    const imgData = this.renderer.domElement.toDataURL("image/png");
-    downloadIMG("untitled.png", imgData);
+    const imgData = this.renderer.domElement.toDataURL('image/png');
+    downloadIMG('untitled.png', imgData);
     this.resetSize();
   }
 
@@ -389,7 +388,8 @@ export class Context {
     this.graph = graph;
     for (const ctx of this.menus.values()) ctx.isGlobal && ctx.activate();
     this.addMessage(
-      `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${graph.getEdges().length
+      `Loaded a graph with<br>${graph.getVertices().length} vertices<br>${
+        graph.getEdges().length
       } edges<br>${graph.getFaces().length} faces`,
       'info',
     );

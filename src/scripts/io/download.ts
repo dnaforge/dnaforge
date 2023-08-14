@@ -15,10 +15,7 @@ export function downloadTXT(filename: string, text: string) {
 
 export function downloadIMG(filename: string, data: string) {
   const element = document.createElement('a');
-  element.setAttribute(
-    'href',
-    data,
-  );
+  element.setAttribute('href', data);
   element.setAttribute('download', filename);
   element.style.display = 'none';
   document.body.appendChild(element);

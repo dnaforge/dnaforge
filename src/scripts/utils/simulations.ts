@@ -299,19 +299,15 @@ export class SimulationAPI {
   setupConfigComponents(configs: Config[]) {
     $('#sim-params').html('');
     for (const c of configs) {
-      console.log(c);
-
-      $('#sim-params').append(
-        this.createConfigComponent(c.properties, c.metadata),
-      );
+      $('#sim-params').append(this.createConfigComponent(c));
     }
   }
 
-  createConfigComponent(properties: Property[], metadata: Metadata) {
+  createConfigComponent(config: Config) {
     const confComponent = $('<li>');
     const confContainer = $('<div>', {
       'data-role': 'panel',
-      'data-title-caption': `${metadata.title}`,
+      'data-title-caption': `${config.metadata.title}`,
       'data-collapsible': true,
       'data-name': 'stage-title',
     });
@@ -336,18 +332,48 @@ export class SimulationAPI {
     });
     confComponent.append(confContainer);
 
+    // description
     const description = $('<textarea>', {
       'data-role': 'textarea',
-      'data-default-value': metadata.description,
+      'data-default-value': config.metadata.description,
       'data-name': 'stage-description',
     });
     confContainer.append(description);
-    for (const prop of properties) {
+
+    // auto extend stage
+    const autoExtendStage = $('<select>', {
+      'data-prepend': 'Auto Extend Stage',
+      'data-role': 'select',
+      'data-name': 'auto-extend-stage',
+    });
+
+    const autoTrue = $('<option>', {
+      value: true,
+    }).text('True');
+    autoExtendStage.append(autoTrue);
+
+    const autoFalse = $('<option>', {
+      value: false,
+    }).text('False');
+    autoExtendStage.append(autoFalse);
+
+    autoExtendStage.val(config.autoExtendStage);
+    confContainer.append(autoExtendStage);
+
+    // auto extend limit
+    const autoExtendLimit = $('<input>', {
+      type: 'number',
+      min: 0,
+      'data-prepend': 'Max. Extensions',
+      'data-role': 'input',
+      'data-default-value': config.maxExtensions,
+      'data-name': 'auto-extend-stage-limit',
+    });
+    confContainer.append(autoExtendLimit);
+
+    for (const prop of config.properties) {
       confContainer.append(this.createPropertyElement(prop));
     }
-
-    //const confFooter = $("<form>", {});
-    //confContainer.append($("<button>asd</button>", {class: "button"}))
 
     return confComponent;
   }
@@ -388,7 +414,6 @@ export class SimulationAPI {
         // needed for properties without default value
         const blank = $('<option>', {
           value: null,
-          text: null,
         }).text(null);
         el.append(blank);
 
@@ -396,7 +421,6 @@ export class SimulationAPI {
           for (const value of prop.possibleValues) {
             const option = $('<option>', {
               value: value,
-              text: value,
             }).text(value);
             el.append(option);
           }
@@ -454,6 +478,20 @@ export class SimulationAPI {
           description = el.val();
         }
       }
+      var autoExtendStage: boolean;
+      for (const i of Array.from($(c).find('select'))) {
+        const el = $(i);
+        if (el.attr('data-name') === 'auto-extend-stage') {
+          autoExtendStage = el.val() === 'true';
+        }
+      }
+      var autoExtendLimit: number;
+      for (const i of Array.from($(c).find('input'))) {
+        const el = $(i);
+        if (el.attr('data-name') === 'auto-extend-stage-limit') {
+          autoExtendLimit = parseInt(el.val());
+        }
+      }
       const meta: Metadata = {
         title: title,
         description: description,
@@ -461,8 +499,8 @@ export class SimulationAPI {
       const config: Config = {
         type: 'PropertiesConfig',
         metadata: meta,
-        autoExtendStage: true,
-        maxExtensions: 5,
+        autoExtendStage: autoExtendStage,
+        maxExtensions: autoExtendLimit,
         properties: props,
       };
       configs.push(config);
