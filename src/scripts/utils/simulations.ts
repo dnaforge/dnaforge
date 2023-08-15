@@ -32,7 +32,14 @@ interface Config {
   metadata: Metadata;
   autoExtendStage: boolean;
   maxExtensions: number;
+}
+
+interface PropertiesConfig extends Config {
   properties: Property[];
+}
+
+interface FileConfig extends Config {
+  content: string;
 }
 
 interface Message {
@@ -331,12 +338,11 @@ export class SimulationAPI {
     confComponent.append(confContainer);
 
     // description
-    const description = $('<textarea>', {
+    $('<textarea>', {
       'data-role': 'textarea',
       'data-default-value': config.metadata.description,
       'data-name': 'stage-description',
-    });
-    confContainer.append(description);
+    }).appendTo(confContainer);
 
     // auto extend stage
     const autoExtendStage = $('<select>', {
@@ -361,18 +367,99 @@ export class SimulationAPI {
     confContainer.append(autoExtendStage);
 
     // auto extend limit
-    const autoExtendLimit = $('<input>', {
+    $('<input>', {
       type: 'number',
       min: 0,
       'data-prepend': 'Max. Extensions',
       'data-role': 'input',
       'data-default-value': config.maxExtensions,
       'data-name': 'auto-extend-stage-limit',
-    });
-    confContainer.append(autoExtendLimit);
+    }).appendTo(confContainer);
 
-    for (const prop of config.properties) {
-      confContainer.append(this.createPropertyElement(prop));
+    // create config type tabs
+    const configTypeTabs = $('<ul>', {
+      'data-role': 'tabs',
+      'data-tabs-type': 'group',
+      'data-expand': 'true',
+      style: 'margin-top: 10px;',
+    });
+
+    const manualTab = $('<li>').append(
+      $('<a>', {
+        href: '#manual_config',
+      }).text('Manual Config'),
+    );
+    configTypeTabs.append(manualTab);
+
+    const fileTab = $('<li>').append(
+      $('<a>', {
+        href: '#file_config',
+      }).text('oxDNA Input File'),
+    );
+    configTypeTabs.append(fileTab);
+
+    confContainer.append(configTypeTabs);
+    // Initialize MetroUI tabs
+    configTypeTabs.tabs();
+
+    const manualConfContainer = $('<div>', {
+      'data-role': 'container',
+      'data-name': 'stage-manual',
+    });
+    confContainer.append(manualConfContainer);
+
+    const fileConfContainer = $('<div>', {
+      'data-role': 'container',
+      'data-name': 'stage-file',
+    });
+    confContainer.append(fileConfContainer);
+
+    configTypeTabs.on('tab', (event: Event) => {
+      const target = $(event.target);
+      console.log('Event!!!');
+      console.log(target);
+      if (target.find('li.active').text() === 'Manual Config') {
+        manualConfContainer.hide();
+        fileConfContainer.show();
+      } else {
+        fileConfContainer.hide();
+        manualConfContainer.show();
+      }
+    });
+
+    // open correct tab
+    console.log(`Wanted: ${config.type}`);
+    console.log(`Is: ${configTypeTabs.find('li.active').text()}`);
+    if (config.type === 'PropertiesConfig') {
+      const propConf = <PropertiesConfig>config;
+
+      for (const prop of propConf.properties) {
+        manualConfContainer.append(this.createPropertyElement(prop));
+      }
+      $('<textarea>', {
+        'data-role': 'textarea',
+        'data-default-value': '',
+        'data-name': 'file-content',
+      }).appendTo(fileConfContainer);
+
+      configTypeTabs.data('tabs').open(manualTab);
+      fileConfContainer.hide();
+    } else if (config.type === 'FileConfig') {
+      const fileConf = <FileConfig>config;
+
+      $('<textarea>', {
+        'data-role': 'textarea',
+        'data-default-value': fileConf.content,
+        'data-name': 'file-content',
+      }).appendTo(fileConfContainer);
+      for (const prop of this.availableProperties) {
+        manualConfContainer.append(this.createPropertyElement(prop));
+      }
+
+      configTypeTabs.data('tabs').open(fileTab);
+      manualConfContainer.hide();
+    } else {
+      throw new Error('Unknown Config type!');
     }
 
     return confComponent;
@@ -462,37 +549,12 @@ export class SimulationAPI {
   readConfigs(): Config[] {
     const configs: Config[] = [];
     for (const c of Array.from($('#sim-params').children())) {
-      const props = structuredClone(this.availableProperties);
-      const propertyMap: { [id: string]: Property } = {};
-
-      props.forEach((prop) => {
-        propertyMap[prop.name] = prop;
-      });
-
-      for (const i of Array.from($(c).find('input'))) {
-        const el = $(i);
-        const propName = el.attr('data-name');
-        const prop = propertyMap[propName];
-
-        if (prop !== undefined) {
-          prop.value = el.val();
-        }
-      }
-      for (const i of Array.from($(c).find('select'))) {
-        const el = $(i);
-        const propName = el.attr('data-name');
-        const prop = propertyMap[propName];
-
-        if (prop !== undefined) {
-          prop.value = el.val();
-        }
-      }
-
       let title: string;
       for (const i of Array.from($(c).find('div'))) {
         const el = $(i);
         if (el.attr('data-name') === 'stage-title') {
           title = el.attr('data-title-caption');
+          break;
         }
       }
       let description: string;
@@ -500,6 +562,7 @@ export class SimulationAPI {
         const el = $(i);
         if (el.attr('data-name') === 'stage-description') {
           description = el.val();
+          break;
         }
       }
       let autoExtendStage: boolean;
@@ -507,6 +570,7 @@ export class SimulationAPI {
         const el = $(i);
         if (el.attr('data-name') === 'auto-extend-stage') {
           autoExtendStage = el.val() === 'true';
+          break;
         }
       }
       let autoExtendLimit: number;
@@ -514,22 +578,83 @@ export class SimulationAPI {
         const el = $(i);
         if (el.attr('data-name') === 'auto-extend-stage-limit') {
           autoExtendLimit = parseInt(el.val());
+          break;
         }
       }
+      let type: string;
+      for (const i of Array.from($(c).find('ul'))) {
+        const el = $(i);
+        if (el.find('li.active').text() === 'Manual Config') {
+          type = 'PropertiesConfig';
+        } else if (el.find('li.active').text() === 'oxDNA Input File') {
+          type = 'FileConfig';
+        }
+      }
+      console.log('Type: ');
+      console.log(type);
+
       const meta: Metadata = {
         title: title,
         description: description,
       };
-      const config: Config = {
-        type: 'PropertiesConfig',
-        metadata: meta,
-        autoExtendStage: autoExtendStage,
-        maxExtensions: autoExtendLimit,
-        properties: props,
-      };
+      const config: Config =
+        type === 'PropertiesConfig'
+          ? ({
+              type: 'PropertiesConfig',
+              metadata: meta,
+              autoExtendStage: autoExtendStage,
+              maxExtensions: autoExtendLimit,
+              properties: this.readProperties(c),
+            } as PropertiesConfig)
+          : ({
+              type: 'FileConfig',
+              metadata: meta,
+              autoExtendStage: autoExtendStage,
+              maxExtensions: autoExtendLimit,
+              content: this.readOxDnaFile(c),
+            } as FileConfig);
       configs.push(config);
     }
     return configs;
+  }
+
+  readProperties(c: unknown): Property[] {
+    const props = structuredClone(this.availableProperties);
+    const propertyMap: { [id: string]: Property } = {};
+
+    props.forEach((prop) => {
+      propertyMap[prop.name] = prop;
+    });
+
+    for (const i of Array.from($(c).find('input'))) {
+      const el = $(i);
+      const propName = el.attr('data-name');
+      const prop = propertyMap[propName];
+
+      if (prop !== undefined) {
+        prop.value = el.val();
+      }
+    }
+    for (const i of Array.from($(c).find('select'))) {
+      const el = $(i);
+      const propName = el.attr('data-name');
+      const prop = propertyMap[propName];
+
+      if (prop !== undefined) {
+        prop.value = el.val();
+      }
+    }
+    return props;
+  }
+
+  readOxDnaFile(c: unknown): string {
+    for (const i of Array.from($(c).find('textarea'))) {
+      const el = $(i);
+      if (el.attr('data-name') === 'file-content') {
+        return el.val();
+      }
+    }
+    return '';
   }
 
   async getDefaultConfigs(): Promise<Config[]> {
