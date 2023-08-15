@@ -155,15 +155,12 @@ export class SimulationAPI {
     $('#sim-window')
       .find('btn-close')
       .on('click', (e: Event) => {
-        console.log('asdf');
-
         e.preventDefault();
         e.stopPropagation();
         $('#sim-window').show();
       });
 
     $('#sim-show').on('click', () => {
-      console.log('asdfasdf');
       $('#sim-window').show();
     });
 
@@ -491,28 +488,28 @@ export class SimulationAPI {
         }
       }
 
-      var title: string;
+      let title: string;
       for (const i of Array.from($(c).find('div'))) {
         const el = $(i);
         if (el.attr('data-name') === 'stage-title') {
           title = el.attr('data-title-caption');
         }
       }
-      var description: string;
+      let description: string;
       for (const i of Array.from($(c).find('textarea'))) {
         const el = $(i);
         if (el.attr('data-name') === 'stage-description') {
           description = el.val();
         }
       }
-      var autoExtendStage: boolean;
+      let autoExtendStage: boolean;
       for (const i of Array.from($(c).find('select'))) {
         const el = $(i);
         if (el.attr('data-name') === 'auto-extend-stage') {
           autoExtendStage = el.val() === 'true';
         }
       }
-      var autoExtendLimit: number;
+      let autoExtendLimit: number;
       for (const i of Array.from($(c).find('input'))) {
         const el = $(i);
         if (el.attr('data-name') === 'auto-extend-stage-limit') {
@@ -614,19 +611,10 @@ export class SimulationAPI {
       jobsElement.append(jobElement);
     }
 
-    //TODO: Update onyl specific element.
+    //TODO: Update only specific element.
   }
 
   createJobComponent(job: Job) {
-    /**
-    console.log(job);
-    console.log(
-      job.completedStages,
-      job.stageProgress[job.completedStages - 1],
-      job.stageSimSteps[job.completedStages - 1],
-      job.stageProgress[job.completedStages - 1] / job.initialStageSimSteps[job.completedStages - 1] * 100);
-     */
-
     const jobComponent = $('<li>', {
       'data-job-id': job.id,
     });
@@ -688,8 +676,6 @@ export class SimulationAPI {
       this.downloadJob(job.id);
     });
     deleteButton.on('mousedown', () => {
-      console.log('asdf');
-
       if (job.status == JobStatus.CANCELLED || job.status == JobStatus.DONE) {
         this.deleteJob(job.id);
       } else {
