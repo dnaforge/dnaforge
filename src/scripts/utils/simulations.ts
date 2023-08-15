@@ -367,6 +367,8 @@ export class SimulationAPI {
     confContainer.append(autoExtendStage);
 
     // auto extend limit
+    // container is required to hide the data-prepend label as well
+    const autoExtendLimitContainer = $('<div>');
     $('<input>', {
       type: 'number',
       min: 0,
@@ -374,7 +376,21 @@ export class SimulationAPI {
       'data-role': 'input',
       'data-default-value': config.maxExtensions,
       'data-name': 'auto-extend-stage-limit',
-    }).appendTo(confContainer);
+    }).appendTo(autoExtendLimitContainer);
+    confContainer.append(autoExtendLimitContainer);
+    if (autoExtendStage.val() !== 'true') {
+      autoExtendLimitContainer.hide();
+    }
+
+    // register select change event
+    autoExtendStage.on('change', (event: Event) => {
+      const target = $(event.target);
+      if (target.val() === 'true') {
+        autoExtendLimitContainer.show();
+      } else {
+        autoExtendLimitContainer.hide();
+      }
+    });
 
     // create config type tabs
     const configTypeTabs = $('<ul>', {
@@ -403,21 +419,18 @@ export class SimulationAPI {
     configTypeTabs.tabs();
 
     const manualConfContainer = $('<div>', {
-      'data-role': 'container',
       'data-name': 'stage-manual',
     });
     confContainer.append(manualConfContainer);
 
     const fileConfContainer = $('<div>', {
-      'data-role': 'container',
       'data-name': 'stage-file',
     });
     confContainer.append(fileConfContainer);
 
+    // register tab change event
     configTypeTabs.on('tab', (event: Event) => {
       const target = $(event.target);
-      console.log('Event!!!');
-      console.log(target);
       if (target.find('li.active').text() === 'Manual Config') {
         manualConfContainer.hide();
         fileConfContainer.show();
