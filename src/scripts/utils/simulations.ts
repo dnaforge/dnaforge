@@ -6,6 +6,7 @@ import { NucleotideModel } from '../models/nucleotide_model';
 import * as streamSaver from 'streamsaver';
 
 enum ValueType {
+  BOOLEAN = 'BOOLEAN',
   UNSIGNED_INTEGER = 'UNSIGNED_INTEGER',
   FLOAT = 'FLOAT',
   ENUM = 'ENUM',
@@ -347,15 +348,17 @@ export class SimulationAPI {
       'data-name': 'auto-extend-stage',
     });
 
-    const autoTrue = $('<option>', {
+    $('<option>', {
       value: true,
-    }).text('True');
-    autoExtendStage.append(autoTrue);
+    })
+      .text('True')
+      .appendTo(autoExtendStage);
 
-    const autoFalse = $('<option>', {
+    $('<option>', {
       value: false,
-    }).text('False');
-    autoExtendStage.append(autoFalse);
+    })
+      .text('False')
+      .appendTo(autoExtendStage);
 
     autoExtendStage.val(config.autoExtendStage);
     confContainer.append(autoExtendStage);
@@ -382,6 +385,28 @@ export class SimulationAPI {
     let el;
 
     switch (prop.valueType) {
+      case ValueType.BOOLEAN:
+        el = $('<select>', {
+          'data-prepend': prop.name,
+          'data-role': 'select',
+          'data-name': prop.name,
+        });
+
+        $('<option>', {
+          value: 'true',
+        })
+          .text('True')
+          .appendTo(el);
+
+        $('<option>', {
+          value: 'false',
+        })
+          .text('False')
+          .appendTo(el);
+
+        el = el.val(prop.value);
+        break;
+
       case ValueType.UNSIGNED_INTEGER:
         el = $('<input>', {
           type: 'number',
@@ -412,17 +437,19 @@ export class SimulationAPI {
         });
 
         // needed for properties without default value
-        const blank = $('<option>', {
+        $('<option>', {
           value: null,
-        }).text(null);
-        el.append(blank);
+        })
+          .text(null)
+          .appendTo(el);
 
         if (prop.possibleValues) {
           for (const value of prop.possibleValues) {
-            const option = $('<option>', {
+            $('<option>', {
               value: value,
-            }).text(value);
-            el.append(option);
+            })
+              .text(value)
+              .appendTo(el);
           }
         }
 
