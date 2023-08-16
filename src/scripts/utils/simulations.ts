@@ -201,7 +201,7 @@ export class SimulationAPI {
 
     $('#sim-confs-new').on('click', () => {
       try {
-        console.error('TODO');
+        this.addConfigComponent();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -306,6 +306,20 @@ export class SimulationAPI {
     for (const c of configs) {
       $('#sim-params').append(this.createConfigComponent(c));
     }
+  }
+
+  addConfigComponent() {
+    let config: Config = {
+      type: 'PropertiesConfig',
+      metadata: {
+        title: 'New Stage',
+        description: 'Another Simulation Stage',
+      },
+      autoExtendStage: true,
+      maxExtensions: 5,
+      properties: this.availableProperties,
+    } as PropertiesConfig;
+    $('#sim-params').append(this.createConfigComponent(config));
   }
 
   createConfigComponent(config: Config) {
@@ -501,7 +515,10 @@ export class SimulationAPI {
           .text('False')
           .appendTo(el);
 
-        el = el.val(prop.value);
+        // select default value if available
+        if (prop.value) {
+          el = el.val(prop.value);
+        }
         break;
 
       case ValueType.UNSIGNED_INTEGER:
@@ -749,7 +766,7 @@ export class SimulationAPI {
       jobsElement.append(jobElement);
     }
 
-    //TODO: Update only specific element.
+    // TODO: Update only specific element.
   }
 
   createJobComponent(job: Job) {
