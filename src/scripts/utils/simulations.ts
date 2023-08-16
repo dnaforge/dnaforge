@@ -1,6 +1,7 @@
 import { NATYPE } from '../globals/consts';
 import { downloadTXT } from '../io/download';
 import { read_json } from '../io/read_json';
+import { binarySearch } from './misc_utils';
 import { Context } from '../menus/context';
 import { ModuleMenu } from '../menus/module_menu';
 import { NucleotideModel } from '../models/nucleotide_model';
@@ -73,16 +74,15 @@ interface WebSocketAuthResponse {
 
 interface JobUpdate {
   type: 'JobUpdate';
-  JobId: string;
+  JobId: number;
   job?: Job;
 }
 
 interface DetailedJobUpdate {
   type: 'DetailedUpdate';
-  job?: Job;
+  job: Job;
   top: string;
   dat: string;
-  forces: string;
 }
 
 enum JobStatus {
@@ -116,14 +116,13 @@ export class SimulationAPI {
     let message = JSON.parse(data);
     if (message.type == 'JobUpdate') {
       message = <JobUpdate>message;
-      this.getJobs();
-      // TODO Update single job component only
+      this.updateJobInList(message.jobId, message.job);
       if (message.job?.error) {
         console.error(message.job.error);
       }
     } else if (message.type == 'DetailedUpdate') {
       message = <DetailedJobUpdate>message;
-      this.getJobs();
+      this.updateJobInList(message.job.id, message.job);
       if (message.job?.error) {
         console.error(message.job.error);
       } else {
@@ -196,7 +195,7 @@ export class SimulationAPI {
 
     $('#sim-refresh').on('click', () => {
       try {
-        this.getJobs();
+        this.getJobsAndUpdateList();
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -295,11 +294,14 @@ export class SimulationAPI {
       });
 
     if (this.token !== null) {
+      // Open WebSocket first to avoid missing job state changes after the first job list fetch
+      this.openWebSocket();
+
       this.availableProperties = await this.getAvailableProperties();
       this.defaultConfigs = await this.getDefaultConfigs();
       this.setupConfigComponents(this.defaultConfigs);
-      this.getJobs();
-      this.openWebSocket();
+
+      this.getJobsAndUpdateList();
     }
   }
 
@@ -773,15 +775,65 @@ export class SimulationAPI {
       }
     });
 
+    // create a sorted array of IDs
+    const sortedIds = Object.keys(elementsMap)
+      .map((id) => parseInt(id))
+      .sort((a, b) => a - b);
+
     // update job elements
     // add new job elements if needed
     jobs.forEach((job) => {
       if (job.id in elementsMap) {
         this.updateJobComponent(elementsMap[job.id], job);
       } else {
-        this.createJobComponent(job).appendTo(jobsElement);
+        const newJobElement = this.createJobComponent(job);
+
+        // find the correct position to insert the new job element
+        const insertBeforeIndex = binarySearch(sortedIds, job.id);
+
+        // insert new job element at correct position
+        if (insertBeforeIndex >= sortedIds.length) {
+          newJobElement.appendTo(jobsElement);
+        } else {
+          jobsElement.insertBefore(
+            newJobElement,
+            elementsMap[sortedIds[insertBeforeIndex]],
+          );
+        }
+
+        // update elements map and sortedIds
+        elementsMap[job.id] = newJobElement;
+        sortedIds.splice(insertBeforeIndex + 1, 0, job.id);
       }
     });
+  }
+
+  updateJobInList(jobId: number, job?: Job) {
+    const elementsMap: { [id: number]: any } = {};
+
+    const jobsElement = $('#sim-jobs-list');
+    const children = jobsElement.children();
+
+    children.each(function () {
+      const jobElement = $(this);
+      const jobId = jobElement.attr('data-job-id');
+
+      elementsMap[jobId] = jobElement;
+    });
+
+    if (job === null || job === undefined) {
+      // remove element
+      if (jobId in elementsMap) {
+        elementsMap[jobId].remove();
+      }
+    } else {
+      // add or update job element
+      if (job.id in elementsMap) {
+        this.updateJobComponent(elementsMap[job.id], job);
+      } else {
+        this.createJobComponent(job).appendTo(jobsElement);
+      }
+    }
   }
 
   createJobComponent(job: Job) {
@@ -896,7 +948,7 @@ export class SimulationAPI {
     }
   }
 
-  async getJobs() {
+  async getJobsAndUpdateList() {
     console.log('Get Jobs');
     const headers = new Headers();
     headers.append('authorization', this.token);

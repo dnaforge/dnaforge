@@ -45,3 +45,36 @@ export function getPointerProjection2p(
 
   return pointerProj;
 }
+
+/**
+ * Searches for searchElement in sortedArray.
+ * Assumes that sortedArray is sorted in ascending order.
+ *
+ * @param sortedArray the array to search in
+ * @param searchElement the element to search for
+ * @returns the index of the searchElement or the insertion index if the element wasn't found
+ */
+export function binarySearch<Type>(
+  sortedArray: Type[],
+  searchElement: Type,
+): number {
+  let low = 0;
+  let high = sortedArray.length - 1;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    const midVal = sortedArray[mid];
+
+    if (midVal === searchElement) {
+      // return location of element
+      return mid;
+    } else if (midVal < searchElement) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  // return insert location
+  return low;
+}
