@@ -43,11 +43,6 @@ interface FileConfig extends Config {
   content: string;
 }
 
-interface Message {
-  type: string;
-  error: string;
-}
-
 interface Job {
   metadata: Metadata;
   id: number;
@@ -62,6 +57,13 @@ interface Job {
   stageProgress: number[];
   extensions: number;
   error: string;
+}
+
+interface JobDetails {
+  job: Job;
+  top: string;
+  dat: string;
+  forces: string;
 }
 
 interface WebSocketAuthResponse {
@@ -115,6 +117,7 @@ export class SimulationAPI {
     if (message.type == 'JobUpdate') {
       message = <JobUpdate>message;
       this.getJobs();
+      // TODO Update single job component only
       if (message.job?.error) {
         console.error(message.job.error);
       }
@@ -132,7 +135,7 @@ export class SimulationAPI {
         console.error(message);
       }
     } else {
-      console.log(message);
+      console.log(`Unknown message via WebSocket: ${message}`);
     }
   }
 
@@ -303,7 +306,7 @@ export class SimulationAPI {
   openWebSocket() {
     console.log('Open Websocket');
     this.socket = new WebSocket(this.host.replace('http://', 'ws://'));
-    this.socket.addEventListener('open', (event) => {
+    this.socket.addEventListener('open', () => {
       this.socket.send(
         JSON.stringify({
           type: 'WebSocketAuth',
@@ -470,8 +473,6 @@ export class SimulationAPI {
     });
 
     // open correct tab
-    console.log(`Wanted: ${config.type}`);
-    console.log(`Is: ${configTypeTabs.find('li.active').text()}`);
     if (config.type === 'PropertiesConfig') {
       const propConf = <PropertiesConfig>config;
 
@@ -705,7 +706,7 @@ export class SimulationAPI {
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    const confs = await fetch(this.host + '/options/default/properties', {
+    return await fetch(this.host + '/options/default/properties', {
       method: 'GET',
       headers: headers,
     })
@@ -722,15 +723,14 @@ export class SimulationAPI {
         console.error('Error:', error);
         this.context.addMessage(error, 'alert');
       });
-    return confs;
   }
 
   async getAvailableProperties(): Promise<Property[]> {
-    console.log('Get Config Full');
+    console.log('Get Available Properties');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    const conf = await fetch(this.host + '/options/available/properties', {
+    return await fetch(this.host + '/options/available/properties', {
       method: 'GET',
       headers: headers,
     })
@@ -747,13 +747,6 @@ export class SimulationAPI {
         console.error('Error:', error);
         this.context.addMessage(error, 'alert');
       });
-    console.log(conf);
-
-    return conf;
-  }
-
-  parseOptions(json: JSONObject) {
-    console.log(json);
   }
 
   updateJobList(jobs: Job[]) {
@@ -927,14 +920,13 @@ export class SimulationAPI {
       });
   }
 
-  async getJob(id: string) {
+  async getJob(id: string): Promise<Job> {
     console.log('Get Job', id);
     if (!this.token) this.auth();
-    console.log(this.token);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    await fetch(this.host + '/job/' + id, {
+    return await fetch(this.host + '/job/' + id, {
       method: 'GET',
       headers: headers,
     })
@@ -945,7 +937,7 @@ export class SimulationAPI {
         throw new Error(response.statusText);
       })
       .then((data) => {
-        this.parseOptions(JSON.parse(data));
+        return JSON.parse(data);
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -953,12 +945,12 @@ export class SimulationAPI {
       });
   }
 
-  async getJobDetails(id: string) {
+  async getJobDetails(id: string): Promise<JobDetails> {
     console.log('Get Job Details', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    await fetch(this.host + '/job/details/' + id, {
+    return await fetch(this.host + '/job/details/' + id, {
       method: 'GET',
       headers: headers,
     })
@@ -969,7 +961,7 @@ export class SimulationAPI {
         throw new Error(response.statusText);
       })
       .then((data) => {
-        this.parseOptions(JSON.parse(data));
+        return JSON.parse(data);
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -1053,9 +1045,6 @@ export class SimulationAPI {
         }
         throw new Error(response.statusText);
       })
-      .then((data) => {
-        this.getJobs();
-      })
       .catch((error) => {
         console.error('Error:', error);
         this.context.addMessage(error, 'alert');
@@ -1076,9 +1065,6 @@ export class SimulationAPI {
           return response.text();
         }
         throw new Error(response.statusText);
-      })
-      .then((data) => {
-        this.getJobs();
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -1101,7 +1087,6 @@ export class SimulationAPI {
         }
         throw new Error(response.statusText);
       })
-      .then((data) => {})
       .catch((error) => {
         console.error('Error:', error);
         this.context.addMessage(error, 'alert');
@@ -1109,11 +1094,11 @@ export class SimulationAPI {
   }
 
   async getSubscription() {
-    console.log('GetSubscription');
+    console.log('Get Subscription');
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    const id = await fetch(this.host + '/job/subscribe', {
+    return await fetch(this.host + '/job/subscribe', {
       method: 'GET',
       headers: headers,
     })
@@ -1130,7 +1115,6 @@ export class SimulationAPI {
         console.error('Error:', error);
         this.context.addMessage(error, 'alert');
       });
-    return id;
   }
 
   async subscribe(id: number) {
@@ -1150,9 +1134,6 @@ export class SimulationAPI {
           return response.text();
         }
         throw new Error(response.statusText);
-      })
-      .then((data) => {
-        console.log(data);
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -1176,7 +1157,7 @@ export class SimulationAPI {
         }
         throw new Error(response.statusText);
       })
-      .then((data) => {
+      .then(() => {
         this.activeModel = null;
       })
       .catch((error) => {
