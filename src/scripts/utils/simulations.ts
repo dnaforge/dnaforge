@@ -260,6 +260,11 @@ export class SimulationAPI {
         throw error;
       }
     });
+
+    //Trying to fix the configuration file reordering bug in mozilla.
+    $("#sim-configs").on('selectstart', (e: any) => {
+      e.preventDefault();
+    });
   }
 
   setAuthStatus(status: string) {
