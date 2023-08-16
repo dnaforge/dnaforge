@@ -6,9 +6,9 @@ export class JSONLoader extends Loader {
     super(manager);
   }
 
-  load(
+  load<Type>(
     url: string,
-    onLoad: (json: JSONObject) => void,
+    onLoad: (json: Type) => void,
     onProgress: (e: Event) => void,
     onError: (e: Event) => void,
   ) {
@@ -31,12 +31,12 @@ export class JSONLoader extends Loader {
   }
 }
 
-export function read_json(path: string, callback: (json: JSONObject) => void) {
+export function read_json<Type>(path: string, callback: (json: Type) => void) {
   const manager = new THREE.LoadingManager();
   const loader = new JSONLoader(manager);
   loader.load(
     path,
-    function (json) {
+    function (json: Type) {
       callback(json);
     },
     undefined,

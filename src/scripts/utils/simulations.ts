@@ -1,5 +1,6 @@
 import { NATYPE } from '../globals/consts';
 import { downloadTXT } from '../io/download';
+import { read_json } from '../io/read_json';
 import { Context } from '../menus/context';
 import { ModuleMenu } from '../menus/module_menu';
 import { NucleotideModel } from '../models/nucleotide_model';
@@ -210,16 +211,30 @@ export class SimulationAPI {
 
     $('#sim-confs-download').on('click', () => {
       try {
-        console.error('TODO');
+        downloadTXT(
+          'simulation-stages.json',
+          JSON.stringify(this.readConfigs()),
+        );
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
       }
     });
 
-    $('#sim-confs-upload').on('click', () => {
+    // #sim-confs-upload
+    const fileInputButton = $('#stage-file-input-open');
+    const fileInput = $('#stage-file-input');
+    fileInputButton.on('click', () => {
       try {
-        console.error('TODO');
+        const files = (<HTMLInputElement>fileInput[0]).files;
+        const file = files[0]; // ignore all but the first file
+        if (file.name.endsWith('.json')) {
+          read_json(URL.createObjectURL(file), (json: Config[]) => {
+            this.setupConfigComponents(json);
+          });
+        } else {
+          this.context.addMessage('Expected JSON file.', '');
+        }
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;
@@ -309,7 +324,7 @@ export class SimulationAPI {
   }
 
   addConfigComponent() {
-    let config: Config = {
+    const config: Config = {
       type: 'PropertiesConfig',
       metadata: {
         title: 'New Stage',
@@ -620,8 +635,6 @@ export class SimulationAPI {
           type = 'FileConfig';
         }
       }
-      console.log('Type: ');
-      console.log(type);
 
       const meta: Metadata = {
         title: title,
