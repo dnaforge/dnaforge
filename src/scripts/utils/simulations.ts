@@ -50,7 +50,7 @@ interface Message {
 
 interface Job {
   metadata: Metadata;
-  id: string;
+  id: number;
   stages: number;
   completedStages: number;
   status: string;
@@ -757,29 +757,38 @@ export class SimulationAPI {
   }
 
   updateJobList(jobs: Job[]) {
+    const jobsMap: { [id: number]: Job } = {};
+    jobs.forEach((job) => {
+      jobsMap[job.id] = job;
+    });
+
+    const elementsMap: { [id: number]: any } = {};
+
     const jobsElement = $('#sim-jobs-list');
+    const children = jobsElement.children();
 
-    const needsRemake = (() => {
-      const children = jobsElement.children();
-      if (children.length != jobs.length) return true;
-      for (let i = 0; i < jobs.length; i++) {
-        const j = jobs[i];
-        const elId = $(children[i]).attr('data-job-id');
-        if (elId != j.id) {
-          return true;
-        }
+    // remove unneeded elements
+    // keep track of which job elements already exist
+    children.each(function () {
+      const jobElement = $(this);
+      const jobId = jobElement.attr('data-job-id');
+
+      if (jobId in jobsMap) {
+        elementsMap[jobId] = jobElement;
+      } else {
+        jobElement.remove();
       }
-      return false;
-    })();
+    });
 
-    jobsElement.html('');
-    for (let i = 0; i < jobs.length; i++) {
-      const j = jobs[i];
-      const jobElement = this.createJobComponent(j);
-      jobsElement.append(jobElement);
-    }
-
-    // TODO: Update only specific element.
+    // update job elements
+    // add new job elements if needed
+    jobs.forEach((job) => {
+      if (job.id in elementsMap) {
+        this.updateJobComponent(elementsMap[job.id], job);
+      } else {
+        this.createJobComponent(job).appendTo(jobsElement);
+      }
+    });
   }
 
   createJobComponent(job: Job) {
@@ -817,9 +826,11 @@ export class SimulationAPI {
     row2.append(
       $(
         `<div class="cell-12" data-role="progress" data-small="true" data-value="${
-          (job.stageProgress[job.completedStages] /
-            job.stageSimSteps[job.completedStages]) *
-          100
+          job.completedStages === job.stages
+            ? 0
+            : (job.stageProgress[job.completedStages] /
+                job.stageSimSteps[job.completedStages]) *
+              100
         }"></div>`,
       ),
     );
@@ -854,7 +865,43 @@ export class SimulationAPI {
     return jobComponent;
   }
 
-  updateJobComponent(component: any, job: Job) {}
+  updateJobComponent(component: any, job: Job) {
+    // Update status and stage
+    component.find('.cell-4:first-child').text(job.status);
+    component
+      .find('.cell-4:nth-child(2)')
+      .text(`Completed ${job.completedStages} / ${job.stages}`);
+
+    // Update progress bars
+    const stageProgress =
+      job.completedStages === job.stages
+        ? 0
+        : (job.stageProgress[job.completedStages] /
+            job.stageSimSteps[job.completedStages]) *
+          100;
+    const overallProgress = (job.progress / job.simSteps) * 100;
+    component
+      .find('[data-role="progress"]')
+      .eq(0)
+      .attr('data-value', stageProgress);
+    component
+      .find('[data-role="progress"]')
+      .eq(1)
+      .attr('data-value', overallProgress);
+
+    // Update button click handler based on job status
+    const deleteButton = component.find('.mif-cross');
+    deleteButton.off('mousedown');
+    if (job.status === JobStatus.CANCELLED || job.status === JobStatus.DONE) {
+      deleteButton.on('mousedown', () => {
+        this.deleteJob(job.id);
+      });
+    } else {
+      deleteButton.on('mousedown', () => {
+        this.cancelJob(job.id);
+      });
+    }
+  }
 
   async getJobs() {
     console.log('Get Jobs');
@@ -930,7 +977,7 @@ export class SimulationAPI {
       });
   }
 
-  async downloadJob(id: string) {
+  async downloadJob(id: number) {
     console.log('Download Job', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
@@ -1015,7 +1062,7 @@ export class SimulationAPI {
       });
   }
 
-  async deleteJob(id: string) {
+  async deleteJob(id: number) {
     console.log('Delete Job', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
@@ -1039,7 +1086,7 @@ export class SimulationAPI {
       });
   }
 
-  async cancelJob(id: string) {
+  async cancelJob(id: number) {
     console.log('Cancel Job', id);
     const headers = new Headers();
     headers.append('authorization', this.token);
@@ -1086,7 +1133,7 @@ export class SimulationAPI {
     return id;
   }
 
-  async subscribe(id: string) {
+  async subscribe(id: number) {
     console.log('Subscribe', id);
 
     await this.unsubscribe();
