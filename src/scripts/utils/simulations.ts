@@ -344,15 +344,16 @@ export class SimulationAPI {
       maxExtensions: 5,
       properties: this.availableProperties,
     } as PropertiesConfig;
-    $('#sim-params').append(this.createConfigComponent(config));
+    $('#sim-params').append(this.createConfigComponent(config, false));
   }
 
-  createConfigComponent(config: Config) {
+  createConfigComponent(config: Config, collapsed: boolean = true) {
     const confComponent = $('<li>');
     const confContainer = $('<div>', {
       'data-role': 'panel',
       'data-title-caption': `${config.metadata.title}`,
       'data-collapsible': true,
+      'data-collapsed': collapsed,
       'data-name': 'stage-title',
     });
     confContainer.on('mousedown', (e: any) => {
