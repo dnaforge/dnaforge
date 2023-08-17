@@ -14,36 +14,39 @@ export interface NucleotideMeshes {
   backbone2: InstancedMesh;
 }
 
+// Nucleotide colors
 const nucleotideColours: Record<string, THREE.Color> = {
-  A: new THREE.Color(0x0000ff),
-  U: new THREE.Color(0xff0000),
-  T: new THREE.Color(0xff0000),
-  G: new THREE.Color(0xffff00),
-  C: new THREE.Color(0x00ff00),
+  A: new THREE.Color(0xff8eaf),  // Light Pink (Adenine)
+  U: new THREE.Color(0xffd133),  // Light Gold (Uracil)
+  T: new THREE.Color(0xffd133),  // Light Gold (Thymine)
+  G: new THREE.Color(0x7acc7a),  // Light Green (Guanine)
+  C: new THREE.Color(0x6688aa),  // Light Blue (Cytosine)
 
-  W: new THREE.Color(0x0000aa),
-  S: new THREE.Color(0x00aa00),
-  M: new THREE.Color(0xaa0000),
-  K: new THREE.Color(0xaaaa00),
-  R: new THREE.Color(0x00aaaa),
-  Y: new THREE.Color(0xaaaaaa),
+  W: new THREE.Color(0xffd166),  // Light Yellow (Adenine or Thymine)
+  S: new THREE.Color(0x99cc99),  // Light Mint Green (Guanine or Cytosine)
+  M: new THREE.Color(0xff99cc),  // Light Purple (Adenine or Cytosine)
+  K: new THREE.Color(0xffcc33),  // Light Orange (Adenine or Guanine)
+  R: new THREE.Color(0x00cccc),  // Light Teal (Guanine or Adenine)
+  Y: new THREE.Color(0xbbbbbb),  // Light Gray (Pyrimidine)
 
-  B: new THREE.Color(0xffaaaa),
-  D: new THREE.Color(0xaaffaa),
-  H: new THREE.Color(0xaaaaff),
-  V: new THREE.Color(0xaacccc),
+  B: new THREE.Color(0xff9999),  // Light Salmon (Ambiguous Bases)
+  D: new THREE.Color(0x99cc99),  // Light Mint Green (Ambiguous D)
+  H: new THREE.Color(0x6699cc),  // Light Blue (Ambiguous H)
+  V: new THREE.Color(0xff99cc),  // Light Purple (Ambiguous V)
 
-  N: new THREE.Color(0xffffff),
+  N: new THREE.Color(0xf5f5f5),  // Off-White (Unknown Base)
 
-  nucleotide: new THREE.Color(0xffffff),
-  backbone: new THREE.Color(0xffffff),
+  nucleotide: new THREE.Color(0xffffff),  // White (neutral, Nucleotide Background)
+  backbone: new THREE.Color(0xffffff),    // White (neutral, DNA Backbone)
 };
 
+// Selection colors
 const selectionColours: Record<SelectionColourIds, THREE.Color> = {
-  default: new THREE.Color(0xffffff),
-  selection: new THREE.Color(0x5555ff),
-  hover: new THREE.Color(0xff5555),
+  default: new THREE.Color(0xf0e8d0),    // Lighter Sand (Default Selection)
+  selection: new THREE.Color(0x88aaff),  // Light Blue (Selected)
+  hover: new THREE.Color(0xee4444),      // Light Red (Hovered)
 };
+
 
 const materialNucleotides = new THREE.MeshStandardMaterial({ color: 0xffffff });
 
