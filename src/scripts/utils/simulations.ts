@@ -44,19 +44,26 @@ interface FileConfig extends Config {
   content: string;
 }
 
+enum JobState {
+  NEW = 'NEW',
+  RUNNING = 'RUNNING',
+  DONE = 'DONE',
+  CANCELED = 'CANCELED',
+}
+
 interface Job {
   metadata: Metadata;
   id: number;
   stages: number;
   completedStages: number;
-  status: string;
+  status: JobState;
   initialSimSteps: number;
   simSteps: number;
   progress: number;
   initialStageSimSteps: number[];
   stageSimSteps: number[];
   stageProgress: number[];
-  extensions: number;
+  extensions: number[];
   error: string;
 }
 
@@ -83,12 +90,6 @@ interface DetailedJobUpdate {
   job: Job;
   top: string;
   dat: string;
-}
-
-enum JobStatus {
-  CANCELLED = 'CANCELED',
-  DONE = 'DONE',
-  RUNNING = 'RUNNING',
 }
 
 export class SimulationAPI {
@@ -847,6 +848,8 @@ export class SimulationAPI {
   }
 
   createJobComponent(job: Job) {
+    const statusValues = this.generateStatusValues(job);
+
     const jobComponent = $('<li>', {
       'data-job-id': job.id,
     });
@@ -856,10 +859,8 @@ export class SimulationAPI {
     const row2 = $('<div>', { class: 'row' });
     const row3 = $('<div>', { class: 'row' });
 
-    const status = $(`<div class="cell-4">${job.status}</div>`);
-    const steps = $(
-      `<div class="cell-4">Completed ${job.completedStages} / ${job.stages}</div>`,
-    );
+    const state = $(`<div class="cell-4">${job.status}</div>`);
+    const status = $(`<div class="cell-4">${statusValues[0]}</div>`);
     const buttons = $(`<div class="cell-4 text-right">`);
 
     const syncButton = $('<button>', {
@@ -872,28 +873,20 @@ export class SimulationAPI {
       class: 'button cycle mif-2x mif-cross outline alert',
     });
 
+    row1.append(state);
     row1.append(status);
-    row1.append(steps);
     row1.append(buttons);
     buttons.append(syncButton);
     buttons.append(downloadButton);
     buttons.append(deleteButton);
     row2.append(
       $(
-        `<div class="cell-12" data-role="progress" data-small="true" data-value="${
-          job.completedStages === job.stages
-            ? 0
-            : (job.stageProgress[job.completedStages] /
-                job.stageSimSteps[job.completedStages]) *
-              100
-        }"></div>`,
+        `<div class="cell-12" data-role="progress" data-small="true" data-value="${statusValues[1]}"></div>`,
       ),
     );
     row3.append(
       $(
-        `<div class="cell-12" data-role="progress" data-small="true" data-value="${
-          (job.progress / job.simSteps) * 100
-        }"></div>`,
+        `<div class="cell-12" data-role="progress" data-small="true" data-value="${statusValues[2]}"></div>`,
       ),
     );
 
@@ -910,7 +903,7 @@ export class SimulationAPI {
       this.downloadJob(job.id);
     });
     deleteButton.on('mousedown', () => {
-      if (job.status == JobStatus.CANCELLED || job.status == JobStatus.DONE) {
+      if (job.status == JobState.CANCELED || job.status == JobState.DONE) {
         this.deleteJob(job.id);
       } else {
         this.cancelJob(job.id);
@@ -921,33 +914,26 @@ export class SimulationAPI {
   }
 
   updateJobComponent(component: any, job: Job) {
+    const statusValues = this.generateStatusValues(job);
+
     // Update status and stage
     component.find('.cell-4:first-child').text(job.status);
-    component
-      .find('.cell-4:nth-child(2)')
-      .text(`Completed ${job.completedStages} / ${job.stages}`);
+    component.find('.cell-4:nth-child(2)').text(statusValues[0]);
 
     // Update progress bars
-    const stageProgress =
-      job.completedStages === job.stages
-        ? 0
-        : (job.stageProgress[job.completedStages] /
-            job.stageSimSteps[job.completedStages]) *
-          100;
-    const overallProgress = (job.progress / job.simSteps) * 100;
     component
       .find('[data-role="progress"]')
       .eq(0)
-      .attr('data-value', stageProgress);
+      .attr('data-value', statusValues[1]);
     component
       .find('[data-role="progress"]')
       .eq(1)
-      .attr('data-value', overallProgress);
+      .attr('data-value', statusValues[2]);
 
     // Update button click handler based on job status
     const deleteButton = component.find('.mif-cross');
     deleteButton.off('mousedown');
-    if (job.status === JobStatus.CANCELLED || job.status === JobStatus.DONE) {
+    if (job.status === JobState.CANCELED || job.status === JobState.DONE) {
       deleteButton.on('mousedown', () => {
         this.deleteJob(job.id);
       });
@@ -956,6 +942,39 @@ export class SimulationAPI {
         this.cancelJob(job.id);
       });
     }
+  }
+
+  generateStatusValues(job: Job): [string, number, number] {
+    let statusLabel: string;
+    switch (job.status) {
+      case JobState.NEW:
+        statusLabel = 'Pending';
+        break;
+      case JobState.RUNNING:
+        statusLabel =
+          job.extensions[job.completedStages] === 0
+            ? `Running stage ${job.completedStages + 1} / ${job.stages}`
+            : `Extending stage ${job.completedStages + 1}: ${
+                job.extensions[job.completedStages]
+              }`;
+        break;
+      case JobState.DONE:
+        statusLabel = 'Completed';
+        break;
+      case JobState.CANCELED:
+        statusLabel = `Completed ${job.completedStages} / ${job.stages} stages`;
+        break;
+    }
+
+    const stageProgress =
+      job.completedStages === job.stages
+        ? 0
+        : (job.stageProgress[job.completedStages] /
+            job.stageSimSteps[job.completedStages]) *
+          100;
+    const overallProgress = (job.progress / job.simSteps) * 100;
+
+    return [statusLabel, stageProgress, overallProgress];
   }
 
   async getJobsAndUpdateList() {
