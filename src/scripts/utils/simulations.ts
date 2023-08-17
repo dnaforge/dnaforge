@@ -468,14 +468,18 @@ export class SimulationAPI {
     confContainer.append(fileConfContainer);
 
     // register tab change event
-    configTypeTabs.on('tab', (event: Event) => {
-      const target = $(event.target);
-      if (target.find('li.active').text() === 'Manual Config') {
-        manualConfContainer.hide();
-        fileConfContainer.show();
-      } else {
-        fileConfContainer.hide();
-        manualConfContainer.show();
+    configTypeTabs.on('tab', (event: CustomEvent) => {
+      const currentTab = $(event.target).find('li.active');
+      const clickedTab = $(event.detail.tab);
+
+      if (currentTab.text() !== clickedTab.text()) {
+        if (clickedTab.text() === 'Manual Config') {
+          fileConfContainer.hide();
+          manualConfContainer.show();
+        } else {
+          manualConfContainer.hide();
+          fileConfContainer.show();
+        }
       }
     });
 

@@ -142,7 +142,8 @@ export class Controls {
   escClose() {
     const dialogs = $('.dialog');
     for (let i = 0; i < dialogs.length; i++) {
-      if(dialogs[i].style.visibility == "visible") Metro.dialog.close(dialogs[i]);
+      if (dialogs[i].style.visibility == 'visible')
+        Metro.dialog.close(dialogs[i]);
     }
     Metro.notify.killAll();
   }
