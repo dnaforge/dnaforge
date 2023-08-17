@@ -374,7 +374,6 @@ export class Context {
   reset() {
     this.graph = null;
     for (const ctx of this.menus.values()) ctx.reset();
-    this.activeContext = null;
     this.editor.reset();
   }
 
