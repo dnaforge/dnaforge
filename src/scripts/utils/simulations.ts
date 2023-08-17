@@ -224,8 +224,8 @@ export class SimulationAPI {
     });
 
     // #sim-confs-upload
-    const fileInputButton = $('#stage-file-input-open');
     const fileInput = $('#stage-file-input');
+    const fileInputButton = $('#stage-file-input-open');
     fileInputButton.on('click', () => {
       try {
         const files = (<HTMLInputElement>fileInput[0]).files;
@@ -261,8 +261,8 @@ export class SimulationAPI {
       }
     });
 
-    //Trying to fix the configuration file reordering bug in mozilla.
-    $("#sim-configs").on('selectstart', (e: any) => {
+    // fix the configuration file reordering bug in Mozilla Firefox
+    $('#sim-configs').on('selectstart', (e: any) => {
       e.preventDefault();
     });
   }

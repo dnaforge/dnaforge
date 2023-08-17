@@ -54,7 +54,7 @@
         <div class="inline-form">
             <button class="button" id="sim-confs-new">New</button>
             <button class="button" id="sim-confs-download">Download</button>
-            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#open-file-2');">Upload</button>
+            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#open-file-stage');">Upload</button>
             <button class="button" id="sim-confs-reset">Reset</button>
         </div>
         <div class="row">
@@ -69,14 +69,14 @@
     </div>
 </div>
 
-<div class="dialog" data-role="dialog" id="open-file-2" data-overlay-click-close="true">
+<div class="dialog" data-role="dialog" id="open-file-stage" data-overlay-click-close="true" data-on-close="Metro.dialog.open('#sim-configs');">
     <div class="dialog-title">Open stage file</div>
     <div class="dialog-content">
         <input type="file" data-role="file" data-mode="drop" id="stage-file-input">
     </div>
     <div class="dialog-actions">
-        <button class="button" onclick="Metro.dialog.close('#open-file-2'); Metro.dialog.open('#sim-configs')">Cancel</button>
-        <button class="button primary" id="stage-file-input-open" onclick="Metro.dialog.close('#open-file-2'); Metro.dialog.open('#sim-configs')">Open</button>
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="stage-file-input-open">Open</button>
     </div>
 </div>
 
