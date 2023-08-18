@@ -32,6 +32,7 @@ interface Metadata {
 interface Config {
   type: string;
   metadata: Metadata;
+  createTrajectory: boolean;
   autoExtendStage: boolean;
   maxExtensions: number;
 }
@@ -361,6 +362,7 @@ export class SimulationAPI {
         title: 'New Stage',
         description: 'Another Simulation Stage',
       },
+      createTrajectory: true,
       autoExtendStage: true,
       maxExtensions: 5,
       properties: this.availableProperties,
@@ -404,6 +406,28 @@ export class SimulationAPI {
       'data-default-value': config.metadata.description,
       'data-name': 'stage-description',
     }).appendTo(confContainer);
+
+    // create trajectory
+    const createTrajectory = $('<select>', {
+      'data-prepend': 'Create Trajectory',
+      'data-role': 'select',
+      'data-name': 'create-trajectory',
+    });
+
+    $('<option>', {
+      value: true,
+    })
+      .text('True')
+      .appendTo(createTrajectory);
+
+    $('<option>', {
+      value: false,
+    })
+      .text('False')
+      .appendTo(createTrajectory);
+
+    createTrajectory.val(config.createTrajectory);
+    confContainer.append(createTrajectory);
 
     // auto extend stage
     const autoExtendStage = $('<select>', {
@@ -644,12 +668,14 @@ export class SimulationAPI {
           break;
         }
       }
+      let createTrajectory: boolean;
       let autoExtendStage: boolean;
       for (const i of Array.from($(c).find('select'))) {
         const el = $(i);
-        if (el.attr('data-name') === 'auto-extend-stage') {
+        if (el.attr('data-name') === 'create-trajectory') {
+          createTrajectory = el.val() === 'true';
+        } else if (el.attr('data-name') === 'auto-extend-stage') {
           autoExtendStage = el.val() === 'true';
-          break;
         }
       }
       let autoExtendLimit: number;
@@ -679,6 +705,7 @@ export class SimulationAPI {
           ? ({
               type: 'PropertiesConfig',
               metadata: meta,
+              createTrajectory: createTrajectory,
               autoExtendStage: autoExtendStage,
               maxExtensions: autoExtendLimit,
               properties: this.readProperties(c),
@@ -686,6 +713,7 @@ export class SimulationAPI {
           : ({
               type: 'FileConfig',
               metadata: meta,
+              createTrajectory: createTrajectory,
               autoExtendStage: autoExtendStage,
               maxExtensions: autoExtendLimit,
               content: this.readOxDnaFile(c),
