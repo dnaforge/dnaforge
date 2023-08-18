@@ -47,6 +47,19 @@
 </div>
 
 
+
+<div class="dialog" data-role="dialog" id="sim-auth-with-token" data-overlay-click-close="true">
+    <div class="dialog-title">Enter Access Token</div>
+    <div class="dialog-content">
+        <input type="input" data-role="input" id="sim-auth-token-input">
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="sim-auth-token-connect">Connect</button>
+    </div>
+</div>
+
+
 <div class="dialog" data-role="dialog" id="sim-configs" data-width="600" data-height="100%"
     data-overlay-click-close="true">
     <div class="dialog-title">Simulation Configuration Files</div>
@@ -54,7 +67,7 @@
         <div class="inline-form">
             <button class="button" id="sim-confs-new">New</button>
             <button class="button" id="sim-confs-download">Download</button>
-            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#open-file-stage');">Upload</button>
+            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#sim-open-stage-file');">Upload</button>
             <button class="button" id="sim-confs-reset">Reset</button>
         </div>
         <div class="row">
@@ -69,14 +82,14 @@
     </div>
 </div>
 
-<div class="dialog" data-role="dialog" id="open-file-stage" data-overlay-click-close="true" data-on-close="Metro.dialog.open('#sim-configs');">
+<div class="dialog" data-role="dialog" id="sim-open-stage-file" data-overlay-click-close="true" data-on-close="Metro.dialog.open('#sim-configs');">
     <div class="dialog-title">Open stage file</div>
     <div class="dialog-content">
-        <input type="file" data-role="file" data-mode="drop" id="stage-file-input">
+        <input type="file" data-role="file" data-mode="drop" id="sim-stage-file-input">
     </div>
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
-        <button class="button primary js-dialog-close" id="stage-file-input-open">Open</button>
+        <button class="button primary js-dialog-close" id="sim-stage-file-input-open">Open</button>
     </div>
 </div>
 

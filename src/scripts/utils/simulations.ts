@@ -185,6 +185,19 @@ export class SimulationAPI {
       }
     });
 
+    // #sim-auth-with-token
+    const tokenInput = $('#sim-auth-token-input');
+    const tokenInputButton = $('#sim-auth-token-connect');
+    tokenInputButton.on('click', () => {
+      try {
+        const accessToken = tokenInput.val() ? tokenInput.val() : null;
+        this.auth(accessToken);
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
     $('#sim-new').on('click', () => {
       try {
         this.newSimulation();
@@ -225,8 +238,8 @@ export class SimulationAPI {
     });
 
     // #sim-confs-upload
-    const fileInput = $('#stage-file-input');
-    const fileInputButton = $('#stage-file-input-open');
+    const fileInput = $('#sim-stage-file-input');
+    const fileInputButton = $('#sim-stage-file-input-open');
     fileInputButton.on('click', () => {
       try {
         const files = (<HTMLInputElement>fileInput[0]).files;
@@ -274,23 +287,30 @@ export class SimulationAPI {
 
   setParams() {}
 
-  async auth() {
+  async auth(accessToken: string | null = null) {
     console.log('Auth');
     await fetch(this.host + '/auth', {
       method: 'GET',
       headers: {
         'Content-Type': 'text/plain',
+        Authorization: accessToken,
       },
     })
       .then((response) => {
         if (response.ok) {
           return response.text();
+
+          // try using an access token, if that wasn't already tried
+        } else if (accessToken === null) {
+          Metro.dialog.open('#sim-auth-with-token');
+          return null;
         }
-        throw new Error(response.statusText);
       })
       .then((data) => {
-        this.token = data;
-        this.setAuthStatus(`Connected. ID: ${data}`);
+        if (data !== null) {
+          this.token = data;
+          this.setAuthStatus(`Connected. ID: ${data}`);
+        }
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -299,7 +319,7 @@ export class SimulationAPI {
         this.context.addMessage(error, 'alert');
       });
 
-    if (this.token !== null) {
+    if (this.token !== undefined && this.token !== null) {
       // Open WebSocket first to avoid missing job state changes after the first job list fetch
       this.openWebSocket();
 
@@ -1003,7 +1023,6 @@ export class SimulationAPI {
 
   async getJob(id: string): Promise<Job> {
     console.log('Get Job', id);
-    if (!this.token) this.auth();
     const headers = new Headers();
     headers.append('authorization', this.token);
 
