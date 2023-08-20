@@ -1,4 +1,5 @@
 import { Matrix4, Vector2, Vector3 } from 'three';
+import { NATYPE } from '../globals/consts';
 
 const r1 = new Vector3().randomDirection();
 
@@ -78,3 +79,71 @@ export function binarySearch<Type>(
   // return insert location
   return low;
 }
+
+
+/**
+ * Calculates the centre of mass from the backbone coordinates and orientation vectors
+ * 
+ * @param bb 
+ * @param a1 
+ * @param a3 
+ * @param naType 
+ * @returns 
+ */
+export function bbToCoM(bb: Vector3, a1: Vector3, a3: Vector3, naType: NATYPE) {
+  const lenFactor = 0.8518;
+
+  if (naType == "DNA") {
+    const a2 = a1.clone().cross(a3);
+    const cm = bb
+      .clone()
+      .add(
+        a1
+          .clone()
+          .multiplyScalar(0.34 * lenFactor)
+          .add(a2.clone().multiplyScalar(0.3408 * lenFactor)),
+      );
+    return cm;
+  }
+  else if (naType == "RNA") {
+    const cm = bb
+      .clone()
+      .add(
+        a1
+          .clone()
+          .multiplyScalar(0.4 * lenFactor)
+          .sub(a3.clone().multiplyScalar(0.2 * lenFactor)),
+      );
+    return cm;
+  }
+  else {
+    throw `Unknown naType`;
+  }
+}
+
+/**
+ * Calculates the backbone coordinates from the centre of mass and orientation vectors
+ * 
+ * @param com 
+ * @param a1 
+ * @param a3 
+ * @param naType 
+ * @returns 
+ */
+export function CoMToBB(com: Vector3, a1: Vector3, a3: Vector3, naType: NATYPE) {
+  const lenFactor = 0.8518;
+
+  if (naType == "DNA") {
+    const a2 = a1.clone().cross(a3);
+    const bb = com.clone().sub(a1.clone().multiplyScalar(0.34 * lenFactor).add(a2.clone().multiplyScalar(0.3408 * lenFactor)));
+    return bb;
+  }
+  else if (naType == "RNA") {
+    const bb = com.clone().sub(a1.clone().multiplyScalar(0.4 * lenFactor).sub(a3.clone().multiplyScalar(0.2 * lenFactor)));
+    return bb;
+  }
+  else {
+    throw `Unknown naType`;
+  }
+}
+

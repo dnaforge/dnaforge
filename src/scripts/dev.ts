@@ -62,12 +62,13 @@ export function dev(context: Context) {
   //st.addNucleotides();
   //st.generatePrimary();
 
+  $('#sterna-scale')[0].value = 1;
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.addWires();
   //sterna.addCylinders();
-  //sterna.addNucleotides();
+  sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
-  //sterna.generatePartialPrimary();
+  sterna.generatePartialPrimary();
   //sterna.generatePrimary();
 
   //const r = new Relaxer(cm);

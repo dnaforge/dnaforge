@@ -10,6 +10,7 @@ import { Nucleotide, NucleotideMeshes } from './nucleotide';
 import { Model } from './model';
 import { Selectable } from './selectable';
 import { SelectionModes } from '../editor/editor';
+import { bbToCoM } from '../utils/misc_utils';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
@@ -392,19 +393,12 @@ export class NucleotideModel extends Model {
       for (const n of s.getNucleotides()) {
         const a1 = n.hydrogenFaceDir;
         const a3 = n.baseNormal;
-        const a2 = a1.clone().cross(a3);
         const bb = n.backboneCenter
           .clone()
-          .multiplyScalar(lenFactor)
           .multiplyScalar(1 / this.scale);
-        const cm = bb
-          .clone()
-          .add(
-            a1
-              .clone()
-              .multiplyScalar(0.3408)
-              .add(a2.clone().multiplyScalar(0.3408)),
-          );
+
+        const cm = bbToCoM(bb, a1, a3, this.naType).multiplyScalar(lenFactor);
+
         lines.push(
           cm
             .toArray()

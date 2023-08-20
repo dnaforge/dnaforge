@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { InstancedMesh, Matrix4, Matrix3, Quaternion, Vector3 } from 'three';
-import { get2PointTransform } from '../utils/misc_utils';
+import { CoMToBB, get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
 import { Selectable, SelectionColourIds } from './selectable';
@@ -148,7 +148,7 @@ export class Nucleotide extends Selectable {
   }
 
   setTransformFromOxDNA(com: Vector3, a1: Vector3, a3: Vector3) {
-    const lenFactor = 1 / 0.8518;
+    const lenFactor = 0.8518;
 
     const a2 = a1.clone().cross(a3);
 
@@ -159,24 +159,13 @@ export class Nucleotide extends Selectable {
     const rot = new Matrix3().fromArray([...a1, ...a3, ...a2]);
     const rotS = new Matrix3().fromArray([...a1s, ...a3s, ...a2s]);
 
-    const bb = com
-      .clone()
-      .sub(
-        a1
-          .clone()
-          .multiplyScalar(0.3408)
-          .add(a2.clone().multiplyScalar(0.3408)),
-      );
-    const pos = bb
-      .clone()
-      .multiplyScalar(1 / lenFactor)
-      .multiplyScalar(this.scale);
+    const bb = CoMToBB(com.clone().multiplyScalar(lenFactor), a1, a3, this.naType).multiplyScalar(this.scale);
 
     const rotN = rot.multiply(rotS.invert());
     const scale = new Vector3(this.scale, this.scale, this.scale);
     const tr = new Matrix4().setFromMatrix3(rotN).scale(scale);
     tr.setPosition(
-      pos.add(
+      bb.add(
         new Vector3()
           .applyMatrix3(rotN)
           .sub(this.nucParams.BACKBONE_CENTER.clone().applyMatrix3(rotN))

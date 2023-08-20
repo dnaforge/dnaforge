@@ -1,41 +1,98 @@
 import { DNA_SCAFFOLDS as DNA_SCAFFOLDS_T } from './scaffolds';
 import { Vector3 } from 'three';
 
-const DNA_SCAFFOLDS: Record<string, string> = DNA_SCAFFOLDS_T;
+const X = new Vector3(1,0,0);
+const Y = new Vector3(0,1,0);
+const Z = new Vector3(0,0,1);
 
-const DNA = {
-  RISE: 0.332,
-  RADIUS: 1,
-  TWIST: (2 * Math.PI) / 10.5,
-  AXIS: (1 - 16 / 180) * Math.PI,
-  INCLINATION: 0,
+export const DNA_SCAFFOLDS: Record<string, string> = DNA_SCAFFOLDS_T;
 
-  BB_DIST: 1,
-  RADIUS_BB_CENTER: 0.8517,
+// All values are in nanometers and radians and from 5' to 3'.
+export interface NUC_PARAMS {
+  RISE: number
+  RADIUS: number
+  TWIST: number
+  AXIS: number
+  INCLINATION: number
 
-  BACKBONE_CENTER: new Vector3(0, 0, 0.8517),
-  NUCLEOBASE_CENTER: new Vector3(-0.05806632, 0, 0.16015875),
-  BASE_NORMAL: new Vector3(0, -1, 0),
-  HYDROGEN_FACING_DIR: new Vector3(0.34084473, 0, -0.94011961),
-};
+  BB_DIST: number                 // Distance from one backbone center to the next
 
-const RNA = {
-  RISE: 0.281,
-  RADIUS: 1,
-  TWIST: (2 * Math.PI) / 11,
-  AXIS: 1.9, //139.9/180 * Math.PI,
-  INCLINATION: -0.781,
+  BACKBONE_CENTER: Vector3
+  NUCLEOBASE_CENTER: Vector3
+  BASE_NORMAL: Vector3            // a3
+  HYDROGEN_FACING_DIR: Vector3    // a1
+}
 
-  BB_DIST: 1,
-  RADIUS_BB_CENTER: 0.95,
+export const DNA: NUC_PARAMS = (() => {
+  const RISE = 0.332;
+  const RADIUS = 1;
+  const TWIST = (2 * Math.PI) / 10.5;
+  const AXIS = (1 - 16 / 180) * Math.PI;
+  const INCLINATION = 0;
 
-  BACKBONE_CENTER: new Vector3(0, 0, 0.95),
-  NUCLEOBASE_CENTER: new Vector3(0.3585695, -0.3462709957078099, 0.45913134),
-  BASE_NORMAL: new Vector3(-0.14648469, -0.96523751, 0.21646889),
-  HYDROGEN_FACING_DIR: new Vector3(0.56318111, -0.26127869, -0.78393908),
-};
+  const BB_DIST = 1;
 
-const RNA_PSEUDOKNOTS: Array<[string, string]> = [
+  const RADIUS_BB_CENTER = 0.8517;
+  const RADIUS_BASE_CENTER = 0.17;
+  const GAMMA = (-20 / 180) * Math.PI; // Angle between base and backbone centre
+
+  // These are calculated from above consts:
+  const BACKBONE_CENTER = Z.clone().multiplyScalar(RADIUS_BB_CENTER);
+  const NUCLEOBASE_CENTER = Z.clone().applyAxisAngle(Y, GAMMA).multiplyScalar(RADIUS_BASE_CENTER);
+  const BASE_NORMAL = Z.clone().negate();
+  const HYDROGEN_FACING_DIR = NUCLEOBASE_CENTER.clone().negate().normalize();
+
+  return {
+    RISE: RISE,
+    RADIUS: RADIUS,
+    TWIST: TWIST,
+    AXIS: AXIS,
+    INCLINATION: INCLINATION,
+    BB_DIST: BB_DIST,
+    BACKBONE_CENTER: BACKBONE_CENTER,
+    NUCLEOBASE_CENTER: NUCLEOBASE_CENTER,
+    BASE_NORMAL: BASE_NORMAL,
+    HYDROGEN_FACING_DIR: HYDROGEN_FACING_DIR,
+  }
+})();
+
+export const RNA: NUC_PARAMS = (() => {
+  //P-stick model parameters
+  const RISE = 0.281;
+  const RADIUS = 1;
+  const TWIST = (2 * Math.PI) / 11;
+  const AXIS = (139.9 / 180) * Math.PI;
+  const INCLINATION = -0.745;
+
+  const BB_DIST = 1;
+
+  const RADIUS_BB_CENTER = 0.87;
+
+  // These are calculated from above consts:
+  // TODO: Fix these. The base inclination is obviously wrong, since it's calculated from the phosphates.
+  // The Hydrogen facing direction and base normal are probably wrong too. 
+  const BASE_INCLINATION = Math.atan(INCLINATION / (2 * RADIUS)) * 2;
+  const BACKBONE_CENTER = Z.clone().multiplyScalar(RADIUS_BB_CENTER);
+  const HYDROGEN_FACING_DIR = Z.clone().negate().applyAxisAngle(X, BASE_INCLINATION).applyAxisAngle(Y, -(Math.PI - AXIS) / 2).normalize();
+  const BASE_NORMAL = Y.clone().negate().applyAxisAngle(X, BASE_INCLINATION).applyAxisAngle(Y, -(Math.PI - AXIS) / 2).normalize();
+  const NUCLEOBASE_CENTER = BACKBONE_CENTER.clone().add(HYDROGEN_FACING_DIR.clone().multiplyScalar(0.68144).sub(BASE_NORMAL.clone().multiplyScalar(0.17036)));
+
+  return {
+    RISE: RISE,
+    RADIUS: RADIUS,
+    TWIST: TWIST,
+    AXIS: AXIS,
+    INCLINATION: INCLINATION,
+    BB_DIST: BB_DIST,
+    BACKBONE_CENTER: BACKBONE_CENTER,
+    NUCLEOBASE_CENTER: NUCLEOBASE_CENTER,
+    BASE_NORMAL: BASE_NORMAL,
+    HYDROGEN_FACING_DIR: HYDROGEN_FACING_DIR,
+  }
+})();
+
+
+export const RNA_PSEUDOKNOTS: Array<[string, string]> = [
   ['GCAGGC', 'CGUCCG'],
   ['GCCUGC', 'CGGACG'],
   ['GCAGCC', 'CGUCGG'],
@@ -538,7 +595,7 @@ const RNA_PSEUDOKNOTS: Array<[string, string]> = [
   ['GUAGAC', 'CAUCUG'],
 ];
 
-const RNA_NP_TEMPLATE = (ps: string[], ss: string[]) => {
+export const RNA_NP_TEMPLATE = (ps: string[], ss: string[]) => {
   return (
     `material = rna\n` +
     `temperature = 21\n` +
@@ -588,7 +645,7 @@ export type IUPAC_CHAR_RNA =
   | 'V'
   | 'N';
 
-const IUPAC_DNA: Record<string, string[]> = {
+export const IUPAC_DNA: Record<string, string[]> = {
   A: ['A'],
   T: ['T'],
   G: ['G'],
@@ -609,7 +666,7 @@ const IUPAC_DNA: Record<string, string[]> = {
   N: ['A', 'C', 'G', 'T'],
 };
 
-const IUPAC_RNA: Record<string, string[]> = {
+export const IUPAC_RNA: Record<string, string[]> = {
   A: ['A'],
   U: ['U'],
   G: ['G'],
@@ -628,14 +685,4 @@ const IUPAC_RNA: Record<string, string[]> = {
   V: ['A', 'C', 'G'],
 
   N: ['A', 'C', 'G', 'U'],
-};
-
-export {
-  DNA,
-  RNA,
-  DNA_SCAFFOLDS,
-  RNA_PSEUDOKNOTS,
-  RNA_NP_TEMPLATE,
-  IUPAC_DNA,
-  IUPAC_RNA,
 };
