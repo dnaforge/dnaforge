@@ -14,6 +14,26 @@ enum ValueType {
   ENUM = 'ENUM',
 }
 
+interface ConfigEntry {
+  type: 'Option' | 'Container' | 'Property';
+  name: string;
+}
+
+interface ConfigOption extends ConfigEntry {
+  type: 'Option';
+  entries: ConfigEntry[];
+}
+
+interface ConfigOptionContainer extends ConfigEntry {
+  type: 'Container';
+  values: ConfigOption[];
+}
+
+interface ConfigProperty extends ConfigEntry {
+  type: 'Property';
+  valueType: ValueType;
+}
+
 interface Property {
   name: string;
   valueType: ValueType;
@@ -100,6 +120,7 @@ export class SimulationAPI {
   socket: WebSocket;
 
   availableProperties: Property[];
+  availableOptions: ConfigOption;
   defaultConfigs: Config[];
 
   activeModel: NucleotideModel = null;
@@ -277,7 +298,7 @@ export class SimulationAPI {
     });
 
     // fix the configuration file reordering bug in Mozilla Firefox
-    $('#sim-configs').on('selectstart', (e: any) => {
+    $('#sim-configs').on('selectstart', (e: Event) => {
       e.preventDefault();
     });
   }
@@ -285,8 +306,6 @@ export class SimulationAPI {
   setAuthStatus(status: string) {
     $('#sim-auth-status').html(status);
   }
-
-  setParams() {}
 
   async auth(accessToken: string | null = null) {
     console.log('Auth');
@@ -325,6 +344,7 @@ export class SimulationAPI {
       this.openWebSocket();
 
       this.availableProperties = await this.getAvailableProperties();
+      this.availableOptions = await this.getAvailableOptions();
       this.defaultConfigs = await this.getDefaultConfigs();
       this.setupConfigComponents(this.defaultConfigs);
 
@@ -370,7 +390,7 @@ export class SimulationAPI {
     $('#sim-params').append(this.createConfigComponent(config, false));
   }
 
-  createConfigComponent(config: Config, collapsed: boolean = true) {
+  createConfigComponent(config: Config, collapsed: boolean = true): any {
     const confComponent = $('<li>');
     const confContainer = $('<div>', {
       'data-role': 'panel',
@@ -379,10 +399,10 @@ export class SimulationAPI {
       'data-collapsed': collapsed,
       'data-name': 'stage-title',
     });
-    confContainer.on('mousedown', (e: any) => {
+    confContainer.on('mousedown', (e: Event) => {
       e.stopPropagation();
     });
-    confContainer.on('panelCreate', (e: any) => {
+    confContainer.on('panelCreate', (e: CustomEvent) => {
       const toggleButton = e.detail.element.parent().find('.dropdown-toggle');
       const customButtons = $('<div>', { class: 'custom-buttons' });
       const closeButton = $('<button>', { class: 'button btn-custom alert' });
@@ -390,10 +410,10 @@ export class SimulationAPI {
       customButtons.append(closeButton);
       toggleButton.before(customButtons);
 
-      toggleButton.on('mousedown', (e2: any) => {
+      toggleButton.on('mousedown', (e2: Event) => {
         e2.stopPropagation();
       });
-      closeButton.on('mousedown', (e2: any) => {
+      closeButton.on('mousedown', (e2: Event) => {
         e2.stopPropagation();
         confComponent.remove();
       });
@@ -468,9 +488,8 @@ export class SimulationAPI {
     }
 
     // register select change event
-    autoExtendStage.on('change', (event: Event) => {
-      const target = $(event.target);
-      if (target.val() === 'true') {
+    autoExtendStage.on('itemSelect', (e: CustomEvent) => {
+      if (e.detail.val === 'true') {
         autoExtendLimitContainer.show();
       } else {
         autoExtendLimitContainer.hide();
@@ -500,23 +519,26 @@ export class SimulationAPI {
     configTypeTabs.append(fileTab);
 
     confContainer.append(configTypeTabs);
-    // Initialize MetroUI tabs
-    configTypeTabs.tabs();
 
     const manualConfContainer = $('<div>', {
+      'data-role': 'panel',
       'data-name': 'stage-manual',
     });
     confContainer.append(manualConfContainer);
 
     const fileConfContainer = $('<div>', {
+      'data-role': 'panel',
       'data-name': 'stage-file',
     });
     confContainer.append(fileConfContainer);
 
+    // Initialize MetroUI tabs
+    configTypeTabs.tabs();
+
     // register tab change event
-    configTypeTabs.on('tab', (event: CustomEvent) => {
-      const currentTab = $(event.target).find('li.active');
-      const clickedTab = $(event.detail.tab);
+    configTypeTabs.on('tab', (e: CustomEvent) => {
+      const currentTab = $(e.target).find('li.active');
+      const clickedTab = $(e.detail.tab);
 
       if (currentTab.text() !== clickedTab.text()) {
         if (clickedTab.text() === 'Manual Config') {
@@ -533,28 +555,24 @@ export class SimulationAPI {
     if (config.type === 'PropertiesConfig') {
       const propConf = <PropertiesConfig>config;
 
-      for (const prop of propConf.properties) {
-        manualConfContainer.append(this.createPropertyElement(prop));
-      }
-      $('<textarea>', {
-        'data-role': 'textarea',
-        'data-default-value': '',
-        'data-name': 'file-content',
-      }).appendTo(fileConfContainer);
+      const propertyMap: { [id: string]: Property } = {};
+      propConf.properties.forEach((prop) => {
+        propertyMap[prop.name] = prop;
+      });
+      this.appendOptionElement(
+        this.availableOptions,
+        propertyMap,
+        manualConfContainer,
+      );
+      fileConfContainer.append(this.createOxFileElement(''));
 
       configTypeTabs.data('tabs').open(manualTab);
       fileConfContainer.hide();
     } else if (config.type === 'FileConfig') {
       const fileConf = <FileConfig>config;
 
-      $('<textarea>', {
-        'data-role': 'textarea',
-        'data-default-value': fileConf.content,
-        'data-name': 'file-content',
-      }).appendTo(fileConfContainer);
-      for (const prop of this.availableProperties) {
-        manualConfContainer.append(this.createPropertyElement(prop));
-      }
+      fileConfContainer.append(this.createOxFileElement(fileConf.content));
+      this.appendOptionElement(this.availableOptions, {}, manualConfContainer);
 
       configTypeTabs.data('tabs').open(fileTab);
       manualConfContainer.hide();
@@ -565,16 +583,126 @@ export class SimulationAPI {
     return confComponent;
   }
 
-  createPropertyElement(prop: Property) {
-    let el;
+  createOxFileElement(content: string) {
+    return $('<textarea>', {
+      'data-role': 'textarea',
+      'data-default-value': content,
+      'data-name': 'ox-dna-file-content',
+    });
+  }
+
+  appendOptionElement(
+    option: ConfigOption,
+    selected: { [id: string]: Property },
+    container: any,
+  ) {
+    for (const entry of option.entries) {
+      switch (entry.type) {
+        case 'Option':
+          // should not happen, but it doesn't hurt to have this case...
+          this.appendOptionElement(<ConfigOption>entry, selected, container);
+          break;
+        case 'Container':
+          this.appendOptionContainerElement(
+            <ConfigOptionContainer>entry,
+            selected,
+            container,
+          );
+          break;
+        case 'Property':
+          this.appendPropertyElement(
+            <ConfigProperty>entry,
+            selected,
+            container,
+          );
+          break;
+        default:
+          throw new Error(`Unknown Entry type: ${entry.type}`);
+      }
+    }
+  }
+
+  appendOptionContainerElement(
+    optionContainer: ConfigOptionContainer,
+    selected: { [id: string]: Property },
+    container: any,
+  ): any {
+    const selectedName: string = selected[optionContainer.name]
+      ? selected[optionContainer.name].value
+        ? selected[optionContainer.name].value
+        : optionContainer.values[0].name
+      : optionContainer.values[0].name;
+
+    const select = $('<select>', {
+      'data-prepend': optionContainer.name,
+      'data-role': 'select',
+      'data-name': optionContainer.name,
+    });
+    container.append(select);
+
+    // store reference to shown subContainer
+    let shownSubContainer: any = null;
+
+    select.on('itemSelect', (e: CustomEvent) => {
+      if (shownSubContainer) {
+        shownSubContainer.hide();
+      }
+      shownSubContainer = container.find(
+        `[data-name="${optionContainer.name}.${e.detail.val}"]`,
+      );
+      if (shownSubContainer) {
+        shownSubContainer.show();
+      }
+    });
+
+    for (const option of optionContainer.values) {
+      $('<option>', {
+        value: option.name,
+      })
+        .text(option.name)
+        .appendTo(select);
+
+      // options with no entries don't need a container.
+      if (option.entries.length === 0) {
+        continue;
+      }
+
+      // create container for option entries
+      const subContainer = $('<div>', {
+        'data-role': 'panel',
+        'data-name': `${optionContainer.name}.${option.name}`,
+      });
+      this.appendOptionElement(option, selected, subContainer);
+      container.append(subContainer);
+      if (selectedName === option.name) {
+        shownSubContainer = subContainer;
+      } else {
+        subContainer.hide();
+      }
+    }
+
+    select.val(selectedName);
+  }
+
+  appendPropertyElement(
+    prop: ConfigProperty,
+    selected: { [id: string]: Property },
+    container: any,
+  ) {
+    const value: string | null = selected[prop.name]
+      ? selected[prop.name].value
+        ? selected[prop.name].value
+        : null
+      : null;
 
     switch (prop.valueType) {
       case ValueType.BOOLEAN:
-        el = $('<select>', {
+        const el = $('<select>', {
           'data-prepend': prop.name,
           'data-role': 'select',
           'data-name': prop.name,
         });
+        el.appendTo(container);
 
         $('<option>', {
           value: 'true',
@@ -589,64 +717,35 @@ export class SimulationAPI {
           .appendTo(el);
 
         // select default value if available
-        if (prop.value) {
-          el = el.val(prop.value);
+        if (value != null) {
+          el.val(value);
         }
         break;
 
       case ValueType.UNSIGNED_INTEGER:
-        el = $('<input>', {
+        $('<input>', {
           type: 'number',
           min: 0,
           'data-prepend': prop.name,
           'data-role': 'input',
-          'data-default-value': prop.value,
+          'data-default-value': value,
           'data-name': prop.name,
-        });
+        }).appendTo(container);
         break;
 
       case ValueType.FLOAT:
-        el = $('<input>', {
+        $('<input>', {
           type: 'number',
           step: 'any',
           'data-prepend': prop.name,
           'data-role': 'input',
-          'data-default-value': prop.value,
+          'data-default-value': value,
           'data-name': prop.name,
-        });
+        }).appendTo(container);
         break;
-
-      case ValueType.ENUM:
-        el = $('<select>', {
-          'data-prepend': prop.name,
-          'data-role': 'select',
-          'data-name': prop.name,
-        });
-
-        // needed for properties without default value
-        $('<option>', {
-          value: null,
-        })
-          .text(null)
-          .appendTo(el);
-
-        if (prop.possibleValues) {
-          for (const value of prop.possibleValues) {
-            $('<option>', {
-              value: value,
-            })
-              .text(value)
-              .appendTo(el);
-          }
-        }
-
-        // select default value if available
-        if (prop.value) {
-          el = el.val(prop.value);
-        }
-        break;
+      default:
+        throw new Error(`Unknown Value type: ${prop.valueType}`);
     }
-    return el;
   }
 
   readConfigs(): Config[] {
@@ -755,7 +854,7 @@ export class SimulationAPI {
   readOxDnaFile(c: unknown): string {
     for (const i of Array.from($(c).find('textarea'))) {
       const el = $(i);
-      if (el.attr('data-name') === 'file-content') {
+      if (el.attr('data-name') === 'ox-dna-file-content') {
         return el.val();
       }
     }
@@ -792,6 +891,30 @@ export class SimulationAPI {
     headers.append('authorization', this.token);
 
     return await fetch(this.host + '/options/available/properties', {
+      method: 'GET',
+      headers: headers,
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error(response.statusText);
+      })
+      .then((data) => {
+        return JSON.parse(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        this.context.addMessage(error, 'alert');
+      });
+  }
+
+  async getAvailableOptions(): Promise<ConfigOption> {
+    console.log('Get Available Options');
+    const headers = new Headers();
+    headers.append('authorization', this.token);
+
+    return await fetch(this.host + '/options/available', {
       method: 'GET',
       headers: headers,
     })
