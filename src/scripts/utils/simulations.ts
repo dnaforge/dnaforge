@@ -50,19 +50,26 @@ interface Metadata {
 }
 
 interface Config {
-  type: string;
+  type: 'FileConfig' | 'ManualConfig' | 'PropertiesConfig';
   metadata: Metadata;
   createTrajectory: boolean;
   autoExtendStage: boolean;
   maxExtensions: number;
 }
 
-interface PropertiesConfig extends Config {
-  properties: Property[];
+interface FileConfig extends Config {
+  type: 'FileConfig';
+  content: string;
 }
 
-interface FileConfig extends Config {
-  content: string;
+interface ManualConfig extends Config {
+  type: 'ManualConfig';
+  options: ConfigOption;
+}
+
+interface PropertiesConfig extends Config {
+  type: 'PropertiesConfig';
+  properties: Property[];
 }
 
 enum JobState {
@@ -504,14 +511,18 @@ export class SimulationAPI {
       style: 'margin-top: 10px;',
     });
 
-    const manualTab = $('<li>').append(
+    const manualTab = $('<li>', {
+      'data-name': 'config-type-tab',
+    }).append(
       $('<a>', {
         href: '#manual_config',
       }).text('Manual Config'),
     );
     configTypeTabs.append(manualTab);
 
-    const fileTab = $('<li>').append(
+    const fileTab = $('<li>', {
+      'data-name': 'config-type-tab',
+    }).append(
       $('<a>', {
         href: '#file_config',
       }).text('oxDNA Input File'),
@@ -552,32 +563,45 @@ export class SimulationAPI {
     });
 
     // open correct tab
-    if (config.type === 'PropertiesConfig') {
-      const propConf = <PropertiesConfig>config;
+    switch (config.type) {
+      case 'FileConfig':
+        const fileConf = <FileConfig>config;
 
-      const propertyMap: { [id: string]: Property } = {};
-      propConf.properties.forEach((prop) => {
-        propertyMap[prop.name] = prop;
-      });
-      this.appendOptionElement(
-        this.availableOptions,
-        propertyMap,
-        manualConfContainer,
-      );
-      fileConfContainer.append(this.createOxFileElement(''));
+        fileConfContainer.append(this.createOxFileElement(fileConf.content));
+        this.appendOptionElement(
+          this.availableOptions,
+          {},
+          manualConfContainer,
+        );
 
-      configTypeTabs.data('tabs').open(manualTab);
-      fileConfContainer.hide();
-    } else if (config.type === 'FileConfig') {
-      const fileConf = <FileConfig>config;
+        configTypeTabs.data('tabs').open(fileTab);
+        manualConfContainer.hide();
+        break;
 
-      fileConfContainer.append(this.createOxFileElement(fileConf.content));
-      this.appendOptionElement(this.availableOptions, {}, manualConfContainer);
+      case 'ManualConfig':
+        throw new Error('Unknown Config type!'); // TODO
+        break;
 
-      configTypeTabs.data('tabs').open(fileTab);
-      manualConfContainer.hide();
-    } else {
-      throw new Error('Unknown Config type!');
+      case 'PropertiesConfig':
+        const propConf = <PropertiesConfig>config;
+
+        const propertyMap: { [id: string]: Property } = {};
+        propConf.properties.forEach((prop) => {
+          propertyMap[prop.name] = prop;
+        });
+        this.appendOptionElement(
+          this.availableOptions,
+          propertyMap,
+          manualConfContainer,
+        );
+        fileConfContainer.append(this.createOxFileElement(''));
+
+        configTypeTabs.data('tabs').open(manualTab);
+        fileConfContainer.hide();
+        break;
+
+      default:
+        throw new Error('Unknown Config type!');
     }
 
     return confComponent;
@@ -602,6 +626,7 @@ export class SimulationAPI {
           // should not happen, but it doesn't hurt to have this case...
           this.appendOptionElement(<ConfigOption>entry, selected, container);
           break;
+
         case 'Container':
           this.appendOptionContainerElement(
             <ConfigOptionContainer>entry,
@@ -609,6 +634,7 @@ export class SimulationAPI {
             container,
           );
           break;
+
         case 'Property':
           this.appendPropertyElement(
             <ConfigProperty>entry,
@@ -616,6 +642,7 @@ export class SimulationAPI {
             container,
           );
           break;
+
         default:
           throw new Error(`Unknown Entry type: ${entry.type}`);
       }
@@ -743,6 +770,7 @@ export class SimulationAPI {
           'data-name': prop.name,
         }).appendTo(container);
         break;
+
       default:
         throw new Error(`Unknown Value type: ${prop.valueType}`);
     }
@@ -751,48 +779,35 @@ export class SimulationAPI {
   readConfigs(): Config[] {
     const configs: Config[] = [];
     for (const c of Array.from($('#sim-params').children())) {
-      let title: string;
-      for (const i of Array.from($(c).find('div'))) {
-        const el = $(i);
-        if (el.attr('data-name') === 'stage-title') {
-          title = el.attr('data-title-caption');
-          break;
-        }
-      }
-      let description: string;
-      for (const i of Array.from($(c).find('textarea'))) {
-        const el = $(i);
-        if (el.attr('data-name') === 'stage-description') {
-          description = el.val();
-          break;
-        }
-      }
-      let createTrajectory: boolean;
-      let autoExtendStage: boolean;
-      for (const i of Array.from($(c).find('select'))) {
-        const el = $(i);
-        if (el.attr('data-name') === 'create-trajectory') {
-          createTrajectory = el.val() === 'true';
-        } else if (el.attr('data-name') === 'auto-extend-stage') {
-          autoExtendStage = el.val() === 'true';
-        }
-      }
-      let autoExtendLimit: number;
-      for (const i of Array.from($(c).find('input'))) {
-        const el = $(i);
-        if (el.attr('data-name') === 'auto-extend-stage-limit') {
-          autoExtendLimit = parseInt(el.val());
-          break;
-        }
-      }
+      const panelContent = $($($(c).children()[0]).children()[0]);
+
+      const title: string = panelContent.attr('data-title-caption');
+      const description: string = panelContent
+        .find('[data-name="stage-description"]')
+        .val();
+
+      const createTrajectory: boolean =
+        panelContent.find('[data-name="create-trajectory"]').val() === 'true';
+      const autoExtendStage: boolean =
+        panelContent.find('[data-name="auto-extend-stage"]').val() === 'true';
+      const autoExtendLimit: number = parseInt(
+        panelContent.find('[data-name="auto-extend-stage-limit"]').val(),
+      );
+
       let type: string;
-      for (const i of Array.from($(c).find('ul'))) {
-        const el = $(i);
-        if (el.find('li.active').text() === 'Manual Config') {
-          type = 'PropertiesConfig';
-        } else if (el.find('li.active').text() === 'oxDNA Input File') {
-          type = 'FileConfig';
+      for (const i of Array.from(panelContent.find('li.active'))) {
+        const tab = $(i);
+        if (tab.attr('data-name') !== 'config-type-tab') {
+          continue;
         }
+        if (tab.text() === 'Manual Config') {
+          type = 'PropertiesConfig';
+        } else if (tab.text() === 'oxDNA Input File') {
+          type = 'FileConfig';
+        } else {
+          throw new Error(`Unknown tab: ${tab.text()}`);
+        }
+        break;
       }
 
       const meta: Metadata = {
@@ -807,7 +822,9 @@ export class SimulationAPI {
               createTrajectory: createTrajectory,
               autoExtendStage: autoExtendStage,
               maxExtensions: autoExtendLimit,
-              properties: this.readProperties(c),
+              properties: this.readProperties(
+                panelContent.find('[data-name="stage-manual"]'),
+              ),
             } as PropertiesConfig)
           : ({
               type: 'FileConfig',
@@ -815,14 +832,16 @@ export class SimulationAPI {
               createTrajectory: createTrajectory,
               autoExtendStage: autoExtendStage,
               maxExtensions: autoExtendLimit,
-              content: this.readOxDnaFile(c),
+              content: this.readOxDnaFile(
+                panelContent.find('[data-name="stage-file"]'),
+              ),
             } as FileConfig);
       configs.push(config);
     }
     return configs;
   }
 
-  readProperties(c: unknown): Property[] {
+  readProperties(child: any): Property[] {
     const props = structuredClone(this.availableProperties);
     const propertyMap: { [id: string]: Property } = {};
 
@@ -830,35 +849,55 @@ export class SimulationAPI {
       propertyMap[prop.name] = prop;
     });
 
-    for (const i of Array.from($(c).find('input'))) {
-      const el = $(i);
-      const propName = el.attr('data-name');
+    const usedProps: Property[] = [];
+
+    // store sub-panels for easy access later on
+    const subPanels: { [name: string]: any } = {};
+    for (const div of Array.from(child.children('.panel'))) {
+      const subPanel = $($(div).children()[0]);
+      if (subPanel.attr('data-name')) {
+        subPanels[subPanel.attr('data-name')] = subPanel;
+      }
+    }
+
+    // inputs are wrapped in a div with class 'input'
+    for (const div of Array.from(child.children('.input'))) {
+      // select actual input element
+      const input = $($(div).children('input'));
+      const propName = input.attr('data-name');
       const prop = propertyMap[propName];
 
       if (prop !== undefined) {
-        prop.value = el.val();
+        prop.value = input.val();
+        usedProps.push(prop);
       }
     }
-    for (const i of Array.from($(c).find('select'))) {
-      const el = $(i);
-      const propName = el.attr('data-name');
+    // selects are wrapped in a label with class 'select'
+    for (const label of Array.from(child.children('.select'))) {
+      // select actual select element
+      const select = $($(label).children('select'));
+      const propName = select.attr('data-name');
       const prop = propertyMap[propName];
 
       if (prop !== undefined) {
-        prop.value = el.val();
+        prop.value = select.val();
+        usedProps.push(prop);
+
+        // read properties made available by this selection
+        const subPanelName = `${propName}.${select.val()}`;
+        if (subPanels[subPanelName]) {
+          usedProps.push.apply(
+            usedProps,
+            this.readProperties(subPanels[subPanelName]),
+          );
+        }
       }
     }
-    return props;
+    return usedProps;
   }
 
-  readOxDnaFile(c: unknown): string {
-    for (const i of Array.from($(c).find('textarea'))) {
-      const el = $(i);
-      if (el.attr('data-name') === 'ox-dna-file-content') {
-        return el.val();
-      }
-    }
-    return '';
+  readOxDnaFile(child: any): string {
+    return child.find('[data-name="ox-dna-file-content"]').val();
   }
 
   async getDefaultConfigs(): Promise<Config[]> {
@@ -1121,6 +1160,7 @@ export class SimulationAPI {
       case JobState.NEW:
         statusLabel = 'Pending';
         break;
+
       case JobState.RUNNING:
         statusLabel =
           job.extensions[job.completedStages] === 0
@@ -1132,9 +1172,13 @@ export class SimulationAPI {
       case JobState.DONE:
         statusLabel = 'Completed';
         break;
+
       case JobState.CANCELED:
         statusLabel = `Completed ${job.completedStages} / ${job.stages} stages`;
         break;
+
+      default:
+        throw new Error(`Unknown Job state: ${job.status}`);
     }
 
     const stageProgress =
