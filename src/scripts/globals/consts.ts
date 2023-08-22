@@ -39,7 +39,7 @@ export const DNA: NUC_PARAMS = (() => {
   // These are calculated from above consts:
   const BACKBONE_CENTER = Z.clone().multiplyScalar(RADIUS_BB_CENTER);
   const NUCLEOBASE_CENTER = Z.clone().applyAxisAngle(Y, GAMMA).multiplyScalar(RADIUS_BASE_CENTER);
-  const BASE_NORMAL = Z.clone().negate();
+  const BASE_NORMAL = Y.clone().negate();
   const HYDROGEN_FACING_DIR = NUCLEOBASE_CENTER.clone().negate().normalize();
 
   return {
