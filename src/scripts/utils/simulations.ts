@@ -47,7 +47,7 @@ interface Metadata {
 }
 
 interface Config {
-  type: 'FileConfig' | 'PropertiesConfig';
+  type: 'FileConfig' | 'ManualConfig';
   metadata: Metadata;
   createTrajectory: boolean;
   autoExtendStage: boolean;
@@ -59,8 +59,8 @@ interface FileConfig extends Config {
   content: string;
 }
 
-interface PropertiesConfig extends Config {
-  type: 'PropertiesConfig';
+interface ManualConfig extends Config {
+  type: 'ManualConfig';
   properties: SelectedProperty[];
 }
 
@@ -562,8 +562,8 @@ export class SimulationAPI {
         manualConfContainer.hide();
         break;
 
-      case 'PropertiesConfig':
-        const propConf = <PropertiesConfig>config;
+      case 'ManualConfig':
+        const propConf = <ManualConfig>config;
 
         const propertyMap: { [id: string]: SelectedProperty } = {};
         propConf.properties.forEach((prop) => {
@@ -797,7 +797,7 @@ export class SimulationAPI {
       const config: Config =
         type === 'PropertiesConfig'
           ? ({
-              type: 'PropertiesConfig',
+              type: 'ManualConfig',
               metadata: meta,
               createTrajectory: createTrajectory,
               autoExtendStage: autoExtendStage,
@@ -805,7 +805,7 @@ export class SimulationAPI {
               properties: this.readProperties(
                 panelContent.find('[data-name="stage-manual"]'),
               ),
-            } as PropertiesConfig)
+            } as ManualConfig)
           : ({
               type: 'FileConfig',
               metadata: meta,
@@ -867,7 +867,7 @@ export class SimulationAPI {
     const headers = new Headers();
     headers.append('authorization', this.token);
 
-    return await fetch(this.host + '/options/default/properties', {
+    return await fetch(this.host + '/options/default', {
       method: 'GET',
       headers: headers,
     })
