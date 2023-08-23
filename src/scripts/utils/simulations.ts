@@ -11,34 +11,31 @@ enum ValueType {
   BOOLEAN = 'BOOLEAN',
   UNSIGNED_INTEGER = 'UNSIGNED_INTEGER',
   FLOAT = 'FLOAT',
-  ENUM = 'ENUM',
 }
 
-interface ConfigEntry {
+interface Entry {
   type: 'Option' | 'Container' | 'Property';
   name: string;
 }
 
-interface ConfigOption extends ConfigEntry {
+interface Option extends Entry {
   type: 'Option';
-  entries: ConfigEntry[];
+  entries: Entry[];
 }
 
-interface ConfigOptionContainer extends ConfigEntry {
+interface OptionContainer extends Entry {
   type: 'Container';
-  values: ConfigOption[];
+  values: Option[];
 }
 
-interface ConfigProperty extends ConfigEntry {
+interface Property extends Entry {
   type: 'Property';
   valueType: ValueType;
 }
 
-interface Property {
+interface SelectedProperty {
   name: string;
-  valueType: ValueType;
-  possibleValues?: string[];
-  value?: string;
+  value: string;
 }
 
 interface Metadata {
@@ -50,7 +47,7 @@ interface Metadata {
 }
 
 interface Config {
-  type: 'FileConfig' | 'ManualConfig' | 'PropertiesConfig';
+  type: 'FileConfig' | 'PropertiesConfig';
   metadata: Metadata;
   createTrajectory: boolean;
   autoExtendStage: boolean;
@@ -62,14 +59,9 @@ interface FileConfig extends Config {
   content: string;
 }
 
-interface ManualConfig extends Config {
-  type: 'ManualConfig';
-  options: ConfigOption;
-}
-
 interface PropertiesConfig extends Config {
   type: 'PropertiesConfig';
-  properties: Property[];
+  properties: SelectedProperty[];
 }
 
 enum JobState {
@@ -126,8 +118,7 @@ export class SimulationAPI {
   token: string;
   socket: WebSocket;
 
-  availableProperties: Property[];
-  availableOptions: ConfigOption;
+  availableOptions: Option;
   defaultConfigs: Config[];
 
   activeModel: NucleotideModel = null;
@@ -350,7 +341,6 @@ export class SimulationAPI {
       // Open WebSocket first to avoid missing job state changes after the first job list fetch
       this.openWebSocket();
 
-      this.availableProperties = await this.getAvailableProperties();
       this.availableOptions = await this.getAvailableOptions();
       this.defaultConfigs = await this.getDefaultConfigs();
       this.setupConfigComponents(this.defaultConfigs);
@@ -383,17 +373,11 @@ export class SimulationAPI {
   }
 
   addConfigComponent() {
-    const config: Config = {
-      type: 'PropertiesConfig',
-      metadata: {
-        title: 'New Stage',
-        description: 'Another Simulation Stage',
-      },
-      createTrajectory: true,
-      autoExtendStage: true,
-      maxExtensions: 5,
-      properties: this.availableProperties,
-    } as PropertiesConfig;
+    const config: Config = structuredClone(
+      this.defaultConfigs[this.defaultConfigs.length - 1],
+    );
+    config.metadata.title = 'New Stage';
+    config.metadata.description = 'Another Simulation Stage';
     $('#sim-params').append(this.createConfigComponent(config, false));
   }
 
@@ -578,14 +562,10 @@ export class SimulationAPI {
         manualConfContainer.hide();
         break;
 
-      case 'ManualConfig':
-        throw new Error('Unknown Config type!'); // TODO
-        break;
-
       case 'PropertiesConfig':
         const propConf = <PropertiesConfig>config;
 
-        const propertyMap: { [id: string]: Property } = {};
+        const propertyMap: { [id: string]: SelectedProperty } = {};
         propConf.properties.forEach((prop) => {
           propertyMap[prop.name] = prop;
         });
@@ -601,7 +581,7 @@ export class SimulationAPI {
         break;
 
       default:
-        throw new Error('Unknown Config type!');
+        throw new Error(`Unknown Config type: ${config.type}`);
     }
 
     return confComponent;
@@ -616,20 +596,20 @@ export class SimulationAPI {
   }
 
   appendOptionElement(
-    option: ConfigOption,
-    selected: { [id: string]: Property },
+    option: Option,
+    selected: { [id: string]: SelectedProperty },
     container: any,
   ) {
     for (const entry of option.entries) {
       switch (entry.type) {
         case 'Option':
           // should not happen, but it doesn't hurt to have this case...
-          this.appendOptionElement(<ConfigOption>entry, selected, container);
+          this.appendOptionElement(<Option>entry, selected, container);
           break;
 
         case 'Container':
           this.appendOptionContainerElement(
-            <ConfigOptionContainer>entry,
+            <OptionContainer>entry,
             selected,
             container,
           );
@@ -637,7 +617,7 @@ export class SimulationAPI {
 
         case 'Property':
           this.appendPropertyElement(
-            <ConfigProperty>entry,
+            <Property>entry,
             selected,
             container,
           );
@@ -650,8 +630,8 @@ export class SimulationAPI {
   }
 
   appendOptionContainerElement(
-    optionContainer: ConfigOptionContainer,
-    selected: { [id: string]: Property },
+    optionContainer: OptionContainer,
+    selected: { [id: string]: SelectedProperty },
     container: any,
   ): any {
     const selectedName: string = selected[optionContainer.name]
@@ -712,8 +692,8 @@ export class SimulationAPI {
   }
 
   appendPropertyElement(
-    prop: ConfigProperty,
-    selected: { [id: string]: Property },
+    prop: Property,
+    selected: { [id: string]: SelectedProperty },
     container: any,
   ) {
     const value: string | null = selected[prop.name]
@@ -841,15 +821,8 @@ export class SimulationAPI {
     return configs;
   }
 
-  readProperties(child: any): Property[] {
-    const props = structuredClone(this.availableProperties);
-    const propertyMap: { [id: string]: Property } = {};
-
-    props.forEach((prop) => {
-      propertyMap[prop.name] = prop;
-    });
-
-    const usedProps: Property[] = [];
+  readProperties(child: any): SelectedProperty[] {
+    const props: SelectedProperty[] = [];
 
     // store sub-panels for easy access later on
     const subPanels: { [name: string]: any } = {};
@@ -864,36 +837,25 @@ export class SimulationAPI {
     for (const div of Array.from(child.children('.input'))) {
       // select actual input element
       const input = $($(div).children('input'));
-      const propName = input.attr('data-name');
-      const prop = propertyMap[propName];
-
-      if (prop !== undefined) {
-        prop.value = input.val();
-        usedProps.push(prop);
-      }
+      const name = input.attr('data-name');
+      const value = input.val();
+      props.push({ name: name, value: value });
     }
     // selects are wrapped in a label with class 'select'
     for (const label of Array.from(child.children('.select'))) {
       // select actual select element
       const select = $($(label).children('select'));
-      const propName = select.attr('data-name');
-      const prop = propertyMap[propName];
+      const name = select.attr('data-name');
+      const value = select.val();
+      props.push({ name: name, value: value });
 
-      if (prop !== undefined) {
-        prop.value = select.val();
-        usedProps.push(prop);
-
-        // read properties made available by this selection
-        const subPanelName = `${propName}.${select.val()}`;
-        if (subPanels[subPanelName]) {
-          usedProps.push.apply(
-            usedProps,
-            this.readProperties(subPanels[subPanelName]),
-          );
-        }
+      // read properties made available by this selection
+      const subPanelName = `${name}.${value}`;
+      if (subPanels[subPanelName]) {
+        props.push.apply(props, this.readProperties(subPanels[subPanelName]));
       }
     }
-    return usedProps;
+    return props;
   }
 
   readOxDnaFile(child: any): string {
@@ -924,31 +886,7 @@ export class SimulationAPI {
       });
   }
 
-  async getAvailableProperties(): Promise<Property[]> {
-    console.log('Get Available Properties');
-    const headers = new Headers();
-    headers.append('authorization', this.token);
-
-    return await fetch(this.host + '/options/available/properties', {
-      method: 'GET',
-      headers: headers,
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.text();
-        }
-        throw new Error(response.statusText);
-      })
-      .then((data) => {
-        return JSON.parse(data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        this.context.addMessage(error, 'alert');
-      });
-  }
-
-  async getAvailableOptions(): Promise<ConfigOption> {
+  async getAvailableOptions(): Promise<Option> {
     console.log('Get Available Options');
     const headers = new Headers();
     headers.append('authorization', this.token);
