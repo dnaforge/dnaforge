@@ -1,12 +1,11 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; //'three/addons/controls/OrbitControls';
+//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; //'three/addons/controls/OrbitControls';
 import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls.js';
 import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
-import { SVGRenderer } from 'three/examples/jsm/renderers/SVGRenderer';
 import { Controls } from '../editor/controls';
 import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
@@ -282,7 +281,6 @@ export class Context {
     this.cameraControls.setGizmosVisible(false);
     this.cameraControls.wMax = 5;
     this.cameraControls.cursorZoom = true;
-    console.log(this.cameraControls);
 
     this.camera.position.copy(new Vector3(0, 5, 20));
     this.cameraControls.target = new Vector3(0, 5, 0);
@@ -330,15 +328,21 @@ export class Context {
     const notify = Metro.notify;
     notify.setup({
       width: 300,
-      timeout: duration,
     });
     notify.create(message, null, {
       cls: type,
-      onClick: () => {
-        notify.killAll();
-      },
+      keepOpen: true
     });
-    //Metro.toast.create(message, null, null, null, null);
+
+    const els = $(".notify-container").children();
+    const created = $(els[els.length - 1]);
+    this.closeMessage(created, duration);
+  }
+
+  async closeMessage(el: any, timeout: number){
+    const wait = () => new Promise((resolve) => setTimeout(resolve, timeout));
+    await wait();
+    el.remove();
   }
 
   toJSON(selection: JSONObject): JSONObject {
