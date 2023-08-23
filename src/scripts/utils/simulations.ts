@@ -118,6 +118,8 @@ export class SimulationAPI {
   token: string;
   socket: WebSocket;
 
+  headers: Headers;
+
   availableOptions: Option;
   defaultConfigs: Config[];
 
@@ -307,12 +309,12 @@ export class SimulationAPI {
 
   async auth(accessToken: string | null = null) {
     console.log('Auth');
+    const headers = new Headers();
+    headers.append('Authorization', accessToken);
+
     await fetch(this.host + '/auth', {
       method: 'GET',
-      headers: {
-        'Content-Type': 'text/plain',
-        Authorization: accessToken,
-      },
+      headers: headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -340,6 +342,10 @@ export class SimulationAPI {
     if (this.token !== undefined && this.token !== null) {
       // Open WebSocket first to avoid missing job state changes after the first job list fetch
       this.openWebSocket();
+
+      this.headers = new Headers();
+      this.headers.append('Authorization', this.token);
+      this.headers.append('Content-Type', 'application/json');
 
       this.availableOptions = await this.getAvailableOptions();
       this.defaultConfigs = await this.getDefaultConfigs();
@@ -616,11 +622,7 @@ export class SimulationAPI {
           break;
 
         case 'Property':
-          this.appendPropertyElement(
-            <Property>entry,
-            selected,
-            container,
-          );
+          this.appendPropertyElement(<Property>entry, selected, container);
           break;
 
         default:
@@ -864,12 +866,10 @@ export class SimulationAPI {
 
   async getDefaultConfigs(): Promise<Config[]> {
     console.log('Get Default Configs');
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     return await fetch(this.host + '/options/default', {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -888,12 +888,10 @@ export class SimulationAPI {
 
   async getAvailableOptions(): Promise<Option> {
     console.log('Get Available Options');
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     return await fetch(this.host + '/options/available', {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1132,12 +1130,10 @@ export class SimulationAPI {
 
   async getJobsAndUpdateList() {
     console.log('Get Jobs');
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     await fetch(this.host + '/job', {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1156,12 +1152,10 @@ export class SimulationAPI {
 
   async getJob(id: string): Promise<Job> {
     console.log('Get Job', id);
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     return await fetch(this.host + '/job/' + id, {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1180,12 +1174,10 @@ export class SimulationAPI {
 
   async getJobDetails(id: string): Promise<JobDetails> {
     console.log('Get Job Details', id);
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     return await fetch(this.host + '/job/details/' + id, {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1204,12 +1196,10 @@ export class SimulationAPI {
 
   async downloadJob(id: number) {
     console.log('Download Job', id);
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     await fetch(this.host + '/job/download/' + id, {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1263,13 +1253,9 @@ export class SimulationAPI {
       metadata: metadata,
     };
 
-    const headers = new Headers();
-    headers.append('authorization', this.token);
-    headers.append('content-type', 'application/json');
-
     await fetch(this.host + '/job', {
       method: 'POST',
-      headers: headers,
+      headers: this.headers,
       body: JSON.stringify(job),
     })
       .then((response) => {
@@ -1286,12 +1272,10 @@ export class SimulationAPI {
 
   async deleteJob(id: number) {
     console.log('Delete Job', id);
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     await fetch(this.host + '/job/' + id, {
       method: 'DELETE',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1307,12 +1291,10 @@ export class SimulationAPI {
 
   async cancelJob(id: number) {
     console.log('Cancel Job', id);
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     await fetch(this.host + '/job/' + id, {
       method: 'PATCH',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1328,12 +1310,10 @@ export class SimulationAPI {
 
   async getSubscription() {
     console.log('Get Subscription');
-    const headers = new Headers();
-    headers.append('authorization', this.token);
 
     return await fetch(this.host + '/job/subscribe', {
       method: 'GET',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1355,12 +1335,9 @@ export class SimulationAPI {
 
     await this.unsubscribe();
 
-    const headers = new Headers();
-    headers.append('authorization', this.token);
-
     await fetch(this.host + '/job/subscribe/' + id, {
       method: 'POST',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
@@ -1377,12 +1354,9 @@ export class SimulationAPI {
   async unsubscribe() {
     console.log('Unsubscribe');
 
-    const headers = new Headers();
-    headers.append('authorization', this.token);
-
     await fetch(this.host + '/job/subscribe', {
       method: 'DELETE',
-      headers: headers,
+      headers: this.headers,
     })
       .then((response) => {
         if (response.ok) {
