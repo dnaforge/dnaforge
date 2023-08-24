@@ -1,14 +1,15 @@
 import { Matrix4, Vector3, Quaternion } from 'three';
 import { Model } from './model';
 
-export type SelectionColourIds = 'default' | 'selection' | 'hover';
+export type SelectionStatus = 'default' | 'selected' | 'hover';
 
 export abstract class Selectable {
   owner: Model = undefined;
+  selectionStatus: SelectionStatus = 'default';
 
   abstract getTooltip(): string;
 
-  abstract setColours(colour: SelectionColourIds): void;
+  abstract setSelectionStatus(status: SelectionStatus): void;
 
   getTransform(): Matrix4 {
     return new Matrix4();

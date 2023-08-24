@@ -37,28 +37,28 @@ export abstract class Model {
   select(...selection: Selectable[]) {
     for (const s of selection) {
       this.selection.add(s);
-      s.setColours('selection');
+      s.setSelectionStatus('selected');
     }
   }
 
   deselect(...selection: Selectable[]) {
     for (const s of selection) {
       this.selection.delete(s);
-      s.setColours('default');
+      s.setSelectionStatus('default');
     }
   }
 
   hover(...selection: Selectable[]) {
     for (const s of selection) {
       this.hovers.add(s);
-      s.setColours('hover');
+      s.setSelectionStatus('hover');
     }
   }
 
   clearHover() {
     for (const s of this.hovers) {
-      if (this.selection.has(s)) s.setColours('selection');
-      else s.setColours('default');
+      if (this.selection.has(s)) s.setSelectionStatus('selected');
+      else s.setSelectionStatus('default');
     }
     this.hovers.clear();
   }

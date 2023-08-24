@@ -4,8 +4,9 @@ import { InstancedMesh, Matrix4, Matrix3, Quaternion, Vector3 } from 'three';
 import { CoMToBB, get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
-import { Selectable, SelectionColourIds } from './selectable';
+import { Selectable, SelectionStatus } from './selectable';
 import { NucleotideModel } from './nucleotide_model';
+import { NucleotideColours, NucleotideSelectionColours } from './colour_schemes';
 
 export interface NucleotideMeshes {
   bases: InstancedMesh;
@@ -13,40 +14,6 @@ export interface NucleotideMeshes {
   backbone1: InstancedMesh;
   backbone2: InstancedMesh;
 }
-
-// Nucleotide colors
-const nucleotideColours: Record<string, THREE.Color> = {
-  A: new THREE.Color(0xff8eaf),  // Light Pink (Adenine)
-  U: new THREE.Color(0xffd133),  // Light Gold (Uracil)
-  T: new THREE.Color(0xffd133),  // Light Gold (Thymine)
-  G: new THREE.Color(0x7acc7a),  // Light Green (Guanine)
-  C: new THREE.Color(0x6688aa),  // Light Blue (Cytosine)
-
-  W: new THREE.Color(0xffd166),  // Light Yellow (Adenine or Thymine)
-  S: new THREE.Color(0x99cc99),  // Light Mint Green (Guanine or Cytosine)
-  M: new THREE.Color(0xff99cc),  // Light Purple (Adenine or Cytosine)
-  K: new THREE.Color(0xffcc33),  // Light Orange (Adenine or Guanine)
-  R: new THREE.Color(0x00cccc),  // Light Teal (Guanine or Adenine)
-  Y: new THREE.Color(0xbbbbbb),  // Light Gray (Pyrimidine)
-
-  B: new THREE.Color(0xff9999),  // Light Salmon (Ambiguous Bases)
-  D: new THREE.Color(0x99cc99),  // Light Mint Green (Ambiguous D)
-  H: new THREE.Color(0x6699cc),  // Light Blue (Ambiguous H)
-  V: new THREE.Color(0xff99cc),  // Light Purple (Ambiguous V)
-
-  N: new THREE.Color(0xf5f5f5),  // Off-White (Unknown Base)
-
-  nucleotide: new THREE.Color(0xffffff),  // White (neutral, Nucleotide Background)
-  backbone: new THREE.Color(0xffffff),    // White (neutral, DNA Backbone)
-};
-
-// Selection colors
-const selectionColours: Record<SelectionColourIds, THREE.Color> = {
-  default: new THREE.Color(0xf0e8d0),    // Lighter Sand (Default Selection)
-  selection: new THREE.Color(0x88aaff),  // Light Blue (Selected)
-  hover: new THREE.Color(0xee4444),      // Light Red (Hovered)
-};
-
 
 const materialNucleotides = new THREE.MeshStandardMaterial({ color: 0xffffff });
 
@@ -81,7 +48,6 @@ export class Nucleotide extends Selectable {
   owner: NucleotideModel;
   id: number;
   instanceMeshes: NucleotideMeshes;
-  instanceColours = selectionColours['default'];
 
   base: string;
   scale: number;
@@ -289,11 +255,11 @@ export class Nucleotide extends Selectable {
    * Set the object instance colours.
    */
   updateObjectColours() {
-    const colour = this.instanceColours;
+    const colour = NucleotideSelectionColours[this.selectionStatus];
     this.instanceMeshes.backbone1.setColorAt(this.id, colour);
     this.instanceMeshes.backbone2.setColorAt(this.id, colour);
     this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
-    this.instanceMeshes.bases.setColorAt(this.id, nucleotideColours[this.base]);
+    this.instanceMeshes.bases.setColorAt(this.id, NucleotideColours[this.base]);
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[
         m as keyof NucleotideMeshes
@@ -307,9 +273,8 @@ export class Nucleotide extends Selectable {
     this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
   }
 
-  setColours(cid: SelectionColourIds) {
-    const colour = selectionColours[cid];
-    this.instanceColours = colour;
+  setSelectionStatus(status: SelectionStatus) {
+    this.selectionStatus = status;
     this.updateObjectColours();
   }
 
