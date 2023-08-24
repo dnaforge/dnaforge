@@ -229,6 +229,12 @@ export class SimulationAPI {
       }
     });
 
+    // #sim-nucleic-acid-warning
+    const nucleicAcidContinueButton = $('#sim-nucleic-acid-warning-continue');
+    nucleicAcidContinueButton.on('click', () => {
+      this.newSimulation(false);
+    });
+
     $('#sim-refresh').on('click', () => {
       try {
         this.getJobsAndUpdateList();
@@ -854,7 +860,7 @@ export class SimulationAPI {
       // read properties made available by this selection
       const subPanelName = `${name}.${value}`;
       if (subPanels[subPanelName]) {
-        props.push.apply(props, this.readProperties(subPanels[subPanelName]));
+        props.push(...this.readProperties(subPanels[subPanelName]));
       }
     }
     return props;
@@ -1220,12 +1226,30 @@ export class SimulationAPI {
       });
   }
 
-  newSimulation() {
+  newSimulation(checkNucleicAcidTypes: boolean = true) {
     const model = this.context.activeContext?.nm;
     if (!model) {
-      throw `No nucleotide model found in the active context`;
+      throw 'No nucleotide model found in the active context';
     } else {
-      this.submitJob(this.readConfigs(), model, {
+      const configs = this.readConfigs();
+
+      if (checkNucleicAcidTypes) {
+        // check if any stage is using an incompatible nucleic acid type
+        const notWanted: NATYPE = model.naType === 'DNA' ? 'RNA' : 'DNA';
+        for (const c of configs) {
+          if (c.type !== 'ManualConfig') {
+            continue;
+          }
+          const config = <ManualConfig>c;
+          if (config.properties.some((prop) => prop.value === notWanted)) {
+            Metro.dialog.close('#sim-sims');
+            Metro.dialog.open('#sim-nucleic-acid-warning');
+            return;
+          }
+        }
+      }
+
+      this.submitJob(configs, model, {
         title: $('#sim-sims-name').val(),
         description: $('#sim-sims-description').val(),
         algorithm: this.context.activeContext.elementId,
