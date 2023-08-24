@@ -114,7 +114,7 @@ export abstract class ModuleMenu extends Menu {
       this.context.editor.addModel(this.nm, this.params.showNucleotides);
   }
 
-  @editOp('nm')
+  //@editOp('nm')
   loadOxDNA(top: string, conf: string, scale: number, naType: NATYPE) {
     this.removeNucleotides(true);
     this.nm = NucleotideModel.loadOxDNA(top, conf, scale, naType);
@@ -122,8 +122,9 @@ export abstract class ModuleMenu extends Menu {
       this.context.editor.addModel(this.nm, this.params.showNucleotides);
   }
 
-  @editOp('nm')
+  //@editOp('nm')
   updateFromOxDNA(conf: string) {
+    this.context.editor.clearOPStack();
     this.nm.updateFromOxDNA(conf);
   }
 

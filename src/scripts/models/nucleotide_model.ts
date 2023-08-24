@@ -79,9 +79,10 @@ export class NucleotideModel extends Model {
         }
       }
     }
-    for (const nid of json.selection) {
-      nm.selection.add(nm.idToNuc.get(nid));
-    }
+    const selection = json.selection.map((nid: number) => {
+      return nm.idToNuc.get(nid);
+    });
+    nm.select(...selection);
     return nm;
   }
 
@@ -91,6 +92,7 @@ export class NucleotideModel extends Model {
     scale: number,
     naType: NATYPE = 'DNA',
   ) {
+    console.log("load");
     const nm = new NucleotideModel(scale, naType);
     const nucs: Nucleotide[] = [];
     const pairs: [number, number][] = [];
@@ -133,6 +135,8 @@ export class NucleotideModel extends Model {
   }
 
   updateFromOxDNA(conf: string) {
+    console.log("update");
+    
     const nucs = this.getNucleotides();
 
     conf

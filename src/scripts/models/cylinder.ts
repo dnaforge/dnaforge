@@ -7,7 +7,7 @@ import { DNA, NATYPE, RNA } from '../globals/consts';
 import { Selectable, SelectionStatus } from './selectable';
 import { CylinderModel } from './cylinder_model';
 import { GLOBALS } from '../globals/globals';
-import { CylinderColours, CylinderSelectionColours, NucleotideSelectionColours } from './colour_schemes';
+import { ColourScheme } from './colour_schemes';
 
 export enum RoutingStrategy {
   Normal = 0,
@@ -489,6 +489,7 @@ export class Cylinder extends Selectable {
   }
 
   updateObjectMatrices() {
+    if(!this.instanceMeshes) return;
     const transformMain = this.transform
       .clone()
       .scale(new Vector3(1, this.getCylinderLength() / this.scale, 1)); // the transform is already scaled
@@ -517,10 +518,12 @@ export class Cylinder extends Selectable {
   }
 
   updateObjectColours() {
+    if(!this.instanceMeshes) return;
+    const selectionColour = ColourScheme.CylinderSelectionColours[this.selectionStatus];
     const colours = { 
-      cylinder: CylinderSelectionColours.default,
-      linker: CylinderColours.linker,
-      prime: CylinderColours.prime
+      cylinder: this.getOverlayColours(selectionColour),
+      linker: this.getOverlayColours(ColourScheme.CylinderColours.linker),
+      prime: this.getOverlayColours(ColourScheme.CylinderColours.prime)
     };    
 
     this.instanceMeshes.main.setColorAt(this.id, colours.cylinder);
@@ -532,40 +535,18 @@ export class Cylinder extends Selectable {
       this.instanceMeshes[m].instanceColor.needsUpdate = true;
   }
 
-  setSelectionStatus(status: SelectionStatus) {
-    this.selectionStatus = status;
-    this.updateObjectColours();
-  }
-
-  getOverlayColours() {
-    let colour = CylinderSelectionColours.default.clone();
-    let count = 0;
+  getOverlayColours(colour: THREE.Color) {
+    const BLEND_FACTOR = 0.9;
+    let tColour = colour.clone();
     if (GLOBALS.overlayTorque) {
-      count += 1;
-      const tColour = this.getTorqueOverlay();
-      colour.add(tColour);
+      const torque = this.calculateTorque();
+      tColour.lerp(ColourScheme.CylinderColours.torque, torque * BLEND_FACTOR);
     }
     if (GLOBALS.overlayTension) {
-      count += 1;
-      const tColour = this.getTensionOverlay();
-      colour.add(tColour);
+      const tension = this.calculateTension();
+      tColour.lerp(ColourScheme.CylinderColours.tension, tension * BLEND_FACTOR);
     }
-    if (count > 0) {
-      colour.multiplyScalar(1 / count);
-      return colour;
-    } else return null;
-  }
-
-  getTorqueOverlay() {
-    const torque = this.calculateTorque();
-    const colour = CylinderSelectionColours.default.clone().lerp(CylinderColours.torque, torque);
-    return colour;
-  }
-
-  getTensionOverlay() {
-    const torque = this.calculateTension();
-    const colour = CylinderSelectionColours.default.clone().lerp(CylinderColours.torque, torque);
-    return colour;
+    return tColour;
   }
 
   calculateTorque() {

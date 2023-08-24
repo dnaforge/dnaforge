@@ -9,7 +9,13 @@ export abstract class Selectable {
 
   abstract getTooltip(): string;
 
-  abstract setSelectionStatus(status: SelectionStatus): void;
+
+  abstract updateObjectColours(): void;
+
+  setSelectionStatus(status: SelectionStatus) {
+    this.selectionStatus = status;
+    this.updateObjectColours();
+  }
 
   getTransform(): Matrix4 {
     return new Matrix4();

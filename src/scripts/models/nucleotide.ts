@@ -6,7 +6,7 @@ import { DNA, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
 import { Selectable, SelectionStatus } from './selectable';
 import { NucleotideModel } from './nucleotide_model';
-import { NucleotideColours, NucleotideSelectionColours } from './colour_schemes';
+import { ColourScheme } from './colour_schemes';
 
 export interface NucleotideMeshes {
   bases: InstancedMesh;
@@ -229,6 +229,7 @@ export class Nucleotide extends Selectable {
    * Set the object instance transformation matrices
    */
   updateObjectMatrices() {
+    if(!this.instanceMeshes) return;
     this.instanceMeshes.bases.setMatrixAt(this.id, this.transform);
     this.instanceMeshes.nucleotides.setMatrixAt(this.id, this.transform);
     let bbTransform;
@@ -255,11 +256,12 @@ export class Nucleotide extends Selectable {
    * Set the object instance colours.
    */
   updateObjectColours() {
-    const colour = NucleotideSelectionColours[this.selectionStatus];
+    if(!this.instanceMeshes) return;
+    const colour = ColourScheme.NucleotideSelectionColours[this.selectionStatus];
     this.instanceMeshes.backbone1.setColorAt(this.id, colour);
     this.instanceMeshes.backbone2.setColorAt(this.id, colour);
     this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
-    this.instanceMeshes.bases.setColorAt(this.id, NucleotideColours[this.base]);
+    this.instanceMeshes.bases.setColorAt(this.id, ColourScheme.NucleotideColours[this.base]);
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[
         m as keyof NucleotideMeshes
@@ -267,15 +269,11 @@ export class Nucleotide extends Selectable {
   }
 
   updateObjectVisibility() {
+    if(!this.instanceMeshes) return;
     this.instanceMeshes.backbone1.visible = GLOBALS.visibilityNucBackbone;
     this.instanceMeshes.backbone2.visible = GLOBALS.visibilityNucBackbone;
     this.instanceMeshes.nucleotides.visible = GLOBALS.visibilityNucBase;
     this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
-  }
-
-  setSelectionStatus(status: SelectionStatus) {
-    this.selectionStatus = status;
-    this.updateObjectColours();
   }
 
   /**

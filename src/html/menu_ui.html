@@ -34,7 +34,7 @@
             </div>
             <div data-role="hint" data-hint-position="right"
                 data-hint-text="Colour objects as mouse hovers over them. Has a heavy impact on performance.">
-                <input type="checkbox" data-role="switch" data-caption="Hover" id="toggle-hover">
+                <input type="checkbox" data-role="checkbox" data-caption="Hover" id="toggle-hover">
             </div>
 
 
@@ -45,17 +45,17 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle camera light."><input
-                            checked type="checkbox" data-role="switch" data-caption="Camera Light"
+                            checked type="checkbox" data-role="checkbox" data-caption="Camera Light"
                             id="toggle-camera-light"></div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle ambient light."><input
-                            type="checkbox" data-role="switch" data-caption="Ambient light" id="toggle-ambient-light">
+                            type="checkbox" data-role="checkbox" data-caption="Ambient light" id="toggle-ambient-light">
                     </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle fog effect."><input
-                            type="checkbox" data-role="switch" data-caption="Fog" id="toggle-fog"></div>
+                            type="checkbox" data-role="checkbox" data-caption="Fog" id="toggle-fog"></div>
                 </li>
             </ul>
             <span class="title">Lights</span>
@@ -65,18 +65,18 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle axes display."><input
-                            checked type="checkbox" data-role="switch" data-caption="Axes" id="toggle-axes"></div>
+                            checked type="checkbox" data-role="checkbox" data-caption="Axes" id="toggle-axes"></div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle grid display."><input
-                            checked type="checkbox" data-role="switch" data-caption="Grid" id="toggle-grid"></div>
-                </li>
-                <li>
-                    <div hidden data-role="hint" data-hint-position="right" data-hint-text="Toggle scale bar display.">
-                        <input type="checkbox" data-role="switch" data-caption="Scale" id="toggle-scale">
-                    </div>
+                            checked type="checkbox" data-role="checkbox" data-caption="Grid" id="toggle-grid"></div>
                 </li>
             </ul>
+            <button class="ribbon-button"  onclick="$('#ui-colours-dialog')[0].hidden = false" data-role="hint" data-hint-position="right"
+                data-hint-text="Setup custom colours for editor objects.">
+                <span class="mif-palette mif-3x"></span>
+                <span class="caption">Colours</span>
+            </button>
             <span class="title">Scene</span>
         </div>
 
@@ -84,23 +84,23 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh surface display.">
-                        <input checked type="checkbox" data-role="switch" data-caption="Solid" id="toggle-solid">
+                        <input checked type="checkbox" data-role="checkbox" data-caption="Solid" id="toggle-solid">
                     </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh wireframe display.">
-                        <input checked type="checkbox" data-role="switch" data-caption="Wireframe"
+                        <input checked type="checkbox" data-role="checkbox" data-caption="Wireframe"
                             id="toggle-wireframe">
                     </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh bounding box display.">
-                        <input type="checkbox" data-role="switch" data-caption="Bounding box" id="toggle-bounding-box">
+                        <input type="checkbox" data-role="checkbox" data-caption="Bounding box" id="toggle-bounding-box">
                     </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh vertex id display.">
-                        <input type="checkbox" data-role="switch" data-caption="Indices" id="toggle-indices">
+                        <input type="checkbox" data-role="checkbox" data-caption="Indices" id="toggle-indices">
                     </div>
                 </li>
             </ul>
@@ -111,14 +111,14 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Colour cylinders by the torque exerted by the neighbouring cylinders.">
-                        <input type="checkbox" data-role="switch"
+                        <input type="checkbox" data-role="checkbox"
                             data-caption="Torque Overlay"
                             id="toggle-cylinder-torque-overlay">
                     </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Colour cylinders by the tension exerted by the neighbouring cylinders.">
-                        <input type="checkbox" data-role="switch"
+                        <input type="checkbox" data-role="checkbox"
                             data-caption="Tension Overlay"
                             id="toggle-cylinder-tension-overlay">
                     </div>
@@ -131,13 +131,13 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Draw backbones">
-                        <input checked type="checkbox" data-role="switch" data-caption="Draw Backbones"
+                        <input checked type="checkbox" data-role="checkbox" data-caption="Draw Backbones"
                             id="toggle-nucleotides-backbone">
                     </div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Draw bases.">
-                        <input checked type="checkbox" data-role="switch" data-caption="Draw Bases"
+                        <input checked type="checkbox" data-role="checkbox" data-caption="Draw Bases"
                             id="toggle-nucleotides-bases">
                     </div>
                 </li>
@@ -164,5 +164,24 @@
             </button>
             <span class="title">Camera</span>
         </div>
+    </div>
+</div>
+
+
+
+<div hidden class="dialog" id="ui-colours-dialog" data-overlay-click-close="true" data-role="draggable" data-drag-area="body"  style="opacity: 0.9;"  data-drag-element=".drag-element" >
+    <div class="dialog-title ui-colours-drag drag-element">Colours</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <div class="inline-form">
+            <label>Presets</label>
+            <select data-prepend="Presets" id="ui-colours-presets">
+            </select>
+            <button disabled class="button" id="ui-colours-save">Save Scheme</button>
+            <button disabled class="button" id="ui-colours-load">Load Scheme</button>
+        </div>
+        <div id="ui-colours"></div>
+    </div>
+    <div class="dialog-actions">
+        <button class="button primary" onclick="$('#ui-colours-dialog')[0].hidden = true">Close</button>
     </div>
 </div>

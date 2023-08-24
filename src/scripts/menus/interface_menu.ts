@@ -4,6 +4,7 @@ import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
 import { Menu, MenuParameters } from './menu';
+import { ColourScheme, ColourSchemePresets } from '../models/colour_schemes';
 
 const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
@@ -68,6 +69,7 @@ export class InterfaceMenu extends Menu {
 
     this.scene.add(this.cameraLight);
     this.generateVisible();
+    this.createColoursComponent();
   }
 
   /**
@@ -528,6 +530,62 @@ export class InterfaceMenu extends Menu {
     this.orthoCameraButton[0].hidden = false;
     this.perspCameraButton[0].hidden = true;
     this.context.setPerspectiveCamera();
+  }
+
+  createColoursComponent() {
+    this.createColoursSwatches();
+    for(let scheme in ColourSchemePresets){
+      $("#ui-colours-presets").append($(`<option>${scheme}</option>`));
+    }
+    $("#ui-colours-presets").on("change", () => {
+      for(let n in ColourScheme){
+        const nScheme = $("#ui-colours-presets").val();
+        (<any>ColourScheme)[n] = (<any>ColourSchemePresets)[nScheme][n];
+      }
+      this.createColoursSwatches();
+      this.context.activeContext?.updateVisuals();
+    })
+
+    
+    $('#ui-colours-dialog')[0].hidden = false;
+  }
+
+  createColoursSwatches(){
+    const container = $("#ui-colours");
+    container.html("");
+    const createSubComponent = (dict: Record<string, THREE.Color>) => {let nucContainer: any;
+      let i = 0;
+      for(let k in dict){
+        if(!(i++ % 8)){
+          nucContainer = $("<ul>", {class: "group-list horizontal"});
+          container.append(nucContainer);
+        }
+        const nuc = $(`<li>`, {"data-marker": k});
+        nuc.append($(`<p>${k}</p>`));
+        const colour = $("<input>", {type: "color"});
+  
+        nuc.append(colour);
+        nucContainer.append(nuc);
+        colour[0].value = `#${dict[k].getHexString()}`;
+  
+        colour.on("change", () => {
+          dict[k] = new THREE.Color(colour.val());
+          this.context.activeContext?.updateVisuals();
+        })
+      }
+    }
+
+    //Nucleotides:
+    container.append($("<p>Nucleotide Colours</p>"));
+    createSubComponent(ColourScheme.NucleotideColours);
+    container.append($("<p>Nucleotide Selection Colours</p>"));
+    createSubComponent(ColourScheme.NucleotideSelectionColours);
+
+    //Cylinders:
+    container.append($("<p>Cylinder Colours</p>"));
+    createSubComponent(ColourScheme.CylinderColours);
+    container.append($("<p>CylinderSelection Colours</p>"));
+    createSubComponent(ColourScheme.CylinderSelectionColours);
   }
 
   /**
