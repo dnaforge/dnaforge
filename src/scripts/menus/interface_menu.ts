@@ -545,9 +545,6 @@ export class InterfaceMenu extends Menu {
       this.createColoursSwatches();
       this.context.activeContext?.updateVisuals();
     })
-
-    
-    $('#ui-colours-dialog')[0].hidden = false;
   }
 
   createColoursSwatches(){
