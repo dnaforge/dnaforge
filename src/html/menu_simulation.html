@@ -110,6 +110,17 @@
         <button class="button js-dialog-close">Close</button>
     </div>
 </div>
+
+<div class="dialog" data-role="dialog" id="sim-nucleic-acid-warning" data-overlay-click-close="true" data-on-close="Metro.dialog.open('#sim-sims');">
+    <div class="dialog-title">Warning</div>
+    <div class="dialog-content">
+        <p>At least one stage uses a nucleic acid type that is incompatible with the current model.</p>
+    </div>
+    <div class="dialog-actions">
+        <button class="button primary js-dialog-close">Cancel</button>
+        <button class="button js-dialog-close" id="sim-nucleic-acid-warning-continue">Continue</button>
+    </div>
+</div>
 <!--
 
 <button class="ribbon-button" id="sim-show" data-role="hint" data-hint-position="right"
