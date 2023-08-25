@@ -114,7 +114,7 @@ interface DetailedJobUpdate {
 
 export class SimulationAPI {
   context: Context;
-  host = 'http://localhost:8081';
+  host = 'http://localhost:8080';
   token: string;
   socket: WebSocket;
 
