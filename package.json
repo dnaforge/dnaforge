@@ -24,12 +24,12 @@
     "metro4": "^4.3.10",
     "mnemonist": "^0.39.5",
     "streamsaver": "^2.0.6",
-    "three": "^0.154.0"
+    "three": "^0.155.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
     "@types/mocha": "^10.0.1",
-    "@types/three": "^0.153.0",
+    "@types/three": "^0.155.0",
     "@types/webpack-env": "^1.18.1",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",

@@ -15,7 +15,7 @@ export interface NucleotideMeshes {
   backbone2: InstancedMesh;
 }
 
-const materialNucleotides = new THREE.MeshStandardMaterial({ color: 0xffffff });
+const materialNucleotides = new THREE.MeshPhongMaterial({ color: 0xffffff });
 
 const backboneGeometryCone = new THREE.ConeGeometry(0.15, 1, 6);
 const backboneGeometryBall = (nucParams: Record<string, any>) => {
@@ -248,6 +248,7 @@ export class Nucleotide extends Selectable {
 
     let m: keyof NucleotideMeshes;
     for (m in this.instanceMeshes) {
+      this.instanceMeshes[m].updateMatrixWorld();
       this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
     }
   }

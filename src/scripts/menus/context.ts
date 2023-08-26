@@ -124,6 +124,7 @@ export class Context {
     const renderT = () => {
       for (const c of this.callbacks) c();
       this.controls.handleInput();
+      this.cameraControls.update();
       requestAnimationFrame(renderT);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);

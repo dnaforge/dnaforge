@@ -26,7 +26,7 @@ interface CSSOBject {
  * Interface menu.
  */
 export class InterfaceMenu extends Menu {
-  cameraLight = new THREE.PointLight(0xffffff, 0.95);
+  cameraLight = new THREE.HemisphereLight( 0xffffff, 0x000000, 2.75 );
   ambientLight = new THREE.AmbientLight(0xbbbbbb);
 
   showCamLightButton: any;
@@ -57,13 +57,13 @@ export class InterfaceMenu extends Menu {
     context.callbacks.push(() => {
       const cam = this.context.getCamera();
       const pos = cam.position.clone();
-      if ((cam as OrthographicCamera).isOrthographicCamera) {
-        const offset = new Vector3();
-        cam
-          .getWorldDirection(offset)
-          .divideScalar((cam as OrthographicCamera).zoom / -1005);
-        pos.add(offset);
-      }
+
+      const offset = new Vector3();
+      cam
+        .getWorldDirection(offset)
+        .divideScalar((cam as OrthographicCamera).zoom / -1005);
+      pos.add(offset);
+
       this.cameraLight.position.copy(pos);
     });
 

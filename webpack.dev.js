@@ -7,6 +7,7 @@ module.exports = merge(common, {
     mode: "development",
     devtool: 'inline-source-map',
     devServer: {
+        port: 8081,
         static: './dist',
         client: {
             overlay: {
