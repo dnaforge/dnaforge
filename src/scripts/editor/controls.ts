@@ -46,6 +46,7 @@ export class Controls {
     this.context = context;
     this.setupEventListeners();
     this.setupHotkeys();
+    this.raycaster.layers.set(0);
   }
 
   /**

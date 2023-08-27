@@ -489,7 +489,7 @@ export class Cylinder extends Selectable {
   }
 
   updateObjectMatrices() {
-    if(!this.instanceMeshes) return;
+    if (!this.instanceMeshes) return;
     const transformMain = this.transform
       .clone()
       .scale(new Vector3(1, this.getCylinderLength() / this.scale, 1)); // the transform is already scaled
@@ -518,13 +518,14 @@ export class Cylinder extends Selectable {
   }
 
   updateObjectColours() {
-    if(!this.instanceMeshes) return;
-    const selectionColour = ColourScheme.CylinderSelectionColours[this.selectionStatus];
-    const colours = { 
+    if (!this.instanceMeshes) return;
+    const selectionColour =
+      ColourScheme.CylinderSelectionColours[this.selectionStatus];
+    const colours = {
       cylinder: this.getOverlayColours(selectionColour),
       linker: this.getOverlayColours(ColourScheme.CylinderColours.linker),
-      prime: this.getOverlayColours(ColourScheme.CylinderColours.prime)
-    };    
+      prime: this.getOverlayColours(ColourScheme.CylinderColours.prime),
+    };
 
     this.instanceMeshes.main.setColorAt(this.id, colours.cylinder);
     for (let i = 0; i < 4; i++) {
@@ -537,14 +538,17 @@ export class Cylinder extends Selectable {
 
   getOverlayColours(colour: THREE.Color) {
     const BLEND_FACTOR = 0.9;
-    let tColour = colour.clone();
+    const tColour = colour.clone();
     if (GLOBALS.overlayTorque) {
       const torque = this.calculateTorque();
       tColour.lerp(ColourScheme.CylinderColours.torque, torque * BLEND_FACTOR);
     }
     if (GLOBALS.overlayTension) {
       const tension = this.calculateTension();
-      tColour.lerp(ColourScheme.CylinderColours.tension, tension * BLEND_FACTOR);
+      tColour.lerp(
+        ColourScheme.CylinderColours.tension,
+        tension * BLEND_FACTOR,
+      );
     }
     return tColour;
   }

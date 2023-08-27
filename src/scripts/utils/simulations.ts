@@ -6,6 +6,7 @@ import { Context } from '../menus/context';
 import { ModuleMenu } from '../menus/module_menu';
 import { NucleotideModel } from '../models/nucleotide_model';
 import * as streamSaver from 'streamsaver';
+import { Menu } from '../menus/menu';
 
 enum ValueType {
   BOOLEAN = 'BOOLEAN',
@@ -112,7 +113,7 @@ interface DetailedJobUpdate {
   dat: string;
 }
 
-export class SimulationAPI {
+export class SimulationAPI extends Menu {
   context: Context;
   host = 'http://localhost:8080';
   token: string;
@@ -127,13 +128,24 @@ export class SimulationAPI {
   mutex = false;
 
   constructor(context: Context) {
+    super(context, 'sim', 'Simulations', true);
     this.context = context;
-    this.setupEventListeners();
   }
 
   dev() {
     this.auth();
   }
+
+  toJSON(selection: JSONObject): JSONObject {
+    //TODO
+    return {};
+  }
+
+  loadJSON(json: JSONObject): void {
+    //TODO
+  }
+
+  registerHotkeys(): void {}
 
   handleWebSocketMessage(data: string) {
     let message = JSON.parse(data);
@@ -182,131 +194,6 @@ export class SimulationAPI {
       this.activeModel = menu.nm;
     }
     this.mutex = false;
-  }
-
-  private setupEventListeners() {
-    $('#sim-window')
-      .find('btn-close')
-      .on('click', (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-        $('#sim-window').show();
-      });
-
-    $('#sim-show').on('click', () => {
-      $('#sim-window').show();
-    });
-
-    $('#sim-auth').on('click', () => {
-      try {
-        this.host = $('#sim-host')[0].value;
-        this.auth();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    // #sim-auth-with-token
-    const tokenInput = $('#sim-auth-token-input');
-    const tokenInputButton = $('#sim-auth-token-connect');
-    tokenInputButton.on('click', () => {
-      try {
-        const accessToken = tokenInput.val() ? tokenInput.val() : null;
-        this.auth(accessToken);
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    $('#sim-new').on('click', () => {
-      try {
-        this.newSimulation();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    // #sim-nucleic-acid-warning
-    const nucleicAcidContinueButton = $('#sim-nucleic-acid-warning-continue');
-    nucleicAcidContinueButton.on('click', () => {
-      this.newSimulation(false);
-    });
-
-    $('#sim-refresh').on('click', () => {
-      try {
-        this.getJobsAndUpdateList();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    $('#sim-confs-new').on('click', () => {
-      try {
-        this.addConfigComponent();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    $('#sim-confs-download').on('click', () => {
-      try {
-        downloadTXT(
-          'simulation-stages.json',
-          JSON.stringify(this.readConfigs()),
-        );
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    // #sim-confs-upload
-    const fileInput = $('#sim-stage-file-input');
-    const fileInputButton = $('#sim-stage-file-input-open');
-    fileInputButton.on('click', () => {
-      try {
-        const files = (<HTMLInputElement>fileInput[0]).files;
-        const file = files[0]; // ignore all but the first file
-        if (file.name.endsWith('.json')) {
-          read_json(URL.createObjectURL(file), (json: Config[]) => {
-            this.setupConfigComponents(json);
-          });
-        } else {
-          this.context.addMessage('Expected JSON file.', '');
-        }
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    $('#sim-confs-reset').on('click', () => {
-      try {
-        this.setupConfigComponents(this.defaultConfigs);
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    $('#sim-unsubscribe').on('click', () => {
-      try {
-        this.unsubscribe();
-      } catch (error) {
-        this.context.addMessage(error, 'alert');
-        throw error;
-      }
-    });
-
-    // fix the configuration file reordering bug in Mozilla Firefox
-    $('#sim-configs').on('selectstart', (e: Event) => {
-      e.preventDefault();
-    });
   }
 
   setAuthStatus(status: string) {
@@ -1004,6 +891,9 @@ export class SimulationAPI {
 
     const jobComponent = $('<li>', {
       'data-job-id': job.id,
+      'data-role': 'hint',
+      'data-hint-position': 'right',
+      'data-hint-text': `${job.metadata.description}`,
     });
 
     const grid = $('<div>', { class: 'grid' });
@@ -1017,12 +907,19 @@ export class SimulationAPI {
 
     const syncButton = $('<button>', {
       class: 'button cycle mif-2x mif-3d-rotation outline primary',
+      'data-role': 'hint',
+      'data-hint-text': 'Synchronise the simulation with the 3D viewport.',
     });
     const downloadButton = $('<button>', {
       class: 'button cycle mif-2x mif-download outline primary',
+      'data-role': 'hint',
+      'data-hint-text': 'Download the simulation files from the server.',
     });
     const deleteButton = $('<button>', {
       class: 'button cycle mif-2x mif-cross outline alert',
+      'data-role': 'hint',
+      'data-hint-text': 'Cancel / Delete a simulation.',
+      'data-hint-hide': '0',
     });
 
     row1.append(state);
@@ -1042,7 +939,11 @@ export class SimulationAPI {
       ),
     );
 
-    jobComponent.append($(`<span>${job.id}</span>`, { class: 'label' }));
+    jobComponent.append(
+      $(`<span>${job.id} - ${job.metadata.title}</span>`, {
+        class: 'label',
+      }),
+    );
     jobComponent.append(grid);
     grid.append(row1);
     grid.append(row2);
@@ -1395,5 +1296,131 @@ export class SimulationAPI {
         console.error('Error:', error);
         this.context.addMessage(error, 'alert');
       });
+  }
+
+  protected setupEventListeners() {
+    super.setupEventListeners();
+    $('#sim-window')
+      .find('btn-close')
+      .on('click', (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        $('#sim-window').show();
+      });
+
+    $('#sim-show').on('click', () => {
+      $('#sim-window').show();
+    });
+
+    $('#sim-auth').on('click', () => {
+      try {
+        this.host = $('#sim-host')[0].value;
+        this.auth();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    // #sim-auth-with-token
+    const tokenInput = $('#sim-auth-token-input');
+    const tokenInputButton = $('#sim-auth-token-connect');
+    tokenInputButton.on('click', () => {
+      try {
+        const accessToken = tokenInput.val() ? tokenInput.val() : null;
+        this.auth(accessToken);
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#sim-new').on('click', () => {
+      try {
+        this.newSimulation();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    // #sim-nucleic-acid-warning
+    const nucleicAcidContinueButton = $('#sim-nucleic-acid-warning-continue');
+    nucleicAcidContinueButton.on('click', () => {
+      this.newSimulation(false);
+    });
+
+    $('#sim-refresh').on('click', () => {
+      try {
+        this.getJobsAndUpdateList();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#sim-confs-new').on('click', () => {
+      try {
+        this.addConfigComponent();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#sim-confs-download').on('click', () => {
+      try {
+        downloadTXT(
+          'simulation-stages.json',
+          JSON.stringify(this.readConfigs()),
+        );
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    // #sim-confs-upload
+    const fileInput = $('#sim-stage-file-input');
+    const fileInputButton = $('#sim-stage-file-input-open');
+    fileInputButton.on('click', () => {
+      try {
+        const files = (<HTMLInputElement>fileInput[0]).files;
+        const file = files[0]; // ignore all but the first file
+        if (file.name.endsWith('.json')) {
+          read_json(URL.createObjectURL(file), (json: Config[]) => {
+            this.setupConfigComponents(json);
+          });
+        } else {
+          this.context.addMessage('Expected JSON file.', '');
+        }
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#sim-confs-reset').on('click', () => {
+      try {
+        this.setupConfigComponents(this.defaultConfigs);
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#sim-unsubscribe').on('click', () => {
+      try {
+        this.unsubscribe();
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    // fix the configuration file reordering bug in Mozilla Firefox
+    $('#sim-configs').on('selectstart', (e: Event) => {
+      e.preventDefault();
+    });
   }
 }

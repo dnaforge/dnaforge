@@ -194,6 +194,8 @@ export class CylinderModel extends Model {
    *
    */
   generateObject() {
+    this.obj ?? this.dispose();
+
     this.meshes = Cylinder.createInstanceMesh(
       this.nucParams,
       this.cylinders.length,
@@ -201,7 +203,10 @@ export class CylinderModel extends Model {
 
     this.obj = new THREE.Group();
     let n: keyof CylinderMeshes;
-    for (n in this.meshes) this.obj.add(this.meshes[n]);
+    for (n in this.meshes) {
+      this.meshes[n].boundingSphere = new THREE.Sphere(new Vector3(), 100000);
+      this.obj.add(this.meshes[n]);
+    }
 
     this.updateObject();
     return this.obj;

@@ -54,7 +54,7 @@ export abstract class Menu {
 
   abstract loadJSON(json: JSONObject): void;
 
-  abstract registerHotkeys(): void;
+  registerHotkeys(): void {}
 
   /**
    * Activate this context.
@@ -152,5 +152,5 @@ export abstract class Menu {
   /**
    * Connects the HTML elements to this object.
    */
-  setupEventListeners() {}
+  protected setupEventListeners() {}
 }

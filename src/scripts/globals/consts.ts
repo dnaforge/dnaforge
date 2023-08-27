@@ -1,26 +1,26 @@
 import { DNA_SCAFFOLDS as DNA_SCAFFOLDS_T } from './scaffolds';
 import { Vector3 } from 'three';
 
-const X = new Vector3(1,0,0);
-const Y = new Vector3(0,1,0);
-const Z = new Vector3(0,0,1);
+const X = new Vector3(1, 0, 0);
+const Y = new Vector3(0, 1, 0);
+const Z = new Vector3(0, 0, 1);
 
 export const DNA_SCAFFOLDS: Record<string, string> = DNA_SCAFFOLDS_T;
 
 // All values are in nanometers and radians and from 5' to 3'.
 export interface NUC_PARAMS {
-  RISE: number
-  RADIUS: number
-  TWIST: number
-  AXIS: number
-  INCLINATION: number
+  RISE: number;
+  RADIUS: number;
+  TWIST: number;
+  AXIS: number;
+  INCLINATION: number;
 
-  BB_DIST: number                 // Distance from one backbone center to the next
+  BB_DIST: number; // Distance from one backbone center to the next
 
-  BACKBONE_CENTER: Vector3
-  NUCLEOBASE_CENTER: Vector3
-  BASE_NORMAL: Vector3            // a3
-  HYDROGEN_FACING_DIR: Vector3    // a1
+  BACKBONE_CENTER: Vector3;
+  NUCLEOBASE_CENTER: Vector3;
+  BASE_NORMAL: Vector3; // a3
+  HYDROGEN_FACING_DIR: Vector3; // a1
 }
 
 export const DNA: NUC_PARAMS = (() => {
@@ -38,7 +38,9 @@ export const DNA: NUC_PARAMS = (() => {
 
   // These are calculated from above consts:
   const BACKBONE_CENTER = Z.clone().multiplyScalar(RADIUS_BB_CENTER);
-  const NUCLEOBASE_CENTER = Z.clone().applyAxisAngle(Y, GAMMA).multiplyScalar(RADIUS_BASE_CENTER);
+  const NUCLEOBASE_CENTER = Z.clone()
+    .applyAxisAngle(Y, GAMMA)
+    .multiplyScalar(RADIUS_BASE_CENTER);
   const BASE_NORMAL = Y.clone().negate();
   const HYDROGEN_FACING_DIR = NUCLEOBASE_CENTER.clone().negate().normalize();
 
@@ -53,7 +55,7 @@ export const DNA: NUC_PARAMS = (() => {
     NUCLEOBASE_CENTER: NUCLEOBASE_CENTER,
     BASE_NORMAL: BASE_NORMAL,
     HYDROGEN_FACING_DIR: HYDROGEN_FACING_DIR,
-  }
+  };
 })();
 
 export const RNA: NUC_PARAMS = (() => {
@@ -70,12 +72,24 @@ export const RNA: NUC_PARAMS = (() => {
 
   // These are calculated from above consts:
   // TODO: Fix these. The base inclination is obviously wrong, since it's calculated from the phosphates.
-  // The Hydrogen facing direction and base normal are probably wrong too. 
+  // The Hydrogen facing direction and base normal are probably wrong too.
   const BASE_INCLINATION = Math.atan(INCLINATION / (2 * RADIUS)) * 2;
   const BACKBONE_CENTER = Z.clone().multiplyScalar(RADIUS_BB_CENTER);
-  const HYDROGEN_FACING_DIR = Z.clone().negate().applyAxisAngle(X, BASE_INCLINATION).applyAxisAngle(Y, -(Math.PI - AXIS) / 2).normalize();
-  const BASE_NORMAL = Y.clone().negate().applyAxisAngle(X, BASE_INCLINATION).applyAxisAngle(Y, -(Math.PI - AXIS) / 2).normalize();
-  const NUCLEOBASE_CENTER = BACKBONE_CENTER.clone().add(HYDROGEN_FACING_DIR.clone().multiplyScalar(0.68144).sub(BASE_NORMAL.clone().multiplyScalar(0.17036)));
+  const HYDROGEN_FACING_DIR = Z.clone()
+    .negate()
+    .applyAxisAngle(X, BASE_INCLINATION)
+    .applyAxisAngle(Y, -(Math.PI - AXIS) / 2)
+    .normalize();
+  const BASE_NORMAL = Y.clone()
+    .negate()
+    .applyAxisAngle(X, BASE_INCLINATION)
+    .applyAxisAngle(Y, -(Math.PI - AXIS) / 2)
+    .normalize();
+  const NUCLEOBASE_CENTER = BACKBONE_CENTER.clone().add(
+    HYDROGEN_FACING_DIR.clone()
+      .multiplyScalar(0.68144)
+      .sub(BASE_NORMAL.clone().multiplyScalar(0.17036)),
+  );
 
   return {
     RISE: RISE,
@@ -88,9 +102,8 @@ export const RNA: NUC_PARAMS = (() => {
     NUCLEOBASE_CENTER: NUCLEOBASE_CENTER,
     BASE_NORMAL: BASE_NORMAL,
     HYDROGEN_FACING_DIR: HYDROGEN_FACING_DIR,
-  }
+  };
 })();
-
 
 export const RNA_PSEUDOKNOTS: Array<[string, string]> = [
   ['GCAGGC', 'CGUCCG'],

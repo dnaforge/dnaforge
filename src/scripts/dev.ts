@@ -89,5 +89,5 @@ export function dev(context: Context) {
 
   //const pk = new PrimaryGenerator(cc.nm);
   //pk.optimise();
-  context.simulator.dev();
+  (<SimulationAPI>context.menus.get('sim')).dev();
 }

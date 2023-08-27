@@ -26,7 +26,7 @@ interface CSSOBject {
  * Interface menu.
  */
 export class InterfaceMenu extends Menu {
-  cameraLight = new THREE.HemisphereLight( 0xffffff, 0x000000, 2.75 );
+  cameraLight = new THREE.DirectionalLight(0xffffff, 3);
   ambientLight = new THREE.AmbientLight(0xbbbbbb);
 
   showCamLightButton: any;
@@ -534,54 +534,55 @@ export class InterfaceMenu extends Menu {
 
   createColoursComponent() {
     this.createColoursSwatches();
-    for(let scheme in ColourSchemePresets){
-      $("#ui-colours-presets").append($(`<option>${scheme}</option>`));
+    for (const scheme in ColourSchemePresets) {
+      $('#ui-colours-presets').append($(`<option>${scheme}</option>`));
     }
-    $("#ui-colours-presets").on("change", () => {
-      for(let n in ColourScheme){
-        const nScheme = $("#ui-colours-presets").val();
+    $('#ui-colours-presets').on('change', () => {
+      for (const n in ColourScheme) {
+        const nScheme = $('#ui-colours-presets').val();
         (<any>ColourScheme)[n] = (<any>ColourSchemePresets)[nScheme][n];
       }
       this.createColoursSwatches();
       this.context.activeContext?.updateVisuals();
-    })
+    });
   }
 
-  createColoursSwatches(){
-    const container = $("#ui-colours");
-    container.html("");
-    const createSubComponent = (dict: Record<string, THREE.Color>) => {let nucContainer: any;
+  createColoursSwatches() {
+    const container = $('#ui-colours');
+    container.html('');
+    const createSubComponent = (dict: Record<string, THREE.Color>) => {
+      let nucContainer: any;
       let i = 0;
-      for(let k in dict){
-        if(!(i++ % 8)){
-          nucContainer = $("<ul>", {class: "group-list horizontal"});
+      for (const k in dict) {
+        if (!(i++ % 8)) {
+          nucContainer = $('<ul>', { class: 'group-list horizontal' });
           container.append(nucContainer);
         }
-        const nuc = $(`<li>`, {"data-marker": k});
+        const nuc = $(`<li>`, { 'data-marker': k });
         nuc.append($(`<p>${k}</p>`));
-        const colour = $("<input>", {type: "color"});
-  
+        const colour = $('<input>', { type: 'color' });
+
         nuc.append(colour);
         nucContainer.append(nuc);
         colour[0].value = `#${dict[k].getHexString()}`;
-  
-        colour.on("change", () => {
+
+        colour.on('change', () => {
           dict[k] = new THREE.Color(colour.val());
           this.context.activeContext?.updateVisuals();
-        })
+        });
       }
-    }
+    };
 
     //Nucleotides:
-    container.append($("<p>Nucleotide Colours</p>"));
+    container.append($('<p>Nucleotide Colours</p>'));
     createSubComponent(ColourScheme.NucleotideColours);
-    container.append($("<p>Nucleotide Selection Colours</p>"));
+    container.append($('<p>Nucleotide Selection Colours</p>'));
     createSubComponent(ColourScheme.NucleotideSelectionColours);
 
     //Cylinders:
-    container.append($("<p>Cylinder Colours</p>"));
+    container.append($('<p>Cylinder Colours</p>'));
     createSubComponent(ColourScheme.CylinderColours);
-    container.append($("<p>CylinderSelection Colours</p>"));
+    container.append($('<p>CylinderSelection Colours</p>'));
     createSubComponent(ColourScheme.CylinderSelectionColours);
   }
 

@@ -92,7 +92,7 @@ export class NucleotideModel extends Model {
     scale: number,
     naType: NATYPE = 'DNA',
   ) {
-    console.log("load");
+    console.log('load');
     const nm = new NucleotideModel(scale, naType);
     const nucs: Nucleotide[] = [];
     const pairs: [number, number][] = [];
@@ -135,8 +135,8 @@ export class NucleotideModel extends Model {
   }
 
   updateFromOxDNA(conf: string) {
-    console.log("update");
-    
+    console.log('update');
+
     const nucs = this.getNucleotides();
 
     conf
@@ -397,9 +397,7 @@ export class NucleotideModel extends Model {
       for (const n of s.getNucleotides()) {
         const a1 = n.hydrogenFaceDir;
         const a3 = n.baseNormal;
-        const bb = n.backboneCenter
-          .clone()
-          .multiplyScalar(1 / this.scale);
+        const bb = n.backboneCenter.clone().multiplyScalar(1 / this.scale);
 
         const cm = bbToCoM(bb, a1, a3, this.naType).multiplyScalar(lenFactor);
 
@@ -715,6 +713,8 @@ export class NucleotideModel extends Model {
    * @returns Object3D.
    */
   generateObject() {
+    this.obj ?? this.dispose();
+
     const meshes = Nucleotide.createInstanceMesh(this.nucParams, this.length());
 
     for (const i of this.idToNuc.keys())
@@ -722,7 +722,10 @@ export class NucleotideModel extends Model {
 
     this.obj = new THREE.Group();
     let n: keyof NucleotideMeshes;
-    for (n in meshes) this.obj.add(meshes[n]);
+    for (n in meshes) {
+      meshes[n].boundingSphere = new THREE.Sphere(new Vector3(), 100000);
+      this.obj.add(meshes[n]);
+    }
 
     this.updateObject();
     return this.obj;

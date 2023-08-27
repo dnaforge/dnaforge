@@ -1,4 +1,4 @@
-<div class="section" id="sim" title="Simulation">
+<div class="section" id="sim" data-title="Simulation">
     <div class="d-flex flex-wrap">
         <div class="group">
             <ul style="list-style-type:none;">
@@ -7,7 +7,8 @@
                     <div class="inline-form">
                         <input type="text" data-role="input" data-prepend="Address: "
                             data-default-value="http://localhost:8080" id="sim-host">
-                        <button class="button" id="sim-auth">Connect</button>
+                        <button class="button primary" id="sim-auth" data-role="hint"
+                        data-hint-position="right" data-hint-text="Establish a connection with the simulation back-end.">Connect</button>
 
                     </div>
                 </li>
@@ -21,12 +22,12 @@
 
         <div class="group">
             <button class="ribbon-button" onclick="Metro.dialog.open('#sim-configs');" data-role="hint"
-                data-hint-position="right" data-hint-text="Configs.">
+                data-hint-position="right" data-hint-text="Setup OxDNA simulation configuration files.">
                 <span class="mif-cogs mif-4x"></span>
                 <span class="caption">Configuration<br>Files</span>
             </button>
             <button class="ribbon-button" onclick="Metro.dialog.open('#sim-sims');" data-role="hint"
-                data-hint-position="right" data-hint-text="">
+                data-hint-position="right" data-hint-text="Create new simulation jobs or inspect existing ones.">
                 <span class="mif-server mif-4x"></span>
                 <span class="caption">Simulation<br>Jobs</span>
             </button>
@@ -36,7 +37,7 @@
 
         <div class="group">
             <button class="ribbon-button" id="sim-unsubscribe" data-role="hint" data-hint-position="right"
-                data-hint-text="">
+                data-hint-text="Stop receiving viewport updates from a running simulation.">
                 <span class="mif-cancel mif-4x"></span>
                 <span class="caption">Unsubscribe</span>
             </button>
@@ -44,8 +45,18 @@
         </div>
 
     </div>
-</div>
 
+
+    <div class="group">
+        <ul style="list-style-type: none;">
+            <li>
+                <h4>Info:</h4>
+            </li>
+            <li><a href="https://github.com/dnaforge/dnaforge-backend"><span class="mif-file-text icon"> Back-end
+                        Git Repository</span></a></li>
+        </ul>
+    </div>
+</div>
 
 
 <div class="dialog" data-role="dialog" id="sim-auth-with-token" data-overlay-click-close="true">
@@ -65,12 +76,13 @@
     <div class="dialog-title">Simulation Configuration Files</div>
     <div class="dialog-content" style="overflow-y: scroll;">
         <div class="inline-form">
-            <button class="button" id="sim-confs-new">New</button>
-            <button class="button" id="sim-confs-download">Download</button>
-            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#sim-open-stage-file');">Upload</button>
-            <button class="button" id="sim-confs-reset">Reset</button>
+            <button class="button" id="sim-confs-new" data-role="hint" data-hint-position="right" data-hint-text="Create a new OxDNA input configuration file.">New</button>
+            <button class="button" id="sim-confs-download" data-role="hint" data-hint-position="right" data-hint-text="Download OxDNA input configuration files as a JSON.">Download</button>
+            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#sim-open-stage-file');" data-role="hint" data-hint-position="right" data-hint-text="Upload a JSON of OxDNA input configuration files.">Upload</button>
+            <button class="button" id="sim-confs-reset" data-role="hint" data-hint-position="right" data-hint-text="Reset the configuration files to default settings.">Reset</button>
         </div>
-        <div class="row">
+        <span>Each configuration file corresponds to a simulation stage. They are executed serially in the denoted order. Drag and drop to reorder.</span>
+        <div class="row" data-role="hint" data-hint-position="right" data-hint-text="Drag and drop to reorder.">
             <div class="cell-md-12">
                 <ul data-role="drag-items" class="step-list" id="sim-params">
                 </ul>
@@ -82,7 +94,8 @@
     </div>
 </div>
 
-<div class="dialog" data-role="dialog" id="sim-open-stage-file" data-overlay-click-close="true" data-on-close="Metro.dialog.open('#sim-configs');">
+<div class="dialog" data-role="dialog" id="sim-open-stage-file" data-overlay-click-close="true"
+    data-on-close="Metro.dialog.open('#sim-configs');">
     <div class="dialog-title">Open stage file</div>
     <div class="dialog-content">
         <input type="file" data-role="file" data-mode="drop" id="sim-stage-file-input">
@@ -97,11 +110,12 @@
     data-overlay-click-close="true">
     <div class="dialog-title">Simulation Jobs</div>
     <div class="dialog-content" style="overflow-y: scroll;">
-        <input id="sim-sims-name" type="text" data-role="input" data-default-value="New Simulation" data-prepend="Name: ">
+        <input id="sim-sims-name" type="text" data-role="input" data-default-value="New Simulation"
+            data-prepend="Name: ">
         <textarea id="sim-sims-description" data-role="textarea" data-default-value="Description"></textarea>
         <div class="inline-form">
-            <button class="button" id="sim-new">New simulation</button>
-            <button class="button" id="sim-refresh">Refresh list</button>
+            <button class="button" id="sim-new"  data-role="hint" data-hint-position="right" data-hint-text="Start a new simulation.">New simulation</button>
+            <button class="button" id="sim-refresh"  data-role="hint" data-hint-position="right" data-hint-text="Refresh the list of simulations.">Refresh list</button>
         </div>
         <ul class="feed-list" id="sim-jobs-list">
         </ul>
@@ -111,7 +125,8 @@
     </div>
 </div>
 
-<div class="dialog" data-role="dialog" id="sim-nucleic-acid-warning" data-overlay-click-close="true" data-on-close="Metro.dialog.open('#sim-sims');">
+<div class="dialog" data-role="dialog" id="sim-nucleic-acid-warning" data-overlay-click-close="true"
+    data-on-close="Metro.dialog.open('#sim-sims');">
     <div class="dialog-title">Warning</div>
     <div class="dialog-content">
         <p>At least one stage uses a nucleic acid type that is incompatible with the current model.</p>

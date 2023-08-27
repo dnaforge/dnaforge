@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 //import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; //'three/addons/controls/OrbitControls';
 import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass';
 import {
   CSS2DRenderer,
   CSS2DObject,
@@ -11,7 +16,6 @@ import { Menu } from './menu';
 import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
-import { SimulationAPI } from '../utils/simulations';
 import { downloadIMG } from '../io/download';
 
 const canvas = <HTMLCanvasElement>document.querySelector('#canvas');
@@ -50,7 +54,6 @@ const cameraParams = (() => {
 export class Context {
   controls: Controls = new Controls(this);
   editor: Editor = new Editor(this);
-  simulator: SimulationAPI = new SimulationAPI(this);
 
   scene: THREE.Scene = new THREE.Scene();
   camera: THREE.Camera;
@@ -332,15 +335,15 @@ export class Context {
     });
     notify.create(message, null, {
       cls: type,
-      keepOpen: true
+      keepOpen: true,
     });
 
-    const els = $(".notify-container").children();
+    const els = $('.notify-container').children();
     const created = $(els[els.length - 1]);
     this.closeMessage(created, duration);
   }
 
-  async closeMessage(el: any, timeout: number){
+  async closeMessage(el: any, timeout: number) {
     const wait = () => new Promise((resolve) => setTimeout(resolve, timeout));
     await wait();
     el.remove();

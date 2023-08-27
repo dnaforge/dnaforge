@@ -9,7 +9,6 @@ export abstract class Selectable {
 
   abstract getTooltip(): string;
 
-
   abstract updateObjectColours(): void;
 
   setSelectionStatus(status: SelectionStatus) {

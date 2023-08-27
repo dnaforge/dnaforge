@@ -5,6 +5,7 @@ import { InterfaceMenu } from './menus/interface_menu';
 import { FileMenu } from './menus/file_menu';
 import { setupModules } from './modules/modules';
 import { dev } from './dev';
+import { SimulationAPI } from './utils/simulations';
 
 let context: Context;
 
@@ -15,6 +16,7 @@ $.ready(function () {
   context = new Context();
   new FileMenu(context);
   new InterfaceMenu(context);
+  new SimulationAPI(context);
 
   setupModules(context);
 });

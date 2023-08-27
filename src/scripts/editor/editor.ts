@@ -1,6 +1,6 @@
 import { Context } from '../menus/context';
 import { Model } from '../models/model';
-import { Matrix4, Vector2, Vector3 } from 'three';
+import { Matrix4, Object3D, Vector2, Vector3 } from 'three';
 import { Selectable } from '../models/selectable';
 import { BoxSelector, SelectionTransformer } from './selection_utils';
 import { OP } from './editOPs';
@@ -79,6 +79,9 @@ export class Editor {
 
     this.models.add(model);
     const obj = model.generateObject();
+    obj.traverse((child: Object3D) => {
+      child.frustumCulled = false;
+    });
     obj.userData.model = model; // gives access to the intersection handler
     this.context.scene.add(obj);
     if (visible) model.show();
@@ -96,8 +99,8 @@ export class Editor {
   }
 
   updateModel(model: Model) {
-    this.context.scene.remove(model.obj);
-    this.context.scene.add(model.generateObject());
+    this.removeModel(model);
+    this.addModel(model);
   }
 
   getActiveModel(): Model {

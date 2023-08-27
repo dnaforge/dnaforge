@@ -426,7 +426,7 @@ export abstract class ModuleMenu extends Menu {
   /**
    * Connect all the HTML elements to this object. Add their event listeners.
    */
-  setupEventListeners() {
+  protected setupEventListeners() {
     super.setupEventListeners();
     const register = (this.registerParameter<ModuleMenuParameters>).bind(this);
 

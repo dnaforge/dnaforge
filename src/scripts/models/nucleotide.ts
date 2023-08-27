@@ -125,7 +125,12 @@ export class Nucleotide extends Selectable {
     const rot = new Matrix3().fromArray([...a1, ...a3, ...a2]);
     const rotS = new Matrix3().fromArray([...a1s, ...a3s, ...a2s]);
 
-    const bb = CoMToBB(com.clone().multiplyScalar(lenFactor), a1, a3, this.naType).multiplyScalar(this.scale);
+    const bb = CoMToBB(
+      com.clone().multiplyScalar(lenFactor),
+      a1,
+      a3,
+      this.naType,
+    ).multiplyScalar(this.scale);
 
     const rotN = rot.multiply(rotS.invert());
     const scale = new Vector3(this.scale, this.scale, this.scale);
@@ -229,7 +234,7 @@ export class Nucleotide extends Selectable {
    * Set the object instance transformation matrices
    */
   updateObjectMatrices() {
-    if(!this.instanceMeshes) return;
+    if (!this.instanceMeshes) return;
     this.instanceMeshes.bases.setMatrixAt(this.id, this.transform);
     this.instanceMeshes.nucleotides.setMatrixAt(this.id, this.transform);
     let bbTransform;
@@ -248,7 +253,6 @@ export class Nucleotide extends Selectable {
 
     let m: keyof NucleotideMeshes;
     for (m in this.instanceMeshes) {
-      this.instanceMeshes[m].updateMatrixWorld();
       this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
     }
   }
@@ -257,12 +261,16 @@ export class Nucleotide extends Selectable {
    * Set the object instance colours.
    */
   updateObjectColours() {
-    if(!this.instanceMeshes) return;
-    const colour = ColourScheme.NucleotideSelectionColours[this.selectionStatus];
+    if (!this.instanceMeshes) return;
+    const colour =
+      ColourScheme.NucleotideSelectionColours[this.selectionStatus];
     this.instanceMeshes.backbone1.setColorAt(this.id, colour);
     this.instanceMeshes.backbone2.setColorAt(this.id, colour);
     this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
-    this.instanceMeshes.bases.setColorAt(this.id, ColourScheme.NucleotideColours[this.base]);
+    this.instanceMeshes.bases.setColorAt(
+      this.id,
+      ColourScheme.NucleotideColours[this.base],
+    );
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[
         m as keyof NucleotideMeshes
@@ -270,7 +278,7 @@ export class Nucleotide extends Selectable {
   }
 
   updateObjectVisibility() {
-    if(!this.instanceMeshes) return;
+    if (!this.instanceMeshes) return;
     this.instanceMeshes.backbone1.visible = GLOBALS.visibilityNucBackbone;
     this.instanceMeshes.backbone2.visible = GLOBALS.visibilityNucBackbone;
     this.instanceMeshes.nucleotides.visible = GLOBALS.visibilityNucBase;
