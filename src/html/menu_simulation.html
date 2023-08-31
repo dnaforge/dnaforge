@@ -38,8 +38,9 @@
         <div class="group">
             <button class="ribbon-button" id="sim-unsubscribe" data-role="hint" data-hint-position="right"
                 data-hint-text="Stop receiving viewport updates from a running simulation.">
-                <span class="mif-cancel mif-4x"></span>
-                <span class="caption">Unsubscribe</span>
+                <span class="mif-3d-rotation mif-4x"></span>
+                <span class="mif-cross-light mif-4x" style="margin-left: -40px; color:red;"></span>
+                <span class="caption">Unsync</span>
             </button>
             <span class="title"></span>
         </div>
@@ -52,8 +53,7 @@
             <li>
                 <h4>Info:</h4>
             </li>
-            <li><a href="https://github.com/dnaforge/dnaforge-backend"><span class="mif-file-text icon"> Back-end
-                        Git Repository</span></a></li>
+            <li><a href="https://github.com/dnaforge/dnaforge-backend"><span class="mif-file-text icon"></span> Backend Git Repository</a></li>
         </ul>
     </div>
 </div>
@@ -77,8 +77,8 @@
     <div class="dialog-content" style="overflow-y: scroll;">
         <div class="inline-form">
             <button class="button" id="sim-confs-new" data-role="hint" data-hint-position="right" data-hint-text="Create a new OxDNA input configuration file.">New</button>
-            <button class="button" id="sim-confs-download" data-role="hint" data-hint-position="right" data-hint-text="Download OxDNA input configuration files as a JSON.">Download</button>
-            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#sim-open-stage-file');" data-role="hint" data-hint-position="right" data-hint-text="Upload a JSON of OxDNA input configuration files.">Upload</button>
+            <button class="button" id="sim-confs-download" data-role="hint" data-hint-position="right" data-hint-text="Download OxDNA input configuration files as a JSON.">Save</button>
+            <button class="button" id="sim-confs-upload" onclick="Metro.dialog.close('#sim-configs'); Metro.dialog.open('#sim-open-stage-file');" data-role="hint" data-hint-position="right" data-hint-text="Upload a JSON of OxDNA input configuration files.">Load</button>
             <button class="button" id="sim-confs-reset" data-role="hint" data-hint-position="right" data-hint-text="Reset the configuration files to default settings.">Reset</button>
         </div>
         <span>Each configuration file corresponds to a simulation stage. They are executed serially in the denoted order. Drag and drop to reorder.</span>
