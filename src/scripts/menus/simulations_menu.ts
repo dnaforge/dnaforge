@@ -1,12 +1,12 @@
 import { NATYPE } from '../globals/consts';
 import { downloadTXT } from '../io/download';
 import { read_json } from '../io/read_json';
-import { binarySearch } from './misc_utils';
-import { Context } from '../menus/context';
-import { ModuleMenu } from '../menus/module_menu';
+import { binarySearch } from '../utils/misc_utils';
+import { Context } from './context';
+import { ModuleMenu } from './module_menu';
 import { NucleotideModel } from '../models/nucleotide_model';
 import * as streamSaver from 'streamsaver';
-import { Menu } from '../menus/menu';
+import { Menu } from './menu';
 
 enum ValueType {
   BOOLEAN = 'BOOLEAN',
@@ -894,6 +894,7 @@ export class SimulationAPI extends Menu {
       'data-role': 'hint',
       'data-hint-position': 'right',
       'data-hint-text': `${job.metadata.description}`,
+      'data-status': job.status,
     });
 
     const grid = $('<div>', { class: 'grid' });
@@ -906,19 +907,24 @@ export class SimulationAPI extends Menu {
     const buttons = $(`<div class="cell-4 text-right">`);
 
     const syncButton = $('<button>', {
-      class: 'button cycle mif-2x mif-3d-rotation outline primary',
+      class: 'button cycle mif-2x mif-3d-rotation outline primary sim-sync',
       'data-role': 'hint',
       'data-hint-text': 'Synchronise the simulation with the 3D viewport.',
     });
     const downloadButton = $('<button>', {
-      class: 'button cycle mif-2x mif-download outline primary',
+      class: 'button cycle mif-2x mif-download outline primary sim-download',
       'data-role': 'hint',
       'data-hint-text': 'Download the simulation files from the server.',
     });
+
+    const deletable =
+      job.status == JobState.CANCELED || job.status == JobState.DONE;
     const deleteButton = $('<button>', {
-      class: 'button cycle mif-2x mif-cross outline alert',
+      class: `button cycle ${
+        deletable ? 'mif-cross' : 'mif-stop'
+      } mif-2x outline alert sim-delete`,
       'data-role': 'hint',
-      'data-hint-text': 'Cancel / Delete a simulation.',
+      'data-hint-text': `${deletable ? 'Delete' : 'Stop'} the simulation.`,
       'data-hint-hide': '0',
     });
 
@@ -956,7 +962,9 @@ export class SimulationAPI extends Menu {
       this.downloadJob(job.id);
     });
     deleteButton.on('mousedown', () => {
-      if (job.status == JobState.CANCELED || job.status == JobState.DONE) {
+      const status = jobComponent.attr('data-status');
+      $($('.hint')[0]).remove(); // remove hint
+      if (status == JobState.CANCELED || status == JobState.DONE) {
         this.deleteJob(job.id);
       } else {
         this.cancelJob(job.id);
@@ -970,6 +978,7 @@ export class SimulationAPI extends Menu {
     const statusValues = this.generateStatusValues(job);
 
     // Update status and stage
+    component.attr('data-status', job.status);
     component.find('.cell-4:first-child').text(job.status);
     component.find('.cell-4:nth-child(2)').text(statusValues[0]);
 
@@ -984,16 +993,18 @@ export class SimulationAPI extends Menu {
       .attr('data-value', statusValues[2]);
 
     // Update button click handler based on job status
-    const deleteButton = component.find('.mif-cross');
-    deleteButton.off('mousedown');
-    if (job.status === JobState.CANCELED || job.status === JobState.DONE) {
-      deleteButton.on('mousedown', () => {
-        this.deleteJob(job.id);
-      });
-    } else {
-      deleteButton.on('mousedown', () => {
-        this.cancelJob(job.id);
-      });
+    const deletable =
+      job.status == JobState.CANCELED || job.status == JobState.DONE;
+    const deleteButton = component.find('.sim-delete');
+    if (deletable) {
+      deleteButton.attr(
+        'class',
+        deleteButton.attr('class').replace('mif-stop', 'mif-cross'),
+      );
+      deleteButton.attr(
+        'data-hint-text',
+        deleteButton.attr('data-hint-text').replace('Stop', 'Delete'),
+      );
     }
   }
 

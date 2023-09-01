@@ -5,7 +5,7 @@ import { InterfaceMenu } from './menus/interface_menu';
 import { FileMenu } from './menus/file_menu';
 import { setupModules } from './modules/modules';
 import { dev } from './dev';
-import { SimulationAPI } from './utils/simulations';
+import { SimulationAPI } from './menus/simulations_menu';
 
 let context: Context;
 

@@ -12,7 +12,7 @@ import { Relaxer } from './utils/relaxer';
 import { Cylinder, CylinderBundle } from './models/cylinder';
 import { FileMenu } from './menus/file_menu';
 import { PrimaryGenerator } from './utils/primary_generator';
-import { SimulationAPI } from './utils/simulations';
+import { SimulationAPI } from './menus/simulations_menu';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.

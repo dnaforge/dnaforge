@@ -204,20 +204,20 @@ export class Context {
   }
 
   /**
-   * Rotates camera by 25 degrees around the y-axis in the given direction.
+   * Rotates camera by 25 degrees around the given direction.
    *
    * @param dir Direction. up, down, left, or right.
    */
   rotateCameraView(dir: string) {
     switch (dir) {
       case 'up':
-        this.camera.position.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 24);
-        break;
-      case 'down':
         this.camera.position.applyAxisAngle(
-          new Vector3(0, 1, 0),
+          new Vector3(1, 0, 0),
           -Math.PI / 24,
         );
+        break;
+      case 'down':
+        this.camera.position.applyAxisAngle(new Vector3(1, 0, 0), Math.PI / 24);
         break;
       case 'left':
         this.camera.position.applyAxisAngle(
