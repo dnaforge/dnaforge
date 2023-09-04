@@ -50,7 +50,8 @@
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle ambient light."><input
-                            checked type="checkbox" data-role="checkbox" data-caption="Ambient Light" id="toggle-ambient-light">
+                            checked type="checkbox" data-role="checkbox" data-caption="Ambient Light"
+                            id="toggle-ambient-light">
                     </div>
                 </li>
                 <li>
@@ -72,8 +73,8 @@
                             checked type="checkbox" data-role="checkbox" data-caption="Grid" id="toggle-grid"></div>
                 </li>
             </ul>
-            <button class="ribbon-button"  onclick="$('#ui-colours-dialog')[0].hidden = false" data-role="hint" data-hint-position="right"
-                data-hint-text="Setup custom colours for editor objects.">
+            <button class="ribbon-button" onclick="$('#ui-colours-dialog')[0].hidden = false" data-role="hint"
+                data-hint-position="right" data-hint-text="Setup custom colours for editor objects.">
                 <span class="mif-palette mif-3x"></span>
                 <span class="caption">Colours</span>
             </button>
@@ -95,7 +96,8 @@
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle mesh bounding box display.">
-                        <input type="checkbox" data-role="checkbox" data-caption="Bounding Box" id="toggle-bounding-box">
+                        <input type="checkbox" data-role="checkbox" data-caption="Bounding Box"
+                            id="toggle-bounding-box">
                     </div>
                 </li>
                 <li>
@@ -110,16 +112,16 @@
         <div class="group">
             <ul class="tight-list">
                 <li>
-                    <div data-role="hint" data-hint-position="right" data-hint-text="Colour cylinders by the torque exerted by the neighbouring cylinders.">
-                        <input type="checkbox" data-role="checkbox"
-                            data-caption="Torque Overlay"
+                    <div data-role="hint" data-hint-position="right"
+                        data-hint-text="Colour cylinders by the torque exerted by the neighbouring cylinders.">
+                        <input type="checkbox" data-role="checkbox" data-caption="Torque Overlay"
                             id="toggle-cylinder-torque-overlay">
                     </div>
                 </li>
                 <li>
-                    <div data-role="hint" data-hint-position="right" data-hint-text="Colour cylinders by the tension exerted by the neighbouring cylinders.">
-                        <input type="checkbox" data-role="checkbox"
-                            data-caption="Tension Overlay"
+                    <div data-role="hint" data-hint-position="right"
+                        data-hint-text="Colour cylinders by the tension exerted by the neighbouring cylinders.">
+                        <input type="checkbox" data-role="checkbox" data-caption="Tension Overlay"
                             id="toggle-cylinder-tension-overlay">
                     </div>
                 </li>
@@ -169,15 +171,18 @@
 
 
 
-<div hidden class="dialog" id="ui-colours-dialog" data-role="draggable" data-drag-area="body"  style="opacity: 0.9; z-index: 1;"  data-drag-element=".drag-element" >
+<div hidden class="dialog" id="ui-colours-dialog" data-role="draggable" data-drag-area="body"
+    style="opacity: 0.9; z-index: 1;" data-drag-element=".drag-element">
     <div class="dialog-title ui-colours-drag drag-element">Colours</div>
     <div class="dialog-content" style="overflow-y: scroll;">
         <div class="inline-form">
             <label>Presets</label>
             <select data-prepend="Presets" id="ui-colours-presets">
             </select>
-            <button class="button" id="ui-colours-save">Save Scheme</button>
-            <button class="button" onclick="Metro.dialog.open('#ui-colours-load-dialog');">Load Scheme</button>
+            <button class="button" id="ui-colours-save" data-role="hint" data-hint-position="right"
+                data-hint-text="Save the active colour scheme as a JSON file.">Save Scheme</button>
+            <button class="button" onclick="Metro.dialog.open('#ui-colours-load-dialog');" data-role="hint"
+                data-hint-position="right" data-hint-text="Load a colour scheme from a JSON file.">Load Scheme</button>
         </div>
         <div id="ui-colours"></div>
     </div>
