@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { InstancedMesh, Matrix4, Matrix3, Quaternion, Vector3 } from 'three';
 import { CoMToBB, get2PointTransform } from '../utils/misc_utils';
-import { DNA, NATYPE, RNA } from '../globals/consts';
+import { DNA, IUPAC_CHAR, NATYPE, RNA } from '../globals/consts';
 import { GLOBALS } from '../globals/globals';
 import { Selectable, SelectionStatus } from './selectable';
 import { NucleotideModel } from './nucleotide_model';
@@ -269,7 +269,7 @@ export class Nucleotide extends Selectable {
     this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
     this.instanceMeshes.bases.setColorAt(
       this.id,
-      ColourScheme.NucleotideColours[this.base],
+      ColourScheme.NucleotideColours[<IUPAC_CHAR>this.base],
     );
     for (const m of _.keys(this.instanceMeshes))
       this.instanceMeshes[

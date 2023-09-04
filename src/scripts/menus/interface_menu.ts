@@ -5,6 +5,8 @@ import { GLOBALS } from '../globals/globals';
 import { Context } from './context';
 import { Menu, MenuParameters } from './menu';
 import { ColourScheme, ColourSchemePresets } from '../models/colour_schemes';
+import { downloadTXT } from '../io/download';
+import { read_json } from '../io/read_json';
 
 const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
@@ -532,16 +534,29 @@ export class InterfaceMenu extends Menu {
     this.context.setPerspectiveCamera();
   }
 
+  loadColourScheme(json: typeof ColourScheme) {
+    let kt: keyof typeof ColourScheme;
+    for (kt in ColourScheme) {
+      for (const c in ColourScheme[kt]) {
+        (<any>ColourSchemePresets['Custom'][kt])[c] = new THREE.Color(
+          (<any>json[kt])[c],
+        );
+      }
+    }
+    $('#ui-colours-presets')[0].value = 'Custom';
+    Object.assign(ColourScheme, ColourSchemePresets['Custom']);
+    this.createColoursSwatches();
+    this.context.activeContext?.updateVisuals();
+  }
+
   createColoursComponent() {
     this.createColoursSwatches();
     for (const scheme in ColourSchemePresets) {
       $('#ui-colours-presets').append($(`<option>${scheme}</option>`));
     }
     $('#ui-colours-presets').on('change', () => {
-      for (const n in ColourScheme) {
-        const nScheme = $('#ui-colours-presets').val();
-        (<any>ColourScheme)[n] = (<any>ColourSchemePresets)[nScheme][n];
-      }
+      const nScheme = $('#ui-colours-presets').val();
+      Object.assign(ColourScheme, ColourSchemePresets[nScheme]);
       this.createColoursSwatches();
       this.context.activeContext?.updateVisuals();
     });
@@ -550,7 +565,8 @@ export class InterfaceMenu extends Menu {
   createColoursSwatches() {
     const container = $('#ui-colours');
     container.html('');
-    const createSubComponent = (dict: Record<string, THREE.Color>) => {
+    const createSubComponent = (key: keyof typeof ColourScheme) => {
+      const dict: Record<string, THREE.Color> = ColourScheme[key];
       let nucContainer: any;
       let i = 0;
       for (const k in dict) {
@@ -567,7 +583,20 @@ export class InterfaceMenu extends Menu {
         colour[0].value = `#${dict[k].getHexString()}`;
 
         colour.on('change', () => {
-          dict[k] = new THREE.Color(colour.val());
+          const colourVal = new THREE.Color(colour.val());
+          if ($('#ui-colours-presets')[0].value != 'Custom') {
+            let kt: keyof typeof ColourScheme;
+            for (kt in ColourScheme) {
+              for (const c in ColourScheme[kt]) {
+                (<any>ColourSchemePresets['Custom'][kt])[c] = (<any>(
+                  ColourScheme[kt]
+                ))[c];
+              }
+            }
+            $('#ui-colours-presets')[0].value = 'Custom';
+            Object.assign(ColourScheme, ColourSchemePresets['Custom']);
+          }
+          (<any>ColourSchemePresets['Custom'][key])[k] = colourVal;
           this.context.activeContext?.updateVisuals();
         });
       }
@@ -575,15 +604,15 @@ export class InterfaceMenu extends Menu {
 
     //Nucleotides:
     container.append($('<p>Nucleotide Colours</p>'));
-    createSubComponent(ColourScheme.NucleotideColours);
+    createSubComponent('NucleotideColours');
     container.append($('<p>Nucleotide Selection Colours</p>'));
-    createSubComponent(ColourScheme.NucleotideSelectionColours);
+    createSubComponent('NucleotideSelectionColours');
 
     //Cylinders:
     container.append($('<p>Cylinder Colours</p>'));
-    createSubComponent(ColourScheme.CylinderColours);
+    createSubComponent('CylinderColours');
     container.append($('<p>CylinderSelection Colours</p>'));
-    createSubComponent(ColourScheme.CylinderSelectionColours);
+    createSubComponent('CylinderSelectionColours');
   }
 
   /**
@@ -720,6 +749,28 @@ export class InterfaceMenu extends Menu {
     this.hoverButton.on('click', (e: Event) => {
       e.stopPropagation();
       this.context.controls.hover = this.hoverButton[0].checked;
+    });
+
+    $('#ui-colours-save').on('click', () => {
+      try {
+        downloadTXT('colour-scheme.json', JSON.stringify(ColourScheme));
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
+    });
+
+    $('#ui-colours-load-button').on('click', () => {
+      try {
+        const file = (<HTMLInputElement>$('#ui-colours-load-input')[0])
+          .files[0];
+        read_json(URL.createObjectURL(file), (json: typeof ColourScheme) => {
+          this.loadColourScheme(json);
+        });
+      } catch (error) {
+        this.context.addMessage(error, 'alert');
+        throw error;
+      }
     });
   }
 }

@@ -169,19 +169,30 @@
 
 
 
-<div hidden class="dialog" id="ui-colours-dialog" data-overlay-click-close="true" data-role="draggable" data-drag-area="body"  style="opacity: 0.9;"  data-drag-element=".drag-element" >
+<div hidden class="dialog" id="ui-colours-dialog" data-role="draggable" data-drag-area="body"  style="opacity: 0.9; z-index: 1;"  data-drag-element=".drag-element" >
     <div class="dialog-title ui-colours-drag drag-element">Colours</div>
     <div class="dialog-content" style="overflow-y: scroll;">
         <div class="inline-form">
             <label>Presets</label>
             <select data-prepend="Presets" id="ui-colours-presets">
             </select>
-            <button disabled class="button" id="ui-colours-save">Save Scheme</button>
-            <button disabled class="button" id="ui-colours-load">Load Scheme</button>
+            <button class="button" id="ui-colours-save">Save Scheme</button>
+            <button class="button" onclick="Metro.dialog.open('#ui-colours-load-dialog');">Load Scheme</button>
         </div>
         <div id="ui-colours"></div>
     </div>
     <div class="dialog-actions">
         <button class="button primary" onclick="$('#ui-colours-dialog')[0].hidden = true">Close</button>
+    </div>
+</div>
+
+<div class="dialog" data-role="dialog" id="ui-colours-load-dialog" data-overlay-click-close="true">
+    <div class="dialog-title">Load a colour scheme</div>
+    <div class="dialog-content">
+        <input type="file" data-role="file" data-mode="drop" id="ui-colours-load-input">
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="ui-colours-load-button">Open</button>
     </div>
 </div>

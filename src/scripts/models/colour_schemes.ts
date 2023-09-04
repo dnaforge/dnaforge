@@ -1,59 +1,16 @@
 import { Color } from 'three';
 import { SelectionStatus } from './selectable';
+import { IUPAC_CHAR } from '../globals/consts';
 
-const NucleotideColours: Record<string, Color> = {
-  // Base colors
-  A: new Color(0xff8eaf), // Light Pink (Adenine)
-  U: new Color(0xffd133), // Light Gold (Uracil)
-  T: new Color(0xffd133), // Light Gold (Thymine)
-  G: new Color(0x7acc7a), // Light Green (Guanine)
-  C: new Color(0x6688aa), // Light Blue (Cytosine)
+interface ColourScheme {
+  NucleotideColours: Record<IUPAC_CHAR, Color>;
+  NucleotideSelectionColours: Record<SelectionStatus, Color>;
 
-  W: new Color(0xffd166), // Light Yellow (Adenine or Thymine)
-  S: new Color(0x99cc99), // Light Mint Green (Guanine or Cytosine)
-  M: new Color(0xff99cc), // Light Purple (Adenine or Cytosine)
-  K: new Color(0xffcc33), // Light Orange (Adenine or Guanine)
-  R: new Color(0x00cccc), // Light Teal (Guanine or Adenine)
-  Y: new Color(0xbbbbbb), // Light Gray (Pyrimidine)
+  CylinderColours: Record<'prime' | 'linker' | 'torque' | 'tension', Color>;
+  CylinderSelectionColours: Record<SelectionStatus, Color>;
+}
 
-  B: new Color(0xff9999), // Light Salmon (Ambiguous Bases)
-  D: new Color(0x99cc99), // Light Mint Green (Ambiguous D)
-  H: new Color(0x6699cc), // Light Blue (Ambiguous H)
-  V: new Color(0xff99cc), // Light Purple (Ambiguous V)
-
-  N: new Color(0xf5f5f5), // Off-White (Unknown Base)
-};
-
-const NucleotideSelectionColours: Record<SelectionStatus, Color> = {
-  default: new Color(0xf0e8d0), // Lighter Sand (Default Selection)
-  selected: new Color(0x88aaff), // Light Blue (Selected)
-  hover: new Color(0xee4444), // Light Red (Hovered)
-};
-
-const CylinderColours = {
-  prime: new Color(0xff9999),
-  linker: new Color(0xff9999),
-
-  //Overlay
-  tension: new Color(0xff0000),
-  torque: new Color(0x0000ff),
-};
-
-const CylinderSelectionColours: Record<SelectionStatus, Color> = {
-  default: new Color(0xffffff), // Lighter Sand (Default Selection)
-  selected: new Color(0x88aaff), // Light Blue (Selected)
-  hover: new Color(0xee4444), // Light Red (Hovered)
-};
-
-export const ColourScheme = {
-  NucleotideColours: NucleotideColours,
-  NucleotideSelectionColours: NucleotideSelectionColours,
-
-  CylinderColours: CylinderColours,
-  CylinderSelectionColours: CylinderSelectionColours,
-};
-
-export const ColourSchemePresets = {
+export const ColourSchemePresets: Record<string, ColourScheme> = {
   Default: {
     NucleotideColours: {
       // Base colors
@@ -232,4 +189,51 @@ export const ColourSchemePresets = {
       hover: new Color('#3498db'), // Peter River
     },
   },
+
+  Custom: {
+    NucleotideColours: {
+      A: new Color('#808080'), // Grey
+      U: new Color('#808080'), // Grey
+      T: new Color('#808080'), // Grey
+      G: new Color('#808080'), // Grey
+      C: new Color('#808080'), // Grey
+
+      W: new Color('#808080'), // Grey
+      S: new Color('#808080'), // Grey
+      M: new Color('#808080'), // Grey
+      K: new Color('#808080'), // Grey
+      R: new Color('#808080'), // Grey
+      Y: new Color('#808080'), // Grey
+
+      B: new Color('#808080'), // Grey
+      D: new Color('#808080'), // Grey
+      H: new Color('#808080'), // Grey
+      V: new Color('#808080'), // Grey
+
+      N: new Color('#808080'), // Grey
+    },
+
+    NucleotideSelectionColours: {
+      default: new Color('#808080'), // Grey
+      selected: new Color('#808080'), // Grey
+      hover: new Color('#808080'), // Grey
+    },
+
+    CylinderColours: {
+      prime: new Color('#808080'), // Grey
+      linker: new Color('#808080'), // Grey
+
+      // Overlay
+      tension: new Color('#808080'), // Grey
+      torque: new Color('#808080'), // Grey
+    },
+
+    CylinderSelectionColours: {
+      default: new Color('#808080'), // Grey
+      selected: new Color('#808080'), // Grey
+      hover: new Color('#808080'), // Grey
+    },
+  },
 };
+
+export const ColourScheme: ColourScheme = { ...ColourSchemePresets.Default };

@@ -1,10 +1,10 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { InstancedMesh, Matrix4 } from 'three';
-import { Vector3, Quaternion } from 'three';
+import { Vector3, Quaternion, Color } from 'three';
 import { get2PointTransform } from '../utils/misc_utils';
 import { DNA, NATYPE, RNA } from '../globals/consts';
-import { Selectable, SelectionStatus } from './selectable';
+import { Selectable } from './selectable';
 import { CylinderModel } from './cylinder_model';
 import { GLOBALS } from '../globals/globals';
 import { ColourScheme } from './colour_schemes';
