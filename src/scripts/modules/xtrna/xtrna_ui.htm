@@ -1,12 +1,12 @@
-<div class="section" id="sterna" data-title="ST-RNA">
+<div class="section" id="xtrna" data-title="XT-RNA">
     <div class="d-flex flex-wrap">
         <div class="group">
-            <button class="ribbon-button" id="sterna-generate-wires" data-role="hint" data-hint-position="right"
-                data-hint-text="Generate a random spanning tree and a route twice around it.">
+            <button class="ribbon-button" id="xtrna-generate-wires" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a Xuon tree and a route twice around it.">
                 <span class="mif-play mif-4x"></span>
-                <span class="caption">Generate<br>Spanning Tree</span>
+                <span class="caption">Generate<br>Xuon Tree</span>
             </button>
-            <button class="ribbon-button" id="sterna-generate-cylinders" data-role="hint" data-hint-position="right"
+            <button class="ribbon-button" id="xtrna-generate-cylinders" data-role="hint" data-hint-position="right"
                 data-hint-text="Generate a cylinder model based on the current routing.">
                 <span class="mif-loop2 mif-4x"></span>
                 <span class="caption">Generate<br>Cylinders</span>
@@ -16,14 +16,14 @@
         <div class="group">
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
-                    <input checked type="checkbox" data-role="switch" data-caption="Wires" id="sterna-toggle-wires">
+                    <input checked type="checkbox" data-role="switch" data-caption="Wires" id="xtrna-toggle-wires">
                 </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
-                        data-caption="Cylinders" id="sterna-toggle-cylinders"></li>
+                        data-caption="Cylinders" id="xtrna-toggle-cylinders"></li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
-                        data-role="switch" data-caption="Nucleotides" id="sterna-toggle-nucleotides"></li>
+                        data-role="switch" data-caption="Nucleotides" id="xtrna-toggle-nucleotides"></li>
             </ul>
             <span class="title">Visibility</span>
         </div>
@@ -32,15 +32,15 @@
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
                         type="number" data-role="input" data-default-value="2" min="0.01" max="1000" step="0.01"
-                        data-size="225" data-prepend="Scale" data-append="nm" id="sterna-scale">
+                        data-size="225" data-prepend="Scale" data-append="nm" id="xtrna-scale">
                 </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Add a strand gap between the 5'- and 3'-ends.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add a Strand Gap"
-                        id="sterna-add-nicks">
+                        id="xtrna-add-nicks">
                 </li>
             </ul>
-            <button class="ribbon-button" onclick="Metro.dialog.open('#sterna-parameters');" data-role="hint"
+            <button class="ribbon-button" onclick="Metro.dialog.open('#xtrna-parameters');" data-role="hint"
                 data-hint-position="right" data-hint-text="Setup additional ST-RNA parameters.">
                 <span class="mif-cogs mif-4x"></span>
                 <span class="caption">Additional<br>Parameters</span>
@@ -48,12 +48,12 @@
             <span class="title">Parameters</span>
         </div>
         <div class="group">
-            <button class="ribbon-button" id="sterna-relax" data-role="hint" data-hint-position="right"
+            <button class="ribbon-button" id="xtrna-relax" data-role="hint" data-hint-position="right"
                 data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of linker segments.">
                 <span class="mif-shrink2 mif-4x"></span>
                 <span class="caption">Relax<br>Cylinder<br>Model</span>
             </button>
-            <button class="ribbon-button" id="sterna-generate-nucleotides" data-role="hint" data-hint-position="right"
+            <button class="ribbon-button" id="xtrna-generate-nucleotides" data-role="hint" data-hint-position="right"
                 data-hint-text="Generate a nucleotide model based on the current cylinder model.">
                 <span class="mif-shuffle mif-4x"></span>
                 <span class="caption">Generate<br>Nucleotide<br>Model</span>
@@ -66,28 +66,28 @@
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
                         type="number" data-role="input" data-default-value="50" data-size="260"
-                        data-prepend="GC-content" data-append="%" id="sterna-gc-content"></li>
+                        data-prepend="GC-content" data-append="%" id="xtrna-gc-content"></li>
                 <li>
-                    <button class="button light" id="generate-sterna-template" data-role="hint"
+                    <button class="button light" id="generate-xtrna-template" data-role="hint"
                         data-hint-position="right"
                         data-hint-text="Generate a partial primary structure by filling in pseudoknots, linkers and certain stem segments. The undetermined bases can be generated externally or filled randomly.">Generate
                         Partial</button>
-                    <button class="button light" id="generate-sterna-primary" data-role="hint"
+                    <button class="button light" id="generate-xtrna-primary" data-role="hint"
                         data-hint-position="right"
                         data-hint-text="Fill all undetermined bases with random complementary ones.">Generate
                         Random</button>
                 </li>
                 <li>
-                    <button class="button light" id="download-sterna-np" data-role="hint" data-hint-position="right"
+                    <button class="button light" id="download-xtrna-np" data-role="hint" data-hint-position="right"
                         data-hint-text="Download a NUPACK file of the current nucleotide model.">Download NP</button>
                     <button class="button light"
-                        onclick="Metro.dialog.open('#sterna-primary-dialog');  $('#sterna-primary-dialog-text').focus()"
+                        onclick="Metro.dialog.open('#xtrna-primary-dialog');  $('#xtrna-primary-dialog-text').focus()"
                         data-role="hint" data-hint-position="right"
                         data-hint-text="Upload a primary structure as a sequence of IUPAC nucleotide codes.">Upload
                         Primary</button>
                 </li>
             </ul>
-            <button hidden class="ribbon-button" id="generate-sterna-primary" data-role="hint"
+            <button hidden class="ribbon-button" id="generate-xtrna-primary" data-role="hint"
                 data-hint-position="right"
                 data-hint-text="Generate a random complementary primary structure for the current nucleotide model.">
                 <span class="mif-paint mif-4x"></span>
@@ -99,21 +99,21 @@
 
             <ul style="list-style-type:none;">
                 <li>
-                    <button class="button light w-100" id="sterna-download-unf" data-role="hint" data-hint-position="right"
+                    <button class="button light w-100" id="xtrna-download-unf" data-role="hint" data-hint-position="right"
                         data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download UNF</span>
                     </button>
                 </li>
                 <li>
-                    <button class="button light w-100" id="sterna-download-ox" data-role="hint" data-hint-position="right"
+                    <button class="button light w-100" id="xtrna-download-ox" data-role="hint" data-hint-position="right"
                         data-hint-text="Download the current nucleotide model as oxDNA files.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download oxDNA</span>
                     </button>
                 </li>
                 <li>
-                    <button class="button light w-100" id="sterna-download-strands" data-role="hint" data-hint-position="right"
+                    <button class="button light w-100" id="xtrna-download-strands" data-role="hint" data-hint-position="right"
                         data-hint-text="Download the primary structure.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download Strands</span>
@@ -127,27 +127,27 @@
                 <li>
                     <h4>Source:</h4>
                 </li>
-                <li><a href="https://doi.org/10.1021/acsnano.2c06035"><span class="mif-file-text icon"></span>
-                        Algorithmic design of 3D wireframe RNA polyhedra</a></li>
+                <li><a href=""><span class="mif-file-text icon"></span>
+                        Minimising the number of kissing loops</a></li>
             </ul>
         </div>
     </div>
 </div>
-<div class="dialog" data-role="dialog" id="sterna-primary-dialog" data-overlay-click-close="true">
+<div class="dialog" data-role="dialog" id="xtrna-primary-dialog" data-overlay-click-close="true">
     <div class="dialog-title">Input primary structure</div>
     <div class="dialog-content">
         <textarea data-role="textarea" data-chars-counter="#chars-counter" data-chars-counter-template="Length $1 bases"
-            id="sterna-primary-dialog-text" data-auto-size="false"></textarea>
+            id="xtrna-primary-dialog-text" data-auto-size="false"></textarea>
         <p id="chars-counter">Length: 0 bases</p>
     </div>
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
-        <button class="button primary js-dialog-close" id="sterna-primary-dialog-confirm">Set Primary</button>
+        <button class="button primary js-dialog-close" id="xtrna-primary-dialog-confirm">Set Primary</button>
     </div>
 </div>
 
 
-<div class="dialog" data-role="dialog" id="sterna-parameters" data-overlay-click-close="true">
+<div class="dialog" data-role="dialog" id="xtrna-parameters" data-overlay-click-close="true">
     <div class="dialog-title">ST-RNA settings</div>
     <div class="dialog-content" style="overflow-y: scroll;">
         <p>Routing parameters:</p>
@@ -155,7 +155,7 @@
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Bring cylinders as close to the vertex as possible.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Greedy Vertices"
-                    id="sterna-greedy">
+                    id="xtrna-greedy">
             </li>
         </ul>
         <p>Strand parameters:</p>
@@ -163,31 +163,31 @@
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
                     type="number" data-role="input" data-default-value="3"
-                    data-prepend="Min Linkers" id="sterna-linkers-min"></li>
+                    data-prepend="Min Linkers" id="xtrna-linkers-min"></li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
                     type="number" data-role="input" data-default-value="3"
-                    data-prepend="Max Linkers" id="sterna-linkers-max"></li>
+                    data-prepend="Max Linkers" id="xtrna-linkers-max"></li>
         </ul>
         <p>Relaxation parameters:</p>
         <ul class="group-list">
             <li hidden data-role="hint" data-hint-position="right"
                 data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
-                    data-default-value="50" data-prepend="GC-content" data-append="%" id="sterna-relax-iterations"></li>
+                    data-default-value="50" data-prepend="GC-content" data-append="%" id="xtrna-relax-iterations"></li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Add springs between the 3d-model and cylinders.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Floor Constraints"
-                    id="sterna-floor-constraints">
+                    id="xtrna-floor-constraints">
             </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Bundle Constraints"
-                    id="sterna-bundle-constraints">
+                    id="xtrna-bundle-constraints">
             </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
-                    id="sterna-spring-constraints">
+                    id="xtrna-spring-constraints">
             </li>
         </ul>
     </div>

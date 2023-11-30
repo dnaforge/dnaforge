@@ -13,6 +13,7 @@ import { Cylinder, CylinderBundle } from './models/cylinder';
 import { FileMenu } from './menus/file_menu';
 import { PrimaryGenerator } from './utils/primary_generator';
 import { SimulationAPI } from './menus/simulations_menu';
+import { matroid_parity } from './utils/matroid_parity';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -34,8 +35,15 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(plane);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(cube);
   context.setGraph(graph);
+
+  const xtrna = <CycleCoverMenu>context.menus.get('xtrna');
+  xtrna.generateWires();
+  $('#xtrna-scale')[0].value = 2;
+
+  //matroid_parity();
+  return;
 
   $('#cycle-cover-scale')[0].value = 1;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');

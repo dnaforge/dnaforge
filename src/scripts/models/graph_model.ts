@@ -9,7 +9,7 @@ class Vertex {
   normal: THREE.Vector3;
   adjacentEdges: Edge[] = [];
 
-  constructor(id: number, coords: Vector3, normal = new Vector3(1, 0, 0)) {
+  constructor(id: number, coords: Vector3, normal: Vector3 = new Vector3(0,1,0)) {
     this.id = id;
     this.coords = coords;
     this.normal = normal;
@@ -87,7 +87,7 @@ class Vertex {
       const angle1 = Math.atan2(y1, x1);
       const angle2 = Math.atan2(y2, x2);
 
-      console.log(angle1, angle2);
+      //console.log(angle1, angle2);
       return angle1 - angle2;
     });
   }
@@ -142,6 +142,8 @@ class Vertex {
     const d2 = c21.clone().add(c22).sub(common).sub(common);
     const invert = d1.clone().cross(d2).dot(prevF.normal) <= 0;
     if (invert) edges.reverse();
+
+    if(new Set(edges).size != this.adjacentEdges.length) return this.getTopoAdjacentEdges2();
 
     return edges;
   }
@@ -233,6 +235,17 @@ class Edge {
     }
   }
 
+  toString(){
+    return `E ${this.id}: V ${this.vertices[0].id} - ${this.vertices[1].id}`;
+  }
+
+  getOutwardHalfEdge(start: Vertex){
+    const [he1, he2] = this.halfEdges;
+    if(he1.vertex == start) return he1;
+    else if(he2.vertex == start) return he2;
+    else throw `Vertex ${start} not a part of edge ${this}`;
+  }
+
   isSplit(): boolean {
     for (const f of this.faces) {
       if (f.isSplit()) return true;
@@ -273,6 +286,20 @@ class Edge {
   getLength(): number {
     const [v1, v2] = this.getVertices();
     return v1.coords.clone().sub(v2.coords).length();
+  }
+
+  getAdjacentEdges(){
+    const neighbours = new Set<Edge>();
+    const [v1, v2] = this.getVertices();
+
+    for(let e of v1.getAdjacentEdges()){
+      neighbours.add(e);
+    }
+    for(let e of v2.getAdjacentEdges()){
+      neighbours.add(e);
+    }
+    neighbours.delete(this);
+    return neighbours;
   }
 }
 
@@ -595,22 +622,19 @@ class Graph {
     const oldVtoNew = new Map();
     const oldEtoNew = new Map();
     for (const v of this.getVertices()) {
-      const nv = g.addVertex(v.coords);
+      const nv = g.addVertex(v.coords, v.normal.clone());
       oldVtoNew.set(v, nv);
-      nv.normal = v.normal.clone();
     }
     for (const e of this.getEdges()) {
       const [v1, v2] = e.getVertices();
-      const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2));
+      const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2), e.normal.clone());
       oldEtoNew.set(e, ne);
-      ne.normal = e.normal.clone();
     }
     for (const f of this.getFaces()) {
       const edges = f.getEdges().map((e) => {
         return oldEtoNew.get(e);
       });
-      const nf = g.addFace(edges);
-      nf.normal = f.normal.clone();
+      const nf = g.addFace(edges, f.normal.clone());
     }
     return g;
   }

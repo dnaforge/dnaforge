@@ -3,6 +3,7 @@ import { ATrailMenu } from './atrail/atrail_menu';
 import { CycleCoverMenu } from './cycle_cover/cycle_cover_menu';
 import { SpanningTreeMenu } from './spanning_tree/spanning_tree_menu';
 import { SternaMenu } from './sterna/sterna_menu';
+import { XtrnaMenu } from './xtrna/xtrna_menu';
 
 /**
  * Instantiate all the modules and connects them to the main context.
@@ -15,4 +16,6 @@ export function setupModules(context: Context) {
   new CycleCoverMenu(context);
   new SpanningTreeMenu(context);
   new SternaMenu(context);
+  new XtrnaMenu(context);
+
 }

@@ -64,6 +64,9 @@ export abstract class Model {
   }
 
   clearSelection() {
-    this.deselect(...this.selection);
+    //spread operator causes stack limit error, so just loop over it all instead
+    for(let s of this.selection){
+      this.deselect(s);
+    }
   }
 }
