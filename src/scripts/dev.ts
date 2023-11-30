@@ -35,7 +35,8 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(cube);
+  const b = require('../../resources/bloc_v2.obj');
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(b);
   context.setGraph(graph);
 
   const xtrna = <CycleCoverMenu>context.menus.get('xtrna');

@@ -513,6 +513,10 @@ class Graph {
           if (f == f2 || visited.has(f2)) continue;
           const n = calculateFaceNormal(f2, f, e);
           f2.normal = n;
+          if(f.normal.length() < 0.9){
+            f.normal = new Vector3().randomDirection();
+            console.log(`Error calculating the normal of face ${f.id}`);
+          }
           stack.push(f2);
           visited.add(f2);
         }
@@ -526,6 +530,10 @@ class Graph {
         n.add(f.normal);
       }
       e.normal = n.normalize();
+      if(e.normal.length() < 0.9){
+        e.normal = new Vector3().randomDirection();
+        console.log(`Error calculating the normal of edge ${e.id}`);
+      }
     }
 
     //Vertex nromals:
@@ -535,6 +543,10 @@ class Graph {
         n.add(e.normal);
       }
       v.normal = n.normalize();
+      if(v.normal.length() < 0.9){
+        v.normal = new Vector3().randomDirection();
+        console.log(`Error calculating the normal of vertex ${v.id}`);
+      }
     }
   }
 
