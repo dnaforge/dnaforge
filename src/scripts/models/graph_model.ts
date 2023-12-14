@@ -9,7 +9,11 @@ class Vertex {
   normal: THREE.Vector3;
   adjacentEdges: Edge[] = [];
 
-  constructor(id: number, coords: Vector3, normal: Vector3 = new Vector3(0,1,0)) {
+  constructor(
+    id: number,
+    coords: Vector3,
+    normal: Vector3 = new Vector3(0, 1, 0),
+  ) {
     this.id = id;
     this.coords = coords;
     this.normal = normal;
@@ -143,7 +147,8 @@ class Vertex {
     const invert = d1.clone().cross(d2).dot(prevF.normal) <= 0;
     if (invert) edges.reverse();
 
-    if(new Set(edges).size != this.adjacentEdges.length) return this.getTopoAdjacentEdges2();
+    if (new Set(edges).size != this.adjacentEdges.length)
+      return this.getTopoAdjacentEdges2();
 
     return edges;
   }
@@ -235,14 +240,14 @@ class Edge {
     }
   }
 
-  toString(){
+  toString() {
     return `E ${this.id}: V ${this.vertices[0].id} - ${this.vertices[1].id}`;
   }
 
-  getOutwardHalfEdge(start: Vertex){
+  getOutwardHalfEdge(start: Vertex) {
     const [he1, he2] = this.halfEdges;
-    if(he1.vertex == start) return he1;
-    else if(he2.vertex == start) return he2;
+    if (he1.vertex == start) return he1;
+    else if (he2.vertex == start) return he2;
     else throw `Vertex ${start} not a part of edge ${this}`;
   }
 
@@ -288,14 +293,14 @@ class Edge {
     return v1.coords.clone().sub(v2.coords).length();
   }
 
-  getAdjacentEdges(){
+  getAdjacentEdges() {
     const neighbours = new Set<Edge>();
     const [v1, v2] = this.getVertices();
 
-    for(let e of v1.getAdjacentEdges()){
+    for (let e of v1.getAdjacentEdges()) {
       neighbours.add(e);
     }
-    for(let e of v2.getAdjacentEdges()){
+    for (let e of v2.getAdjacentEdges()) {
       neighbours.add(e);
     }
     neighbours.delete(this);
@@ -513,7 +518,7 @@ class Graph {
           if (f == f2 || visited.has(f2)) continue;
           const n = calculateFaceNormal(f2, f, e);
           f2.normal = n;
-          if(f.normal.length() < 0.9){
+          if (f.normal.length() < 0.9) {
             f.normal = new Vector3().randomDirection();
             console.log(`Error calculating the normal of face ${f.id}`);
           }
@@ -530,7 +535,7 @@ class Graph {
         n.add(f.normal);
       }
       e.normal = n.normalize();
-      if(e.normal.length() < 0.9){
+      if (e.normal.length() < 0.9) {
         e.normal = new Vector3().randomDirection();
         console.log(`Error calculating the normal of edge ${e.id}`);
       }
@@ -543,7 +548,7 @@ class Graph {
         n.add(e.normal);
       }
       v.normal = n.normalize();
-      if(v.normal.length() < 0.9){
+      if (v.normal.length() < 0.9) {
         v.normal = new Vector3().randomDirection();
         console.log(`Error calculating the normal of vertex ${v.id}`);
       }
@@ -639,7 +644,11 @@ class Graph {
     }
     for (const e of this.getEdges()) {
       const [v1, v2] = e.getVertices();
-      const ne = g.addEdge(oldVtoNew.get(v1), oldVtoNew.get(v2), e.normal.clone());
+      const ne = g.addEdge(
+        oldVtoNew.get(v1),
+        oldVtoNew.get(v2),
+        e.normal.clone(),
+      );
       oldEtoNew.set(e, ne);
     }
     for (const f of this.getFaces()) {
@@ -840,6 +849,28 @@ class Graph {
       const [f1, f2] = e.getFaces();
       if ((r.has(f1) && r.has(f2)) || (l.has(f1) && l.has(f2)))
         this.splitEdge(e);
+    }
+  }
+
+  furstSubdivide() {
+    const g = new Graph();
+
+    for (let e of this.getEdges()) {
+      const count = e.getAdjacentEdges().size;
+
+      const [v1, v2] = e.getVertices();
+      let vx: Vertex;
+
+      const p1 = v1.coords;
+      const p2 = v2.coords;
+      const delta = p2.clone().sub(p1).divideScalar(count);
+
+      for (let i = 0; i < count; i++) {
+        vx = g.addVertex(
+          p1.clone().add(delta.clone().multiplyScalar(i)),
+          v1.normal,
+        );
+      }
     }
   }
 

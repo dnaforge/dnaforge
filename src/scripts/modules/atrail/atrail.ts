@@ -68,7 +68,7 @@ export class ATrail extends WiresModel {
 
   findATrail(checkerBoard = false): HalfEdge[] {
     this.initialiseGraph(checkerBoard);
-    const transitions = new Map<Vertex, number>(); // orentations of vertices
+    const transitions = new Map<Vertex, Direction>(); // orentations of vertices
     const neighbours = this.getNeighbourhoodFunction(transitions);
 
     this.splitAndCheck(transitions, neighbours);
@@ -81,15 +81,20 @@ export class ATrail extends WiresModel {
   }
 
   private getNeighbourhoodFunction(
-    transitions: Map<Vertex, number>,
+    transitions: Map<Vertex, Direction>,
   ): (e: HalfEdge) => Array<HalfEdge> {
     // Neighbourhoods for left-right-orderings:
-    const vToN = new Map(); // vertex to neighbour, changes depending on the orientation
+    type Neighbour = Map<HalfEdge, HalfEdge[]>;
+    //TODO: use a map instead of an object
+    const vToN = new Map<
+      Vertex,
+      { LEFT: Neighbour; RIGHT: Neighbour; NONE: Neighbour }
+    >(); // vertex to neighbour, changes depending on the orientation
     for (const v of this.graph.getVertices()) {
       const n = {
-        LEFT: new Map(), // left orientation
-        RIGHT: new Map(), // right orientation
-        NONE: new Map(), // fully connected
+        LEFT: new Map<HalfEdge, HalfEdge[]>(), // left orientation
+        RIGHT: new Map<HalfEdge, HalfEdge[]>(), // right orientation
+        NONE: new Map<HalfEdge, HalfEdge[]>(), // fully connected
       };
       transitions.set(v, Direction.NONE);
       vToN.set(v, n);
@@ -108,7 +113,7 @@ export class ATrail extends WiresModel {
         }
       }
     }
-    return (edge: HalfEdge) => {
+    return (edge: HalfEdge): HalfEdge[] => {
       if (transitions.get(edge.vertex) == Direction.RIGHT) {
         return vToN.get(edge.vertex).RIGHT.get(edge);
       } else if (transitions.get(edge.vertex) == Direction.LEFT) {
@@ -127,7 +132,7 @@ export class ATrail extends WiresModel {
    * @returns
    */
   private splitAndCheck(
-    transitions: Map<Vertex, number>,
+    transitions: Map<Vertex, Direction>,
     neighbours: (e: HalfEdge) => Array<HalfEdge>,
   ) {
     // only consider vertices of degree 4 or higher, since  vertices of degree 4

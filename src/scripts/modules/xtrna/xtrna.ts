@@ -29,22 +29,21 @@ export class Xtrna extends WiresModel {
     super();
     this.graph = graph;
 
-
     let best = Infinity;
     let st = null;
-    for(let i = 0; i < 100; i++){
+    for (let i = 0; i < 2000; i++) {
       this.st = this.getXuon();
       const rotations = this.getVertexRotations();
       this.kls = this.augmentRotations(rotations);
 
-      const size = this.kls.size
-      if(size < best){
+      const size = this.kls.size;
+      if (size < best) {
         st = this.st;
         best = size;
-        if(size == 0 || size == 2) break;
+        if (size == 0 || size == 2) break;
       }
     }
-    
+
     this.st = st;
     const rotations = this.getVertexRotations();
     this.kls = this.augmentRotations(rotations);
@@ -94,7 +93,7 @@ export class Xtrna extends WiresModel {
         }
       }
       return component;
-    }
+    };
 
     for (let e of this.graph.edges) {
       if (visited.has(e)) continue;
@@ -129,8 +128,7 @@ export class Xtrna extends WiresModel {
 
           stack.push([e2, v2]);
         }
-      }
-      else {
+      } else {
         stack.pop();
 
         let stEdge: Edge;
@@ -207,12 +205,12 @@ export class Xtrna extends WiresModel {
               len += 1;
             }
             return cur;
-          }
+          };
 
           const d1 = traverse_(start);
           if (d1) return start;
           else return traverse_(start.twin);
-        }
+        };
 
         const incoming = traverse(he1, rot2[rot2.length - 1]);
 
@@ -227,12 +225,12 @@ export class Xtrna extends WiresModel {
     return rotations;
   }
 
-  augmentRotations(rotations: Map<Vertex, HalfEdge[]>){
+  augmentRotations(rotations: Map<Vertex, HalfEdge[]>) {
     const kls = new Set<HalfEdge>();
-    for(let v of this.graph.getVertices()){
+    for (let v of this.graph.getVertices()) {
       const rot = new Set(rotations.get(v));
-      for(let he of v.getAdjacentHalfEdges()){
-        if(!rot.has(he)){
+      for (let he of v.getAdjacentHalfEdges()) {
+        if (!rot.has(he)) {
           kls.add(he);
           rotations.get(v).push(he);
         }
@@ -252,7 +250,7 @@ export class Xtrna extends WiresModel {
     while (true) {
       route.push(cur);
       let nextV;
-      if(!this.kls.has(cur)) nextV = cur.twin.vertex;
+      if (!this.kls.has(cur)) nextV = cur.twin.vertex;
       else nextV = cur.vertex;
       const rot = rotations.get(nextV);
       const nextE = rot[(rot.indexOf(cur.twin) + 1) % rot.length];
@@ -299,7 +297,6 @@ export class Xtrna extends WiresModel {
 
     return st;
   }
-
 
   /**
    * Return the 3d object associated with this route. Generate it if it does not exist.

@@ -17,5 +17,4 @@ export function setupModules(context: Context) {
   new SpanningTreeMenu(context);
   new SternaMenu(context);
   new XtrnaMenu(context);
-
 }

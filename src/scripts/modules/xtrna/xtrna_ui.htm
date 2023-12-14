@@ -36,7 +36,7 @@
                 </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Add a strand gap between the 5'- and 3'-ends.">
-                    <input checked type="checkbox" data-role="checkbox" data-caption="Add a Strand Gap"
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add a Strand Breakpoint"
                         id="xtrna-add-nicks">
                 </li>
             </ul>
@@ -49,7 +49,7 @@
         </div>
         <div class="group">
             <button class="ribbon-button" id="xtrna-relax" data-role="hint" data-hint-position="right"
-                data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of linker segments.">
+                data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of spacer segments.">
                 <span class="mif-shrink2 mif-4x"></span>
                 <span class="caption">Relax<br>Cylinder<br>Model</span>
             </button>
@@ -70,7 +70,7 @@
                 <li>
                     <button class="button light" id="generate-xtrna-template" data-role="hint"
                         data-hint-position="right"
-                        data-hint-text="Generate a partial primary structure by filling in pseudoknots, linkers and certain stem segments. The undetermined bases can be generated externally or filled randomly.">Generate
+                        data-hint-text="Generate a partial primary structure by filling in pseudoknots, spacers and certain stem segments. The undetermined bases can be generated externally or filled randomly.">Generate
                         Partial</button>
                     <button class="button light" id="generate-xtrna-primary" data-role="hint"
                         data-hint-position="right"
@@ -161,13 +161,13 @@
         <p>Strand parameters:</p>
         <ul class="group-list">
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Minimum number of linker nucleotides generated between each stem segment."><input
+                data-hint-text="Minimum number of spacer nucleotides generated between each stem segment."><input
                     type="number" data-role="input" data-default-value="3"
-                    data-prepend="Min Linkers" id="xtrna-linkers-min"></li>
+                    data-prepend="Min Spacer Nucleotides" id="xtrna-linkers-min"></li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Maximum number of linker nucleotides generated between each stem segment."><input
+                data-hint-text="Maximum number of spacer nucleotides generated between each stem segment."><input
                     type="number" data-role="input" data-default-value="3"
-                    data-prepend="Max Linkers" id="xtrna-linkers-max"></li>
+                    data-prepend="Max Spacer Nucleotides" id="xtrna-linkers-max"></li>
         </ul>
         <p>Relaxation parameters:</p>
         <ul class="group-list">

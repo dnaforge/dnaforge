@@ -72,6 +72,8 @@ export class Context {
     div: HTMLElement;
   };
 
+  statsNeedUpdate = true;
+
   constructor() {
     this.scene.background = new THREE.Color(0xffffff);
     this.scene.add(new THREE.AmbientLight(0x333333));
@@ -131,6 +133,11 @@ export class Context {
       requestAnimationFrame(renderT);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
+
+      if (this.statsNeedUpdate) {
+        this.statsNeedUpdate = false;
+        this.updateSceneStatistics();
+      }
     };
     renderT();
   }
@@ -338,6 +345,14 @@ export class Context {
       keepOpen: true,
     });
 
+    const stripped = $(`<div>${message}</div>`).text();
+    console.log(
+      `${type.toUpperCase()}: ${message.replace(
+        /<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g,
+        ' ',
+      )}`,
+    );
+
     const els = $('.notify-container').children();
     const created = $(els[els.length - 1]);
     this.closeMessage(created, duration);
@@ -400,6 +415,7 @@ export class Context {
       } edges<br>${graph.getFaces().length} faces`,
       'info',
     );
+    this.statsNeedUpdate = true;
   }
 
   /**
@@ -456,6 +472,7 @@ export class Context {
     prevContext && prevContext.inactivate();
     context.activate();
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
+    this.statsNeedUpdate = true;
   }
 
   /**
@@ -467,6 +484,71 @@ export class Context {
   switchMainTab(id: string) {
     const menu = this.menus.get(id);
     if (menu && !menu.isGlobal) this.switchContext(<ModuleMenu>menu);
+  }
+
+  updateSceneStatistics() {
+    const container = $('#scene-stats');
+    container.html('');
+    if (!this.graph) {
+      container.text('No graph loaded.');
+      return;
+    }
+
+    const tree = $('<ul>', { 'data-role': 'treeview' });
+    container.append(tree);
+
+    // Graph:
+    const graphData = $('<li>Graph</li>');
+    const data = $('<ul>');
+    const verts = $(`<li>Vertices: ${this.graph.getVertices().length}</li>`);
+    const edges = $(`<li>Edges: ${this.graph.getEdges().length}</li>`);
+    const faces = $(`<li>Faces: ${this.graph.getFaces().length}</li>`);
+
+    tree.append(graphData);
+    graphData.append(data);
+    data.append(verts);
+    data.append(edges);
+    data.append(faces);
+
+    // CM:
+    const cm = this.activeContext?.cm;
+    if (cm) {
+      const cmData = $('<li>Cylinder Model</li>');
+      const data = $('<ul>');
+      const cylinders = $(`<li>Cylinders: ${cm.getCylinders().length}</li>`);
+
+      tree.append(cmData);
+      cmData.append(data);
+      data.append(cylinders);
+    }
+
+    // NM:
+    const nm = this.activeContext?.nm;
+    if (nm) {
+      const nmData = $('<li>Nucleotide Model</li>');
+      const data = $('<ul>');
+      const nucleotides = $(
+        `<li>Nucleotides: ${nm.getNucleotides().length}</li>`,
+      );
+      const strands = $(`<li>Strands: ${nm.getStrands().length}</li>`);
+
+      tree.append(nmData);
+      nmData.append(data);
+      data.append(nucleotides);
+      data.append(strands);
+    }
+
+    // Selection:
+    const selection = this.editor.activeModel?.selection;
+    if (selection && this.editor.activeModel?.isVisible) {
+      const sData = $('<li>Selection</li>');
+      const data = $('<ul>');
+      const n = $(`<li>N: ${selection.size}</li>`);
+
+      tree.append(sData);
+      sData.append(data);
+      data.append(n);
+    }
   }
 
   /**

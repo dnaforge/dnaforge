@@ -84,6 +84,7 @@ export class Editor {
     });
     obj.userData.model = model; // gives access to the intersection handler
     this.context.scene.add(obj);
+    this.context.statsNeedUpdate = true;
     if (visible) model.show();
     else model.hide();
   }
@@ -343,10 +344,12 @@ export class Editor {
   select(se: Selectable, add = false) {
     if (!add) this.deselectAll();
     se.owner.select(se);
+    this.context.statsNeedUpdate = true;
   }
 
   deSelect(se: Selectable) {
     se.owner.deselect(se);
+    this.context.statsNeedUpdate = true;
   }
 
   selectConnected(se: Selectable, add = false) {
@@ -387,6 +390,7 @@ export class Editor {
    */
   deselectAll() {
     for (const m of this.models) m.clearSelection();
+    this.context.statsNeedUpdate = true;
   }
 
   setHover(se: Selectable) {

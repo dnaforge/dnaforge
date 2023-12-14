@@ -41,7 +41,9 @@ export class XtrnaMenu extends ModuleMenu {
   graphToWires(graph: Graph, params: XtrnaParameters) {
     const wires = graphToWires(graph, params);
     this.context.addMessage(
-      `Generated a route around the spanning tree with ${wires.kls.size / 2} pseudoknot(s).`,
+      `Generated a route around the spanning tree with ${
+        wires.kls.size / 2
+      } pseudoknot(s).`,
       'info',
     );
     return wires;
@@ -142,9 +144,7 @@ export class XtrnaMenu extends ModuleMenu {
 
     $('#xtrna-primary-dialog-confirm').on('click', () => {
       try {
-        this.uploadPrimary(
-          $('#xtrna-primary-dialog-text').val().toUpperCase(),
-        );
+        this.uploadPrimary($('#xtrna-primary-dialog-text').val().toUpperCase());
       } catch (error) {
         this.context.addMessage(error, 'alert');
         throw error;

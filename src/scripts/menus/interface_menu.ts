@@ -12,6 +12,7 @@ const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
   transparent: true,
   opacity: 0.1,
+  depthWrite: false,
 });
 
 const GRID_SIZE = 14;
