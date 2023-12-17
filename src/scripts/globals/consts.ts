@@ -61,7 +61,7 @@ export const DNA: NUC_PARAMS = (() => {
 export const RNA: NUC_PARAMS = (() => {
   //P-stick model parameters
   const RISE = 0.281;
-  const RADIUS = 1;
+  const RADIUS = 1.15;
   const TWIST = (2 * Math.PI) / 11;
   const AXIS = (139.9 / 180) * Math.PI;
   const INCLINATION = -0.745;
@@ -71,9 +71,10 @@ export const RNA: NUC_PARAMS = (() => {
   const RADIUS_BB_CENTER = 0.87;
 
   // These are calculated from above consts:
-  // TODO: Fix these. The base inclination is obviously wrong, since it's calculated from the phosphates.
-  // The Hydrogen facing direction and base normal are probably wrong too.
-  const BASE_INCLINATION = Math.atan(INCLINATION / (2 * RADIUS)) * 2;
+  const INCLINATION_OFFSET = 0.168; // a magic number that aligns the bases, since nucleobase_center is offset towards the base_normal
+  const BASE_INCLINATION =
+    Math.atan(INCLINATION / (RADIUS_BB_CENTER * 2 * Math.sin(AXIS / 2))) +
+    INCLINATION_OFFSET;
   const BACKBONE_CENTER = Z.clone().multiplyScalar(RADIUS_BB_CENTER);
   const HYDROGEN_FACING_DIR = Z.clone()
     .negate()
@@ -87,8 +88,8 @@ export const RNA: NUC_PARAMS = (() => {
     .normalize();
   const NUCLEOBASE_CENTER = BACKBONE_CENTER.clone().add(
     HYDROGEN_FACING_DIR.clone()
-      .multiplyScalar(0.68144)
-      .sub(BASE_NORMAL.clone().multiplyScalar(0.17036)),
+      .multiplyScalar(0.672)
+      .add(BASE_NORMAL.clone().multiplyScalar(0.168)),
   );
 
   return {

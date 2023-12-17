@@ -28,6 +28,9 @@ const backboneGeometryBall = (nucParams: Record<string, any>) => {
 const baseGeometry = (nucParams: typeof DNA | typeof RNA) => {
   const base = new THREE.SphereGeometry(0.2, 16, 8);
   base.scale(1, 0.5, 1);
+  base.lookAt(
+    nucParams.BASE_NORMAL.clone().cross(nucParams.HYDROGEN_FACING_DIR),
+  );
   base.translate(
     ...(nucParams.NUCLEOBASE_CENTER as any as [number, number, number]),
   );
@@ -116,14 +119,19 @@ export class Nucleotide extends Selectable {
   setTransformFromOxDNA(com: Vector3, a1: Vector3, a3: Vector3) {
     const lenFactor = 0.8518;
 
-    const a2 = a1.clone().cross(a3);
+    const baseNormal = a3.clone();
+    const a2 = a1.clone().cross(baseNormal);
 
-    const a1s = this.nucParams.HYDROGEN_FACING_DIR;
-    const a3s = this.nucParams.BASE_NORMAL;
-    const a2s = a1s.clone().cross(a3s);
+    const a1src = this.nucParams.HYDROGEN_FACING_DIR;
+    const baseNormalSrc = this.nucParams.BASE_NORMAL;
+    const a2src = a1src.clone().cross(baseNormalSrc);
 
-    const rot = new Matrix3().fromArray([...a1, ...a3, ...a2]);
-    const rotS = new Matrix3().fromArray([...a1s, ...a3s, ...a2s]);
+    const rot = new Matrix3().fromArray([...a1, ...baseNormal, ...a2]);
+    const rotS = new Matrix3().fromArray([
+      ...a1src,
+      ...baseNormalSrc,
+      ...a2src,
+    ]);
 
     const bb = CoMToBB(
       com.clone().multiplyScalar(lenFactor),

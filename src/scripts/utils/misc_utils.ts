@@ -85,15 +85,20 @@ export function binarySearch<Type>(
  *
  * @param bb
  * @param a1
- * @param a3
+ * @param baseNormal
  * @param naType
  * @returns
  */
-export function bbToCoM(bb: Vector3, a1: Vector3, a3: Vector3, naType: NATYPE) {
+export function bbToCoM(
+  bb: Vector3,
+  a1: Vector3,
+  baseNormal: Vector3,
+  naType: NATYPE,
+) {
   const lenFactor = 0.8518;
 
   if (naType == 'DNA') {
-    const a2 = a1.clone().cross(a3);
+    const a2 = a1.clone().cross(baseNormal);
     const cm = bb.clone().add(
       a1
         .clone()
@@ -106,7 +111,7 @@ export function bbToCoM(bb: Vector3, a1: Vector3, a3: Vector3, naType: NATYPE) {
       a1
         .clone()
         .multiplyScalar(0.4 * lenFactor)
-        .sub(a3.clone().multiplyScalar(0.2 * lenFactor)),
+        .sub(baseNormal.clone().multiplyScalar(-0.2 * lenFactor)),
     );
     return cm;
   } else {
@@ -145,7 +150,7 @@ export function CoMToBB(
       a1
         .clone()
         .multiplyScalar(0.4 * lenFactor)
-        .sub(a3.clone().multiplyScalar(0.2 * lenFactor)),
+        .sub(a3.clone().multiplyScalar(-0.2 * lenFactor)),
     );
     return bb;
   } else {

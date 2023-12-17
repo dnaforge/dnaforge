@@ -155,6 +155,159 @@ export class NucleotideModel extends Model {
   }
 
   /**
+   * Returns an oxDNA dat-file corresponding to this model.
+   *
+   * @returns string
+   */
+  toDat(): string {
+    const lines = [];
+    const lenFactor = 1 / 0.8518;
+    const boxSize = [
+      (50 * 1) / this.scale + 50,
+      (50 * 1) / this.scale + 50,
+      (50 * 1) / this.scale + 50,
+    ];
+
+    lines.push('t = 0');
+    lines.push('b = ' + boxSize.join(' '));
+    lines.push('E = 0 0 0');
+
+    for (const s of this.getStrands()) {
+      for (const n of s.getNucleotides()) {
+        const a1 = n.hydrogenFaceDir;
+        const a3 = n.baseNormal;
+        const bb = n.backboneCenter.clone().multiplyScalar(1 / this.scale);
+
+        const cm = bbToCoM(bb, a1, a3, this.naType).multiplyScalar(lenFactor);
+
+        lines.push(
+          cm
+            .toArray()
+            .concat(a1.toArray(), a3.toArray(), [0, 0, 0, 0, 0, 0])
+            .join(' '),
+        );
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Returns an oxDNA top-file corresponding to this model.
+   *
+   * @returns string
+   */
+  toTop(): string {
+    const lines = [];
+
+    const nNucs = this.getNucleotides().length;
+    const nStrands = this.getStrands().length;
+
+    lines.push(`${nNucs} ${nStrands}`);
+
+    let j = 0;
+    for (const s of this.getStrands()) {
+      j += 1;
+      for (const n of s.getNucleotides()) {
+        const line = [];
+        line.push(j);
+        line.push(n.base);
+        line.push(n.next ? n.next.id : -1);
+        line.push(n.prev ? n.prev.id : -1);
+        lines.push(line.join(' '));
+      }
+    }
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Returns an oxDNA external forces file corresponding to the base pairs of this model.
+   *
+   * @returns string
+   */
+  toExternalForces(stiffness = 0.1): string {
+    const forces: string[] = [];
+    for (const n of this.getNucleotides()) {
+      if (!n.pair) continue;
+      const force: string[] = [];
+      force.push(`type = mutual_trap`);
+      force.push(`particle = ${n.id}`);
+      force.push(`ref_particle = ${n.pair.id}`);
+      force.push(`stiff = ${stiffness}`);
+      force.push(`r0 = 1.2`);
+      force.push(`PBC = 1`);
+      forces.push('{\n' + force.join('\n') + '\n}\n');
+    }
+    return forces.join('\n');
+  }
+
+  /**
+   * Returns a csv-file containing the primary strcuture
+   *
+   * @returns string
+   */
+  toStrands(): string {
+    const strands = this.strands.map((s: Strand) => {
+      return s.toPrimary();
+    });
+    return strands.join('\n');
+  }
+
+  /**
+   * Returns a JSON dictionary of this nucleotide model according to the UNF specification.
+   *
+   * @returns JSON dictionary
+   */
+  toUNF() {
+    const length = this.strands.length;
+    const strandsJSON = [];
+    for (let i = 0; i < length; i++) {
+      const s = this.strands[i];
+      const sJSON = s.toUNF();
+      strandsJSON.push(sJSON);
+    }
+    const empty = [] as any;
+    const t = {
+      format: 'unf',
+      version: '1.0.0',
+      idCounter: this.length(),
+      lengthUnits: 'nm',
+      angularUnits: 'deg',
+      name: '',
+      author: '',
+      creationDate: new Date().toJSON(),
+      doi: {},
+      simData: {
+        boxSize: [
+          (50 * 1) / this.scale + 50,
+          (50 * 1) / this.scale + 50,
+          (50 * 1) / this.scale + 50,
+        ],
+      },
+      externalFiles: empty,
+      lattices: empty,
+      structures: [
+        {
+          id: 0,
+          naStrands: strandsJSON,
+          aaChains: empty,
+        },
+      ],
+      molecules: {
+        ligands: empty,
+        bonds: empty,
+        nanostructures: empty,
+      },
+      groups: empty,
+      connections: empty,
+      modifications: empty,
+      misc: {},
+    };
+    return t;
+  }
+
+  /**
    * Adds the given strand to this model.
    *
    * @param strand
@@ -373,159 +526,6 @@ export class NucleotideModel extends Model {
         i += 1;
       }
     }
-  }
-
-  /**
-   * Returns an oxDNA dat-file corresponding to this model.
-   *
-   * @returns string
-   */
-  toDat(): string {
-    const lines = [];
-    const lenFactor = 1 / 0.8518;
-    const boxSize = [
-      (50 * 1) / this.scale + 50,
-      (50 * 1) / this.scale + 50,
-      (50 * 1) / this.scale + 50,
-    ];
-
-    lines.push('t = 0');
-    lines.push('b = ' + boxSize.join(' '));
-    lines.push('E = 0 0 0');
-
-    for (const s of this.getStrands()) {
-      for (const n of s.getNucleotides()) {
-        const a1 = n.hydrogenFaceDir;
-        const a3 = n.baseNormal;
-        const bb = n.backboneCenter.clone().multiplyScalar(1 / this.scale);
-
-        const cm = bbToCoM(bb, a1, a3, this.naType).multiplyScalar(lenFactor);
-
-        lines.push(
-          cm
-            .toArray()
-            .concat(a1.toArray(), a3.toArray(), [0, 0, 0, 0, 0, 0])
-            .join(' '),
-        );
-      }
-    }
-
-    return lines.join('\n');
-  }
-
-  /**
-   * Returns an oxDNA top-file corresponding to this model.
-   *
-   * @returns string
-   */
-  toTop(): string {
-    const lines = [];
-
-    const nNucs = this.getNucleotides().length;
-    const nStrands = this.getStrands().length;
-
-    lines.push(`${nNucs} ${nStrands}`);
-
-    let j = 0;
-    for (const s of this.getStrands()) {
-      j += 1;
-      for (const n of s.getNucleotides()) {
-        const line = [];
-        line.push(j);
-        line.push(n.base);
-        line.push(n.next ? n.next.id : -1);
-        line.push(n.prev ? n.prev.id : -1);
-        lines.push(line.join(' '));
-      }
-    }
-
-    return lines.join('\n');
-  }
-
-  /**
-   * Returns an oxDNA external forces file corresponding to the base pairs of this model.
-   *
-   * @returns string
-   */
-  toExternalForces(stiffness = 0.1): string {
-    const forces: string[] = [];
-    for (const n of this.getNucleotides()) {
-      if (!n.pair) continue;
-      const force: string[] = [];
-      force.push(`type = mutual_trap`);
-      force.push(`particle = ${n.id}`);
-      force.push(`ref_particle = ${n.pair.id}`);
-      force.push(`stiff = ${stiffness}`);
-      force.push(`r0 = 1.2`);
-      force.push(`PBC = 1`);
-      forces.push('{\n' + force.join('\n') + '\n}\n');
-    }
-    return forces.join('\n');
-  }
-
-  /**
-   * Returns a csv-file containing the primary strcuture
-   *
-   * @returns string
-   */
-  toStrands(): string {
-    const strands = this.strands.map((s: Strand) => {
-      return s.toPrimary();
-    });
-    return strands.join('\n');
-  }
-
-  /**
-   * Returns a JSON dictionary of this nucleotide model according to the UNF specification.
-   *
-   * @returns JSON dictionary
-   */
-  toUNF() {
-    const length = this.strands.length;
-    const strandsJSON = [];
-    for (let i = 0; i < length; i++) {
-      const s = this.strands[i];
-      const sJSON = s.toUNF();
-      strandsJSON.push(sJSON);
-    }
-    const empty = [] as any;
-    const t = {
-      format: 'unf',
-      version: '1.0.0',
-      idCounter: this.length(),
-      lengthUnits: 'nm',
-      angularUnits: 'deg',
-      name: '',
-      author: '',
-      creationDate: new Date().toJSON(),
-      doi: {},
-      simData: {
-        boxSize: [
-          (50 * 1) / this.scale + 50,
-          (50 * 1) / this.scale + 50,
-          (50 * 1) / this.scale + 50,
-        ],
-      },
-      externalFiles: empty,
-      lattices: empty,
-      structures: [
-        {
-          id: 0,
-          naStrands: strandsJSON,
-          aaChains: empty,
-        },
-      ],
-      molecules: {
-        ligands: empty,
-        bonds: empty,
-        nanostructures: empty,
-      },
-      groups: empty,
-      connections: empty,
-      modifications: empty,
-      misc: {},
-    };
-    return t;
   }
 
   /**
