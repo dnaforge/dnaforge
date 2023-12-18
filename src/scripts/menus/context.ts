@@ -17,6 +17,7 @@ import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
 import { downloadIMG } from '../io/download';
+import { RoutingStrategy } from '../models/cylinder';
 
 const canvas = <HTMLCanvasElement>document.querySelector('#canvas');
 
@@ -513,13 +514,23 @@ export class Context {
     // CM:
     const cm = this.activeContext?.cm;
     if (cm) {
+      const pseudoCount = (() => {
+        let i = 0;
+        for (let c of cm.getCylinders()) {
+          if (c.routingStrategy == RoutingStrategy.Pseudoknot) i += 1;
+        }
+        return i;
+      })();
+
       const cmData = $('<li>Cylinder Model</li>');
       const data = $('<ul>');
       const cylinders = $(`<li>Cylinders: ${cm.getCylinders().length}</li>`);
+      const pseudoknots = $(`<li>Pseudoknots: ${pseudoCount}</li>`);
 
       tree.append(cmData);
       cmData.append(data);
       data.append(cylinders);
+      data.append(pseudoknots);
     }
 
     // NM:

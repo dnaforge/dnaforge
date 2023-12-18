@@ -214,10 +214,10 @@ export class CylinderModel extends Model {
 
   solveIntersection(i: Intersection): Selectable {
     const obj = i.object;
-    if (obj == this.meshes.main) {
-      return this.cylinders[i.instanceId];
-    } else {
-      return this.cylinders[Math.floor(i.instanceId / 4)];
+    for (let mesh in this.meshes) {
+      const multiplier = this.meshes[mesh].count / this.cylinders.length;
+      if (obj == this.meshes[mesh])
+        return this.cylinders[Math.floor(i.instanceId / multiplier)];
     }
   }
 

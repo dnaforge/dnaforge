@@ -819,7 +819,7 @@ class Graph {
     const v = this.getVertices().length;
     const e = this.getEdges().length;
     const f = this.getFaces().length;
-    return Math.round((-v + e - f) / 2 + 1);
+    return (-v + e - f) / 2 + 1;
   }
 
   /**

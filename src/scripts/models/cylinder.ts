@@ -13,6 +13,7 @@ export enum RoutingStrategy {
   Normal = 0,
   Pseudoknot = 1,
   Reinforced = 2,
+  Veneziano = 3,
 }
 
 export enum PrimePos {
@@ -521,8 +522,12 @@ export class Cylinder extends Selectable {
     if (!this.instanceMeshes) return;
     const selectionColour =
       ColourScheme.CylinderSelectionColours[this.selectionStatus];
+    const offset =
+      this.routingStrategy == RoutingStrategy.Pseudoknot
+        ? new THREE.Color(0xaaaaaa)
+        : new THREE.Color(0xffffff);
     const colours = {
-      cylinder: this.getOverlayColours(selectionColour),
+      cylinder: this.getOverlayColours(selectionColour).multiply(offset),
       linker: this.getOverlayColours(ColourScheme.CylinderColours.linker),
       prime: this.getOverlayColours(ColourScheme.CylinderColours.prime),
     };
@@ -606,6 +611,9 @@ export class Cylinder extends Selectable {
   }
 
   getTooltip() {
-    return `ID: ${this.id}<br>Len:${this.length} bp`;
+    let text = `ID: ${this.id}<br>Len:${this.length} bp`;
+    if (this.routingStrategy == RoutingStrategy.Pseudoknot)
+      text += '<br>Pseudoknot';
+    return text;
   }
 }

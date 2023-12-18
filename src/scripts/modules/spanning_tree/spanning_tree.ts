@@ -243,7 +243,7 @@ export function wiresToCylinders(
     const c = createCylinder(cm, trail[i], params.greedyOffset);
     bundle.push(c);
 
-    if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Pseudoknot;
+    if (!st.has(edge)) c.routingStrategy = RoutingStrategy.Veneziano;
   }
 
   connectCylinders(cm);
@@ -323,7 +323,7 @@ function connectCylinders(cm: CylinderModel) {
     prev.neighbours[PrimePos.second5] = [cur, PrimePos.second3];
     cur.neighbours[PrimePos.second3] = [prev, PrimePos.second5];
 
-    if (cur.routingStrategy == RoutingStrategy.Pseudoknot)
+    if (cur.routingStrategy == RoutingStrategy.Veneziano)
       prev =
         cur.bundle.cylinders[0] == cur
           ? cur.bundle.cylinders[1]
@@ -389,7 +389,7 @@ function connectStrands(
     reroute(nucs_cur, nucs_pair, 10, length - 10);
     reroute(nucs_pair, nucs_cur, 10, length - 10);
 
-    if (cyl.routingStrategy != RoutingStrategy.Pseudoknot) {
+    if (cyl.routingStrategy != RoutingStrategy.Veneziano) {
       //edge staples:
       const N42 = Math.floor((length - 21) / 21);
       for (let i = 1; i < N42 + 1; i++) {
@@ -397,7 +397,7 @@ function connectStrands(
         const idx2 = length - 10 - 21 * i;
         reroute(nucs_cur, nucs_pair, idx1, idx2);
       }
-    } else if (cyl.routingStrategy == RoutingStrategy.Pseudoknot) {
+    } else if (cyl.routingStrategy == RoutingStrategy.Veneziano) {
       // scaffold crossover:
       let offset;
       if (length % 2 == 0) {
