@@ -42,7 +42,7 @@
         <ul class="sidebar-menu">
             <li><a href="<%= gitAddress %>"><span class="mif-home icon"></span>Git</a></li>
             <li><a href="<%= docsAddress %>"><span class="mif-books icon"></span>Docs</a></li>
-            <li><a href="<%= examplesAddress %>"><span class="mif-files-empty icon"></span>Examples</a></li>
+            <li><a onclick="Metro.dialog.open('#about');"><span class="mif-files-empty icon"></span>About</a></li>
         </ul>
     </aside>
 
@@ -72,6 +72,22 @@
             </div>
         </div>
     </div>
+
+
+    <div class="dialog" data-role="dialog" id="about" data-overlay-click-close="true">
+        <div class="dialog-title">About</div>
+        <div class="dialog-content">
+            <p>
+            DNA Forge is a tool for generating DNA and RNA wireframe nanostructures from 3D meshes. It is free and open source software distributed under the <a href="https://github.com/dnaforge/dnaforge/blob/main/LICENSE">MIT</a> license.
+            </p>
+            <p>The source code is available at <a href="<%= gitAddress %>">Github</a>.</p>
+            <p>Version <%= version %></p>
+        </div>
+        <div class="dialog-actions">
+            <button class="button js-dialog-close">Close</button>
+        </div>
+    </div>
+
 </body>
 
 </html>

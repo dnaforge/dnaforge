@@ -22,6 +22,6 @@ $.ready(function () {
 });
 
 window.onload = function () {
-  console.log(`DNA Forge v${process.env.__VERSION__}`);
+  console.log(`DNA Forge v${process.env.__VERSION__} Built at ${process.env.__BUILDTIME__}`);
   if (!process.env.PRODUCTION) dev(context);
 };

@@ -4,7 +4,8 @@ const webpack = require('webpack');
 const childProcess = require('child_process');
 const PACKAGE = require('./package.json');
 
-const __versionString__ = PACKAGE.version + " built at " + new Date().toISOString(); //childProcess.execSync('git rev-list HEAD --count').toString();
+const __versionString__ = PACKAGE.version + "." + childProcess.execSync('git rev-list HEAD --count').toString().trim();
+const __buildTime__ = new Date().toISOString();
 
 module.exports = {
     entry: './src/scripts/index.ts',
@@ -45,10 +46,12 @@ module.exports = {
                 docsAddress: "https://github.com/Ritkuli/dnaforge/tree/main/docs",
                 examplesAddress: "https://version.aalto.fi/gitlab/orponen/ncgroup",
                 emailAddress: "https://version.aalto.fi/gitlab/orponen/ncgroup",
+                version: __versionString__,
             },
         }),
         new webpack.DefinePlugin({
-            "process.env.__VERSION__": JSON.stringify(__versionString__) 
+            "process.env.__VERSION__": JSON.stringify(__versionString__),
+            "process.env.__BUILDTIME__": JSON.stringify(__buildTime__),
         })
     ],
 
