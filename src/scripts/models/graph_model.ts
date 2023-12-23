@@ -465,71 +465,72 @@ class Graph {
     return g;
   }
 
-  // Doesn't work on multigraphs
-  //TODO: use some different method to calculate this to deal with multigraphs
   calculateNormals() {
-    const calculateFaceNormal = (
-      face: Face,
-      adjFace: Face,
-      commonEdge: Edge,
-    ) => {
-      const edges1 = new Set(face.getEdges());
-      const edges2 = new Set(adjFace.getEdges());
-      let e1, e2;
-      for (const e of commonEdge.getVertices()[0].getAdjacentEdges()) {
-        if (e == commonEdge) continue;
-        if (edges1.has(e)) e1 = e;
-        if (edges2.has(e)) e2 = e;
+    //Face normals:
+    const visitedF = new Set();
+    const visitedE = new Set();
+    const stack = this.getFaces().map((f: Face): [Face, HalfEdge] => {
+      return [f, undefined];
+    });
+    while (stack.length > 0) {
+      const [f, halfEdge] = stack.pop();
+      if (visitedF.has(f)) continue;
+      visitedF.add(f);
+      const edges = new Set(f.getEdges());
+      const hEdges: HalfEdge[] = [];
+
+      // find the path around the face
+      let cur: HalfEdge = halfEdge;
+      if (!cur) cur = f.getEdges()[0].halfEdges[0];
+      while (hEdges.length < edges.size) {
+        const candidates = cur.twin.vertex.getAdjacentHalfEdges();
+        for (let c of candidates) {
+          if (edges.has(c.edge) && c.edge != cur.edge) {
+            cur = c;
+            break;
+          }
+        }
+        hEdges.push(cur);
       }
 
-      const vs1 = e1.getVertices();
-      const vs2 = e2.getVertices();
-      const vsc = commonEdge.getVertices();
+      //
+      const dir = new Vector3();
+      for (let i = 0; i < hEdges.length; i++) {
+        const he = hEdges[i];
+        const he2 = hEdges[(i + 1) % hEdges.length];
+        const c1 = he.vertex.coords;
+        const c2 = he2.vertex.coords;
+        const c3 = he2.twin.vertex.coords;
+        const d1 = c2.clone().sub(c1);
+        const d2 = c3.clone().sub(c2);
+        const n = d2.cross(d1);
+        dir.add(n);
 
-      const d1 = vs1[0].coords
-        .clone()
-        .add(vs1[1].coords)
-        .sub(vsc[0].coords)
-        .sub(vsc[0].coords)
-        .normalize();
-      const d2 = vs2[0].coords
-        .clone()
-        .add(vs2[1].coords)
-        .sub(vsc[0].coords)
-        .sub(vsc[0].coords)
-        .normalize();
-      const dc = vsc[1].coords.clone().sub(vsc[0].coords).normalize();
-
-      const n1 = d1.clone().cross(dc).normalize();
-      const n2 = dc.clone().cross(d2).normalize();
-
-      n1.multiplyScalar(Math.sign(n2.dot(adjFace.normal)));
-      return n1;
-    };
-
-    //Face normals:
-    const visited = new Set();
-    const stack = this.getFaces();
-    if (stack.length == 0) return; // don't even try to calculate normals unless the faces are given
-    while (stack.length > 0) {
-      const f = stack.pop();
-      for (const e of f.getEdges()) {
-        for (const f2 of e.getFaces()) {
-          if (f == f2 || visited.has(f2)) continue;
-          const n = calculateFaceNormal(f2, f, e);
-          f2.normal = n;
-          if (f.normal.length() < 0.9) {
-            f.normal = new Vector3().randomDirection();
-            console.log(`Error calculating the normal of face ${f.id}`);
+        visitedE.add(he);
+        const faces2 = he.edge.getFaces();
+        if (faces2.length > 2) continue;
+        for (let f2 of faces2) {
+          if (f2 != f) {
+            stack.push([f2, he.twin]);
           }
-          stack.push(f2);
-          visited.add(f2);
         }
+      }
+      f.normal = dir.normalize();
+
+      if (f.normal.length() < 0.9) {
+        //This is probably because of a multigraph edge, so just assing a random direction.
+        //TODO: Find an actual solution.
+        f.normal = new Vector3().randomDirection();
+        //console.error(`Error calculating the normal of face ${f.id}`);
       }
     }
 
     //Edge normals:
     for (const e of this.getEdges()) {
+      if (e.getFaces().length == 0) {
+        e.normal = new Vector3().randomDirection();
+        continue;
+      }
       const n = new Vector3();
       for (const f of e.getFaces()) {
         n.add(f.normal);
@@ -537,7 +538,7 @@ class Graph {
       e.normal = n.normalize();
       if (e.normal.length() < 0.9) {
         e.normal = new Vector3().randomDirection();
-        console.log(`Error calculating the normal of edge ${e.id}`);
+        console.error(`Error calculating the normal of edge ${e.id}`);
       }
     }
 
@@ -550,7 +551,7 @@ class Graph {
       v.normal = n.normalize();
       if (v.normal.length() < 0.9) {
         v.normal = new Vector3().randomDirection();
-        console.log(`Error calculating the normal of vertex ${v.id}`);
+        console.error(`Error calculating the normal of vertex ${v.id}`);
       }
     }
   }

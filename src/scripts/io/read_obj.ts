@@ -156,7 +156,6 @@ export class OBJLoader extends Loader {
       }
       graph.addFace(fEdges);
     }
-    graph.calculateNormalsOutside();
 
     //explicit edges: These can define a multigraph
     for (let i = 0; i < edgesE.length; i += 2) {
@@ -166,6 +165,8 @@ export class OBJLoader extends Loader {
       if (t) graph.splitEdge(t);
       else graph.addEdge(v1, v2);
     }
+
+    graph.calculateNormalsOutside();
 
     return graph;
   }

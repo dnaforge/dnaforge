@@ -33,13 +33,15 @@ export function dev(context: Context) {
   const x4 = require('../../resources/4x4.obj');
   const shape = require('../../resources/shape.obj');
   const shape2 = require('../../resources/shape2.obj');
+  const shape3 = require('../../resources/shape3.obj');
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
   const b = require('../../resources/bloc_v2.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(plane);
+  const graph = new OBJLoader(new THREE.LoadingManager()).parse(shape3);
   context.setGraph(graph);
 
+  return;
   const xtrna = <XtrnaMenu>context.menus.get('xtrna');
   xtrna.generateWires();
   $('#xtrna-scale')[0].value = 2;
@@ -49,7 +51,6 @@ export function dev(context: Context) {
 
   //matroid_parity();
   (<SimulationAPI>context.menus.get('sim')).dev();
-  return;
 
   $('#cycle-cover-scale')[0].value = 1;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
