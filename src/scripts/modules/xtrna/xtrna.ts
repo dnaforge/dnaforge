@@ -267,7 +267,7 @@ export class Xtrna extends WiresModel {
    * @returns a set of edges in the spanning tree
    */
   getXuon(): Set<Edge> {
-    const xuon = getXuon(this.graph);
+    //const xuon = getXuon(this.graph);
 
     //temp solution:
     const edges = this.graph.getEdges();

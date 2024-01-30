@@ -853,28 +853,6 @@ class Graph {
     }
   }
 
-  furstSubdivide() {
-    const g = new Graph();
-
-    for (let e of this.getEdges()) {
-      const count = e.getAdjacentEdges().size;
-
-      const [v1, v2] = e.getVertices();
-      let vx: Vertex;
-
-      const p1 = v1.coords;
-      const p2 = v2.coords;
-      const delta = p2.clone().sub(p1).divideScalar(count);
-
-      for (let i = 0; i < count; i++) {
-        vx = g.addVertex(
-          p1.clone().add(delta.clone().multiplyScalar(i)),
-          v1.normal,
-        );
-      }
-    }
-  }
-
   test() {
     return;
   }

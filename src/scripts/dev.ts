@@ -13,8 +13,8 @@ import { Cylinder, CylinderBundle } from './models/cylinder';
 import { FileMenu } from './menus/file_menu';
 import { PrimaryGenerator } from './utils/primary_generator';
 import { SimulationAPI } from './menus/simulations_menu';
-import { matroid_parity } from './utils/matroid_parity';
 import { XtrnaMenu } from './modules/xtrna/xtrna_menu';
+import { getXuon } from './utils/matroid_parity';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -38,18 +38,18 @@ export function dev(context: Context) {
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
   const b = require('../../resources/bloc_v2.obj');
-  const graph = new OBJLoader(new THREE.LoadingManager()).parse(shape3);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
   context.setGraph(graph);
 
-  return;
   const xtrna = <XtrnaMenu>context.menus.get('xtrna');
   xtrna.generateWires();
   $('#xtrna-scale')[0].value = 2;
   xtrna.generateNucleotideModel();
   xtrna.generatePrimary();
   context.switchContext(<ModuleMenu>context.menus.get('xtrna'));
+  getXuon(graph);
+  return;
 
-  //matroid_parity();
   (<SimulationAPI>context.menus.get('sim')).dev();
 
   $('#cycle-cover-scale')[0].value = 1;

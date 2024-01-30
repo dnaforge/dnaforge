@@ -499,7 +499,7 @@ export class NucleotideModel extends Model {
 
   /**
    * Sets all the ID's of the strands and nucleotides contained in this model so
-   * that they start from 0. Also sets the instanceToNuc dictionary, which is used
+   * that they start from 0. Also sets the idToNuc dictionary, which is used
    * for assigning mesh instances to nucleotides.
    */
   setIDs() {
