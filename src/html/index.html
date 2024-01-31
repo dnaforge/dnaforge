@@ -37,12 +37,14 @@
             <span class="title fg-red">
                 <%= htmlWebpackPlugin.options.title %>
             </span>
-            <span class="subtitle fg-red"> 2023 ncgroup</span>
+            <span class="subtitle fg-red"> 2024 ncgroup</span>
         </div>
         <ul class="sidebar-menu">
             <li><a href="<%= gitAddress %>"><span class="mif-home icon"></span>Git</a></li>
-            <li><a href="<%= docsAddress %>"><span class="mif-books icon"></span>Docs</a></li>
-            <li><a onclick="Metro.dialog.open('#about');"><span class="mif-files-empty icon"></span>About</a></li>
+            <!--<li><a href="<%= docsAddress %>"><span class="mif-books icon"></span>Docs</a></li>-->
+            <li><a href="<%= userGuideAddress %>"><span class="mif-books icon"></span>User Guide</a></li>
+            <li><a href="<%= examplesAddress %>"><span class="mif-file-text icon"></span>Examples</a></li>
+            <li class="static"><a onclick="Metro.dialog.open('#about');"><span class="mif-question icon"></span>About</a></li>
         </ul>
     </aside>
 
@@ -53,7 +55,8 @@
             </button>
             <li id="file-tab"><a href="#file">File</a></li>
             <li id="interface-tab"><a href="#ui">Interface</a></li>
-            <li id="interface-tab"><a href="#sim">Simulation</a></li>
+            <li id="simulation-tab"><a href="#sim">Simulation</a></li>
+            <li id="about-tab" class="static"><a href="javascript:void(0)" onclick="Metro.dialog.open('#about');">About</a></li>
         </ul>
 
         <div class="content-holder" id="content-holder">

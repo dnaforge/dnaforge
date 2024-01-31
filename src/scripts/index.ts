@@ -19,6 +19,8 @@ $.ready(function () {
   new SimulationAPI(context);
 
   setupModules(context);
+
+  $('#main-tabs-holder').append($("#about-tab"));
 });
 
 window.onload = function () {

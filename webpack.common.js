@@ -44,7 +44,8 @@ module.exports = {
             templateParameters: {
                 gitAddress: "https://github.com/Ritkuli/dnaforge",
                 docsAddress: "https://github.com/Ritkuli/dnaforge/tree/main/docs",
-                examplesAddress: "https://version.aalto.fi/gitlab/orponen/ncgroup",
+                examplesAddress: "https://github.com/dnaforge/dnaforge/tree/main/docs/examples",
+                userGuideAddress: "https://github.com/dnaforge/dnaforge/tree/main/docs/user-guide",
                 emailAddress: "https://version.aalto.fi/gitlab/orponen/ncgroup",
                 version: __versionString__,
             },
