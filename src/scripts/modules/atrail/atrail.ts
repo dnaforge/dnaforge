@@ -463,6 +463,7 @@ export function cylindersToNucleotides(
   cm: CylinderModel,
   params: ATrailParameters,
 ) {
+  const midpointNicking = params.midpointNicking;
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;
   const addNicks = params.addNicks;
@@ -474,7 +475,10 @@ export function cylindersToNucleotides(
   const cylToStrands = nm.createStrands(cm, true);
   nm.linkStrands(cm, cylToStrands, minLinkers, maxLinkers);
   connectReinforcedNucleotides(cm, nm, cylToStrands, params); // handle cylinder bundles
-  addNicks && nm.addNicks(minLength, maxLength);
+  if (addNicks) {
+    if (midpointNicking) addNicksAlt(nm);
+    else nm.addNicks(minLength, maxLength);
+  }
   nm.concatenateStrands();
   nm.setIDs();
 
@@ -632,5 +636,22 @@ function connectReinforcedNucleotides(
       s4b.linkStrand(s2a, 2, 2);
       s2a.linkStrand(s4b, 2, 2);
     }
+  }
+}
+
+function addNicksAlt(nm: NucleotideModel) {
+  const addNicksT = (strand: Strand, indices: number[]) => {
+    if (strand.isScaffold) return;
+    const nucs1 = strand.nucleotides;
+    for (const i of indices) {
+      nucs1[i].next = null;
+      nucs1[i + 1].prev = null;
+    }
+  };
+
+  for (const strand of nm.strands) {
+    if (strand.isLinker || strand.isScaffold) continue;
+    const id = Math.floor(strand.length() / 2);
+    addNicksT(strand, [id]);
   }
 }

@@ -20,6 +20,7 @@ import { getXuon } from './utils/matroid_parity';
  * Used for testing while developing. Does not get compiled to the final product.
  */
 export function dev(context: Context) {
+  return;
   window.context = <any>context;
 
   const tet = require('../examples/tetrahedron.obj');

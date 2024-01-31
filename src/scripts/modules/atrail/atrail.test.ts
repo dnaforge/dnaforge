@@ -18,6 +18,7 @@ function getParams(): ATrailParameters {
     scaffoldOffset: 0,
     scaffoldStart: 0,
     checkerBoard: false,
+    midpointNicking: false,
   };
 }
 

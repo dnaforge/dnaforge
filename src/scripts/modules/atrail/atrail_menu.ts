@@ -19,6 +19,7 @@ export interface ATrailParameters extends ModuleMenuParameters {
   scaffoldOffset: number;
   scaffoldStart: number;
   checkerBoard: boolean;
+  midpointNicking: boolean;
 }
 
 export class ATrailMenu extends ModuleMenu {
@@ -131,6 +132,7 @@ export class ATrailMenu extends ModuleMenu {
     register(this.params, 'minStrandLength', 'atrail-strand-length-min');
     register(this.params, 'addNicks', 'atrail-add-nicks');
     register(this.params, 'checkerBoard', 'atrail-checkerboard');
+    register(this.params, 'midpointNicking', 'atrail-midpoint-nicking');
     register(this.params, 'scaffoldName', 'atrail-scaffold');
     register(this.params, 'scaffoldOffset', 'atrail-scaffold-offset');
     register(this.params, 'scaffoldStart', 'atrail-scaffold-start');
