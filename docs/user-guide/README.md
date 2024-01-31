@@ -87,21 +87,21 @@ A custom routing can be entered by clicking the "Upload Trail"-button. The trail
 
 #### Additional Parameters
 * Routing Parameters
-* * **Checkerboard** Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm. 
-* * **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Checkerboard** Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm. 
+    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
 
 * Strand Parameters
-* * **Max Staple Length** Maximum staple length in nucleotides.
-* * **Min Overlap** Minimum length of a continuous double helix without strand gaps.
-* * **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
-* * **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
-* * **Offset** Offset for the scaffold. Ignore this many bases from scaffold start.
-* * **5' ID** ID of the first nucleotide in the scaffold strand.
+    + **Max Staple Length** Maximum staple length in nucleotides.
+    + **Min Overlap** Minimum length of a continuous double helix without strand gaps.
+    + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
+    + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
+    + **Offset** Offset for the scaffold. Ignore this many bases from scaffold start.
+    + **5' ID** ID of the first nucleotide in the scaffold strand.
 
 * Relaxation Parameters
-* * **Floor Constraints** Add springs between the 3d-model and cylinders. 
-* * **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
-* * **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
+    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
+    + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
 ---
 
@@ -117,28 +117,28 @@ The primary structure is generated with Focused Metropolis Search, a local searc
 
 #### Additional Parameters
 * Routing Parameters
-* * **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
 
 * Strand Parameters
-* * **Max Strand Length** Maximum strand length in nucleotides.
-* * **Min Overlap** Minimum length of overlapping segments in nucleotides.
-* * **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
-* * **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
+    + **Max Strand Length** Maximum strand length in nucleotides.
+    + **Min Overlap** Minimum length of overlapping segments in nucleotides.
+    + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
+    + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
 
 * Primary Structure Parameters
-* * **GC-content** Target Proportion of G's and C's in the generated primary structure.
-* * **Spacer Nucleotides** Spacer bases in IUPAC notation. Separated by spaces.
-* * **Banned Subsequences** Banned subsequences in IUPAC notation. Separated by spaces.
+    + **GC-content** Target Proportion of G's and C's in the generated primary structure.
+    + **Spacer Nucleotides** Spacer bases in IUPAC notation. Separated by spaces.
+    + **Banned Subsequences** Banned subsequences in IUPAC notation. Separated by spaces.
 
 * Primary Generator Parameters
-* * **Iterations** The generator will run for this many iterations.
-* * **Trials** Base Pair changes per iteration.
-* * **Eta** Acceptance probability of less favourable changes.
+    + **Iterations** The generator will run for this many iterations.
+    + **Trials** Base Pair changes per iteration.
+    + **Eta** Acceptance probability of less favourable changes.
 
 * Relaxation Parameters
-* * **Floor Constraints** Add springs between the 3d-model and cylinders. 
-* * **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
-* * **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
+    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
+    + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
 ---
 
@@ -152,16 +152,16 @@ The spanning-tree method, Daedalus, routes the scaffold strand twice around the 
 
 #### Additional Parameters
 * Routing Parameters
-* * **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
 
 * Strand Parameters
-* * **Offset** Offset for the scaffold. Ignore this many bases from scaffold start.
-* * **5' ID** ID of the first nucleotide in the scaffold strand.
+    + **Offset** Offset for the scaffold. Ignore this many bases from scaffold start.
+    + **5' ID** ID of the first nucleotide in the scaffold strand.
 
 * Relaxation Parameters
-* * **Floor Constraints** Add springs between the 3d-model and cylinders. 
-* * **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
-* * **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
+    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
+    + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
 ---
 
@@ -182,16 +182,16 @@ The primary structure for a Sterna design can either be generated entirely rando
 
 #### Additional Parameters
 * Routing Parameters
-* * **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
 
 * Strand Parameters
-* * **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
-* * **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
+    + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
+    + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
 
 * Relaxation Parameters
-* * **Floor Constraints** Add springs between the 3d-model and cylinders. 
-* * **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
-* * **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
+    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
+    + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
 
 
@@ -212,16 +212,16 @@ The primary structure for an XT-RNA design can either be generated entirely rand
 
 #### Additional Parameters
 * Routing Parameters
-* * **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
 
 * Strand Parameters
-* * **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
-* * **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
+    + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
+    + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
 
 * Relaxation Parameters
-* * **Floor Constraints** Add springs between the 3d-model and cylinders. 
-* * **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
-* * **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
+    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
+    + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
 
 ---
@@ -244,33 +244,33 @@ Selected cylinders and nucleotides can be translated by pressing the "G"-key. By
 DNAforge viewport look and behaviour can be modified from the interface menu.
 
 * **Selection mode** This switch determines how to handle selection by left-clicking a selectable element.
-* * **None** Never select anything.
-* * **Single** Select only the element clicked.
-* * **Limited** Select the clicked element and all connected elements of the same type.
-* * **Connected** Select the clicked element and all connected elements.
-* * **Hover** Highlight elements under the mouse cursor.
+    + **None** Never select anything.
+    + **Single** Select only the element clicked.
+    + **Limited** Select the clicked element and all connected elements of the same type.
+    + **Connected** Select the clicked element and all connected elements.
+    + **Hover** Highlight elements under the mouse cursor.
 * **Lights**
-* * **Camera Light** Toggle a light that follows the camera.
-* * **Ambient Light** Toggle a static light that illuminates the whole scene.
-* * **Fog** Toggle a fog that hides elements far from the camera.
+    + **Camera Light** Toggle a light that follows the camera.
+    + **Ambient Light** Toggle a static light that illuminates the whole scene.
+    + **Fog** Toggle a fog that hides elements far from the camera.
 * **Scene**
-* * **Axes** Toggle the display of global XYZ-axes.
-* * **Grid** Toggle the display of the grid.
-* * **Colours** Open an editor for defining custom colours for the viewport elements.
+    + **Axes** Toggle the display of global XYZ-axes.
+    + **Grid** Toggle the display of the grid.
+    + **Colours** Open an editor for defining custom colours for the viewport elements.
 * **Graph**
-* * **Solid** Toggle the display of mesh faces.
-* * **Wireframe** Toggle the dispaly of mesh wireframe model.
-* * **Bounding Box** Toggle the display of a 10 by 10 by 10 box around the mesh.
-* * **Indices** Toggle the display of vertex indices.
+    + **Solid** Toggle the display of mesh faces.
+    + **Wireframe** Toggle the dispaly of mesh wireframe model.
+    + **Bounding Box** Toggle the display of a 10 by 10 by 10 box around the mesh.
+    + **Indices** Toggle the display of vertex indices.
 * **Cylinders**
-* * **Torque Overlay** Shade cylinders by the torque exerted by the neighbouring cylinders.
-* * **Tension Overlay** Shade cylinders by the tension exerted by the neighbouring cylinders. 
+    + **Torque Overlay** Shade cylinders by the torque exerted by the neighbouring cylinders.
+    + **Tension Overlay** Shade cylinders by the tension exerted by the neighbouring cylinders. 
 * **Nucleotides**
-* * **Draw Backbones** Toggle the display of nucleotide backbones.
-* * **Draw Bases** Toggle the display of nucleotide bases.
+    + **Draw Backbones** Toggle the display of nucleotide backbones.
+    + **Draw Bases** Toggle the display of nucleotide bases.
 * **Camera**
-* * **Reset Camera** Reset the camera to its original state.
-* * **Ortographic/Perspective** Toggle between orthogonal and perspective cameras.
+    + **Reset Camera** Reset the camera to its original state.
+    + **Ortographic/Perspective** Toggle between orthogonal and perspective cameras.
 
 ---
 
