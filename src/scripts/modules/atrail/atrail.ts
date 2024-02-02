@@ -651,7 +651,7 @@ function addNicksAlt(nm: NucleotideModel) {
 
   for (const strand of nm.strands) {
     if (strand.isLinker || strand.isScaffold) continue;
-    const id = Math.floor(strand.length() / 2);
+    const id = Math.floor(strand.length() / 2 - 1);
     addNicksT(strand, [id]);
   }
 }
