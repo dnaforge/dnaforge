@@ -11,7 +11,7 @@
                 </li>
                 <li>
                     <button class="button primary"
-                        onclick="Metro.dialog.open('#atrail-dialog'); $('#atrail-dialog-text').focus()" data-role="hint"
+                        onclick="$('#atrail-upload-dialog')[0].hidden = false; $('#atrail-upload-dialog-text').focus()" data-role="hint"
                         data-hint-position="right"
                         data-hint-text="Generate a routing along a set of vertex indices.">Upload Trail</button>
                 </li>
@@ -138,17 +138,19 @@
         </div>
     </div>
 </div>
-<div class="dialog" data-role="dialog" id="atrail-dialog" data-overlay-click-close="true">
-    <div class="dialog-title">Input trail</div>
+<div class="hidden dialog draggable-dialog" id="atrail-upload-dialog" data-role="draggable" data-drag-area="body"
+style="opacity: 0.9; z-index: 1;" data-drag-element=".drag-element">
+    <div class="dialog-title drag-element">Input trail</div>
     <div class="dialog-content">
         <span>The trail should be a list of vertices separated by spaces.</span>
-        <textarea data-role="textarea" id="atrail-dialog-text" data-auto-size="false"></textarea>
+        <textarea data-role="textarea" id="atrail-upload-dialog-text" data-auto-size="false"></textarea>
     </div>
     <div class="dialog-actions">
-        <button class="button js-dialog-close">Cancel</button>
-        <button class="button primary js-dialog-close" id="atrail-dialog-confirm">Set trail</button>
+        <button class="button" onclick="$('#atrail-upload-dialog')[0].hidden = true">Cancel</button>
+        <button class="button primary" id="atrail-upload-dialog-confirm">Set trail</button>
     </div>
 </div>
+
 <div class="dialog" data-role="dialog" id="atrail-scaffold-dialog" data-overlay-click-close="true">
     <div class="dialog-title">Input a custom scaffold</div>
     <div class="dialog-content">

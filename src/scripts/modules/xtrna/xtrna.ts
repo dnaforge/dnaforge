@@ -87,7 +87,7 @@ export class Xtrna extends WiresModel {
         component.add(e);
         visited.add(e);
 
-        for (let e2 of e.getAdjacentEdges()) {
+        for (const e2 of e.getAdjacentEdges()) {
           if (visited.has(e2)) continue;
           else stack.push(e2);
         }
@@ -95,7 +95,7 @@ export class Xtrna extends WiresModel {
       return component;
     };
 
-    for (let e of this.graph.edges) {
+    for (const e of this.graph.edges) {
       if (visited.has(e)) continue;
       const component = getComponent(e);
       components.push(component);
@@ -122,7 +122,7 @@ export class Xtrna extends WiresModel {
       if (!visited.has(v)) {
         visited.add(v);
         e && st.add(e);
-        for (let e2 of neighbours) {
+        for (const e2 of neighbours) {
           const v2 = e2.getOtherVertex(v);
           if (visited.has(v2) || e2 == e) continue;
 
@@ -132,9 +132,9 @@ export class Xtrna extends WiresModel {
         stack.pop();
 
         let stEdge: Edge;
-        let curPair: Edge[] = [];
+        const curPair: Edge[] = [];
 
-        for (let e2 of neighbours) {
+        for (const e2 of neighbours) {
           if (eVisited.has(e2)) continue;
 
           if (st.has(e2)) stEdge = e2;
@@ -158,9 +158,9 @@ export class Xtrna extends WiresModel {
   getVertexRotations(): Map<Vertex, HalfEdge[]> {
     const components = this.getCoTreeComponents(this.st);
     const rotations = new Map<Vertex, HalfEdge[]>();
-    for (let v of this.graph.getVertices()) {
+    for (const v of this.graph.getVertices()) {
       const rotation: HalfEdge[] = [];
-      for (let hE of v.getAdjacentHalfEdges()) {
+      for (const hE of v.getAdjacentHalfEdges()) {
         if (this.st.has(hE.edge)) {
           rotation.push(hE);
         }
@@ -168,9 +168,9 @@ export class Xtrna extends WiresModel {
       rotations.set(v, rotation);
     }
 
-    for (let c of components) {
+    for (const c of components) {
       const pairs = this.getPairs(c);
-      for (let p of pairs) {
+      for (const p of pairs) {
         const [e1, e2] = p;
         if (!e1) continue;
         if (!e2) throw `Null edge in a cotree component.`;
@@ -227,9 +227,9 @@ export class Xtrna extends WiresModel {
 
   augmentRotations(rotations: Map<Vertex, HalfEdge[]>) {
     const kls = new Set<HalfEdge>();
-    for (let v of this.graph.getVertices()) {
+    for (const v of this.graph.getVertices()) {
       const rot = new Set(rotations.get(v));
-      for (let he of v.getAdjacentHalfEdges()) {
+      for (const he of v.getAdjacentHalfEdges()) {
         if (!rot.has(he)) {
           kls.add(he);
           rotations.get(v).push(he);

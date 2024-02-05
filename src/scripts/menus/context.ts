@@ -516,7 +516,7 @@ export class Context {
     if (cm) {
       const pseudoCount = (() => {
         let i = 0;
-        for (let c of cm.getCylinders()) {
+        for (const c of cm.getCylinders()) {
           if (c.routingStrategy == RoutingStrategy.Pseudoknot) i += 1;
         }
         return i;

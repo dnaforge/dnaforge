@@ -76,7 +76,7 @@ The A-trail routing follows the procedure laid out by Benson et al. It uses a br
 #### Reinforcement
 Cylinders can be reinforced by clicking the "Reinforce"-button. This will replace the selected cylinder with four-cylinder bundles. 
 
-####Custom Trail
+#### Custom Trail
 A custom routing can be entered by clicking the "Upload Trail"-button. The trail must be a list of vertex ID's separated by spaces. Vertex ID visibility can be toggled in the interface menu.
 
 

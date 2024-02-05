@@ -1,12 +1,11 @@
 import { Edge, Graph, Vertex } from '../models/graph_model';
 
-
 export function getXuon(graph: Graph) {
   const edgeToSub = subdivGraph(graph);
-  
+
   const mEdges: MEdge[] = [];
 
-  for (let v of graph.getVertices()) {
+  for (const v of graph.getVertices()) {
     const es = v.getAdjacentEdges();
     for (let i = 0; i < es.length; i++) {
       const e1 = es[i];
@@ -27,21 +26,22 @@ export function getXuon(graph: Graph) {
   matroidParity(mEdges);
 }
 
-
-function subdivGraph(graph: Graph): Map<Edge, Edge[]>{
+function subdivGraph(graph: Graph): Map<Edge, Edge[]> {
   const subdGraph = new Graph();
 
   const edgeToSub = new Map<Edge, Edge[]>();
   const verts = new Map<number, Vertex>();
-  for (let v of graph.getVertices()) {
+  for (const v of graph.getVertices()) {
     const vx = subdGraph.addVertex(v.coords, v.normal, v.id);
     verts.set(v.id, vx);
   }
 
-  for (let e of graph.getEdges()) {
+  for (const e of graph.getEdges()) {
     const count = e.getAdjacentEdges().size;
 
-    const [v1, v2] = e.getVertices().map((v: Vertex) => { return verts.get(v.id) });
+    const [v1, v2] = e.getVertices().map((v: Vertex) => {
+      return verts.get(v.id);
+    });
     const p1 = v1.coords;
     const p2 = v2.coords;
     const delta = p2.clone().sub(p1).divideScalar(count);
@@ -71,7 +71,7 @@ function matroidParity(mEdges: MEdge[]) {
 
   const queue = [];
 
-  for (let e of mStar) {
+  for (const e of mStar) {
     if (!e.pair) queue.push(e);
   }
 
@@ -84,7 +84,7 @@ function matroidParity(mEdges: MEdge[]) {
         return a.serial - b.serial;
       },
     );
-    for (let f of sortedNeighbours) {
+    for (const f of sortedNeighbours) {
       if (e.blossom == f.blossom) continue;
 
       if (f.label && f.serial < e.serial) {
@@ -112,21 +112,19 @@ function matroidParity(mEdges: MEdge[]) {
   }
 }
 
-
 function setupMStar(mEdges: MEdge[]) {
   const edges = mEdges.map((mE: MEdge) => {
     return mE.edge;
   });
   const st = getRST(edges);
 
-  const mStar = new Set<MEdge>()
+  const mStar = new Set<MEdge>();
 
-  for (let me of mEdges) {
+  for (const me of mEdges) {
     if (st.has(me.edge)) {
       if (st.has(me.pair.edge)) {
         mStar.add(me);
-      }
-      else {
+      } else {
         const singleton = new MEdge(me.edge);
         mStar.add(singleton);
       }
@@ -135,7 +133,6 @@ function setupMStar(mEdges: MEdge[]) {
 
   return mStar;
 }
-
 
 function getRST(edges: Edge[]) {
   const st = new Set<Edge>();
@@ -165,19 +162,18 @@ function getRST(edges: Edge[]) {
   return st;
 }
 
-
 function setupDPG(edges: MEdge[], mStar: Set<MEdge>) {
   const startEdge = mStar.keys().next().value;
 
   const parents = new Map<MEdge, MEdge>();
-  const levels = new Map<MEdge, Number>();
+  const levels = new Map<MEdge, number>();
   const stack: MEdge[] = [startEdge];
 
   parents.set(startEdge, startEdge);
   levels.set(startEdge, 0);
   while (stack.length > 0) {
     const curEdge = stack.pop();
-    for (let nEdge of curEdge.neighbours) {
+    for (const nEdge of curEdge.neighbours) {
       if (mStar.has(nEdge) && !parents.has(nEdge)) {
         stack.push(nEdge);
         parents.set(nEdge, curEdge);
@@ -188,7 +184,7 @@ function setupDPG(edges: MEdge[], mStar: Set<MEdge>) {
 
   const getCycle = (edge: MEdge) => {
     let e1, e2: MEdge;
-    for (let nE of edge.neighbours) {
+    for (const nE of edge.neighbours) {
       if (levels.has(nE)) {
         if (!e1) e1 = nE;
         if (!e2) e2 = nE;
@@ -197,8 +193,8 @@ function setupDPG(edges: MEdge[], mStar: Set<MEdge>) {
 
     const cycle: MEdge[] = [];
     while (parents.get(e1) != parents.get(e2)) {
-      let l1 = levels.get(e1);
-      let l2 = levels.get(e2);
+      const l1 = levels.get(e1);
+      const l2 = levels.get(e2);
       if (l1 <= l2) {
         cycle.push(e2);
         e2 = parents.get(e2);
@@ -214,30 +210,27 @@ function setupDPG(edges: MEdge[], mStar: Set<MEdge>) {
     if (mStar.has(edge)) continue;
 
     const cycle = getCycle(edge);
-    for (let cEdge of cycle) {
+    for (const cEdge of cycle) {
       cEdge.DPGNeighbours.add(edge);
       edge.DPGNeighbours.add(cEdge);
     }
   }
 }
 
+function augment(e: MEdge, f: MEdge) {}
 
-function augment(e: MEdge, f: MEdge) { }
-
-
-function path() { }
-
+function path() {}
 
 function blossom(e0: MEdge, e1: MEdge, b: MEdge) {
   const trav = (e: MEdge): MEdge => {
-    for (let tE of e.path) {
+    for (const tE of e.path) {
       if (b.blossom.has(tE)) return tE;
     }
     throw `Couldn't find predecessor of ${e}`;
   };
 
-  let b0 = trav(e0);
-  let b1 = trav(e1);
+  const b0 = trav(e0);
+  const b1 = trav(e1);
   let t0 = undefined;
   let t1 = undefined;
 
@@ -247,7 +240,7 @@ function blossom(e0: MEdge, e1: MEdge, b: MEdge) {
   }
 
   const getGs = (gs: MEdge[], ei: MEdge, bi: MEdge, ti: MEdge) => {
-    for (let e of ei.path) {
+    for (const e of ei.path) {
       if (e == bi) break;
       if (e == ti) continue;
       if (!e.label && (!e.blossom || e.blossom.tips.has(e))) {
@@ -266,10 +259,10 @@ function blossom(e0: MEdge, e1: MEdge, b: MEdge) {
     return a.serial - b.serial;
   });
 
-  for (let g of gs0) {
+  for (const g of gs0) {
     g.label = [e1, e0];
   }
-  for (let g of gs1) {
+  for (const g of gs1) {
     if (g.label) continue;
     g.label = [e0, e1];
   }
@@ -278,11 +271,11 @@ function blossom(e0: MEdge, e1: MEdge, b: MEdge) {
   if (b0 != b1) {
     blossom.tips = b0.blossom.tips;
 
-    for (let e of e0.path) {
+    for (const e of e0.path) {
       blossom.union(e.blossom);
       if (e == b0) break;
     }
-    for (let e of e1.path) {
+    for (const e of e1.path) {
       blossom.union(e.blossom);
       if (e == b1) break;
     }
@@ -293,37 +286,33 @@ function blossom(e0: MEdge, e1: MEdge, b: MEdge) {
     blossom.tips.add(t0);
     blossom.tips.add(t1);
     if (t0.blossom) {
-      for (let tip of t0.blossom.tips) {
+      for (const tip of t0.blossom.tips) {
         blossom.tips.add(tip);
       }
     }
     if (t1.blossom) {
-      for (let tip of t1.blossom.tips) {
+      for (const tip of t1.blossom.tips) {
         blossom.tips.add(tip);
       }
     }
 
-    for (let e of e0.path) {
+    for (const e of e0.path) {
       blossom.union(e.blossom);
       if (e == t0) break;
     }
-    for (let e of e1.path) {
+    for (const e of e1.path) {
       blossom.union(e.blossom);
       if (e == t1) break;
     }
   }
 }
 
-
-
-
 function getFirstInPath(e: MEdge, f: MEdge): MEdge {
   return e;
 }
 
-
 class MEdge {
-  edge: Edge;     // sub-divided edge
+  edge: Edge; // sub-divided edge
 
   neighbours: MEdge[] = [];
   DPGNeighbours = new Set<MEdge>();
@@ -334,7 +323,6 @@ class MEdge {
   label: [MEdge, MEdge] = undefined;
 
   path = [this];
-
 
   constructor(edge: Edge) {
     this.edge = edge;
@@ -348,10 +336,10 @@ class Transform extends MEdge {
 
   constructor(x: MEdge, y: MEdge, z: MEdge) {
     super(undefined);
-    for (let n of x.DPGNeighbours) {
+    for (const n of x.DPGNeighbours) {
       this.DPGNeighbours.add(n);
     }
-    for (let n of y.DPGNeighbours) {
+    for (const n of y.DPGNeighbours) {
       this.DPGNeighbours.delete(n);
     }
     this.DPGNeighbours.delete(z);
@@ -363,7 +351,7 @@ class Blossom {
   tips = new Set<MEdge>();
   size = 1;
 
-  constructor() { }
+  constructor() {}
 
   addMember(e: MEdge) {
     this.members.add(e);
@@ -376,13 +364,13 @@ class Blossom {
   }
 
   updateWith(b: Blossom) {
-    for (let e of b.members) {
+    for (const e of b.members) {
       this.addMember(e);
     }
   }
 
   union(b: Blossom) {
-    for (let e of b.members) {
+    for (const e of b.members) {
       this.addMember(e);
     }
   }

@@ -297,10 +297,10 @@ class Edge {
     const neighbours = new Set<Edge>();
     const [v1, v2] = this.getVertices();
 
-    for (let e of v1.getAdjacentEdges()) {
+    for (const e of v1.getAdjacentEdges()) {
       neighbours.add(e);
     }
-    for (let e of v2.getAdjacentEdges()) {
+    for (const e of v2.getAdjacentEdges()) {
       neighbours.add(e);
     }
     neighbours.delete(this);
@@ -484,7 +484,7 @@ class Graph {
       if (!cur) cur = f.getEdges()[0].halfEdges[0];
       while (hEdges.length < edges.size) {
         const candidates = cur.twin.vertex.getAdjacentHalfEdges();
-        for (let c of candidates) {
+        for (const c of candidates) {
           if (edges.has(c.edge) && c.edge != cur.edge) {
             cur = c;
             break;
@@ -509,7 +509,7 @@ class Graph {
         visitedE.add(he);
         const faces2 = he.edge.getFaces();
         if (faces2.length > 2) continue;
-        for (let f2 of faces2) {
+        for (const f2 of faces2) {
           if (f2 != f) {
             stack.push([f2, he.twin]);
           }

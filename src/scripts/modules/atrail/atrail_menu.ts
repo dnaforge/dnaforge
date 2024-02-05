@@ -182,9 +182,10 @@ export class ATrailMenu extends ModuleMenu {
       }
     });
 
-    $('#atrail-dialog-confirm').on('click', () => {
+    $('#atrail-upload-dialog-confirm').on('click', () => {
       try {
-        this.uploadATrail($('#atrail-dialog-text').val().toUpperCase());
+        this.uploadATrail($('#atrail-upload-dialog-text').val().toUpperCase());
+        $('#atrail-upload-dialog')[0].hidden = true;
         blur();
       } catch (error) {
         this.context.addMessage(error, 'alert');
