@@ -20,7 +20,6 @@ import { getXuon } from './utils/matroid_parity';
  * Used for testing while developing. Does not get compiled to the final product.
  */
 export function dev(context: Context) {
-  return;
   window.context = <any>context;
 
   const tet = require('../examples/tetrahedron.obj');
@@ -42,26 +41,24 @@ export function dev(context: Context) {
   let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
   context.setGraph(graph);
 
-  const xtrna = <XtrnaMenu>context.menus.get('xtrna');
-  xtrna.generateWires();
-  $('#xtrna-scale')[0].value = 2;
-  xtrna.generateNucleotideModel();
-  xtrna.generatePrimary();
-  context.switchContext(<ModuleMenu>context.menus.get('xtrna'));
-  getXuon(graph);
-  return;
+  //const xtrna = <XtrnaMenu>context.menus.get('xtrna');
+  //xtrna.generateWires();
+  //$('#xtrna-scale')[0].value = 2;
+  //xtrna.generateNucleotideModel();
+  //xtrna.generatePrimary();
+  //context.switchContext(<ModuleMenu>context.menus.get('xtrna'));
+  //getXuon(graph);
 
-  (<SimulationAPI>context.menus.get('sim')).dev();
-
-  $('#cycle-cover-scale')[0].value = 1;
+  $('#cycle-cover-scale')[0].value = 5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
   cc.generateNucleotideModel();
   cc.generatePrimary();
   //cc.downloadOxDNA();
+  context.switchContext(cc);
 
-  const atrail = <ATrailMenu>context.menus.get('atrail');
+  //const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;
   //atrail.addWires();
   //atrail.addCylinders();
@@ -72,19 +69,19 @@ export function dev(context: Context) {
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   //atrail.reinforce();
 
-  const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
+  //const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();
   //st.addCylinders();
   //st.addNucleotides();
   //st.generatePrimary();
 
-  $('#sterna-scale')[0].value = 1;
-  const sterna = <SternaMenu>context.menus.get('sterna');
+  //$('#sterna-scale')[0].value = 1;
+  //const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.addWires();
   //sterna.addCylinders();
-  sterna.generateNucleotideModel();
+  //sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
-  sterna.generatePartialPrimary();
+  //sterna.generatePartialPrimary();
   //sterna.generatePrimary();
 
   //const r = new Relaxer(cm);
@@ -105,5 +102,6 @@ export function dev(context: Context) {
 
   //const pk = new PrimaryGenerator(cc.nm);
   //pk.optimise();
-  (<SimulationAPI>context.menus.get('sim')).dev();
+
+  //(<SimulationAPI>context.menus.get('sim')).dev();
 }

@@ -73,7 +73,8 @@ export class Context {
     div: HTMLElement;
   };
 
-  statsNeedUpdate = true;
+  statsNeedsUpdate = true;
+  uiNeedsUpdate = true;
 
   constructor() {
     this.scene.background = new THREE.Color(0xffffff);
@@ -131,13 +132,17 @@ export class Context {
       for (const c of this.callbacks) c();
       this.controls.handleInput();
       this.cameraControls.update();
-      requestAnimationFrame(renderT);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
+      requestAnimationFrame(renderT);
 
-      if (this.statsNeedUpdate) {
-        this.statsNeedUpdate = false;
+      if (this.statsNeedsUpdate) {
+        this.statsNeedsUpdate = false;
         this.updateSceneStatistics();
+      }
+      if (this.uiNeedsUpdate) {
+        this.uiNeedsUpdate = false;
+        this.updateSelectors();
       }
     };
     renderT();
@@ -176,8 +181,13 @@ export class Context {
    * @param point
    */
   focusCamera(point: Vector3) {
-    this.cameraControls.target.copy(point);
-    this.cameraControls.update();
+    let scale = this.activeContext?.cm?.scale;
+    if (!scale) scale = 1;
+
+    this.cameraControls.reset();
+    this.cameraControls.target = point;
+    const cx = <any>this.cameraControls;
+    cx.focus(point, 0.75 / scale, 1);
   }
 
   /**
@@ -416,7 +426,7 @@ export class Context {
       } edges<br>${graph.getFaces().length} faces`,
       'info',
     );
-    this.statsNeedUpdate = true;
+    this.statsNeedsUpdate = true;
   }
 
   /**
@@ -469,11 +479,13 @@ export class Context {
    */
   switchContext(context: ModuleMenu) {
     const prevContext = this.activeContext;
+    if (prevContext == context) return;
     this.activeContext = context;
     prevContext && prevContext.inactivate();
     context.activate();
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
-    this.statsNeedUpdate = true;
+    this.statsNeedsUpdate = true;
+    this.uiNeedsUpdate = true;
   }
 
   /**
@@ -559,6 +571,68 @@ export class Context {
       tree.append(sData);
       sData.append(data);
       data.append(n);
+    }
+  }
+
+  updateSelectors() {
+    if ($('#ui-system-dialog')[0].hidden) return;
+
+    const container = $('#ui-system');
+    container.html('');
+
+    const n_cols = 4;
+    const grid = $('<div>', { class: 'grid' });
+    container.append(grid);
+    const row = $('<div>', { class: 'row' });
+    grid.append(row);
+    const lists = Array.from({ length: n_cols }, () => {
+      const cell = $('<div>', { class: 'cell-' + Math.floor(12 / n_cols) });
+      const list = $('<ul>', { style: 'list-style-type: none;' });
+
+      row.append(cell);
+      cell.append(list);
+
+      return list;
+    });
+
+    const nm = this.activeContext?.nm;
+    if (nm) {
+      for (let i = 0; i < nm.strands.length; i++) {
+        const s = nm.strands[i];
+        const list = lists[i % n_cols];
+
+        const strandContainer = $('<li>');
+
+        const strandID = $(
+          `<a href="javascript: void(0)"> Strand ${s.id} </a>`,
+          { style: s.isScaffold ? 'color: red;' : '' },
+        );
+        const p5Button = $(`<a href="javascript: void(0)">5'</a>`);
+        const p3Button = $(`<a href="javascript: void(0)">3'</a>`);
+
+        p5Button.on('click', () => {
+          const p5 = s.nucleotides[0];
+          this.focusCamera(p5.getPosition());
+          this.editor.select(p5);
+        });
+
+        p3Button.on('click', () => {
+          const p3 = s.nucleotides[s.nucleotides.length - 1];
+          this.focusCamera(p3.getPosition());
+          this.editor.select(p3);
+        });
+
+        strandID.on('click', () => {
+          const p5 = s.nucleotides[0];
+          this.focusCamera(p5.getPosition());
+          for (let n of s.nucleotides) this.editor.select(n, true);
+        });
+
+        strandContainer.append(p5Button);
+        strandContainer.append(strandID);
+        strandContainer.append(p3Button);
+        list.append(strandContainer);
+      }
     }
   }
 

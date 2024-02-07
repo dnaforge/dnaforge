@@ -144,6 +144,11 @@
                     </div>
                 </li>
             </ul>
+            <button class="ribbon-button" onclick="$('#ui-system-dialog')[0].hidden = false" id="ui-system-button" data-role="hint"
+                data-hint-position="right" data-hint-text="Show strand listing.">
+                <span class="mif-tab mif-3x"></span>
+                <span class="caption">Strands</span>
+            </button>
             <span class="title">Nucleotides</span>
         </div>
 
@@ -199,5 +204,16 @@
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
         <button class="button primary js-dialog-close" id="ui-colours-load-button">Open</button>
+    </div>
+</div>
+
+<div class="hidden dialog draggable-dialog" id="ui-system-dialog" data-role="draggable" data-drag-area="body"
+    style="opacity: 0.9; z-index: 1;" data-drag-element=".drag-element">
+    <div class="dialog-title drag-element">Strand View</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <div id="ui-system"></div>
+    </div>
+    <div class="dialog-actions">
+        <button class="button primary" onclick="$('#ui-system-dialog')[0].hidden = true">Close</button>
     </div>
 </div>

@@ -773,5 +773,9 @@ export class InterfaceMenu extends Menu {
         throw error;
       }
     });
+
+    $('#ui-system-button').on('click', () => {
+      this.context.uiNeedsUpdate = true;
+    });
   }
 }
