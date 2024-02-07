@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
-//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'; //'three/addons/controls/OrbitControls';
 import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
@@ -178,16 +177,52 @@ export class Context {
   /**
    * Focuses the camera to a point in space.
    *
-   * @param point
+   * @param target point
    */
-  focusCamera(point: Vector3) {
+  focusCamera(target: Vector3) {
     let scale = this.activeContext?.cm?.scale;
     if (!scale) scale = 1;
+    scale *= 4;
 
-    this.cameraControls.reset();
-    this.cameraControls.target = point;
-    const cx = <any>this.cameraControls;
-    cx.focus(point, 0.75 / scale, 1);
+    const DURATION = 200;
+
+    const camDir = this.cameraControls.target.clone();
+    const camPos = this.camera.position.clone();
+    const camPosTarget = target
+      .clone()
+      .sub(target.clone().sub(camPos).normalize().multiplyScalar(scale));
+
+    const timeStart = Date.now();
+    const anim = () => {
+      const timeNow = Date.now();
+      if (timeNow - timeStart > DURATION) {
+        this.cameraControls.target.copy(target);
+        this.camera.position.copy(camPosTarget);
+
+        this.camera.updateMatrixWorld();
+        this.cameraControls.update();
+        return;
+      } else {
+        const delta = (timeNow - timeStart) / DURATION;
+        const tempTarget = target
+          .clone()
+          .multiplyScalar(delta)
+          .add(camDir.clone().multiplyScalar(1 - delta));
+        const tempPos = camPosTarget
+          .clone()
+          .multiplyScalar(delta)
+          .add(camPos.clone().multiplyScalar(1 - delta));
+        this.cameraControls.target.copy(tempTarget);
+        this.camera.position.copy(tempPos);
+
+        this.camera.updateMatrixWorld();
+        this.cameraControls.update();
+
+        window.requestAnimationFrame(anim);
+      }
+    };
+
+    anim();
   }
 
   /**
@@ -198,20 +233,21 @@ export class Context {
   setCameraView(dir: string) {
     // TODO: use current distance to target
     const dist = 20;
+    const theta = 0.0001; // add a bit of noise to prevent a singularity
     switch (dir) {
       case 'front':
         this.cameraControls.reset();
-        this.camera.position.copy(new Vector3(0, 5, dist));
+        this.camera.position.copy(new Vector3(theta, 5, dist));
         this.cameraControls.target = new Vector3(0, 5, 0);
         break;
       case 'right':
         this.cameraControls.reset();
-        this.camera.position.copy(new Vector3(dist, 5, 0));
+        this.camera.position.copy(new Vector3(dist, 5, theta));
         this.cameraControls.target = new Vector3(0, 5, 0);
         break;
       case 'top':
         this.cameraControls.reset();
-        this.camera.position.copy(new Vector3(0, dist, 0));
+        this.camera.position.copy(new Vector3(theta, dist, 0));
         this.cameraControls.target = new Vector3(0, 0, 0);
         break;
 
@@ -227,29 +263,43 @@ export class Context {
    * @param dir Direction. up, down, left, or right.
    */
   rotateCameraView(dir: string) {
+    let axis: Vector3;
+    let magnitude = Math.PI / 24;
+
     switch (dir) {
       case 'up':
-        this.camera.position.applyAxisAngle(
-          new Vector3(1, 0, 0),
-          -Math.PI / 24,
-        );
+        axis = new Vector3(1, 0, 0).applyQuaternion(this.camera.quaternion);
+        magnitude *= -1;
         break;
       case 'down':
-        this.camera.position.applyAxisAngle(new Vector3(1, 0, 0), Math.PI / 24);
+        axis = new Vector3(1, 0, 0).applyQuaternion(this.camera.quaternion);
         break;
       case 'left':
-        this.camera.position.applyAxisAngle(
-          new Vector3(0, 1, 0),
-          -Math.PI / 24,
-        );
+        axis = new Vector3(0, 1, 0);
+        magnitude *= -1;
         break;
       case 'right':
-        this.camera.position.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 24);
+        axis = new Vector3(0, 1, 0);
         break;
 
       default:
-        break;
+        return;
     }
+    const camDir = new THREE.Vector3()
+      .subVectors(this.camera.position, this.cameraControls.target)
+      .normalize();
+    const rot = new THREE.Quaternion().setFromAxisAngle(axis, magnitude);
+    camDir.applyQuaternion(rot);
+    const distance = this.camera.position.distanceTo(
+      this.cameraControls.target,
+    );
+    const newPos = this.cameraControls.target
+      .clone()
+      .add(camDir.multiplyScalar(distance));
+    this.camera.position.copy(newPos);
+    this.camera.up.applyQuaternion(rot);
+
+    this.camera.updateMatrixWorld();
     this.cameraControls.update();
   }
 
@@ -625,7 +675,7 @@ export class Context {
         strandID.on('click', () => {
           const p5 = s.nucleotides[0];
           this.focusCamera(p5.getPosition());
-          for (let n of s.nucleotides) this.editor.select(n, true);
+          for (const n of s.nucleotides) this.editor.select(n, true);
         });
 
         strandContainer.append(p5Button);
