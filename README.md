@@ -1,6 +1,8 @@
 # DNAforge
 
-DNAforge is a tool for generating DNA and RNA wireframe nanostructures from 3D meshes. Check out the docs directory for further information.
+DNAforge is a tool for generating DNA and RNA wireframe nanostructures from 3D meshes. For further information, see the [user guide](https://github.com/dnaforge/dnaforge/tree/main/docs/user-guide) and [examples](https://github.com/dnaforge/dnaforge/tree/main/docs/examples).
+
+The simulation backend and its installation instructions can be found [here](https://github.com/dnaforge/dnaforge-backend).
 
 ## Installation
 
