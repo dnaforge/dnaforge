@@ -275,7 +275,7 @@ DNAforge viewport look and behaviour can be modified from the interface menu.
 ---
 
 ## Simulation
-The nucleotide model can be simulated directly from the interface, provided the DNAForge backend together with the oxDNA package are locally installed. The simulation backend and its installation instructions can be found [here](https://github.com/dnaforge/dnaforge-backend).
+The nucleotide model can be simulated directly from the interface, provided the DNAforge backend together with the oxDNA package are locally installed. The simulation backend and its installation instructions can be found [here](https://github.com/dnaforge/dnaforge-backend).
 
 ---
 
