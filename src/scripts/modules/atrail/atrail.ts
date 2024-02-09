@@ -651,6 +651,7 @@ function addNicksAlt(nm: NucleotideModel) {
 
   for (const strand of nm.strands) {
     if (strand.isLinker || strand.isScaffold) continue;
+    if(strand.length() < 2) throw `A strand is too short for strand gaps. Scale is too small.`;
     const id = Math.floor(strand.length() / 2 - 1);
     addNicksT(strand, [id]);
   }

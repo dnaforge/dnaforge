@@ -49,7 +49,7 @@ export function dev(context: Context) {
   //context.switchContext(<ModuleMenu>context.menus.get('xtrna'));
   //getXuon(graph);
 
-  $('#cycle-cover-scale')[0].value = 5;
+  //$('#cycle-cover-scale')[0].value = 5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
