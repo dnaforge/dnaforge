@@ -23,7 +23,7 @@ $.ready(function () {
 
 window.onload = function () {
   console.log(
-    `DNA Forge v${process.env.__VERSION__} Built at ${process.env.__BUILDTIME__}`,
+    `DNAforge v${process.env.__VERSION__} Built at ${process.env.__BUILDTIME__}`,
   );
   misc();
   if (!process.env.PRODUCTION) dev(context);
