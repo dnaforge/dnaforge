@@ -42,8 +42,8 @@ module.exports = {
             favicon: "./favicon.png",
 
             templateParameters: {
-                gitAddress: "https://github.com/Ritkuli/dnaforge",
-                docsAddress: "https://github.com/Ritkuli/dnaforge/tree/main/docs",
+                gitAddress: "https://github.com/dnaforge/dnaforge",
+                docsAddress: "https://github.com/dnaforge/dnaforge/tree/main/docs",
                 examplesAddress: "https://github.com/dnaforge/dnaforge/tree/main/docs/examples",
                 userGuideAddress: "https://github.com/dnaforge/dnaforge/tree/main/docs/user-guide",
                 emailAddress: "https://version.aalto.fi/gitlab/orponen/ncgroup",
