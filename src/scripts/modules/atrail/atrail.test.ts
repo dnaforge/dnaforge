@@ -19,6 +19,7 @@ function getParams(): ATrailParameters {
     scaffoldStart: 0,
     checkerBoard: false,
     midpointNicking: false,
+    maxTime: 10000,
   };
 }
 

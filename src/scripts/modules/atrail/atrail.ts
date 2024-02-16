@@ -16,7 +16,6 @@ import { ATrailParameters } from './atrail_menu';
 import { Strand } from '../../models/strand';
 import { Selectable } from '../../models/selectable';
 
-const MAX_TIME = 10000; // milliseconds, give up after too many steps to prevent the browser from permanently freezing
 enum Direction {
   LEFT = 0,
   RIGHT = 1,
@@ -66,12 +65,12 @@ export class ATrail extends WiresModel {
     }
   }
 
-  findATrail(checkerBoard = false): HalfEdge[] {
+  findATrail(checkerBoard = false, maxTime = 10000): HalfEdge[] {
     this.initialiseGraph(checkerBoard);
     const transitions = new Map<Vertex, Direction>(); // orentations of vertices
     const neighbours = this.getNeighbourhoodFunction(transitions);
 
-    this.splitAndCheck(transitions, neighbours);
+    this.splitAndCheck(transitions, neighbours, maxTime);
     let trail = this.getEuler(neighbours);
     trail = this.fixQuads(trail);
 
@@ -134,6 +133,7 @@ export class ATrail extends WiresModel {
   private splitAndCheck(
     transitions: Map<Vertex, Direction>,
     neighbours: (e: HalfEdge) => Array<HalfEdge>,
+    maxTime: number,
   ) {
     // only consider vertices of degree 4 or higher, since  vertices of degree 4
     // or less can be oriented whatever way.Also sort them so that vertices in
@@ -160,8 +160,8 @@ export class ATrail extends WiresModel {
     const startT = performance.now();
     let i = 0;
     while (true) {
-      if (performance.now() - startT > MAX_TIME)
-        throw `Timed out. Could not find an ATrail`;
+      if (performance.now() - startT > maxTime)
+        throw `Timed out. Could not find an ATrail. Consider increasing the search duration.`;
       if (++i % 10000 == 0) console.log('Split & check...', i);
       if (stack.length == 0) break;
       const v = stack[stack.length - 1];
@@ -381,7 +381,7 @@ export class ATrail extends WiresModel {
  */
 export function graphToWires(graph: Graph, params: ATrailParameters) {
   const atrail = new ATrail(graph);
-  atrail.findATrail(params.checkerBoard);
+  atrail.findATrail(params.checkerBoard, params.maxTime);
   return atrail;
 }
 

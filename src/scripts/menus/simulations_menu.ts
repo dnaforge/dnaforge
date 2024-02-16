@@ -431,17 +431,15 @@ export class SimulationAPI extends Menu {
 
     // register tab change event
     configTypeTabs.on('tab', (e: CustomEvent) => {
-      const currentTab = $(e.target).find('li.active');
+      e.preventDefault();
       const clickedTab = $(e.detail.tab);
 
-      if (currentTab.text() !== clickedTab.text()) {
-        if (clickedTab.text() === 'Manual Config') {
-          fileConfContainer.hide();
-          manualConfContainer.show();
-        } else {
-          manualConfContainer.hide();
-          fileConfContainer.show();
-        }
+      if (clickedTab.text() === 'Manual Config') {
+        fileConfContainer.hide();
+        manualConfContainer.show();
+      } else {
+        manualConfContainer.hide();
+        fileConfContainer.show();
       }
     });
 

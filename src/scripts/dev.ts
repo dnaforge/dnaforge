@@ -22,6 +22,7 @@ import { getXuon } from './utils/matroid_parity';
 export function dev(context: Context) {
   window.context = <any>context;
 
+  return;
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');

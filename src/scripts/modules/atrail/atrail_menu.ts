@@ -20,6 +20,7 @@ export interface ATrailParameters extends ModuleMenuParameters {
   scaffoldStart: number;
   checkerBoard: boolean;
   midpointNicking: boolean;
+  maxTime: number;
 }
 
 export class ATrailMenu extends ModuleMenu {
@@ -113,6 +114,18 @@ export class ATrailMenu extends ModuleMenu {
   setupEventListeners() {
     super.setupEventListeners();
     const register = (this.registerParameter<ATrailParameters>).bind(this);
+
+    register(
+      this.params,
+      'maxTime',
+      'atrail-max-time',
+      (t: number) => {
+        return 1000 * t;
+      },
+      (t: number) => {
+        return t / 1000;
+      },
+    );
 
     register(
       this.params,
