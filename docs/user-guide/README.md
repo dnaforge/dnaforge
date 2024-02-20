@@ -16,22 +16,22 @@ The tool can be accessed online at https://dnaforge.org.
 ## Table of Contents
 * [Examples](#examples)
 * [Workflow](#workflow)
-    + [Input](#)
-    + [Routing Model](#)
-    + [Cylinder Model](#)
-    + [Nucleotide Model](#)
-    + [Primary Structure](#)
-    + [Output](#)
-* [Design Methods](#)
-    + [A-Trail](#)
-    + [Cycle Cover](#)
-    + [ST-DNA](#)
-    + [ST-RNA](#)
-    + [XT-RNA](#)
+    + [Input](#workflow)
+    + [Routing Model](#routing-model)
+    + [Cylinder Model](#cylinder-model)
+    + [Nucleotide Model](#nucleotide-model)
+    + [Primary Structure](#primary-structure)
+    + [Output](#output)
+* [Design Methods](#design-methods)
+    + [AT-DNA](#at-dna)
+    + [CC-DNA](#cc-dna)
+    + [ST-DNA](#st-dna)
+    + [ST-RNA](#st-rna)
+    + [XT-RNA](#xt-rna)
 * [Editing](#editing)
 * [Interface](#interface)
 * [Simulation](#simulation)
-* [References](#3d-export)
+* [References](#references)
 
 ---
 
@@ -70,8 +70,8 @@ The nucleotide model can be exported into UNF-file or into oxDNA-files by clicki
 
 ## Design Methods
 
-### A-Trail
-The A-trail routing follows the procedure laid out by Benson et al. It uses a breadth-first branch and bound algorithm over two vertex types, left- or right-handed, to find a connected graph, resulting in an A-trail. Note: This algorithm has a high time complexity, and DNAforge is unlikely to find a routing for meshes larger than about 100 vertices.
+### AT-DNA
+The A-trail routing, AT-DNA, follows the procedure laid out by Benson et al. It uses a breadth-first branch and bound algorithm over two vertex types, left- or right-handed, to find a connected graph, resulting in an A-trail. Note: This algorithm has a high time complexity, and DNAforge is unlikely to find a routing for meshes larger than about 100 vertices.
 
 #### Reinforcement
 Cylinders can be reinforced by clicking the "Reinforce"-button. This will replace the selected cylinder with four-cylinder bundles. 
@@ -89,8 +89,10 @@ A custom routing can be entered by clicking the "Upload Trail"-button. The trail
 * Routing Parameters
     + **Checkerboard** Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm. 
     + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Search time** Stop the search after this many seconds
 
 * Strand Parameters
+    + **Midpoint nicking** Place the strand gaps at the midpoint of each edge.
     + **Max Staple Length** Maximum staple length in nucleotides.
     + **Min Overlap** Minimum length of a continuous double helix without strand gaps.
     + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
@@ -105,8 +107,8 @@ A custom routing can be entered by clicking the "Upload Trail"-button. The trail
 
 ---
 
-### Cycle Cover
-Cycle cover is based on the scaffold-free routing method, where the long scaffold strand is done away with and replaced with a number of shorter staple-strands. Cycle cover routing is done greedily vertex by vertex. Each incoming edge is first split into two, corresponding to the two antiparallel strands of a double helix, and they are then connected to each other in such an order that no edge is visited twice until all edges have been visited at least once. This will result in a cycle cover over the entire mesh, allowing any connected wireframe to be routed. 
+### CC-DNA
+Cycle cover, CC-DNA, is based on the scaffold-free routing method, where the long scaffold strand is done away with and replaced with a number of shorter staple-strands. Cycle cover routing is done greedily vertex by vertex. Each incoming edge is first split into two, corresponding to the two antiparallel strands of a double helix, and they are then connected to each other in such an order that no edge is visited twice until all edges have been visited at least once. This will result in a cycle cover over the entire mesh, allowing any connected wireframe to be routed.
 
 #### Primary structure
 The primary structure is generated with Focused Metropolis Search, a local search algorithm. The search algorithm tries to minimise the length of the longest repeated substring to avoid non-specific and unintended pairings while adhering to the user-supplied constraints of GC-content, linker-bases, and  prohibited subsequences. To generate a primary structure, click the "Generate Primary Structure"-button. Parameters controlling the generator can be found in the additional settings.
