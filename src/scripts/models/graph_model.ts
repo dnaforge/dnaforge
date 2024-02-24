@@ -211,6 +211,10 @@ class HalfEdge {
     this.vertex = vertex;
   }
 
+  getDirection(): Vector3 {
+    return this.twin.vertex.coords.clone().sub(this.vertex.coords).normalize();
+  }
+
   toString() {
     return `V: ${this.vertex.id} -> ${this.twin.vertex.id}`;
   }
@@ -528,7 +532,11 @@ class Graph {
     //Edge normals:
     for (const e of this.getEdges()) {
       if (e.getFaces().length == 0) {
+        const dir = e.halfEdges[0].getDirection();
         e.normal = new Vector3().randomDirection();
+        e.normal = e.normal
+          .sub(dir.clone().multiplyScalar(dir.dot(e.normal)))
+          .normalize();
         continue;
       }
       const n = new Vector3();

@@ -22,8 +22,6 @@ enum Direction {
   NONE = -1,
 }
 
-const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
 export class ATrail extends WiresModel {
   graph: Graph;
   trail: Array<HalfEdge>;
@@ -327,33 +325,51 @@ export class ATrail extends WiresModel {
     return this.trail.length;
   }
 
-  generateObject(): Object3D {
-    if (!this.trail) return null;
-    const color = new THREE.Color(0xffffff);
-    const count = this.trail.length;
-    const lineSegment = new THREE.CylinderGeometry(0.015, 0.015, 1, 4, 8);
-    const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
-    this.obj = lines;
+  /**
+   * Return the 3d object associated with this route. Generate it if it does not exist.
+   *
+   */
+  generateObject() {
+    const tangentOffsetScale = 0.1;
 
-    let co1 = this.trail[0].vertex.coords.clone();
-    for (let i = 0; i < this.trail.length; i++) {
-      const co2T =
-        this.trail[(i + 1) % this.trail.length].vertex.coords.clone();
-      const dir = co2T.clone().sub(co1).normalize();
-      const co2 = co2T.sub(dir.multiplyScalar(0.3));
+    if (!this.obj) {
+      const coords: Vector3[] = [];
+      const edgeVisitCounts = new Map<Edge, number>();
+      for (const e of this.graph.getEdges())
+        edgeVisitCounts.set(
+          e,
+          e.vertices[0].getCommonEdges(e.vertices[1]).length,
+        );
 
-      const length = co2.clone().sub(co1).length();
-      const transform = get2PointTransform(co1, co2).scale(
-        new Vector3(1, length, 1),
-      );
+      for (let i = 0; i < this.trail.length; i++) {
+        const curE = this.trail[i];
+        const nextE = this.trail[(i + 1) % this.trail.length];
+        const dir = curE.getDirection().negate(); // the halfEdges point in the wrong direction...
+        const edge = curE.vertex.getCommonEdges(curE.twin.vertex)[0];
+        edgeVisitCounts.set(edge, edgeVisitCounts.get(edge) - 1);
+        const v1 = curE.twin.vertex;
+        const v2 = curE.vertex;
 
-      color.setHex(0xff0000);
-      lines.setMatrixAt(i, transform);
-      lines.setColorAt(i, color);
+        let co1: Vector3;
+        let co2: Vector3;
 
-      co1 = co2;
+        const tangent = dir
+          .clone()
+          .cross(edge.normal)
+          .multiplyScalar((1 - edgeVisitCounts.get(edge)) * tangentOffsetScale);
+        tangent.multiplyScalar(nextE.getDirection().dot(tangent) < 0 ? 1 : -1);
+        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        co1 = v1.coords.clone().add(tangent).add(vertexOffset1);
+        co2 = v2.coords.clone().add(tangent).add(vertexOffset2);
+
+        coords.push(co1);
+        coords.push(co2);
+      }
+      coords.push(coords[0]);
+
+      super.generateObject(coords);
     }
-
     return this.obj;
   }
 

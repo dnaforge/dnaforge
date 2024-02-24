@@ -555,8 +555,16 @@ export class InterfaceMenu extends Menu {
     for (const scheme in ColourSchemePresets) {
       $('#ui-colours-presets').append($(`<option>${scheme}</option>`));
     }
+    const updateRandomColours = () => {
+      for (const ct of Object.values(ColourSchemePresets['Random'])) {
+        for (const v of Object.values(ct)) {
+          (<THREE.Color>v).setHex(0xffffff * Math.random());
+        }
+      }
+    };
     $('#ui-colours-presets').on('change', () => {
       const nScheme = $('#ui-colours-presets').val();
+      if (nScheme == 'Random') updateRandomColours();
       Object.assign(ColourScheme, ColourSchemePresets[nScheme]);
       this.createColoursSwatches();
       this.context.activeContext?.updateVisuals();
@@ -602,6 +610,10 @@ export class InterfaceMenu extends Menu {
         });
       }
     };
+
+    //Wires:
+    container.append($('<p>Wires Colours</p>'));
+    createSubComponent('WiresColours');
 
     //Nucleotides:
     container.append($('<p>Nucleotide Colours</p>'));

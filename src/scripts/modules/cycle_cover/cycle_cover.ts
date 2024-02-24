@@ -9,8 +9,6 @@ import { Graph, Vertex, HalfEdge } from '../../models/graph_model';
 import { CCParameters } from './cycle_cover_menu';
 import { Selectable } from '../../models/selectable';
 
-const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
 export class CycleCover extends WiresModel {
   cycles: Array<Array<HalfEdge>>;
   graph: Graph;
@@ -148,52 +146,50 @@ export class CycleCover extends WiresModel {
   }
 
   generateObject() {
-    const color = new THREE.Color(0xffffff);
-    const count = 2 * this.graph.getEdges().length;
-    const lineSegment = new THREE.CylinderGeometry(0.015, 0.015, 1, 4, 8);
-    const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
+    const tangentOffsetScale = 0.1;
 
-    const indexToCycle: Record<number, Array<number>> = {}; // maps an index of an edge to all the indices within the same cycle
-    let i = 0;
-    for (let j = 0; j < this.cycles.length; j++) {
-      const oColor = Math.round(Math.random() * 0x0000ff);
-      const cycle = this.cycles[j];
-      indexToCycle[i] = [];
-      for (let k = 0; k < cycle.length; k++) {
-        const v0 = cycle[k].vertex;
-        const v1 = cycle[(k + 1) % cycle.length].vertex;
-        const v2 = cycle[(k + 2) % cycle.length].vertex;
-        const v3 = cycle[(k + 3) % cycle.length].vertex;
+    if (!this.obj) {
+      const coords: Vector3[][] = [];
+      const indexToCycle: Record<number, Array<number>> = {}; // maps an index of an edge to all the indices within the same cycle
+      let i = 0;
+      for (let j = 0; j < this.cycles.length; j++) {
+        const cycle = this.cycles[j];
+        const cCoords: Vector3[] = [];
+        indexToCycle[i] = [];
+        for (let k = 0; k < cycle.length; k++) {
+          const v0 = cycle[k].vertex;
+          const v1 = cycle[(k + 1) % cycle.length].vertex;
+          const v2 = cycle[(k + 2) % cycle.length].vertex;
+          const v3 = cycle[(k + 3) % cycle.length].vertex;
 
-        const dirPrev = v1.coords.clone().sub(v0.coords).normalize();
-        const dir = v2.coords.clone().sub(v1.coords).normalize();
-        const dirNext = v3.coords.clone().sub(v2.coords).normalize();
+          const dirPrev = v1.coords.clone().sub(v0.coords).normalize();
+          const dir = v2.coords.clone().sub(v1.coords).normalize();
+          const dirNext = v3.coords.clone().sub(v2.coords).normalize();
 
-        const offset1 = dir
-          .clone()
-          .multiplyScalar(0.05)
-          .add(dirPrev.multiplyScalar(-0.05));
-        const offset2 = dir
-          .clone()
-          .multiplyScalar(-0.05)
-          .add(dirNext.multiplyScalar(0.05));
+          const offset1 = dir
+            .clone()
+            .multiplyScalar(tangentOffsetScale)
+            .add(dirPrev.multiplyScalar(-tangentOffsetScale));
+          const offset2 = dir
+            .clone()
+            .multiplyScalar(-tangentOffsetScale)
+            .add(dirNext.multiplyScalar(tangentOffsetScale));
 
-        const p1 = v1.coords.clone().add(offset1);
-        const p2 = v2.coords.clone().add(offset2);
+          const p1 = v1.coords.clone().add(offset1);
+          const p2 = v2.coords.clone().add(offset2);
 
-        color.setHex(oColor);
-        const transform = get2PointTransform(p1, p2).scale(
-          new Vector3(1, p2.clone().sub(p1).length(), 1),
-        );
-        lines.setColorAt(i, color);
-        lines.setMatrixAt(i, transform);
+          cCoords.push(p1);
+          cCoords.push(p2);
 
-        indexToCycle[i] = indexToCycle[i - k];
-        indexToCycle[i].push(i);
-        i += 1;
+          indexToCycle[i] = indexToCycle[i - k];
+          indexToCycle[i].push(i);
+          i += 1;
+        }
+        coords.push(cCoords);
       }
+
+      super.generateObject(...coords);
     }
-    this.obj = lines;
 
     return this.obj;
   }

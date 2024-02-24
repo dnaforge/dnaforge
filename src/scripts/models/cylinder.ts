@@ -520,17 +520,23 @@ export class Cylinder extends Selectable {
 
   updateObjectColours() {
     if (!this.instanceMeshes) return;
-    const selectionColour =
-      ColourScheme.CylinderSelectionColours[this.selectionStatus];
-    const offset =
-      this.routingStrategy == RoutingStrategy.Pseudoknot
-        ? new THREE.Color(0xaaaaaa)
-        : new THREE.Color(0xffffff);
+    const baseColour =
+      this.routingStrategy == RoutingStrategy.Pseudoknot &&
+      this.selectionStatus == 'default'
+        ? ColourScheme.CylinderColours['pseudo']
+        : ColourScheme.CylinderSelectionColours[this.selectionStatus];
     const colours = {
-      cylinder: this.getOverlayColours(selectionColour).multiply(offset),
-      linker: this.getOverlayColours(ColourScheme.CylinderColours.linker),
-      prime: this.getOverlayColours(ColourScheme.CylinderColours.prime),
+      cylinder: baseColour,
+      linker: ColourScheme.CylinderColours.linker,
+      prime: ColourScheme.CylinderColours.prime,
     };
+    if (this.selectionStatus == 'default') {
+      for (const t of Object.keys(colours)) {
+        colours[<keyof typeof colours>t] = this.getOverlayColours(
+          colours[<keyof typeof colours>t],
+        );
+      }
+    }
 
     this.instanceMeshes.main.setColorAt(this.id, colours.cylinder);
     for (let i = 0; i < 4; i++) {

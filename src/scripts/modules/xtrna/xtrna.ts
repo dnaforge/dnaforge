@@ -12,8 +12,6 @@ import { WiresModel } from '../../models/wires_model';
 import { Selectable } from '../../models/selectable';
 import { getXuon } from '../../utils/matroid_parity';
 
-const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
 /**
  * Xtrna RNA routing method.
  */
@@ -303,30 +301,60 @@ export class Xtrna extends WiresModel {
    *
    */
   generateObject() {
+    const tangentOffsetScale = 0.1;
+    const normalOffsetScale = 0.02;
+    const klOffsetScale = 0.1;
+
     if (!this.obj) {
-      const color = new THREE.Color(0xffffff);
-      const count = this.st.size;
-      const lineSegment = new THREE.CylinderGeometry(0.04, 0.04, 1, 4, 8);
-      const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
+      const coords: Vector3[] = [];
 
-      let i = 0;
-      for (const curE of this.st) {
-        const [v1, v2] = curE.getVertices();
+      const visitedCount = new Map<Vertex, number>();
+      for (const v of this.graph.getVertices()) visitedCount.set(v, 0);
+      for (const curE of this.trail) {
+        const dir = curE.getDirection();
+        const v1 = curE.vertex;
+        const v2 = curE.twin.vertex;
 
-        const co1 = v1.coords.clone();
-        const co2 = v2.coords.clone();
+        let co1: Vector3;
+        let co2: Vector3;
 
-        const length = co2.clone().sub(co1).length();
-        const transform = get2PointTransform(co1, co2).scale(
-          new Vector3(1, length, 1),
-        );
+        const tangent = dir
+          .clone()
+          .cross(curE.edge.normal)
+          .multiplyScalar(tangentOffsetScale);
+        const normal1 = curE.edge.normal
+          .clone()
+          .multiplyScalar(normalOffsetScale * (3 - visitedCount.get(v1)));
+        const normal2 = curE.edge.normal
+          .clone()
+          .multiplyScalar(normalOffsetScale * (3 - visitedCount.get(v2)));
+        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        co1 = v1.coords.clone().add(tangent).add(vertexOffset1).add(normal1);
+        co2 = v2.coords.clone().add(tangent).add(vertexOffset2).add(normal2);
 
-        color.setHex(0xff0000);
-        lines.setMatrixAt(i, transform);
-        lines.setColorAt(i, color);
-        i += 1;
+        if (!this.kls.has(curE)) {
+          coords.push(co1);
+          coords.push(co2);
+        } else {
+          const klOffset = dir.clone().multiplyScalar(klOffsetScale);
+          const midWay = co2
+            .sub(dir.clone().multiplyScalar(co1.distanceTo(co2) * 0.5))
+            .sub(klOffset);
+          const tangent2 = tangent.clone().multiplyScalar(-2);
+
+          coords.push(co1);
+          coords.push(midWay);
+          coords.push(midWay.clone().add(tangent2));
+          coords.push(co1.clone().add(tangent2));
+        }
+
+        visitedCount.set(v1, visitedCount.get(v1) + 1);
+        visitedCount.set(v2, visitedCount.get(v2) + 1);
       }
-      this.obj = lines;
+      coords.push(coords[0]);
+
+      super.generateObject(coords);
     }
     return this.obj;
   }

@@ -369,7 +369,7 @@ export abstract class ModuleMenu extends Menu {
     if (this.params.showNucleotides && active) this.nm?.show();
     else this.nm?.hide();
 
-    //this.wires?.updateObject();
+    this.wires?.updateObject();
     this.cm?.updateObject();
     this.nm?.updateObject();
   }

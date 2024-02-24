@@ -22,7 +22,6 @@ import { getXuon } from './utils/matroid_parity';
 export function dev(context: Context) {
   window.context = <any>context;
 
-  return;
   const tet = require('../examples/tetrahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');
@@ -39,10 +38,10 @@ export function dev(context: Context) {
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
   context.setGraph(graph);
 
-  //const xtrna = <XtrnaMenu>context.menus.get('xtrna');
+  const xtrna = <XtrnaMenu>context.menus.get('xtrna');
   //xtrna.generateWires();
   //$('#xtrna-scale')[0].value = 2;
   //xtrna.generateNucleotideModel();
@@ -52,16 +51,16 @@ export function dev(context: Context) {
 
   //$('#cycle-cover-scale')[0].value = 5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
-  //cc.generateWires();
+  cc.generateWires();
   //cc.generateCylinderModel();
-  cc.generateNucleotideModel();
-  cc.generatePrimary();
+  //cc.generateNucleotideModel();
+  //cc.generatePrimary();
   //cc.downloadOxDNA();
   context.switchContext(cc);
 
-  //const atrail = <ATrailMenu>context.menus.get('atrail');
+  const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;
-  //atrail.addWires();
+  //atrail.generateWires();
   //atrail.addCylinders();
   //atrail.generateNucleotideModel();
   //atrail.relaxCylinders();
@@ -69,21 +68,23 @@ export function dev(context: Context) {
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   //atrail.reinforce();
+  //context.switchContext(atrail);
 
-  //const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
+  const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();
   //st.addCylinders();
   //st.addNucleotides();
   //st.generatePrimary();
 
   //$('#sterna-scale')[0].value = 1;
-  //const sterna = <SternaMenu>context.menus.get('sterna');
-  //sterna.addWires();
+  const sterna = <SternaMenu>context.menus.get('sterna');
+  //sterna.generateWires();
   //sterna.addCylinders();
   //sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
   //sterna.generatePrimary();
+  //context.switchContext(sterna);
 
   //const r = new Relaxer(cm);
 

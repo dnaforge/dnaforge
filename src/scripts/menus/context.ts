@@ -675,6 +675,7 @@ export class Context {
         strandID.on('click', () => {
           const p5 = s.nucleotides[0];
           this.focusCamera(p5.getPosition());
+          this.editor.deselectAll();
           for (const n of s.nucleotides) this.editor.select(n, true);
         });
 

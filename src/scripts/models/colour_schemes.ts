@@ -3,15 +3,28 @@ import { SelectionStatus } from './selectable';
 import { IUPAC_CHAR } from '../globals/consts';
 
 interface ColourScheme {
+  WiresColours: Record<'1' | '2' | '3' | '4' | '5', Color>;
+
   NucleotideColours: Record<IUPAC_CHAR, Color>;
   NucleotideSelectionColours: Record<SelectionStatus, Color>;
 
-  CylinderColours: Record<'prime' | 'linker' | 'torque' | 'tension', Color>;
+  CylinderColours: Record<
+    'prime' | 'linker' | 'pseudo' | 'torque' | 'tension',
+    Color
+  >;
   CylinderSelectionColours: Record<SelectionStatus, Color>;
 }
 
 export const ColourSchemePresets: Record<string, ColourScheme> = {
   Default: {
+    WiresColours: {
+      '1': new Color(0xff0000),
+      '2': new Color(0xff7f00),
+      '3': new Color(0xffff00),
+      '4': new Color(0x00ff00),
+      '5': new Color(0x0000ff),
+    },
+
     NucleotideColours: {
       // Base colors
       A: new Color(0xff8eaf), // Light Pink (Adenine)
@@ -44,6 +57,7 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     CylinderColours: {
       prime: new Color(0xff9999),
       linker: new Color(0xff9999),
+      pseudo: new Color(0xddff00),
 
       //Overlay
       tension: new Color(0xff0000),
@@ -58,6 +72,14 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
   },
 
   Alternative: {
+    WiresColours: {
+      '1': new Color(0xe43f63),
+      '2': new Color(0x8b7151),
+      '3': new Color(0x64bf29),
+      '4': new Color(0x92abee),
+      '5': new Color(0x47fad9),
+    },
+
     NucleotideColours: {
       A: new Color(0xffb6c1), // Light Pink (Adenine)
       U: new Color(0xffdb58), // Light Gold (Uracil)
@@ -89,6 +111,7 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     CylinderColours: {
       prime: new Color(0xffa07a), // Light Salmon
       linker: new Color(0xffa07a), // Light Salmon
+      pseudo: new Color(0xff0000),
 
       //Overlay
       tension: new Color(0xff3030), // Firebrick
@@ -102,6 +125,14 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     },
   },
   Random: {
+    WiresColours: {
+      '1': new Color(0xff8eaf), // Pink
+      '2': new Color(0xffd133), // Orange
+      '3': new Color(0x7acc7a), // Green
+      '4': new Color(0x6688aa), // Blue
+      '5': new Color(0xff00ff), // Purple
+    },
+
     NucleotideColours: {
       A: new Color('#82e0aa'), // Mint Green
       U: new Color('#f39c12'), // Orange
@@ -133,6 +164,7 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     CylinderColours: {
       prime: new Color('#e67e22'), // Brown
       linker: new Color('#e74c3c'), // Red
+      pseudo: new Color(0xff0000),
 
       //Overlay
       tension: new Color('#f39c12'), // Orange
@@ -146,6 +178,14 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     },
   },
   Winter: {
+    WiresColours: {
+      '1': new Color(0x6699cc), // Icy Blue
+      '2': new Color(0x99ccff), // Frosty White
+      '3': new Color(0x66cccc), // Arctic Teal
+      '4': new Color(0x99ffff), // Snowy Silver
+      '5': new Color(0x66ccff), // Glacier Blue
+    },
+
     NucleotideColours: {
       A: new Color('#e74c3c'), // Red
       U: new Color('#3498db'), // Blue
@@ -177,6 +217,7 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     CylinderColours: {
       prime: new Color('#e67e22'), // Carrot
       linker: new Color('#8e44ad'), // Wisteria
+      pseudo: new Color(0xffa500),
 
       //Overlay
       tension: new Color('#f39c12'), // Orange
@@ -191,6 +232,14 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
   },
 
   Custom: {
+    WiresColours: {
+      '1': new Color(0x808080), // Grey
+      '2': new Color(0x808080), // Grey
+      '3': new Color(0x808080), // Grey
+      '4': new Color(0x808080), // Grey
+      '5': new Color(0x808080), // Grey
+    },
+
     NucleotideColours: {
       A: new Color('#808080'), // Grey
       U: new Color('#808080'), // Grey
@@ -222,6 +271,7 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
     CylinderColours: {
       prime: new Color('#808080'), // Grey
       linker: new Color('#808080'), // Grey
+      pseudo: new Color(0xff0000),
 
       // Overlay
       tension: new Color('#808080'), // Grey

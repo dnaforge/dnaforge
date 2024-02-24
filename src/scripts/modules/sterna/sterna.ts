@@ -11,8 +11,6 @@ import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';
 import { Selectable } from '../../models/selectable';
 
-const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
 /**
  * Sterna RNA routing method.
  */
@@ -169,30 +167,48 @@ export class Sterna extends WiresModel {
    *
    */
   generateObject() {
+    const tangentOffsetScale = 0.1;
+    const klOffsetScale = 0.1;
+
     if (!this.obj) {
-      const color = new THREE.Color(0xffffff);
-      const count = this.st.size;
-      const lineSegment = new THREE.CylinderGeometry(0.04, 0.04, 1, 4, 8);
-      const lines = new THREE.InstancedMesh(lineSegment, cyclesMaterial, count);
+      const coords: Vector3[] = [];
 
-      let i = 0;
-      for (const curE of this.st) {
-        const [v1, v2] = curE.getVertices();
+      for (const curE of this.trail) {
+        const dir = curE.getDirection().negate(); // the halfEdges point in the wrong direction...
+        const edge = curE.edge;
+        const v1 = curE.twin.vertex;
+        const v2 = curE.vertex;
 
-        const co1 = v1.coords.clone();
-        const co2 = v2.coords.clone();
+        let co1: Vector3;
+        let co2: Vector3;
 
-        const length = co2.clone().sub(co1).length();
-        const transform = get2PointTransform(co1, co2).scale(
-          new Vector3(1, length, 1),
-        );
+        const tangent = dir
+          .clone()
+          .cross(edge.normal)
+          .multiplyScalar(tangentOffsetScale);
+        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        co1 = v1.coords.clone().add(tangent).add(vertexOffset1);
+        co2 = v2.coords.clone().add(tangent).add(vertexOffset2);
 
-        color.setHex(0xff0000);
-        lines.setMatrixAt(i, transform);
-        lines.setColorAt(i, color);
-        i += 1;
+        if (this.st.has(edge)) {
+          coords.push(co1);
+          coords.push(co2);
+        } else {
+          const klOffset = dir.clone().multiplyScalar(klOffsetScale);
+          const midWay = co2
+            .sub(dir.clone().multiplyScalar(co1.distanceTo(co2) * 0.5))
+            .sub(klOffset);
+          const tangent2 = tangent.clone().multiplyScalar(-2);
+
+          coords.push(co1);
+          coords.push(midWay);
+          coords.push(midWay.clone().add(tangent2));
+          coords.push(co1.clone().add(tangent2));
+        }
       }
-      this.obj = lines;
+      coords.push(coords[0]);
+      super.generateObject(coords);
     }
     return this.obj;
   }

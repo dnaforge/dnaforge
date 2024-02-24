@@ -86,8 +86,10 @@ export class Editor {
     this.context.scene.add(obj);
     this.context.statsNeedsUpdate = true;
     this.context.uiNeedsUpdate = true;
-    if (visible) model.show();
-    else model.hide();
+    if (visible) {
+      model.show();
+      this.activeModel = model;
+    } else model.hide();
   }
 
   removeModel(model: Model) {
