@@ -138,11 +138,11 @@ export class Context {
       if (this.statsNeedsUpdate) {
         this.statsNeedsUpdate = false;
         this.updateSceneStatistics();
-        this.updateArcDiagram();
       }
       if (this.uiNeedsUpdate) {
         this.uiNeedsUpdate = false;
         this.updateSelectors();
+        this.updateArcDiagram();
       }
     };
     renderT();
@@ -707,20 +707,28 @@ export class Context {
     for (const n of nucs)
       if (n.pair) maxDist = Math.max(maxDist, n.pair.id - n.id);
 
-    const SCALE = 1;
+    const SCALE = Math.min(8, (0.75 * screen.width) / nucs.length);
     const floor = 20;
-    const tickHeight = 5;
-    const tickWidth = 5;
     const width = nucs.length * SCALE;
     const height = (maxDist / 2) * SCALE + floor;
+    const tickHeight = 5;
+    const tickWidth = 5;
+    const tickInterval = Math.ceil(Math.floor(nucs.length / 20) / 20) * 20;
 
     arcCanvas.attr('width', width);
     arcCanvas.attr('height', height);
 
+    const setRandomStroke = () => {
+      ctx.strokeStyle = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(
+        Math.random() * 255,
+      )}, ${Math.floor(Math.random() * 255)}, 0.9)`;
+    };
+    setRandomStroke();
+
     for (const n of nucs) {
       const p1 = n.id * SCALE;
 
-      if (n.id % 50 == 1) {
+      if (n.id % tickInterval == 1) {
         const prevStroke = ctx.strokeStyle;
         ctx.beginPath();
         ctx.strokeStyle = '#000000';
@@ -746,8 +754,7 @@ export class Context {
         ctx.stroke();
 
         if (n.next?.id != n.pair?.prev?.pair?.id) {
-          ctx.strokeStyle =
-            '#' + Math.floor(0xffffff * Math.random()).toString(16);
+          setRandomStroke();
         }
       }
     }
