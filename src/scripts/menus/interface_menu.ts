@@ -95,19 +95,19 @@ export class InterfaceMenu extends Menu {
     this.context.controls.registerHotkey('shift+z', this.showGridButton);
     this.context.controls.registerHotkey(
       'shift+1',
-      $($('#selection-mode').children()[0]),
+      $($('#selection-mode').find('button')[0]),
     );
     this.context.controls.registerHotkey(
       'shift+2',
-      $($('#selection-mode').children()[1]),
+      $($('#selection-mode').find('button')[1]),
     );
     this.context.controls.registerHotkey(
       'shift+3',
-      $($('#selection-mode').children()[2]),
+      $($('#selection-mode').find('button')[2]),
     );
     this.context.controls.registerHotkey(
       'shift+4',
-      $($('#selection-mode').children()[3]),
+      $($('#selection-mode').find('button')[3]),
     );
     this.context.controls.registerHotkey('4', this.wiresButton);
     this.context.controls.registerHotkey('5', this.solidButton);
@@ -205,6 +205,7 @@ export class InterfaceMenu extends Menu {
    * Remove the XYZ-axes from the scene.
    */
   removeAxes() {
+    if (!this.axes) return;
     this.scene.remove(this.axes.object);
     for (const d of this.axes.divs) d.remove();
   }
@@ -741,9 +742,9 @@ export class InterfaceMenu extends Menu {
       this.context.activeContext?.updateVisuals();
     });
 
-    $('#selection-mode').on('click', () => {
+    $('#selection-mode').on('click', (e: any) => {
       GLOBALS.selectionMode = $('#selection-mode')
-        .children('.active')
+        .find('.active')
         .attr('data-id');
     });
 

@@ -3,34 +3,36 @@
         <div class="group">
 
             <div id="selection-mode" data-role="button-group" data-cls-active="active">
-                <button class="ribbon-button" data-id="none" data-role="hint" data-hint-position="right"
-                    data-hint-text="Disable all selecting.">
-                    <span class="icon">
-                        <span class="mif-not"></span>
-                    </span>
-                    <span class="caption">None</span>
-                </button>
-                <button class="ribbon-button" data-id="single" data-role="hint" data-hint-position="right"
-                    data-hint-text="Select one object at a time.">
-                    <span class="icon">
-                        <span class="mif-arrow-up-right"></span>
-                    </span>
-                    <span class="caption">Single</span>
-                </button>
-                <button class="ribbon-button" data-id="limited" data-role="hint" data-hint-position="right"
-                    data-hint-text="Select all connected objects of the same type.">
-                    <span class="icon">
-                        <span class="mif-arrow-right"></span>
-                    </span>
-                    <span class="caption">Limited</span>
-                </button>
-                <button class="ribbon-button active" data-id="connected" data-role="hint" data-hint-position="right"
-                    data-hint-text="Select all connected objects.">
-                    <span class="icon">
-                        <span class="mif-arrow-down-right"></span>
-                    </span>
-                    <span class="caption">Connected</span>
-                </button>
+                <div class="d-flex flex-column">
+                    <button class="ribbon-icon-button" data-id="none" data-role="hint" data-hint-position="right"
+                        data-hint-text="Disable all selecting.">
+                        <span class="icon">
+                            <span class="mif-not"></span>
+                        </span>
+                        <span class="caption">None</span>
+                    </button>
+                    <button class="ribbon-icon-button" data-id="single" data-role="hint" data-hint-position="right"
+                        data-hint-text="Select one object at a time.">
+                        <span class="icon">
+                            <span class="mif-arrow-up-right"></span>
+                        </span>
+                        <span class="caption">Single</span>
+                    </button>
+                    <button class="ribbon-icon-button" data-id="limited" data-role="hint" data-hint-position="right"
+                        data-hint-text="Select all connected objects of the same type.">
+                        <span class="icon">
+                            <span class="mif-arrow-right"></span>
+                        </span>
+                        <span class="caption">Limited</span>
+                    </button>
+                    <button class="ribbon-icon-button active" data-id="connected" data-role="hint"
+                        data-hint-position="right" data-hint-text="Select all connected objects.">
+                        <span class="icon">
+                            <span class="mif-arrow-down-right"></span>
+                        </span>
+                        <span class="caption">Connected</span>
+                    </button>
+                </div>
             </div>
             <div data-role="hint" data-hint-position="right"
                 data-hint-text="Colour objects as mouse hovers over them. Has a heavy impact on performance.">
@@ -144,8 +146,8 @@
                     </div>
                 </li>
             </ul>
-            <button class="ribbon-button" onclick="$('#ui-system-dialog')[0].hidden = false" id="ui-system-button" data-role="hint"
-                data-hint-position="right" data-hint-text="Show strand listing.">
+            <button class="ribbon-button" onclick="$('#ui-system-dialog')[0].hidden = false" id="ui-system-button"
+                data-role="hint" data-hint-position="right" data-hint-text="Show strand listing.">
                 <span class="mif-tab mif-3x"></span>
                 <span class="caption">Strands</span>
             </button>

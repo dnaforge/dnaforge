@@ -406,7 +406,7 @@ export class Context {
       keepOpen: true,
     });
 
-    const stripped = $(`<div>${message}</div>`).text();
+    if (!process.env.PRODUCTION) console.log(message);
     console.log(
       `${type.toUpperCase()}: ${message.replace(
         /<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g,

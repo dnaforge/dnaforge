@@ -128,6 +128,7 @@ export class Xtrna extends WiresModel {
         }
       } else {
         stack.pop();
+        if (eVisited.has(e)) continue;
 
         let stEdge: Edge;
         const curPair: Edge[] = [];
@@ -166,12 +167,41 @@ export class Xtrna extends WiresModel {
       rotations.set(v, rotation);
     }
 
+    const traverse = (start: HalfEdge, breakIf: HalfEdge) => {
+      const traverse_ = (start: HalfEdge) => {
+        let len = 1;
+        let cur = start;
+        while (true) {
+          const nextV = cur.twin.vertex;
+          const rot = rotations.get(nextV);
+          const nextE = rot[(rot.indexOf(cur.twin) + 1) % rot.length];
+
+          if (nextE == breakIf) return undefined;
+          if (nextE == start) break;
+          else cur = nextE;
+
+          len += 1;
+          if (len > 10000) throw `Infinite loop`;
+        }
+        return cur;
+      };
+
+      const d1 = traverse_(start);
+      if (d1) return start;
+      else return traverse_(start.twin);
+    };
+
+    const visited = new Set<Edge>();
     for (const c of components) {
       const pairs = this.getPairs(c);
       for (const p of pairs) {
         const [e1, e2] = p;
-        if (!e1) continue;
+        if (!e1) continue; // this will be a kissing loop
         if (!e2) throw `Null edge in a cotree component.`;
+        if (this.st.has(e1))
+          throw `Edge both in spanning tree and co-tree: ${e1.id}`;
+        if (this.st.has(e2))
+          throw `Edge both in spanning tree and co-tree: ${e2.id}`;
 
         const vc = e1.getCommonVertex(e2);
         const v1 = e1.getOtherVertex(vc);
@@ -184,39 +214,18 @@ export class Xtrna extends WiresModel {
         const rotc = rotations.get(vc);
         const rot2 = rotations.get(v2);
 
+        if (rot1.includes(he1))
+          throw `Duplicate half edge in vertex rotation: ${he1.toString()}`;
+        if (rot2.includes(he2))
+          throw `Duplicate half edge in vertex rotation: ${he2.toString()}`;
+
         rot1.push(he1);
         rotc.push(he1.twin);
 
-        const traverse = (start: HalfEdge, breakIf: HalfEdge) => {
-          const traverse_ = (start: HalfEdge) => {
-            let len = 1;
-            let cur = start;
-            while (true) {
-              const nextV = cur.twin.vertex;
-              const rot = rotations.get(nextV);
-              const nextE = rot[(rot.indexOf(cur.twin) + 1) % rot.length];
+        const incoming = traverse(he1, rot2[0]);
 
-              if (nextE == breakIf) return undefined;
-              if (nextE == start) break;
-              else cur = nextE;
-
-              len += 1;
-            }
-            return cur;
-          };
-
-          const d1 = traverse_(start);
-          if (d1) return start;
-          else return traverse_(start.twin);
-        };
-
-        const incoming = traverse(he1, rot2[rot2.length - 1]);
-
-        rot2.splice(rot2.length - 1, 0, he2.twin);
+        rot2.splice(0, 0, he2.twin);
         rotc.splice((rotc.indexOf(incoming.twin) + 1) % rotc.length, 0, he2);
-
-        traverse(he1, null);
-        traverse(he1.twin, null);
       }
     }
 
