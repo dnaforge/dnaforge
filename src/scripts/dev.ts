@@ -38,25 +38,25 @@ export function dev(context: Context) {
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet2);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
   context.setGraph(graph);
 
   const xtrna = <XtrnaMenu>context.menus.get('xtrna');
   //xtrna.generateWires();
   //$('#xtrna-scale')[0].value = 2;
-  //xtrna.generateNucleotideModel();
+  xtrna.generateNucleotideModel();
   //xtrna.generatePrimary();
-  //context.switchContext(<ModuleMenu>context.menus.get('xtrna'));
+  context.switchContext(xtrna);
   //getXuon(graph);
 
   //$('#cycle-cover-scale')[0].value = 5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
-  cc.generateWires();
+  //cc.generateWires();
   //cc.generateCylinderModel();
   //cc.generateNucleotideModel();
   //cc.generatePrimary();
   //cc.downloadOxDNA();
-  context.switchContext(cc);
+  //context.switchContext(cc);
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;
@@ -106,4 +106,6 @@ export function dev(context: Context) {
   //pk.optimise();
 
   //(<SimulationAPI>context.menus.get('sim')).dev();
+
+  context.updateArcDiagram();
 }

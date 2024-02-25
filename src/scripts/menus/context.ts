@@ -138,6 +138,7 @@ export class Context {
       if (this.statsNeedsUpdate) {
         this.statsNeedsUpdate = false;
         this.updateSceneStatistics();
+        this.updateArcDiagram();
       }
       if (this.uiNeedsUpdate) {
         this.uiNeedsUpdate = false;
@@ -685,6 +686,78 @@ export class Context {
         list.append(strandContainer);
       }
     }
+  }
+
+  updateArcDiagram() {
+    const arcCanvas = $('#ui-arcs');
+    if ($(arcCanvas)[0].hidden) return;
+    const ctx = arcCanvas[0].getContext('2d');
+
+    const nucs = this.activeContext?.nm?.getNucleotides().sort((a, b) => {
+      return a.id - b.id;
+    });
+    if (!nucs) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, arcCanvas[0].width, arcCanvas[0].height);
+      ctx.restore();
+      return;
+    }
+    let maxDist = 0;
+    for (const n of nucs)
+      if (n.pair) maxDist = Math.max(maxDist, n.pair.id - n.id);
+
+    const SCALE = 1;
+    const floor = 20;
+    const tickHeight = 5;
+    const tickWidth = 5;
+    const width = nucs.length * SCALE;
+    const height = (maxDist / 2) * SCALE + floor;
+
+    arcCanvas.attr('width', width);
+    arcCanvas.attr('height', height);
+
+    for (const n of nucs) {
+      const p1 = n.id * SCALE;
+
+      if (n.id % 50 == 1) {
+        const prevStroke = ctx.strokeStyle;
+        ctx.beginPath();
+        ctx.strokeStyle = '#000000';
+        ctx.moveTo(p1, height - floor * 0.5 + tickHeight);
+        ctx.lineTo(p1, height - floor * 0.5 - tickHeight);
+        ctx.fillText(n.id - 1, p1 + tickWidth, height - tickHeight);
+        ctx.stroke();
+        ctx.strokeStyle = prevStroke;
+      }
+
+      if (n.pair) {
+        const p2 = n.pair.id * SCALE;
+        if (p1 >= p2) continue;
+
+        ctx.beginPath();
+        ctx.arc(
+          (p2 + p1) / 2,
+          height - floor,
+          (p2 - p1) / 2,
+          Math.PI,
+          2 * Math.PI,
+        );
+        ctx.stroke();
+
+        if (n.next?.id != n.pair?.prev?.pair?.id) {
+          ctx.strokeStyle =
+            '#' + Math.floor(0xffffff * Math.random()).toString(16);
+        }
+      }
+    }
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    ctx.moveTo(0, height - floor + ctx.lineWidth);
+    ctx.lineTo(width, height - floor + ctx.lineWidth);
+    ctx.stroke();
   }
 
   /**
