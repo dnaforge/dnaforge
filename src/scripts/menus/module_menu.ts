@@ -308,7 +308,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.wires) return;
     this.wires.hide();
     if (dispose) {
-      this.wires.dispose();
+      this.context.editor.removeModel(this.wires);
       this.wires = null;
     }
   }
@@ -323,7 +323,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.cm) return;
     this.cm.hide();
     if (dispose) {
-      this.cm.dispose();
+      this.context.editor.removeModel(this.cm);
       this.cm = null;
     }
   }
@@ -338,7 +338,7 @@ export abstract class ModuleMenu extends Menu {
     if (!this.nm) return;
     this.nm.hide();
     if (dispose) {
-      this.nm.dispose();
+      this.context.editor.removeModel(this.nm);
       this.nm = null;
     }
   }

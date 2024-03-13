@@ -83,6 +83,8 @@ abstract class WiresModel extends Model {
   }
 
   generateObject(...coords: Vector3[][]): Object3D {
+    this.obj ?? this.dispose();
+    
     const thickness = 0.04;
     const count = coords.reduce((a, b) => a + b.length, 0) - coords.length;
     const lineSegment = new THREE.CylinderGeometry(
