@@ -64,6 +64,18 @@ export class CycleCover extends WiresModel {
     return cc;
   }
 
+  getStatistics(): JSONObject {
+    const data = super.getStatistics();
+
+    const v = this.graph.getVertices().length;
+    const e = this.graph.getEdges().length;
+    const f = this.cycles.length;
+    const genus = Math.floor((v + f - e - 2) / -2);
+    data['Embedding Genus'] = genus;
+
+    return data;
+  }
+
   getCycleCover(): Array<Array<HalfEdge>> {
     const graph = this.graph;
     const visited = new Set<HalfEdge>();

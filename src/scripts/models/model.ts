@@ -34,6 +34,8 @@ export abstract class Model {
     mode?: SelectionModes,
   ): Selectable[];
 
+  abstract getStatistics(): JSONObject;
+
   select(...selection: Selectable[]) {
     for (const s of selection) {
       this.selection.add(s);

@@ -72,7 +72,26 @@ export class Xtrna extends WiresModel {
     return xtrna;
   }
 
-  getCoTreeComponents(st: Set<Edge>) {
+  getStatistics(): JSONObject {
+    const data = super.getStatistics();
+
+    const v = this.graph.getVertices().length;
+    const e = this.graph.getEdges().length;
+    // the kls are half edges, so there's two of them for each actual kl:
+    const f = this.kls.size / 2 + 1;
+    const genus = Math.floor((v + f - e - 2) / -2);
+    data['Embedding Genus'] = genus;
+
+    return data;
+  }
+
+  /**
+   * Returns the co-tree components of the given spanning tree
+   *
+   * @param st
+   * @returns a list of sets of edges
+   */
+  getCoTreeComponents(st: Set<Edge>): Set<Edge>[] {
     const visited = new Set<Edge>(st);
     const components: Set<Edge>[] = [];
 
@@ -102,7 +121,15 @@ export class Xtrna extends WiresModel {
     return components;
   }
 
-  getPairs(component: Set<Edge>) {
+  /**
+   * Converts a component into a list of edge tuples that can be added to the
+   * single-stranded routing. If the component is odd-sized, the last edge pair
+   * will have one null value.
+   *
+   * @param component
+   * @returns edge tuples
+   */
+  getPairs(component: Set<Edge>): [Edge, Edge][] {
     const st = new Set<Edge>(); // component's spanning tree
     const pairs: [Edge, Edge][] = [];
     const start = Array.from(component)[0];
@@ -154,6 +181,11 @@ export class Xtrna extends WiresModel {
     return pairs;
   }
 
+  /**
+   * Returns the rotation system based on the spanning tree.
+   *
+   * @returns a map of vertices to an ordered list of outgoing half edges
+   */
   getVertexRotations(): Map<Vertex, HalfEdge[]> {
     const components = this.getCoTreeComponents(this.st);
     const rotations = new Map<Vertex, HalfEdge[]>();
@@ -232,6 +264,12 @@ export class Xtrna extends WiresModel {
     return rotations;
   }
 
+  /**
+   * Augments rotations by adding in the missing edges as kissing loops
+   *
+   * @param rotations
+   * @returns set of added kissing loop half edges
+   */
   augmentRotations(rotations: Map<Vertex, HalfEdge[]>) {
     const kls = new Set<HalfEdge>();
     for (const v of this.graph.getVertices()) {

@@ -558,70 +558,51 @@ export class Context {
       return;
     }
 
-    const tree = $('<ul>', { 'data-role': 'treeview' });
-    container.append(tree);
+    const root = $('<ul>', { 'data-role': 'treeview' });
+    container.append(root);
+
+    const createComponent = (title: string, data: JSONObject) => {
+      const componentRoot = $(`<li>${title}</li>`);
+      const componentData = $('<ul>');
+
+      let count = 0;
+      for (const key in data) {
+        count += 1;
+        const line = $(`<li>${key}: ${data[key]}</li>`);
+        componentData.append(line);
+      }
+
+      if (count > 0) {
+        // Only create data if there is any data
+        root.append(componentRoot);
+        componentRoot.append(componentData);
+      }
+    };
 
     // Graph:
-    const graphData = $('<li>Graph</li>');
-    const data = $('<ul>');
-    const verts = $(`<li>Vertices: ${this.graph.getVertices().length}</li>`);
-    const edges = $(`<li>Edges: ${this.graph.getEdges().length}</li>`);
-    const faces = $(`<li>Faces: ${this.graph.getFaces().length}</li>`);
+    const graphData = {
+      Vertices: this.graph.getVertices().length,
+      Edges: this.graph.getEdges().length,
+      Faces: this.graph.getFaces().length,
+    };
+    createComponent('Graph', graphData);
 
-    tree.append(graphData);
-    graphData.append(data);
-    data.append(verts);
-    data.append(edges);
-    data.append(faces);
+    // Wires:
+    const wm = this.activeContext?.wires;
+    wm && createComponent('Wire Model', wm.getStatistics());
 
     // CM:
     const cm = this.activeContext?.cm;
-    if (cm) {
-      const pseudoCount = (() => {
-        let i = 0;
-        for (const c of cm.getCylinders()) {
-          if (c.routingStrategy == RoutingStrategy.Pseudoknot) i += 1;
-        }
-        return i;
-      })();
-
-      const cmData = $('<li>Cylinder Model</li>');
-      const data = $('<ul>');
-      const cylinders = $(`<li>Cylinders: ${cm.getCylinders().length}</li>`);
-      const pseudoknots = $(`<li>Pseudoknots: ${pseudoCount}</li>`);
-
-      tree.append(cmData);
-      cmData.append(data);
-      data.append(cylinders);
-      data.append(pseudoknots);
-    }
+    cm && createComponent('Cylinder Model', cm.getStatistics());
 
     // NM:
     const nm = this.activeContext?.nm;
-    if (nm) {
-      const nmData = $('<li>Nucleotide Model</li>');
-      const data = $('<ul>');
-      const nucleotides = $(
-        `<li>Nucleotides: ${nm.getNucleotides().length}</li>`,
-      );
-      const strands = $(`<li>Strands: ${nm.getStrands().length}</li>`);
-
-      tree.append(nmData);
-      nmData.append(data);
-      data.append(nucleotides);
-      data.append(strands);
-    }
+    nm && createComponent('Nucleotide Model', nm.getStatistics());
 
     // Selection:
     const selection = this.editor.activeModel?.selection;
     if (selection && this.editor.activeModel?.isVisible) {
-      const sData = $('<li>Selection</li>');
-      const data = $('<ul>');
-      const n = $(`<li>N: ${selection.size}</li>`);
-
-      tree.append(sData);
-      sData.append(data);
-      data.append(n);
+      createComponent('Selection', { N: selection.size });
     }
   }
 

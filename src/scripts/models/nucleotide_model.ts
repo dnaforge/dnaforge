@@ -86,6 +86,15 @@ export class NucleotideModel extends Model {
     return nm;
   }
 
+  getStatistics(): JSONObject {
+    const data = {
+      Nucleotides: this.getNucleotides().length,
+      Strands: this.getStrands().length,
+    };
+
+    return data;
+  }
+
   static loadOxDNA(
     top: string,
     conf: string,

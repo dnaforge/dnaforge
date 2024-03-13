@@ -8,7 +8,13 @@ import { RelaxParameters, Relaxer } from '../utils/relaxer';
 import { Model } from './model';
 import { ModuleMenu } from '../menus/module_menu';
 import { Selectable } from './selectable';
-import { Cylinder, CylinderBundle, CylinderMeshes, PrimePos } from './cylinder';
+import {
+  Cylinder,
+  CylinderBundle,
+  CylinderMeshes,
+  PrimePos,
+  RoutingStrategy,
+} from './cylinder';
 import { SelectionModes } from '../editor/editor';
 
 export class CylinderModel extends Model {
@@ -90,6 +96,23 @@ export class CylinderModel extends Model {
     }
     cm.updateObject();
     return cm;
+  }
+
+  getStatistics(): JSONObject {
+    const pseudoCount = (() => {
+      let i = 0;
+      for (const c of this.getCylinders()) {
+        if (c.routingStrategy == RoutingStrategy.Pseudoknot) i += 1;
+      }
+      return i;
+    })();
+
+    const stats = {
+      Cylinders: this.getCylinders().length,
+      Pseudoknots: pseudoCount,
+    };
+
+    return stats;
   }
 
   /**
