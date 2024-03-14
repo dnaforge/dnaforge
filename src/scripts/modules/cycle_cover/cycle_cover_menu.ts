@@ -19,7 +19,11 @@ import {
 
 export interface CCParameters
   extends ModuleMenuParameters,
-    Partial<OptimiserParams> {}
+    Partial<OptimiserParams> {
+  minGenus?: boolean;
+  maxGenus?: boolean;
+  noGenus?: boolean; // todo make these three a single parameter
+}
 
 export class CycleCoverMenu extends ModuleMenu {
   params: CCParameters;
@@ -146,6 +150,10 @@ export class CycleCoverMenu extends ModuleMenu {
     register(this.params, 'eta', 'cycle-cover-ps-eta');
 
     register(this.params, 'greedyOffset', 'cycle-cover-greedy');
+
+    register(this.params, 'minGenus', 'cycle-cover-min-genus');
+    register(this.params, 'maxGenus', 'cycle-cover-max-genus');
+    register(this.params, 'noGenus', 'cycle-cover-no-genus');
 
     this.generatePrimaryButton.on('click', () => {
       try {

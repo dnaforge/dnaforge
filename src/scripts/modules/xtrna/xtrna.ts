@@ -265,7 +265,8 @@ export class Xtrna extends WiresModel {
   }
 
   /**
-   * Augments rotations by adding in the missing edges as kissing loops
+   * Augments rotations by adding in the missing edges as kissing loops.
+   * Modifies the rotations input.
    *
    * @param rotations
    * @returns set of added kissing loop half edges

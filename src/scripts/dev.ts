@@ -44,19 +44,19 @@ export function dev(context: Context) {
   const xtrna = <XtrnaMenu>context.menus.get('xtrna');
   //xtrna.generateWires();
   //$('#xtrna-scale')[0].value = 2;
-  xtrna.generateNucleotideModel();
+  //xtrna.generateNucleotideModel();
   //xtrna.generatePrimary();
-  context.switchContext(xtrna);
+  //context.switchContext(xtrna);
   //getXuon(graph);
 
   //$('#cycle-cover-scale')[0].value = 5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
-  //cc.generateNucleotideModel();
+  cc.generateNucleotideModel();
   //cc.generatePrimary();
   //cc.downloadOxDNA();
-  //context.switchContext(cc);
+  context.switchContext(cc);
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;

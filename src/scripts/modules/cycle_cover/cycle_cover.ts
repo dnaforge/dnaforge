@@ -8,6 +8,7 @@ import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph_model';
 import { CCParameters } from './cycle_cover_menu';
 import { Selectable } from '../../models/selectable';
+import { Xtrna } from '../xtrna/xtrna';
 
 export class CycleCover extends WiresModel {
   cycles: Array<Array<HalfEdge>>;
@@ -17,7 +18,6 @@ export class CycleCover extends WiresModel {
   constructor(graph: Graph) {
     super();
     this.graph = graph;
-    this.cycles = this.getCycleCover();
   }
 
   toJSON(): JSONObject {
@@ -73,25 +73,22 @@ export class CycleCover extends WiresModel {
     const genus = Math.floor((v + f - e - 2) / -2);
     data['Embedding Genus'] = genus;
 
+    data['N Cycles'] = this.cycles.length;
+
     return data;
   }
 
-  getCycleCover(): Array<Array<HalfEdge>> {
+  findCycleCover(genusTarget: 'min' | 'max' | 'any' = 'any') {
     const graph = this.graph;
     const visited = new Set<HalfEdge>();
     const cycles = new Array<Array<HalfEdge>>();
+
+    const rotationSystem = this.getRotationSystem(genusTarget);
     const traverse = (e: HalfEdge) => {
       let curE = e;
       const cycle = [];
       do {
-        let vNeighbours;
-        try {
-          vNeighbours = curE.twin.vertex.getTopoAdjacentHalfEdges();
-        } catch {
-          vNeighbours = this.getNeighbours(curE.twin.vertex);
-        }
-        const idx = vNeighbours.indexOf(curE.twin);
-        curE = vNeighbours[(idx + 1) % vNeighbours.length];
+        curE = rotationSystem.get(curE.twin.vertex).get(curE);
         cycle.push(curE);
         if (visited.has(curE)) return;
         visited.add(curE);
@@ -102,7 +99,51 @@ export class CycleCover extends WiresModel {
       traverse(e.halfEdges[0]);
       traverse(e.halfEdges[1]);
     }
-    return cycles;
+
+    this.cycles = cycles;
+  }
+
+  getRotationSystem(
+    genusTarget: 'min' | 'max' | 'any',
+  ): Map<Vertex, Map<HalfEdge, HalfEdge>> {
+    const rotationSystem = new Map<Vertex, Map<HalfEdge, HalfEdge>>();
+    if (genusTarget == 'min') {
+      throw 'Unimplemented;';
+    } else if (genusTarget == 'max') {
+      // Use XT-RNA for this. //TODO: Don't use XT-RNA for this.
+      const xt = new Xtrna(this.graph);
+      const xRot = xt.getVertexRotations();
+      xt.augmentRotations(xRot);
+      for (const v of this.graph.getVertices()) {
+        const nFunction = new Map<HalfEdge, HalfEdge>();
+        rotationSystem.set(v, nFunction);
+        const vNeighbours = xRot.get(v);
+        for (let i = 0; i < vNeighbours.length; i++) {
+          const incoming = vNeighbours[i].twin;
+          const outgoing = vNeighbours[(i + 1) % vNeighbours.length];
+          nFunction.set(incoming, outgoing);
+        }
+      }
+    } else if (genusTarget == 'any') {
+      for (const v of this.graph.getVertices()) {
+        let vNeighbours;
+        try {
+          vNeighbours = v.getTopoAdjacentHalfEdges();
+        } catch {
+          vNeighbours = this.getNeighbours(v);
+        }
+        const nFunction = new Map<HalfEdge, HalfEdge>();
+        rotationSystem.set(v, nFunction);
+        for (let i = 0; i < vNeighbours.length; i++) {
+          const incoming = vNeighbours[i].twin;
+          const outgoing = vNeighbours[(i + 1) % vNeighbours.length];
+          nFunction.set(incoming, outgoing);
+        }
+      }
+    } else {
+      throw `Unknown genus target`;
+    }
+    return rotationSystem;
   }
 
   /**
@@ -227,7 +268,12 @@ export class CycleCover extends WiresModel {
  * @returns
  */
 export function graphToWires(graph: Graph, params: CCParameters) {
+  let genusTarget: 'min' | 'max' | 'any' = 'any';
+  if (params.maxGenus) genusTarget = 'max';
+  else if (params.minGenus) genusTarget = 'min';
+
   const cc = new CycleCover(graph);
+  cc.findCycleCover(genusTarget);
   return cc;
 }
 
@@ -243,8 +289,8 @@ export function wiresToCylinders(cc: CycleCover, params: CCParameters) {
   const cm = new CylinderModel(scale, 'DNA');
   const edgeToCyl = new Map<HalfEdge, Cylinder>();
 
-  // create cylinders
   for (const cycle of cc.cycles) {
+    // create cylinders
     for (let i = 0; i < cycle.length; i++) {
       const hEdge = cycle[i];
       const next = cycle[(i + 1) % cycle.length];
@@ -260,23 +306,28 @@ export function wiresToCylinders(cc: CycleCover, params: CCParameters) {
       }
       edgeToCyl.set(hEdge, cyl);
     }
-  }
-  // connect cylinders:
-  for (const cycle of cc.cycles) {
-    // if the cycle visits the first cylinder twice, the one in the middle would connect the first 5' in
-    // the wrong order. FixLast fixes that order.
-    let fixLast;
-    const start = edgeToCyl.get(cycle[0]);
+
+    // connect cylinders:
     for (let i = 0; i < cycle.length; i++) {
       const hEdge = cycle[i];
       const next = cycle[(i + 1) % cycle.length];
       const cyl = edgeToCyl.get(hEdge);
       const nextCyl = edgeToCyl.get(next);
 
-      if (nextCyl == start && i != cycle.length - 1) fixLast = [cyl, nextCyl];
-      else connectCylinder(cyl, nextCyl);
+      let prime: [Cylinder, PrimePos];
+      let nextPrime: [Cylinder, PrimePos];
+      if (!cyl.neighbours[PrimePos.first3]) prime = [cyl, PrimePos.first3];
+      else prime = [cyl, PrimePos.second3];
+      if (
+        !nextCyl.neighbours[PrimePos.first5] &&
+        (!nextCyl.neighbours[PrimePos.first3] || next == cycle[0])
+      )
+        nextPrime = [nextCyl, PrimePos.first5];
+      else nextPrime = [nextCyl, PrimePos.second5];
+
+      cyl.neighbours[prime[1]] = nextPrime;
+      nextCyl.neighbours[nextPrime[1]] = prime;
     }
-    if (fixLast) connectCylinder(fixLast[0], fixLast[1]);
   }
 
   return cm;
@@ -320,17 +371,4 @@ function createCylinder(
   cyl.initOrientation(v1.getCommonEdges(v2)[0].normal);
 
   return cyl;
-}
-
-function connectCylinder(cyl: Cylinder, nextCyl: Cylinder) {
-  let prime: [Cylinder, PrimePos];
-  let nextPrime: [Cylinder, PrimePos];
-  if (!cyl.neighbours[PrimePos.first3]) prime = [cyl, PrimePos.first3];
-  else prime = [cyl, PrimePos.second3];
-  if (!nextCyl.neighbours[PrimePos.first5])
-    nextPrime = [nextCyl, PrimePos.first5];
-  else nextPrime = [nextCyl, PrimePos.second5];
-
-  cyl.neighbours[prime[1]] = nextPrime;
-  nextCyl.neighbours[nextPrime[1]] = prime;
 }

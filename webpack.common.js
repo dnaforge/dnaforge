@@ -4,8 +4,10 @@ const webpack = require('webpack');
 const childProcess = require('child_process');
 const PACKAGE = require('./package.json');
 
-const __versionString__ = PACKAGE.version + "." + childProcess.execSync('git rev-list HEAD --count').toString().trim();
-const __buildTime__ = new Date().toISOString();
+const date = new Date();
+const versionSuffix = [date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate() + 1].join(".");
+const __buildTime__ = date.toISOString();
+const __versionString__ = PACKAGE.version + "." + versionSuffix;// + childProcess.execSync('git rev-list HEAD --count').toString().trim();
 
 module.exports = {
     entry: './src/scripts/index.ts',

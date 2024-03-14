@@ -110,7 +110,7 @@ export abstract class Menu {
     const get = () => {
       let val;
       const t = element[0].type;
-      if (t == 'checkbox') val = element[0].checked;
+      if (t == 'checkbox' || t == 'radio') val = element[0].checked;
       else if (t == 'number') val = Number(element[0].value);
       else val = element[0].value;
 
@@ -122,7 +122,8 @@ export abstract class Menu {
         json[parameter] as MenuParameters[keyof MenuParameters],
       );
 
-      if (element[0].type == 'checkbox') element[0].checked = tVal;
+      if (element[0].type == 'checkbox' || element[0].type == 'radio')
+        element[0].checked = tVal;
       else element[0].value = tVal;
     };
 

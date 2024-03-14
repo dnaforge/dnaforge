@@ -213,7 +213,7 @@ export class Editor {
 
   setPosition() {
     const curSel = this.getSelected();
-    if (curSel.size <= 0) return;
+    if (!curSel || curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
     const mouseStartPos = this.context.controls.pointer.clone();
@@ -264,7 +264,7 @@ export class Editor {
 
   setRotation() {
     const curSel = this.getSelected();
-    if (curSel.size <= 0) return;
+    if (!curSel || curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
     const mouseStartPos = this.context.controls.pointer.clone();
@@ -296,7 +296,7 @@ export class Editor {
 
   setScale() {
     const curSel = this.getSelected();
-    if (curSel.size <= 0) return;
+    if (!curSel || curSel.size <= 0) return;
     const obj = new SelectionTransformer(...curSel);
 
     const mouseStartPos = this.context.controls.pointer.clone();

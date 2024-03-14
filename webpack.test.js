@@ -6,6 +6,7 @@ const webpack = require('webpack');
 
 module.exports = merge(common, {
     mode: "production",
+    devtool: 'inline-source-map',
     entry: './src/test/test.ts',
     devServer: {
         static: './dist',

@@ -34,6 +34,7 @@ describe('Cycle cover routing', function () {
     it(`Each cycle should by cyclical: ${g[0]}`, function () {
       graph = g[1];
       cc = new CycleCover(graph);
+      cc.findCycleCover();
       cycles = cc.cycles;
 
       for (const c of cycles) {
@@ -51,6 +52,7 @@ describe('Cycle cover routing', function () {
     it(`Each edge should be spanned twice: ${g[0]}`, function () {
       graph = g[1];
       cc = new CycleCover(graph);
+      cc.findCycleCover();
       cycles = cc.cycles;
 
       const visited = new Map(
@@ -82,6 +84,7 @@ describe('Cycle Cover Cylinder Model', function () {
   });
   const ccs = graphs.map((g) => {
     const cc = new CycleCover(g[1]);
+    cc.findCycleCover();
     return [g[0], cc];
   });
 
@@ -143,6 +146,7 @@ describe('Cycle Cover Nucleotide Model', function () {
   });
   const ccs = graphs.map((g) => {
     const cc = new CycleCover(g[1]);
+    cc.findCycleCover();
     return [g[0], cc];
   });
 
