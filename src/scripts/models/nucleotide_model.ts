@@ -125,7 +125,7 @@ export class NucleotideModel extends Model {
         }
         if (next >= 0) pairs.push([idx, next]);
         if (prev >= 0) pairs.push([prev, idx]);
-        const n = new Nucleotide(nm, base);
+        const n = new Nucleotide(nm, strand, base);
         nucs.push(n);
         strand.addNucleotides(n);
       });

@@ -7,6 +7,7 @@ interface ColourScheme {
 
   NucleotideColours: Record<IUPAC_CHAR, Color>;
   NucleotideSelectionColours: Record<SelectionStatus, Color>;
+  StrandColours: Record<string, Color>;
 
   CylinderColours: Record<
     'prime' | 'linker' | 'pseudo' | 'torque' | 'tension',
@@ -52,6 +53,10 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
       default: new Color(0xf0e8d0), // Lighter Sand (Default Selection)
       selected: new Color(0x88aaff), // Light Blue (Selected)
       hover: new Color(0xee4444), // Light Red (Hovered)
+    },
+
+    StrandColours: {
+      '1': new Color(0xf0e8d0),
     },
 
     CylinderColours: {
@@ -108,6 +113,10 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
       hover: new Color(0xff6f6f), // Coral Red (Hovered)
     },
 
+    StrandColours: {
+      '1': new Color(0xf3e0b8),
+    },
+
     CylinderColours: {
       prime: new Color(0xffa07a), // Light Salmon
       linker: new Color(0xffa07a), // Light Salmon
@@ -161,6 +170,10 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
       hover: new Color('#e74c3c'), // Red
     },
 
+    StrandColours: {
+      '1': new Color(0xd7dbdd),
+    },
+
     CylinderColours: {
       prime: new Color('#e67e22'), // Brown
       linker: new Color('#e74c3c'), // Red
@@ -212,6 +225,10 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
       default: new Color('#ffffff'), // Pure White
       selected: new Color('#e74c3c'), // Red
       hover: new Color('#3498db'), // Peter River
+    },
+
+    StrandColours: {
+      '1': new Color(0xffffff),
     },
 
     CylinderColours: {
@@ -268,10 +285,14 @@ export const ColourSchemePresets: Record<string, ColourScheme> = {
       hover: new Color('#808080'), // Grey
     },
 
+    StrandColours: {
+      '1': new Color(0x808080),
+    },
+
     CylinderColours: {
       prime: new Color('#808080'), // Grey
       linker: new Color('#808080'), // Grey
-      pseudo: new Color(0xff0000),
+      pseudo: new Color(0x808080),
 
       // Overlay
       tension: new Color('#808080'), // Grey

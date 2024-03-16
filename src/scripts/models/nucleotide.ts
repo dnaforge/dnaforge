@@ -7,6 +7,7 @@ import { GLOBALS } from '../globals/globals';
 import { Selectable, SelectionStatus } from './selectable';
 import { NucleotideModel } from './nucleotide_model';
 import { ColourScheme } from './colour_schemes';
+import { Strand } from './strand';
 
 export interface NucleotideMeshes {
   bases: InstancedMesh;
@@ -49,6 +50,7 @@ const nucleotideGeometry = (nucParams: typeof DNA | typeof RNA) => {
  */
 export class Nucleotide extends Selectable {
   owner: NucleotideModel;
+  strand: Strand;
   id: number;
   instanceMeshes: NucleotideMeshes;
 
@@ -79,9 +81,10 @@ export class Nucleotide extends Selectable {
    * @param naType DNA | RNA
    * @param base IUPAC code
    */
-  constructor(nm: NucleotideModel, base = 'N') {
+  constructor(nm: NucleotideModel, strand: Strand, base = 'N') {
     super();
-    this.owner = nm; // TODO: replace with a strand
+    this.owner = nm;
+    this.strand = strand;
     this.base = base;
     this.scale = nm.scale;
     this.naType = nm.naType;
@@ -106,8 +109,8 @@ export class Nucleotide extends Selectable {
     };
   }
 
-  static loadJSON(nm: NucleotideModel, json: any): Nucleotide {
-    const n = new Nucleotide(nm, json.base);
+  static loadJSON(nm: NucleotideModel, strand: Strand, json: any): Nucleotide {
+    const n = new Nucleotide(nm, strand, json.base);
     n.id = json.id;
     n.isLinker = json.isLinker;
     n.isScaffold = json.isScaffold;
@@ -270,8 +273,13 @@ export class Nucleotide extends Selectable {
    */
   updateObjectColours() {
     if (!this.instanceMeshes) return;
-    const colour =
+    const strandColours = Object.values(ColourScheme.StrandColours);
+    const strandColour = strandColours[this.strand.id % strandColours.length];
+    const selectionColour =
       ColourScheme.NucleotideSelectionColours[this.selectionStatus];
+
+    const colour =
+      this.selectionStatus == 'default' ? strandColour : selectionColour;
     this.instanceMeshes.backbone1.setColorAt(this.id, colour);
     this.instanceMeshes.backbone2.setColorAt(this.id, colour);
     this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
@@ -372,7 +380,7 @@ export class Nucleotide extends Selectable {
       const qt = q1.clone().slerp(q2, z);
       const transform = new Matrix4().compose(pt, qt, scale);
 
-      const nt = new Nucleotide(this.owner);
+      const nt = new Nucleotide(this.owner, this.strand);
       nt.isLinker = true;
       if (this.isScaffold) nt.isScaffold = true;
       nt.setTransform(transform);

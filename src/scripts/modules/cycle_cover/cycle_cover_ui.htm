@@ -109,12 +109,18 @@
                     id="cycle-cover-greedy">
             </li>
             <li>
-                <input data-role="radio" type="radio" id="cycle-cover-min-genus" name="cycle-cover-genus" disabled>
-                <label for="cycle-cover-min-genus">Max Cycles</label>
-                <input data-role="radio" type="radio" id="cycle-cover-max-genus" name="cycle-cover-genus">
-                <label for="cycle-cover-max-genus">Min Cycles</label>
-                <input data-role="radio" type="radio" id="cycle-cover-no-genus" name="cycle-cover-genus" checked>
-                <label for="cycle-cover-no-genus">Min Linkers</label>
+                <input data-role="radio" type="radio" id="cycle-cover-min-genus" name="cycle-cover-genus" disabled></input>
+                <label data-role="hint" data-hint-position="top"
+                    data-hint-text="Minimise the embedding genus / maximise the number of cycles." for="cycle-cover-min-genus">Max
+                    Cycles</label>
+                <input data-role="radio" type="radio" id="cycle-cover-max-genus" name="cycle-cover-genus"></input>
+                <label data-role="hint" data-hint-position="top"
+                    data-hint-text="Maximise the embedding genus / minimise the number of cycles." for="cycle-cover-max-genus">Min
+                    Cycles</label>
+                <input data-role="radio" type="radio" id="cycle-cover-no-genus" name="cycle-cover-genus" checked></input>
+                <label data-role="hint" data-hint-position="top"
+                    data-hint-text="Ignore genus, and try to minimise linker segment lengths." for="cycle-cover-no-genus">Min
+                    Linkers</label>
             </li>
         </ul>
         <p>Strand parameters:</p>

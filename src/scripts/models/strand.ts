@@ -55,7 +55,7 @@ export class Strand {
     s.isLinker = json.isLinker;
     s.isPseudo = json.isPseudo;
     for (const n of json.nucleotides) {
-      s.addNucleotides(Nucleotide.loadJSON(nm, n));
+      s.addNucleotides(Nucleotide.loadJSON(nm, s, n));
     }
     return s;
   }
@@ -76,7 +76,7 @@ export class Strand {
    */
   generateNucleotides(...matrices: Matrix4[]) {
     for (let i = 0; i < matrices.length; i++) {
-      const nuc = new Nucleotide(this.owner);
+      const nuc = new Nucleotide(this.owner, this);
       nuc.isLinker = this.isLinker;
       nuc.isScaffold = this.isScaffold;
 
@@ -114,6 +114,7 @@ export class Strand {
    */
   addNucleotides(...n: Nucleotide[]) {
     for (let i = 0; i < n.length; i++) {
+      n[i].strand = this;
       this.nucleotides.push(n[i]);
     }
   }

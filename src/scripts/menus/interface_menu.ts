@@ -538,8 +538,8 @@ export class InterfaceMenu extends Menu {
 
   loadColourScheme(json: typeof ColourScheme) {
     let kt: keyof typeof ColourScheme;
-    for (kt in ColourScheme) {
-      for (const c in ColourScheme[kt]) {
+    for (kt in json) {
+      for (const c in json[kt]) {
         (<any>ColourSchemePresets['Custom'][kt])[c] = new THREE.Color(
           (<any>json[kt])[c],
         );
@@ -575,38 +575,95 @@ export class InterfaceMenu extends Menu {
   createColoursSwatches() {
     const container = $('#ui-colours');
     container.html('');
-    const createSubComponent = (key: keyof typeof ColourScheme) => {
-      const dict: Record<string, THREE.Color> = ColourScheme[key];
-      let nucContainer: any;
+    const createSubComponent = (
+      category: keyof typeof ColourScheme,
+      varN = false,
+    ) => {
+      const dict: Record<string, THREE.Color> = ColourScheme[category];
+      const customVals: Record<string, THREE.Color> =
+        ColourSchemePresets['Custom'][category];
+
+      let swatchContainer: any;
       let i = 0;
-      for (const k in dict) {
-        if (!(i++ % 8)) {
-          nucContainer = $('<ul>', { class: 'group-list horizontal' });
-          container.append(nucContainer);
+
+      const copyToCustom = () => {
+        if ($('#ui-colours-presets')[0].value != 'Custom') {
+          let kt: keyof typeof ColourScheme;
+          for (const t in customVals) delete customVals[t];
+          for (kt in ColourScheme) {
+            for (const c in ColourScheme[kt]) {
+              (<any>ColourSchemePresets['Custom'][kt])[c] = (<any>(
+                ColourScheme[kt]
+              ))[c];
+            }
+          }
+          $('#ui-colours-presets')[0].value = 'Custom';
+          Object.assign(ColourScheme, ColourSchemePresets['Custom']);
         }
-        const nuc = $(`<li>`, { 'data-marker': k });
-        nuc.append($(`<p>${k}</p>`));
+      };
+
+      let k: keyof typeof customVals;
+      for (k in dict) {
+        if (!(i++ % 8)) {
+          swatchContainer = $('<div>', { class: 'group-list horizontal' });
+          container.append(swatchContainer);
+        }
+        const swatch = $(`<div>`, { class: '' });
+        swatch.append(
+          $(`<span> ${k} </span>`, { class: 'd-inline', style: 'margin: 5px' }),
+        );
         const colour = $('<input>', { type: 'color' });
 
-        nuc.append(colour);
-        nucContainer.append(nuc);
+        swatch.append(colour);
+        swatchContainer.append(swatch);
         colour[0].value = `#${dict[k].getHexString()}`;
 
+        const kClosure = k;
         colour.on('change', () => {
+          copyToCustom();
           const colourVal = new THREE.Color(colour.val());
-          if ($('#ui-colours-presets')[0].value != 'Custom') {
-            let kt: keyof typeof ColourScheme;
-            for (kt in ColourScheme) {
-              for (const c in ColourScheme[kt]) {
-                (<any>ColourSchemePresets['Custom'][kt])[c] = (<any>(
-                  ColourScheme[kt]
-                ))[c];
-              }
+          customVals[kClosure] = colourVal;
+          this.context.activeContext?.updateVisuals();
+        });
+
+        if (varN) {
+          const cross = $("<a href='javascript:void(0)'>x</a>", {
+            class: 'badge',
+          });
+          swatch.append(cross);
+
+          const del = () => {
+            if (Object.keys(customVals).length <= 1) return;
+            copyToCustom();
+
+            delete customVals[kClosure];
+
+            this.createColoursSwatches();
+            this.context.activeContext?.updateVisuals();
+          };
+
+          cross.on('click', del);
+          colour.on('contextMenu', (e: MouseEvent) => {
+            e.preventDefault();
+            del();
+          });
+        }
+      }
+
+      if (varN) {
+        const add = $('<button>+</button>');
+        container.append(add);
+        add.on('click', () => {
+          copyToCustom();
+          for (let i = 1; i < Object.keys(customVals).length + 2; i++) {
+            if (!customVals[i]) {
+              customVals[i] = new THREE.Color().setHex(
+                0xffffff * Math.random(),
+              );
+              break;
             }
-            $('#ui-colours-presets')[0].value = 'Custom';
-            Object.assign(ColourScheme, ColourSchemePresets['Custom']);
           }
-          (<any>ColourSchemePresets['Custom'][key])[k] = colourVal;
+          this.createColoursSwatches();
           this.context.activeContext?.updateVisuals();
         });
       }
@@ -614,13 +671,17 @@ export class InterfaceMenu extends Menu {
 
     //Wires:
     container.append($('<p>Wires Colours</p>'));
-    createSubComponent('WiresColours');
+    createSubComponent('WiresColours', true);
 
     //Nucleotides:
     container.append($('<p>Nucleotide Colours</p>'));
     createSubComponent('NucleotideColours');
     container.append($('<p>Nucleotide Selection Colours</p>'));
     createSubComponent('NucleotideSelectionColours');
+
+    //Strands
+    container.append($('<p>Strand Colours</p>'));
+    createSubComponent('StrandColours', true);
 
     //Cylinders:
     container.append($('<p>Cylinder Colours</p>'));
