@@ -84,12 +84,12 @@ export class Editor {
     });
     obj.userData.model = model; // gives access to the intersection handler
     this.context.scene.add(obj);
-    this.context.statsNeedsUpdate = true;
-    this.context.uiNeedsUpdate = true;
     if (visible) {
       model.show();
       this.activeModel = model;
     } else model.hide();
+
+    this.context.refresh();
   }
 
   removeModel(model: Model) {
@@ -100,11 +100,34 @@ export class Editor {
     const obj = model.obj;
     this.context.scene.remove(obj);
     model.dispose();
+
+    this.context.refresh();
   }
 
   updateModel(model: Model) {
+    model?.updateObject();
+    this.context.rendererNeedsUpdate = true;
+  }
+
+  /**
+   * Removes the object associated with the model, and generates it again.
+   * Needs to be called if the object is no longer in sync with the model.
+   *
+   * @param model
+   */
+  regenerateObject(model: Model) {
     this.removeModel(model);
     this.addModel(model);
+  }
+
+  hideModel(model: Model) {
+    model?.hide();
+    this.context.rendererNeedsUpdate = true;
+  }
+
+  showModel(model: Model) {
+    model?.show();
+    this.context.rendererNeedsUpdate = true;
   }
 
   getActiveModel(): Model {
@@ -132,6 +155,7 @@ export class Editor {
       const op = this.undoStack.pop();
       op.undo();
       this.redoStack.push(op);
+      this.context.refresh();
     }
   }
 
@@ -140,6 +164,7 @@ export class Editor {
       const op = this.redoStack.pop();
       op.redo();
       this.undoStack.push(op);
+      this.context.refresh();
     }
   }
 
@@ -348,11 +373,13 @@ export class Editor {
     if (!add) this.deselectAll();
     se.owner.select(se);
     this.context.statsNeedsUpdate = true;
+    this.context.rendererNeedsUpdate = true;
   }
 
   deSelect(se: Selectable) {
     se.owner.deselect(se);
     this.context.statsNeedsUpdate = true;
+    this.context.rendererNeedsUpdate = true;
   }
 
   selectConnected(se: Selectable, add = false) {
@@ -394,15 +421,23 @@ export class Editor {
   deselectAll() {
     for (const m of this.models) m.clearSelection();
     this.context.statsNeedsUpdate = true;
+    this.context.rendererNeedsUpdate = true;
   }
 
   setHover(se: Selectable) {
+    if (this.hovers.has(se)) return;
     this.clearHover();
     se.owner.hover(se);
+    this.hovers.add(se);
+    this.context.rendererNeedsUpdate = true;
   }
 
   clearHover() {
     for (const m of this.models) m.clearHover();
+    if (this.hovers.size > 0) {
+      this.hovers.clear();
+      this.context.rendererNeedsUpdate = true;
+    }
   }
 
   addToolTip(s: Selectable, point: Vector3) {

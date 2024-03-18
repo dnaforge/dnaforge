@@ -126,6 +126,7 @@ export abstract class ModuleMenu extends Menu {
   updateFromOxDNA(conf: string) {
     this.context.editor.clearOPStack();
     this.nm.updateFromOxDNA(conf);
+    this.context.editor.updateModel(this.nm);
   }
 
   /**
@@ -286,7 +287,9 @@ export abstract class ModuleMenu extends Menu {
     this.collectParameters();
 
     const initialScore = Math.round(this.cm.calculateRelaxScore());
+    this.context.startAnimation();
     await this.cm.relax(this.params);
+    this.context.endAnimation();
     const finalScore = Math.round(this.cm.calculateRelaxScore());
 
     this.nm && this.removeNucleotides(true);
@@ -306,7 +309,7 @@ export abstract class ModuleMenu extends Menu {
   @editOp('wires')
   removeWires(dispose = false) {
     if (!this.wires) return;
-    this.wires.hide();
+    this.context.editor.hideModel(this.wires);
     if (dispose) {
       this.context.editor.removeModel(this.wires);
       this.wires = null;
@@ -321,7 +324,7 @@ export abstract class ModuleMenu extends Menu {
   @editOp('cm')
   removeCylinders(dispose = false) {
     if (!this.cm) return;
-    this.cm.hide();
+    this.context.editor.hideModel(this.cm);
     if (dispose) {
       this.context.editor.removeModel(this.cm);
       this.cm = null;
@@ -336,7 +339,7 @@ export abstract class ModuleMenu extends Menu {
   @editOp('nm')
   removeNucleotides(dispose = false) {
     if (!this.nm) return;
-    this.nm.hide();
+    this.context.editor.hideModel(this.nm);
     if (dispose) {
       this.context.editor.removeModel(this.nm);
       this.nm = null;
@@ -361,17 +364,18 @@ export abstract class ModuleMenu extends Menu {
    */
   updateVisuals() {
     const active = this.context.activeContext == this;
+    const editor = this.context.editor;
 
-    if (this.params.showWires && active) this.wires?.show();
-    else this.wires?.hide();
-    if (this.params.showCylinders && active) this.cm?.show();
-    else this.cm?.hide();
-    if (this.params.showNucleotides && active) this.nm?.show();
-    else this.nm?.hide();
+    if (this.params.showWires && active) editor.showModel(this.wires);
+    else editor.hideModel(this.wires);
+    if (this.params.showCylinders && active) editor.showModel(this.cm);
+    else editor.hideModel(this.cm);
+    if (this.params.showNucleotides && active) editor.showModel(this.nm);
+    else editor.hideModel(this.nm);
 
-    this.wires?.updateObject();
-    this.cm?.updateObject();
-    this.nm?.updateObject();
+    editor.updateModel(this.wires);
+    editor.updateModel(this.cm);
+    editor.updateModel(this.nm);
   }
 
   downloadUNF() {

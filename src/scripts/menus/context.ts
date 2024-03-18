@@ -16,7 +16,6 @@ import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
 import { downloadIMG } from '../io/download';
-import { RoutingStrategy } from '../models/cylinder';
 
 const canvas = <HTMLCanvasElement>document.querySelector('#canvas');
 
@@ -72,8 +71,11 @@ export class Context {
     div: HTMLElement;
   };
 
+  // TODO: starting to rack these up. Make some sort of a manager to autmate them.
   statsNeedsUpdate = true;
   uiNeedsUpdate = true;
+  rendererNeedsUpdate = true;
+  isAnimating = false;
 
   constructor() {
     this.scene.background = new THREE.Color(0xffffff);
@@ -83,7 +85,7 @@ export class Context {
     this.setupEventListeners();
     this.setupHotkeys();
     this.resetCamera(false);
-    this.render();
+    this.start();
   }
 
   /**
@@ -126,15 +128,17 @@ export class Context {
   /**
    * Main loop.
    */
-  private render() {
-    const renderT = () => {
+  private start() {
+    const tick = () => {
       for (const c of this.callbacks) c();
       this.controls.handleInput();
-      this.cameraControls.update();
-      this.renderer.render(this.scene, this.camera);
+      //;
       this.labelRenderer.render(this.scene, this.camera);
-      requestAnimationFrame(renderT);
+      requestAnimationFrame(tick);
 
+      if (this.isAnimating || this.rendererNeedsUpdate) {
+        this.render();
+      }
       if (this.statsNeedsUpdate) {
         this.statsNeedsUpdate = false;
         this.updateSceneStatistics();
@@ -145,7 +149,21 @@ export class Context {
         this.updateArcDiagram();
       }
     };
-    renderT();
+
+    tick();
+  }
+
+  render = () => {
+    this.rendererNeedsUpdate = false;
+    this.renderer.render(this.scene, this.camera);
+  };
+
+  startAnimation() {
+    this.isAnimating = true;
+  }
+
+  endAnimation() {
+    this.isAnimating = false;
   }
 
   getScreenshot() {
@@ -173,6 +191,8 @@ export class Context {
     (this.camera as any).updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+    this.rendererNeedsUpdate = true;
   }
 
   /**
@@ -202,7 +222,6 @@ export class Context {
 
         this.camera.updateMatrixWorld();
         this.cameraControls.update();
-        return;
       } else {
         const delta = (timeNow - timeStart) / DURATION;
         const tempTarget = target
@@ -221,6 +240,7 @@ export class Context {
 
         window.requestAnimationFrame(anim);
       }
+      this.rendererNeedsUpdate = true;
     };
 
     anim();
@@ -256,6 +276,7 @@ export class Context {
         break;
     }
     this.cameraControls.update();
+    this.rendererNeedsUpdate = true;
   }
 
   /**
@@ -302,6 +323,7 @@ export class Context {
 
     this.camera.updateMatrixWorld();
     this.cameraControls.update();
+    this.rendererNeedsUpdate = true;
   }
 
   /**
@@ -315,6 +337,7 @@ export class Context {
       new Vector3(-tPos.x, -(tPos.y - 5) + 5, -tPos.z),
     );
     this.cameraControls.update();
+    this.rendererNeedsUpdate = true;
   }
 
   getCamera(): THREE.Camera {
@@ -358,6 +381,11 @@ export class Context {
     this.camera.position.copy(new Vector3(0, 5, 20));
     this.cameraControls.target = new Vector3(0, 5, 0);
     this.cameraControls.update();
+
+    this.cameraControls.addEventListener('change', () => {
+      this.rendererNeedsUpdate = true;
+    });
+    this.rendererNeedsUpdate = true;
   }
 
   /**
@@ -452,6 +480,12 @@ export class Context {
     this.activeContext && this.activeContext.activate();
   }
 
+  refresh() {
+    this.statsNeedsUpdate = true;
+    this.uiNeedsUpdate = true;
+    this.rendererNeedsUpdate = true;
+  }
+
   /**
    * Resets the main context. Also resets all the menus.
    *
@@ -460,6 +494,7 @@ export class Context {
     this.graph = null;
     for (const ctx of this.menus.values()) ctx.reset();
     this.editor.reset();
+    this.refresh();
   }
 
   /**
@@ -477,7 +512,7 @@ export class Context {
       } edges<br>${graph.getFaces().length} faces`,
       'info',
     );
-    this.statsNeedsUpdate = true;
+    this.refresh();
   }
 
   /**
@@ -535,8 +570,7 @@ export class Context {
     prevContext && prevContext.inactivate();
     context.activate();
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
-    this.statsNeedsUpdate = true;
-    this.uiNeedsUpdate = true;
+    this.refresh();
   }
 
   /**

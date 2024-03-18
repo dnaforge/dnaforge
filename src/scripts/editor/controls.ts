@@ -217,6 +217,7 @@ export class Controls {
    */
   handleInput() {
     if (this.modal) {
+      this.context.rendererNeedsUpdate = true;
       if (this.leftClicked && this.modal.onLeftDrag)
         return this.modal.onLeftDrag(this.pointerPrev);
       if (this.rightClicked && this.modal.onRightDrag)

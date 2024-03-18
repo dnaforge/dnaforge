@@ -24,6 +24,8 @@ export abstract class Model {
 
   abstract generateObject(): Object3D;
 
+  abstract updateObject(): void;
+
   abstract dispose(): void;
 
   abstract solveIntersection(i: Intersection): Selectable;

@@ -716,6 +716,8 @@ export class InterfaceMenu extends Menu {
     else this.removeWires();
     if (this.boundingBoxButton[0].checked) this.addBoundingBox();
     else this.removeBoundingBox();
+
+    this.context.rendererNeedsUpdate = true;
   }
 
   /**
