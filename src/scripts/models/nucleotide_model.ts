@@ -268,7 +268,7 @@ export class NucleotideModel extends Model {
    *
    * @returns JSON dictionary
    */
-  toUNF() {
+  toUNF(): JSONObject {
     const length = this.strands.length;
     const strandsJSON = [];
     for (let i = 0; i < length; i++) {
@@ -277,7 +277,7 @@ export class NucleotideModel extends Model {
       strandsJSON.push(sJSON);
     }
     const empty = [] as any;
-    const t = {
+    const t: JSONObject = {
       format: 'unf',
       version: '1.0.0',
       idCounter: this.length(),

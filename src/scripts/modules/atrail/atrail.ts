@@ -49,6 +49,20 @@ export class ATrail extends WiresModel {
     return atrail;
   }
 
+  toObj(): string {
+    const coords: Vector3[] = [];
+
+    for (let i = 0; i < this.trail.length; i++) {
+      const curE = this.trail[i];
+      const v = curE.twin.vertex;
+      const co = v.coords;
+
+      coords.push(co);
+    }
+
+    return super._toObj(coords);
+  }
+
   initialiseGraph(checkerBoard: boolean) {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;
@@ -368,7 +382,7 @@ export class ATrail extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super.generateObject(coords);
+      super._generateObject(coords);
     }
     return this.obj;
   }

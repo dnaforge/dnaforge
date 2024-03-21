@@ -588,6 +588,8 @@ export class InterfaceMenu extends Menu {
 
       const copyToCustom = () => {
         if ($('#ui-colours-presets')[0].value != 'Custom') {
+          console.log('asdf');
+
           let kt: keyof typeof ColourScheme;
           for (const t in customVals) delete customVals[t];
           for (kt in ColourScheme) {
@@ -637,8 +639,10 @@ export class InterfaceMenu extends Menu {
             copyToCustom();
 
             delete customVals[kClosure];
-
+            //swatch.remove();
+            //if(swatchContainer.children().length == 0) swatchContainer.remove();
             this.createColoursSwatches();
+
             this.context.activeContext?.updateVisuals();
           };
 

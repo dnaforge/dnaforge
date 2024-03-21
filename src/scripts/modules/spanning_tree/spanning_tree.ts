@@ -52,6 +52,29 @@ export class SpanningTree extends WiresModel {
     return v;
   }
 
+  toObj(): string {
+    const coords: Vector3[] = [];
+    for (const curE of this.trail) {
+      const edge = curE.edge;
+      const v1 = curE.twin.vertex;
+      const v2 = curE.vertex;
+
+      const co1 = v1.coords;
+      const co2 = v2.coords;
+
+      coords.push(co1);
+
+      if (!this.st.has(edge)) {
+        const dir = co2.clone().sub(co1).normalize();
+        const midWay = co2
+          .clone()
+          .sub(dir.clone().multiplyScalar(co1.distanceTo(co2) * 0.51));
+        coords.push(midWay);
+      }
+    }
+    return super._toObj(coords);
+  }
+
   getVeneziano() {
     const route: HalfEdge[] = [];
     const startEdge = [...this.st][0].halfEdges[0];
@@ -205,7 +228,7 @@ export class SpanningTree extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super.generateObject(coords);
+      super._generateObject(coords);
     }
     return this.obj;
   }

@@ -156,6 +156,13 @@ export abstract class ModuleMenu extends Menu {
       },
       this,
     );
+    this.context.controls.registerHotkey(
+      'o',
+      () => {
+        this.downloadObj();
+      },
+      this,
+    );
   }
 
   abstract jsonToWires(json: JSONObject): WiresModel;
@@ -406,6 +413,15 @@ export abstract class ModuleMenu extends Menu {
       downloadTXT(`${this.elementId}-strands.csv`, strands);
     } catch (error) {
       throw `Nucleotide model not defined.`;
+    }
+  }
+
+  downloadObj() {
+    try {
+      const obj = this.wires.toObj();
+      downloadTXT(`${this.elementId}-routing.obj`, obj);
+    } catch (error) {
+      throw `Wires model not defined.`;
     }
   }
 

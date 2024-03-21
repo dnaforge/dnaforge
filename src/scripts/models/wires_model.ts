@@ -18,6 +18,30 @@ abstract class WiresModel extends Model {
 
   //abstract static loadJSON(json: any): WiresModel; // Typescript does not support abstract static, but all wires models should implement this.
 
+  abstract toObj(): string;
+
+  protected _toObj(...coords: Vector3[][]): string {
+    const verts = [];
+    const polyLines = [];
+    let tot = 0;
+    for (const cycle of coords) {
+      for (let i = 0; i < cycle.length; i++) {
+        tot += 1;
+        const co = cycle[i];
+        const vert = `v ${co.x} ${co.y} ${co.z}`;
+        verts.push(vert);
+      }
+      const cycleIds = cycle.map((_, i) => {
+        return tot - cycle.length + i + 1;
+      });
+      polyLines.push(`l ` + cycleIds.join(' ') + ` ${tot - cycle.length + 1}`);
+    }
+
+    const data = verts.join('\n') + '\n' + polyLines.join('\n');
+
+    return data;
+  }
+
   abstract solveIntersection(i: Intersection): Selectable;
 
   getStatistics(): JSONObject {
@@ -87,7 +111,7 @@ abstract class WiresModel extends Model {
     return offset;
   }
 
-  generateObject(...coords: Vector3[][]): Object3D {
+  protected _generateObject(...coords: Vector3[][]): Object3D {
     this.obj ?? this.dispose();
 
     const thickness = 0.04;

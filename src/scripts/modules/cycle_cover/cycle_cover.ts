@@ -64,6 +64,24 @@ export class CycleCover extends WiresModel {
     return cc;
   }
 
+  toObj(): string {
+    const cycles: Vector3[][] = [];
+
+    for (const c of this.cycles) {
+      const coords: Vector3[] = [];
+      cycles.push(coords);
+      for (let i = 0; i < c.length; i++) {
+        const curE = c[i];
+        const v = curE.vertex;
+        const co = v.coords;
+
+        coords.push(co);
+      }
+    }
+
+    return super._toObj(...cycles);
+  }
+
   getStatistics(): JSONObject {
     const data = super.getStatistics();
 
@@ -241,7 +259,7 @@ export class CycleCover extends WiresModel {
         coords.push(cCoords);
       }
 
-      super.generateObject(...coords);
+      super._generateObject(...coords);
     }
 
     return this.obj;

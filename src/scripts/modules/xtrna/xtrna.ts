@@ -72,6 +72,31 @@ export class Xtrna extends WiresModel {
     return xtrna;
   }
 
+  toObj(): string {
+    const coords: Vector3[] = [];
+
+    for (const curE of this.trail) {
+      const v1 = curE.vertex;
+      const v2 = curE.twin.vertex;
+
+      const co1 = v1.coords;
+      const co2 = v2.coords;
+
+      coords.push(co1);
+
+      if (this.kls.has(curE)) {
+        const dir = curE.getDirection();
+        const midWay = co2
+          .clone()
+          .sub(dir.clone().multiplyScalar(co1.distanceTo(co2) * 0.51));
+
+        coords.push(midWay);
+      }
+    }
+
+    return super._toObj(coords);
+  }
+
   getStatistics(): JSONObject {
     const data = super.getStatistics();
 
@@ -402,7 +427,7 @@ export class Xtrna extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super.generateObject(coords);
+      super._generateObject(coords);
     }
     return this.obj;
   }

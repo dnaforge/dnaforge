@@ -53,14 +53,14 @@ export function dev(context: Context) {
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
-  cc.generateNucleotideModel();
+  //cc.generateNucleotideModel();
   //cc.generatePrimary();
   //cc.downloadOxDNA();
-  context.switchContext(cc);
+  //context.switchContext(cc);
 
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;
-  //atrail.generateWires();
+  atrail.generateWires();
   //atrail.addCylinders();
   //atrail.generateNucleotideModel();
   //atrail.relaxCylinders();
@@ -68,7 +68,7 @@ export function dev(context: Context) {
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   //atrail.reinforce();
-  //context.switchContext(atrail);
+  context.switchContext(atrail);
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();
