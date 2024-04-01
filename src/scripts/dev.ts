@@ -49,18 +49,20 @@ export function dev(context: Context) {
   //context.switchContext(xtrna);
   //getXuon(graph);
 
-  //$('#cycle-cover-scale')[0].value = 5;
+  $('#cycle-cover-scale')[0].value = 1.5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
-  //cc.generateNucleotideModel();
-  //cc.generatePrimary();
+  cc.generateNucleotideModel();
+  cc.generatePrimary();
   //cc.downloadOxDNA();
-  //context.switchContext(cc);
+  //cc.downloadPDB();
+  context.switchContext(cc);
 
+  //$('#atrail-scale')[0].value = 1;
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;
-  atrail.generateWires();
+  //atrail.generateWires();
   //atrail.addCylinders();
   //atrail.generateNucleotideModel();
   //atrail.relaxCylinders();
@@ -68,7 +70,8 @@ export function dev(context: Context) {
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   //atrail.reinforce();
-  context.switchContext(atrail);
+  //context.switchContext(atrail);
+  //atrail.nm.toPDB();
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
   //st.addWires();

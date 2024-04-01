@@ -24,7 +24,7 @@ module.exports = {
             },
 
             {
-                test: /\.py|\.obj|\.ico/,
+                test: /\.py|\.obj|\.ico|\.pdb/,
                 type: 'asset/source'
             },
 

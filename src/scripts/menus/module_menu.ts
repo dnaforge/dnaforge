@@ -163,6 +163,14 @@ export abstract class ModuleMenu extends Menu {
       },
       this,
     );
+
+    this.context.controls.registerHotkey(
+      'i',
+      () => {
+        this.downloadPDB();
+      },
+      this,
+    );
   }
 
   abstract jsonToWires(json: JSONObject): WiresModel;
@@ -425,6 +433,15 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
+  downloadPDB() {
+    try {
+      const pdb = this.nm.toPDB();
+      downloadTXT(`${this.elementId}.pdb`, pdb);
+    } catch (error) {
+      throw `Primary sequence not defined.`;
+    }
+  }
+
   @editOp('wires')
   generateWiresOP() {
     this.generateWires();
@@ -513,6 +530,10 @@ export abstract class ModuleMenu extends Menu {
 
     $(`#${this.elementId}-download-strands`).on('click', () => {
       tryError(this.downloadStrands);
+    });
+
+    $(`#${this.elementId}-download-pdb`).on('click', () => {
+      tryError(this.downloadPDB);
     });
 
     this.wiresButton.on('click', () => {

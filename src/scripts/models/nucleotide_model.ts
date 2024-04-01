@@ -11,6 +11,7 @@ import { Model } from './model';
 import { Selectable } from './selectable';
 import { SelectionModes } from '../editor/editor';
 import { bbToCoM } from '../utils/misc_utils';
+import { nmToPDB } from '../utils/pdb_utils';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
@@ -314,6 +315,10 @@ export class NucleotideModel extends Model {
       misc: {},
     };
     return t;
+  }
+
+  toPDB(): string {
+    return nmToPDB(this);
   }
 
   /**
