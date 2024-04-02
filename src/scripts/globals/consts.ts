@@ -32,7 +32,7 @@ export const DNA: NUC_PARAMS = (() => {
   const RADIUS = 1;
   const TWIST = (2 * Math.PI) / 10.5;
   const AXIS = (1 - 16 / 180) * Math.PI;
-  const INCLINATION = 0;
+  const INCLINATION = (-1.2 / 180) * Math.PI;
 
   const BB_DIST = 1;
 

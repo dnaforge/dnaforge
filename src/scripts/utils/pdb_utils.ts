@@ -1,10 +1,11 @@
-import { Vector3 } from 'three';
+import { Matrix3, Matrix4, Vector3 } from 'three';
 import { Nucleotide } from '../models/nucleotide';
 import { NucleotideModel } from '../models/nucleotide_model';
+import { DNA } from '../globals/consts';
 
 const DNA_PDB_TEMPLATE = require('../globals/dna_reference.pdb');
 
-class Atom {
+class AtomPDB {
   type: string;
   serial: number;
   aName: string;
@@ -40,8 +41,8 @@ class Atom {
 
   constructor() {}
 
-  static fromLine(pdbLine: string): Atom {
-    const atom = new Atom();
+  static fromLine(pdbLine: string): AtomPDB {
+    const atom = new AtomPDB();
 
     atom.type = pdbLine.slice(0, 6).trim();
     atom.serial = Number(pdbLine.slice(6, 11));
@@ -63,7 +64,7 @@ class Atom {
   }
 
   copy() {
-    const atom = new Atom();
+    const atom = new AtomPDB();
     for (const entry in this) {
       (<any>atom)[entry] = this[entry];
     }
@@ -109,69 +110,171 @@ class Atom {
       res[14],
     ].join('');
   }
+
+  getPosition(): Vector3 {
+    return new Vector3(this.x, this.y, this.z);
+  }
 }
 
-function normalise(atoms: Atom[]) {
-  const mu = new Vector3();
-  for (const atom of atoms) {
-    mu.x += atom.x;
-    mu.y += atom.y;
-    mu.z += atom.z;
+class NucleotidePDB {
+  atoms: AtomPDB[] = [];
+  nameToAtom = new Map<string, AtomPDB>();
+
+  inverseTransform: Matrix4;
+
+  constructor() {}
+
+  addAtom(atom: AtomPDB) {
+    this.atoms.push(atom);
+    this.nameToAtom.set(atom.aName, atom);
   }
-  mu.divideScalar(atoms.length);
-  for (const atom of atoms) {
-    atom.x -= mu.x;
-    //atom.y -= mu.y;
-    //atom.z -= mu.z;
+
+  getBaseNormal() {
+    const c2 = this.nameToAtom.get('C2');
+    const c4 = this.nameToAtom.get('C4');
+    const c5 = this.nameToAtom.get('C5');
+
+    const p = c2.getPosition();
+    const q = c4.getPosition();
+    const r = c5.getPosition();
+
+    const v1 = p.sub(r);
+    const v2 = q.sub(r);
+
+    const n = v1.cross(v2).normalize();
+
+    if (n.dot(new Vector3(1, 0, 0)) > 0) n.negate();
+
+    return n;
   }
+
+  getHydrogenFaceDir() {
+    let pairs: [string, string][];
+
+    if (this.isPurine())
+      pairs = [
+        ['C4', 'N1'],
+        ['N3', 'C2'],
+        ['C5', 'C6'],
+      ];
+    else
+      pairs = [
+        ['C6', 'N3'],
+        ['N1', 'C2'],
+        ['C5', 'C4'],
+      ];
+
+    const v = new Vector3();
+
+    for (const p of pairs) {
+      const from = this.nameToAtom.get(p[0]);
+      const to = this.nameToAtom.get(p[1]);
+
+      const fromPos = from.getPosition();
+      const toPos = to.getPosition();
+
+      v.add(toPos.sub(fromPos));
+    }
+
+    return v.normalize();
+  }
+
+  isPurine() {
+    const purines = new Set(['DG', 'DA']);
+    return purines.has(this.atoms[0].rName);
+  }
+
+  getBackboneCenter() {}
+
+  normalise() {
+    //center
+    const mu = new Vector3();
+    for (const atom of this.atoms) {
+      mu.x += atom.x;
+      mu.y += atom.y;
+      mu.z += atom.z;
+    }
+    mu.divideScalar(this.atoms.length);
+    for (const atom of this.atoms) {
+      atom.x -= mu.x;
+      atom.y -= mu.y;
+      atom.z -= mu.z;
+    }
+
+    const hydrogenFaceDir = this.getHydrogenFaceDir();
+    const baseNormal = this.getBaseNormal();
+    const transform = getBasis(hydrogenFaceDir, baseNormal).invert();
+    const targetBasis = getBasis(DNA.HYDROGEN_FACING_DIR, DNA.BASE_NORMAL);
+    const t = targetBasis.multiply(transform);
+
+    for (const atom of this.atoms) {
+      const tCoords = new Vector3(atom.x, atom.y, atom.z);
+      tCoords.multiplyScalar(0.1); // å -> nm
+      tCoords.applyMatrix4(t);
+
+      atom.x = tCoords.x;
+      atom.y = tCoords.y;
+      atom.z = tCoords.z;
+
+      atom.y += 0.1;
+      atom.z += 0.55;
+    }
+  }
+}
+
+function getBasis(hydrogenFaceDir: Vector3, baseNormal: Vector3): Matrix4 {
+  const x = hydrogenFaceDir.clone().normalize();
+  const y = baseNormal.clone().normalize();
+  const z = x.clone().cross(y).normalize();
+
+  const rot = new Matrix4().makeBasis(x, y, z);
+
+  return rot;
 }
 
 const baseToPDB = (() => {
-  const baseToPDB = new Map<string, Atom[]>();
+  const baseToPDB = new Map<string, NucleotidePDB>();
 
   let curBase: string = undefined;
   let curBaseID: number = -1;
-  let curAtoms: Atom[] = [];
+  let curNuc: NucleotidePDB = new NucleotidePDB();
   for (const l of DNA_PDB_TEMPLATE.split('\n')) {
-    const atom = Atom.fromLine(l);
+    const atom = AtomPDB.fromLine(l);
     if (atom.type != 'ATOM') continue;
 
     if (curBaseID != atom.seq) {
-      if (curBase && !baseToPDB.has(curBase)) baseToPDB.set(curBase, curAtoms);
+      if (curBase && !baseToPDB.has(curBase)) {
+        baseToPDB.set(curBase, curNuc);
+        curNuc.normalise();
+      }
       curBase = atom.rName.trimStart().slice(1, 2);
       curBaseID = atom.seq;
-      normalise(curAtoms);
-      curAtoms = [];
+      curNuc = new NucleotidePDB();
     }
-    curAtoms.push(atom);
+    curNuc.addAtom(atom);
   }
   baseToPDB.set('U', baseToPDB.get('T'));
   return baseToPDB;
 })();
 
 export function nucToPDBAtoms(n: Nucleotide, atomId: number, resID: number) {
-  const pdbTemplate = baseToPDB.get(n.base);
+  const pdbRef = baseToPDB.get(n.base);
   const pdb: string[] = [];
 
   const strandID = n.strand.id;
 
-  for (let i = 0; i < pdbTemplate.length; i++) {
-    const refAtom = pdbTemplate[i];
+  for (let i = 0; i < pdbRef.atoms.length; i++) {
+    const refAtom = pdbRef.atoms[i];
     const newAtom = refAtom.copy();
 
     const xAtom = refAtom.x;
     const yAtom = refAtom.y;
     const zAtom = refAtom.z;
 
-    const Y = new Vector3(0, 1, 0);
-    const refPos = new Vector3(yAtom, -xAtom, zAtom).applyAxisAngle(
-      Y,
-      0.5 * Math.PI,
-    );
-    refPos.multiplyScalar(0.1); // å -> nm
+    const refPos = new Vector3(xAtom, yAtom, zAtom);
     const newPos = refPos
       .applyMatrix4(n.transform)
-      .multiplyScalar((10 * 1) / n.scale);
+      .multiplyScalar(10 / n.scale);
 
     newAtom.serial = i + atomId;
     newAtom.chain = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[strandID % 26];
@@ -200,5 +303,6 @@ export function nmToPDB(nm: NucleotideModel) {
     }
     system.push('TER');
   }
+
   return system.join('\n');
 }

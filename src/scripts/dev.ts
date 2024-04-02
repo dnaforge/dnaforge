@@ -56,7 +56,7 @@ export function dev(context: Context) {
   cc.generateNucleotideModel();
   cc.generatePrimary();
   //cc.downloadOxDNA();
-  //cc.downloadPDB();
+  cc.downloadPDB();
   context.switchContext(cc);
 
   //$('#atrail-scale')[0].value = 1;
