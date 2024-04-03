@@ -53,10 +53,10 @@ export function dev(context: Context) {
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
-  cc.generateNucleotideModel();
-  cc.generatePrimary();
+  //cc.generateNucleotideModel();
+  //cc.generatePrimary();
   //cc.downloadOxDNA();
-  cc.downloadPDB();
+  //cc.downloadPDB();
   context.switchContext(cc);
 
   //$('#atrail-scale')[0].value = 1;
@@ -79,15 +79,16 @@ export function dev(context: Context) {
   //st.addNucleotides();
   //st.generatePrimary();
 
-  //$('#sterna-scale')[0].value = 1;
+  $('#sterna-scale')[0].value = 1;
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.generateWires();
   //sterna.addCylinders();
-  //sterna.generateNucleotideModel();
+  sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
-  //sterna.generatePrimary();
-  //context.switchContext(sterna);
+  sterna.generatePrimary();
+  context.switchContext(sterna);
+  sterna.downloadPDB();
 
   //const r = new Relaxer(cm);
 

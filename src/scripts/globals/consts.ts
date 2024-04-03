@@ -11,7 +11,13 @@ export const RNA_PSEUDOKNOTS: Array<[string, string]> = <
   Array<[string, string]>
 >RNA_PSEUDOKNOTS_T;
 
-// All values are in nanometers and radians and from 5' to 3'.
+/**
+ * All values are in nanometers and radians and from 5' to 3'.
+ * The vectors are chosen such that the center of the reference duplex
+ * is at origin, its 5' backbone is along positive the Z-axis,
+ * and the 3' is along the positive Y-axis.
+ *
+ * */
 export interface NUC_PARAMS {
   RISE: number;
   RADIUS: number;
@@ -32,7 +38,7 @@ export const DNA: NUC_PARAMS = (() => {
   const RADIUS = 1;
   const TWIST = (2 * Math.PI) / 10.5;
   const AXIS = (1 - 16 / 180) * Math.PI;
-  const INCLINATION = (-1.2 / 180) * Math.PI;
+  const INCLINATION = 0;
 
   const BB_DIST = 1;
 

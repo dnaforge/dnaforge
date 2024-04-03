@@ -1,9 +1,10 @@
 import { Matrix3, Matrix4, Vector3 } from 'three';
 import { Nucleotide } from '../models/nucleotide';
 import { NucleotideModel } from '../models/nucleotide_model';
-import { DNA } from '../globals/consts';
+import { DNA, NATYPE, RNA } from '../globals/consts';
 
 const DNA_PDB_TEMPLATE = require('../globals/dna_reference.pdb');
+const RNA_PDB_TEMPLATE = require('../globals/rna_reference.pdb');
 
 class AtomPDB {
   type: string;
@@ -81,6 +82,7 @@ class AtomPDB {
       let val = this[field];
       if (field == 'x' || field == 'y' || field == 'z')
         val = (<number>val).toFixed(3);
+      if (field == 'occ' || field == 'temp') val = (<number>val).toFixed(2);
       val = val.toString().slice(0, l);
       const padded = ' '.repeat(l - val.length) + val;
       i += 1;
@@ -119,10 +121,11 @@ class AtomPDB {
 class NucleotidePDB {
   atoms: AtomPDB[] = [];
   nameToAtom = new Map<string, AtomPDB>();
+  nucParams: typeof DNA | typeof RNA;
 
-  inverseTransform: Matrix4;
-
-  constructor() {}
+  constructor(nucParams: typeof DNA | typeof RNA) {
+    this.nucParams = nucParams;
+  }
 
   addAtom(atom: AtomPDB) {
     this.atoms.push(atom);
@@ -143,7 +146,9 @@ class NucleotidePDB {
 
     const n = v1.cross(v2).normalize();
 
-    if (n.dot(new Vector3(1, 0, 0)) > 0) n.negate();
+    const d = n.dot(new Vector3(1, 0, 0)) < 0;
+    if (this.nucParams == RNA && d) n.negate();
+    else if (this.nucParams == DNA && !d) n.negate();
 
     return n;
   }
@@ -180,7 +185,7 @@ class NucleotidePDB {
   }
 
   isPurine() {
-    const purines = new Set(['DG', 'DA']);
+    const purines = new Set(['DG', 'DA', 'G', 'A']);
     return purines.has(this.atoms[0].rName);
   }
 
@@ -188,6 +193,8 @@ class NucleotidePDB {
 
   normalise() {
     //center
+    const bb = this.nameToAtom.get('P');
+    const bbPos = new Vector3(bb.x, bb.y, bb.z);
     const mu = new Vector3();
     for (const atom of this.atoms) {
       mu.x += atom.x;
@@ -196,15 +203,19 @@ class NucleotidePDB {
     }
     mu.divideScalar(this.atoms.length);
     for (const atom of this.atoms) {
-      atom.x -= mu.x;
-      atom.y -= mu.y;
-      atom.z -= mu.z;
+      atom.x -= bbPos.x;
+      atom.y -= bbPos.y;
+      atom.z -= bbPos.z;
     }
 
+    //rotate
     const hydrogenFaceDir = this.getHydrogenFaceDir();
     const baseNormal = this.getBaseNormal();
     const transform = getBasis(hydrogenFaceDir, baseNormal).invert();
-    const targetBasis = getBasis(DNA.HYDROGEN_FACING_DIR, DNA.BASE_NORMAL);
+    const targetBasis = getBasis(
+      this.nucParams.HYDROGEN_FACING_DIR,
+      this.nucParams.BASE_NORMAL,
+    );
     const t = targetBasis.multiply(transform);
 
     for (const atom of this.atoms) {
@@ -212,12 +223,9 @@ class NucleotidePDB {
       tCoords.multiplyScalar(0.1); // å -> nm
       tCoords.applyMatrix4(t);
 
-      atom.x = tCoords.x;
-      atom.y = tCoords.y;
-      atom.z = tCoords.z;
-
-      atom.y += 0.1;
-      atom.z += 0.55;
+      atom.x = tCoords.x + this.nucParams.BACKBONE_CENTER.x * 1;
+      atom.y = tCoords.y + this.nucParams.BACKBONE_CENTER.y * 1;
+      atom.z = tCoords.z + this.nucParams.BACKBONE_CENTER.z * 1;
     }
   }
 }
@@ -232,13 +240,15 @@ function getBasis(hydrogenFaceDir: Vector3, baseNormal: Vector3): Matrix4 {
   return rot;
 }
 
-const baseToPDB = (() => {
+const baseToPDB = (naType: NATYPE) => {
   const baseToPDB = new Map<string, NucleotidePDB>();
+  const template = naType == 'DNA' ? DNA_PDB_TEMPLATE : RNA_PDB_TEMPLATE;
+  const nucParams = naType == 'DNA' ? DNA : RNA;
 
   let curBase: string = undefined;
   let curBaseID: number = -1;
-  let curNuc: NucleotidePDB = new NucleotidePDB();
-  for (const l of DNA_PDB_TEMPLATE.split('\n')) {
+  let curNuc: NucleotidePDB = new NucleotidePDB(nucParams);
+  for (const l of template.split('\n')) {
     const atom = AtomPDB.fromLine(l);
     if (atom.type != 'ATOM') continue;
 
@@ -247,18 +257,26 @@ const baseToPDB = (() => {
         baseToPDB.set(curBase, curNuc);
         curNuc.normalise();
       }
-      curBase = atom.rName.trimStart().slice(1, 2);
+
+      curBase = atom.rName.trimStart();
+      curBase =
+        curBase.length == 1
+          ? curBase
+          : curBase.slice(curBase.length - 1, curBase.length);
       curBaseID = atom.seq;
-      curNuc = new NucleotidePDB();
+      curNuc = new NucleotidePDB(nucParams);
     }
     curNuc.addAtom(atom);
   }
-  baseToPDB.set('U', baseToPDB.get('T'));
   return baseToPDB;
-})();
+};
+
+const baseToPDBRNA = baseToPDB('RNA');
+const baseToPDBDNA = baseToPDB('DNA');
 
 export function nucToPDBAtoms(n: Nucleotide, atomId: number, resID: number) {
-  const pdbRef = baseToPDB.get(n.base);
+  const pdbRef =
+    n.naType == 'DNA' ? baseToPDBDNA.get(n.base) : baseToPDBRNA.get(n.base);
   const pdb: string[] = [];
 
   const strandID = n.strand.id;
