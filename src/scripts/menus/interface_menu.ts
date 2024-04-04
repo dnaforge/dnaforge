@@ -240,18 +240,21 @@ export class InterfaceMenu extends Menu {
     if (this.scaleBar.visible) {
       this.scaleBar.object.visible = true;
       for (const d of this.scaleBar.divs) d.hidden = false;
-    }
+    } else this.removeScale();
   }
 
   updateScale(value: number) {
+    if (!this.scaleBar) this.addScale();
     this.scaleBar.divs[0].textContent = `${value} nm`;
     this.scaleBar.visible = true;
     this.addScale();
   }
 
   removeScale() {
-    this.scaleBar.object.visible = false;
-    for (const d of this.scaleBar.divs) d.hidden = true;
+    if (this.scaleBar) {
+      this.scaleBar.object.visible = false;
+      for (const d of this.scaleBar.divs) d.hidden = true;
+    }
   }
 
   /**
@@ -521,7 +524,7 @@ export class InterfaceMenu extends Menu {
    * Removes the the grid from the 3d scene.
    */
   removeGrid() {
-    this.grid.visible = false;
+    if (this.grid) this.grid.visible = false;
     this.removeScale();
   }
 
