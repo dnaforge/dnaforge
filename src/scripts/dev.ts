@@ -83,11 +83,11 @@ export function dev(context: Context) {
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.generateWires();
   //sterna.addCylinders();
-  sterna.generateNucleotideModel();
+  //sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
-  sterna.generatePrimary();
-  context.switchContext(sterna);
+  //sterna.generatePrimary();
+  //context.switchContext(sterna);
   //sterna.downloadPDB();
 
   //const r = new Relaxer(cm);

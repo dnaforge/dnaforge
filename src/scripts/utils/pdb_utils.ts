@@ -189,19 +189,26 @@ class NucleotidePDB {
     return purines.has(this.atoms[0].rName);
   }
 
-  getBackboneCenter() {}
+  getBackboneCenter() {
+    const aToVec = (a: AtomPDB) => new Vector3(a.x, a.y, a.z);
+    let count = 0;
+    const bbPos = this.atoms
+      .reduce((a, b) => {
+        const n = b.aName;
+        const val = new Vector3();
+        if (n.includes("'") || n.includes('P')) {
+          val.add(aToVec(b));
+          count += 1;
+        }
+        return a.add(val);
+      }, new Vector3())
+      .divideScalar(count);
+    return bbPos;
+  }
 
   normalise() {
     //center
-    const bb = this.nameToAtom.get('P');
-    const bbPos = new Vector3(bb.x, bb.y, bb.z);
-    const mu = new Vector3();
-    for (const atom of this.atoms) {
-      mu.x += atom.x;
-      mu.y += atom.y;
-      mu.z += atom.z;
-    }
-    mu.divideScalar(this.atoms.length);
+    const bbPos = this.getBackboneCenter();
     for (const atom of this.atoms) {
       atom.x -= bbPos.x;
       atom.y -= bbPos.y;
@@ -223,9 +230,9 @@ class NucleotidePDB {
       tCoords.multiplyScalar(0.1); // å -> nm
       tCoords.applyMatrix4(t);
 
-      atom.x = tCoords.x + this.nucParams.BACKBONE_CENTER.x * 1;
-      atom.y = tCoords.y + this.nucParams.BACKBONE_CENTER.y * 1;
-      atom.z = tCoords.z + this.nucParams.BACKBONE_CENTER.z * 1;
+      atom.x = tCoords.x + this.nucParams.BACKBONE_CENTER.x;
+      atom.y = tCoords.y + this.nucParams.BACKBONE_CENTER.y;
+      atom.z = tCoords.z + this.nucParams.BACKBONE_CENTER.z;
     }
   }
 }
