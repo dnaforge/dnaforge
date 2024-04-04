@@ -88,7 +88,7 @@ export function dev(context: Context) {
   //sterna.generatePartialPrimary();
   sterna.generatePrimary();
   context.switchContext(sterna);
-  sterna.downloadPDB();
+  //sterna.downloadPDB();
 
   //const r = new Relaxer(cm);
 

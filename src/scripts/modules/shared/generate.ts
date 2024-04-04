@@ -1,0 +1,240 @@
+export function mainTab(id: string, title: string, c: string) {
+    const innerContents = [xtrnaGenerate(), visibility(), parameters(), generate2(), xtrnaPrimary(), download(), cite()];
+    const postContents = extraContents;
+    const data = `
+    <div class="section" id="${id}" data-title="${title}">
+    <div class="d-flex flex-wrap">
+        ${innerContents.join("\n")}
+    </div>
+    </div>
+    ${postContents}
+    `
+    return data;
+}
+
+function xtrnaGenerate() {
+    return `<div class="group">
+    <button class="ribbon-button" id="xtrna-generate-wires" data-role="hint" data-hint-position="right"
+        data-hint-text="Generate a Xuong tree and a route twice around it.">
+        <span class="mif-play mif-4x"></span>
+        <span class="caption">Generate<br>Xuong Tree</span>
+    </button>
+    <button class="ribbon-button" id="xtrna-generate-cylinders" data-role="hint" data-hint-position="right"
+        data-hint-text="Generate a cylinder model based on the current routing.">
+        <span class="mif-loop2 mif-4x"></span>
+        <span class="caption">Generate<br>Cylinders</span>
+    </button>
+    <span class="title">Main</span>
+    </div>`;
+}
+
+function visibility() {
+    return `
+    <div class="group">
+    <ul style="list-style-type:none;">
+        <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+            <input type="checkbox" data-role="switch" data-caption="Wires" id="xtrna-toggle-wires">
+        </li>
+        <li data-role="hint" data-hint-position="right"
+            data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
+                data-caption="Cylinders" id="xtrna-toggle-cylinders"></li>
+        <li data-role="hint" data-hint-position="right"
+            data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
+                data-role="switch" data-caption="Nucleotides" id="xtrna-toggle-nucleotides"></li>
+    </ul>
+    <span class="title">Visibility</span>
+    </div>`;
+}
+
+function parameters() {
+    return `
+    <div class="group">
+    <ul style="list-style-type:none;">
+        <li data-role="hint" data-hint-position="right"
+            data-hint-text="Input scale in nanometers. This is the edge length of each grid square."><input
+                type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
+                data-size="225" data-prepend="Scale" data-append="nm" id="xtrna-scale">
+        </li>
+        <li data-role="hint" data-hint-position="right"
+            data-hint-text="Add a strand gap between the 5'- and 3'-ends.">
+            <input checked type="checkbox" data-role="checkbox" data-caption="Add a Strand Breakpoint"
+                id="xtrna-add-nicks">
+        </li>
+    </ul>
+    <button class="ribbon-button" onclick="Metro.dialog.open('#xtrna-parameters');" data-role="hint"
+        data-hint-position="right" data-hint-text="Setup additional ST-RNA parameters.">
+        <span class="mif-cogs mif-4x"></span>
+        <span class="caption">Additional<br>Parameters</span>
+    </button>
+    <span class="title">Parameters</span>
+    </div>`;
+}
+
+function generate2() {
+    return `
+    <div class="group">
+    <button class="ribbon-button" id="xtrna-relax" data-role="hint" data-hint-position="right"
+        data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of spacer segments.">
+        <span class="mif-shrink2 mif-4x"></span>
+        <span class="caption">Relax<br>Cylinder<br>Model</span>
+    </button>
+    <button class="ribbon-button" id="xtrna-generate-nucleotides" data-role="hint" data-hint-position="right"
+        data-hint-text="Generate a nucleotide model based on the current cylinder model.">
+        <span class="mif-shuffle mif-4x"></span>
+        <span class="caption">Generate<br>Nucleotide<br>Model</span>
+    </button>
+    <span class="title">Generation</span>
+    </div>`;
+}
+
+function xtrnaPrimary() {
+    return `<div class="group">
+    <ul style="list-style-type:none;">
+        <li data-role="hint" data-hint-position="right"
+            data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                type="number" data-role="input" data-default-value="50" data-size="260"
+                data-prepend="GC-content" data-append="%" id="xtrna-gc-content"></li>
+        <li>
+            <button class="button light" id="generate-xtrna-template" data-role="hint"
+                data-hint-position="right"
+                data-hint-text="Generate a partial primary structure by filling in pseudoknots, spacers and certain stem segments. The undetermined bases can be generated externally or filled randomly.">Generate
+                Partial</button>
+            <button class="button light" id="generate-xtrna-primary" data-role="hint"
+                data-hint-position="right"
+                data-hint-text="Fill all undetermined bases with random complementary ones.">Generate
+                Random</button>
+        </li>
+        <li>
+            <button hidden class="button light" id="download-xtrna-np" data-role="hint" data-hint-position="right"
+                data-hint-text="Download a NUPACK file of the current nucleotide model.">Download NP</button>
+            <button class="button light"
+                onclick="Metro.dialog.open('#xtrna-primary-dialog');  $('#xtrna-primary-dialog-text').focus()"
+                data-role="hint" data-hint-position="right"
+                data-hint-text="Upload a primary structure as a sequence of IUPAC nucleotide codes.">Upload
+                Primary</button>
+        </li>
+    </ul>
+    <button hidden class="ribbon-button" id="generate-xtrna-primary" data-role="hint"
+        data-hint-position="right"
+        data-hint-text="Generate a random complementary primary structure for the current nucleotide model.">
+        <span class="mif-paint mif-4x"></span>
+        <span class="caption">Generate<br>primary<br>structure</span>
+    </button>
+    <span class="title">Primary structure</span>
+    </div>`;
+}
+
+function download() {
+    return `<div class="group">
+    <ul style="list-style-type:none;">
+        <li>
+            <button class="button light w-100 small" id="xtrna-download-unf" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                <span class="mif-download mif-2x"></span>
+                <span class="caption">Download UNF</span>
+            </button>
+        </li>
+        <li>
+            <button class="button light w-100 small" id="xtrna-download-pdb" data-role="hint"
+                data-hint-position="right" data-hint-text="Download the current nucleotide model as a pdb.">
+                <span class="mif-download mif-2x"></span>
+                <span class="caption">Download PDB</span>
+            </button>
+        </li>
+        <li>
+            <button class="button light w-100 small" id="xtrna-download-ox" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the current nucleotide model as oxDNA files.">
+                <span class="mif-download mif-2x"></span>
+                <span class="caption">Download oxDNA</span>
+            </button>
+        </li>
+        <li>
+            <button class="button light w-100 small" id="xtrna-download-strands" data-role="hint" data-hint-position="right"
+                data-hint-text="Download the primary structure.">
+                <span class="mif-download mif-2x"></span>
+                <span class="caption">Download Strands</span>
+            </button>
+        </li>
+    </ul>
+    <span class="title">Download</span>
+    </div>`
+}
+
+function cite() {
+    return `
+    <!--
+    <div class="group">
+    <ul style="list-style-type: none;">
+        <li>
+            <h4>Source:</h4>
+        </li>
+        <li><a href=""><span class="mif-file-text icon"></span>
+                Minimising the number of kissing loops</a></li>
+    </ul>
+    </div>
+    -->`;
+}
+
+const extraContents = `
+<div class="dialog" data-role="dialog" id="xtrna-primary-dialog" data-overlay-click-close="true">
+    <div class="dialog-title">Input primary structure</div>
+    <div class="dialog-content">
+        <textarea data-role="textarea" data-chars-counter="#chars-counter" data-chars-counter-template="Length $1 bases"
+            id="xtrna-primary-dialog-text" data-auto-size="false"></textarea>
+        <p id="chars-counter">Length: 0 bases</p>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="xtrna-primary-dialog-confirm">Set Primary</button>
+    </div>
+</div>
+
+
+<div class="dialog" data-role="dialog" id="xtrna-parameters" data-overlay-click-close="true">
+    <div class="dialog-title">ST-RNA settings</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <p>Routing parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Bring cylinders as close to the vertex as possible.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Greedy Vertices"
+                    id="xtrna-greedy">
+            </li>
+        </ul>
+        <p>Strand parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Minimum number of spacer nucleotides generated between each stem segment."><input
+                    type="number" data-role="input" data-default-value="3"
+                    data-prepend="Min Spacer Nucleotides" id="xtrna-linkers-min"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Maximum number of spacer nucleotides generated between each stem segment."><input
+                    type="number" data-role="input" data-default-value="3"
+                    data-prepend="Max Spacer Nucleotides" id="xtrna-linkers-max"></li>
+        </ul>
+        <p>Relaxation parameters:</p>
+        <ul class="group-list">
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
+                    data-default-value="50" data-prepend="GC-content" data-append="%" id="xtrna-relax-iterations"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between the 3d-model and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Floor Constraints"
+                    id="xtrna-floor-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Bundle Constraints"
+                    id="xtrna-bundle-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
+                    id="xtrna-spring-constraints">
+            </li>
+        </ul>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
+    </div>
+</div>`
