@@ -45,10 +45,11 @@ function setupHTML(html: string) {
   mainData.html(html);
   const id = mainData.children()[0].id;
   const title = $(mainData.children()[0]).attr('data-title');
+  const hint = $(mainData.children()[0]).attr('data-hint-text');
 
   const tabData = $('<li>');
   tabData.attr('id', id + '-tab');
-  tabData.html(`<a href = "#${id}">${title}</a>`);
+  tabData.html(`<a data-role="hint" data-hint-position="bottom" data-hint-text="${hint}" href="#${id}">${title}</a>`);
 
   $('#content-holder').append(mainData);
   $('#main-tabs-holder').append(tabData);
