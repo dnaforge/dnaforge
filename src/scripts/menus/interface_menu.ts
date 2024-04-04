@@ -23,6 +23,7 @@ const fog = new THREE.FogExp2(0xffffff, 0.1);
 interface CSSOBject {
   object: THREE.Object3D;
   divs: HTMLElement[];
+  visible?: boolean;
 }
 
 /**
@@ -48,6 +49,7 @@ export class InterfaceMenu extends Menu {
   hoverButton: any;
 
   axes: CSSOBject;
+  scaleBar: CSSOBject;
   vertexIndices: CSSOBject;
   wires: THREE.Group;
   boundingBox: THREE.Group;
@@ -197,8 +199,11 @@ export class InterfaceMenu extends Menu {
       axesObj.add(X, Y, Z, fX, fY, fZ);
 
       this.axes = { object: axesObj, divs: [xDiv, yDiv, zDiv] };
+
+      this.scene.add(this.axes.object);
     }
-    this.scene.add(this.axes.object);
+    this.axes.object.visible = true;
+    for (const d of this.axes.divs) d.hidden = false;
   }
 
   /**
@@ -206,31 +211,48 @@ export class InterfaceMenu extends Menu {
    */
   removeAxes() {
     if (!this.axes) return;
-    this.scene.remove(this.axes.object);
-    for (const d of this.axes.divs) d.remove();
+    this.axes.object.visible = false;
+    for (const d of this.axes.divs) d.hidden = true;
   }
 
-  /*
-    addScale() {
-        if (!this.scaleBar) {
-            const geo = new THREE.BoxGeometry(1, 0.1, 0.1);
-            const scaleBar = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x000000 }));
-            scaleBar.position.set(3, -0.5, -3);
-            this.context.callbacks.push(() => {
-                const pos = this.context.getCamera().position
-                scaleBar.lookAt(pos);
-            })
-            this.scene.add(scaleBar);
-            this.scaleBar = scaleBar;
+  addScale() {
+    if (!this.scaleBar) {
+      const scaleDiv = document.createElement('div');
+      scaleDiv.textContent = '';
+      scaleDiv.style.fontSize = '15px';
+      const scaleText = new CSS2DObject(scaleDiv);
+      scaleText.translateX(6.5);
+      scaleText.translateZ(7.5);
 
-        }
-        this.scene.add(this.scaleBar);
-    }
+      const geo = new THREE.BoxGeometry(1, 0.04, 0.04);
+      const scaleBar = new THREE.Mesh(
+        geo,
+        new THREE.MeshBasicMaterial({ color: 0x000000 }),
+      );
+      scaleBar.position.set(6.5, 0, 7.1);
 
-    removeScale() {
-        this.scene.remove(this.scaleBar);
+      const scaleBarObj = new THREE.Group();
+      scaleBarObj.add(scaleBar, scaleText);
+
+      this.scaleBar = { object: scaleBarObj, divs: [scaleDiv], visible: false };
+      this.scene.add(this.scaleBar.object);
     }
-    */
+    if (this.scaleBar.visible) {
+      this.scaleBar.object.visible = true;
+      for (const d of this.scaleBar.divs) d.hidden = false;
+    }
+  }
+
+  updateScale(value: number) {
+    this.scaleBar.divs[0].textContent = `${value} nm`;
+    this.scaleBar.visible = true;
+    this.addScale();
+  }
+
+  removeScale() {
+    this.scaleBar.object.visible = false;
+    for (const d of this.scaleBar.divs) d.hidden = true;
+  }
 
   /**
    * Adds a light that follows the camera.
@@ -489,15 +511,18 @@ export class InterfaceMenu extends Menu {
       const size = GRID_SIZE + 0.01;
       const divisions = GRID_SIZE;
       this.grid = new THREE.GridHelper(size, divisions);
+      this.scene.add(this.grid);
     }
-    this.scene.add(this.grid);
+    this.grid.visible = true;
+    this.addScale();
   }
 
   /**
    * Removes the the grid from the 3d scene.
    */
   removeGrid() {
-    this.scene.remove(this.grid);
+    this.grid.visible = false;
+    this.removeScale();
   }
 
   /**

@@ -16,6 +16,7 @@ import { ModuleMenu } from './module_menu';
 import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
 import { downloadIMG } from '../io/download';
+import { InterfaceMenu } from './interface_menu';
 
 const canvas = <HTMLCanvasElement>document.querySelector('#canvas');
 
@@ -638,6 +639,20 @@ export class Context {
     if (selection && this.editor.activeModel?.isVisible) {
       createComponent('Selection', { N: selection.size });
     }
+
+    // Scale
+    this.updateScale();
+  }
+
+  updateScale() {
+    const cm = this.activeContext?.cm;
+    const ui = <InterfaceMenu>this.menus.get('interface');
+    cm && ui.updateScale(1 / cm.scale);
+    if (!cm) {
+      ui.removeScale();
+      ui.scaleBar.visible = false;
+    }
+    this.rendererNeedsUpdate = true;
   }
 
   updateSelectors() {

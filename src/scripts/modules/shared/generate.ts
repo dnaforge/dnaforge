@@ -1,19 +1,27 @@
 export function mainTab(id: string, title: string, c: string) {
-    const innerContents = [xtrnaGenerate(), visibility(), parameters(), generate2(), xtrnaPrimary(), download(), cite()];
-    const postContents = extraContents;
-    const data = `
+  const innerContents = [
+    xtrnaGenerate(),
+    visibility(),
+    parameters(),
+    generate2(),
+    xtrnaPrimary(),
+    download(),
+    cite(),
+  ];
+  const postContents = extraContents;
+  const data = `
     <div class="section" id="${id}" data-title="${title}">
     <div class="d-flex flex-wrap">
-        ${innerContents.join("\n")}
+        ${innerContents.join('\n')}
     </div>
     </div>
     ${postContents}
-    `
-    return data;
+    `;
+  return data;
 }
 
 function xtrnaGenerate() {
-    return `<div class="group">
+  return `<div class="group">
     <button class="ribbon-button" id="xtrna-generate-wires" data-role="hint" data-hint-position="right"
         data-hint-text="Generate a Xuong tree and a route twice around it.">
         <span class="mif-play mif-4x"></span>
@@ -29,7 +37,7 @@ function xtrnaGenerate() {
 }
 
 function visibility() {
-    return `
+  return `
     <div class="group">
     <ul style="list-style-type:none;">
         <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
@@ -47,7 +55,7 @@ function visibility() {
 }
 
 function parameters() {
-    return `
+  return `
     <div class="group">
     <ul style="list-style-type:none;">
         <li data-role="hint" data-hint-position="right"
@@ -71,7 +79,7 @@ function parameters() {
 }
 
 function generate2() {
-    return `
+  return `
     <div class="group">
     <button class="ribbon-button" id="xtrna-relax" data-role="hint" data-hint-position="right"
         data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of spacer segments.">
@@ -88,7 +96,7 @@ function generate2() {
 }
 
 function xtrnaPrimary() {
-    return `<div class="group">
+  return `<div class="group">
     <ul style="list-style-type:none;">
         <li data-role="hint" data-hint-position="right"
             data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
@@ -125,7 +133,7 @@ function xtrnaPrimary() {
 }
 
 function download() {
-    return `<div class="group">
+  return `<div class="group">
     <ul style="list-style-type:none;">
         <li>
             <button class="button light w-100 small" id="xtrna-download-unf" data-role="hint" data-hint-position="right"
@@ -157,11 +165,11 @@ function download() {
         </li>
     </ul>
     <span class="title">Download</span>
-    </div>`
+    </div>`;
 }
 
 function cite() {
-    return `
+  return `
     <!--
     <div class="group">
     <ul style="list-style-type: none;">
@@ -237,4 +245,4 @@ const extraContents = `
     <div class="dialog-actions">
         <button class="button js-dialog-close">Close</button>
     </div>
-</div>`
+</div>`;

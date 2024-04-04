@@ -49,7 +49,9 @@ function setupHTML(html: string) {
 
   const tabData = $('<li>');
   tabData.attr('id', id + '-tab');
-  tabData.html(`<a data-role="hint" data-hint-position="bottom" data-hint-text="${hint}" href="#${id}">${title}</a>`);
+  tabData.html(
+    `<a data-role="hint" data-hint-position="bottom" data-hint-text="${hint}" href="#${id}">${title}</a>`,
+  );
 
   $('#content-holder').append(mainData);
   $('#main-tabs-holder').append(tabData);
