@@ -2,6 +2,7 @@ import { Matrix3, Matrix4, Vector3 } from 'three';
 import { Nucleotide } from '../models/nucleotide';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { DNA, NATYPE, RNA } from '../globals/consts';
+import { bbToCoM } from './misc_utils';
 
 const DNA_PDB_TEMPLATE = require('../globals/dna_reference.pdb');
 const RNA_PDB_TEMPLATE = require('../globals/rna_reference.pdb');
@@ -189,18 +190,17 @@ class NucleotidePDB {
     return purines.has(this.atoms[0].rName);
   }
 
-  getBackboneCenter() {
+  getCoM() {
     const aToVec = (a: AtomPDB) => new Vector3(a.x, a.y, a.z);
     let count = 0;
     const bbPos = this.atoms
       .reduce((a, b) => {
         const n = b.aName;
-        const val = new Vector3();
-        if (n.includes("'") || n.includes('P')) {
-          val.add(aToVec(b));
+        if (0 && (n.includes("'") || n.includes('P'))) return a;
+        else {
           count += 1;
+          return a.add(aToVec(b));
         }
-        return a.add(val);
       }, new Vector3())
       .divideScalar(count);
     return bbPos;
@@ -208,11 +208,11 @@ class NucleotidePDB {
 
   normalise() {
     //center
-    const bbPos = this.getBackboneCenter();
+    const com = this.getCoM();
     for (const atom of this.atoms) {
-      atom.x -= bbPos.x;
-      atom.y -= bbPos.y;
-      atom.z -= bbPos.z;
+      atom.x -= com.x;
+      atom.y -= com.y;
+      atom.z -= com.z;
     }
 
     //rotate
@@ -225,14 +225,20 @@ class NucleotidePDB {
     );
     const t = targetBasis.multiply(transform);
 
+    const comRef = bbToCoM(
+      this.nucParams.BACKBONE_CENTER,
+      this.nucParams.HYDROGEN_FACING_DIR,
+      this.nucParams.BASE_NORMAL,
+      this.nucParams.TYPE,
+    );
+
     for (const atom of this.atoms) {
       const tCoords = new Vector3(atom.x, atom.y, atom.z);
       tCoords.multiplyScalar(0.1); // å -> nm
       tCoords.applyMatrix4(t);
-
-      atom.x = tCoords.x + this.nucParams.BACKBONE_CENTER.x;
-      atom.y = tCoords.y + this.nucParams.BACKBONE_CENTER.y;
-      atom.z = tCoords.z + this.nucParams.BACKBONE_CENTER.z;
+      atom.x = tCoords.x + comRef.x;
+      atom.y = tCoords.y + comRef.y;
+      atom.z = tCoords.z + comRef.z;
     }
   }
 }

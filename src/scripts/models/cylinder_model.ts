@@ -109,7 +109,7 @@ export class CylinderModel extends Model {
 
     const stats = {
       Cylinders: this.getCylinders().length,
-      Pseudoknots: pseudoCount,
+      'Kissing Loops': pseudoCount,
     };
 
     return stats;

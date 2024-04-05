@@ -647,10 +647,12 @@ export class Context {
   updateScale() {
     const cm = this.activeContext?.cm;
     const ui = <InterfaceMenu>this.menus.get('interface');
-    cm && ui.updateScale(1 / cm.scale);
-    if (!cm) {
-      ui.removeScale();
+    if (cm) {
+      ui.scaleBar.visible = true;
+      ui.updateScale(1 / cm.scale);
+    } else {
       ui.scaleBar.visible = false;
+      ui.removeScale();
     }
     this.rendererNeedsUpdate = true;
   }

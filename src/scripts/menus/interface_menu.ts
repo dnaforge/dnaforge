@@ -237,16 +237,14 @@ export class InterfaceMenu extends Menu {
       this.scaleBar = { object: scaleBarObj, divs: [scaleDiv], visible: false };
       this.scene.add(this.scaleBar.object);
     }
-    if (this.scaleBar.visible) {
+    if (this.scaleBar.visible && this.showGridButton[0].checked) {
       this.scaleBar.object.visible = true;
       for (const d of this.scaleBar.divs) d.hidden = false;
     } else this.removeScale();
   }
 
   updateScale(value: number) {
-    if (!this.scaleBar) this.addScale();
-    this.scaleBar.divs[0].textContent = `${value} nm`;
-    this.scaleBar.visible = true;
+    this.scaleBar.divs[0].textContent = `${Number(value.toFixed(5))} nm`;
     this.addScale();
   }
 

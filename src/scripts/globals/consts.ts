@@ -19,6 +19,7 @@ export const RNA_PSEUDOKNOTS: Array<[string, string]> = <
  *
  * */
 export interface NUC_PARAMS {
+  TYPE: NATYPE;
   RISE: number;
   RADIUS: number;
   TWIST: number;
@@ -55,6 +56,7 @@ export const DNA: NUC_PARAMS = (() => {
   const HYDROGEN_FACING_DIR = NUCLEOBASE_CENTER.clone().negate().normalize();
 
   return {
+    TYPE: 'DNA',
     RISE: RISE,
     RADIUS: RADIUS,
     TWIST: TWIST,
@@ -103,6 +105,7 @@ export const RNA: NUC_PARAMS = (() => {
   );
 
   return {
+    TYPE: 'RNA',
     RISE: RISE,
     RADIUS: RADIUS,
     TWIST: TWIST,
