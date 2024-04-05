@@ -13,7 +13,7 @@
                     <button class="button primary"
                         onclick="$('#atrail-upload-dialog')[0].hidden = false; $('#atrail-upload-dialog-text').focus()"
                         data-role="hint" data-hint-position="right"
-                        data-hint-text="Generate a routing along a set of vertex indices.">Upload Trail</button>
+                        data-hint-text="Generate a routing along a set of node indices.">Upload Trail</button>
                 </li>
             </ul>
             <ul style="list-style-type:none;">
@@ -174,12 +174,12 @@
         <p>Routing parameters:</p>
         <ul class="group-list">
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm.">
-                <input type="checkbox" data-role="checkbox" data-caption="Checkerboard" id="atrail-checkerboard">
+                data-hint-text="Guarantee unknotted scaffold routing for tori by doubling additional edges to make the mesh checkerboard colourable. (Mohammed 2020)">
+                <input type="checkbox" data-role="checkbox" data-caption="Checkerboard reconditioning" id="atrail-checkerboard">
             </li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Bring cylinders as close to the vertex as possible.">
-                <input checked type="checkbox" data-role="checkbox" data-caption="Greedy Vertices" id="atrail-greedy">
+                data-hint-text="Bring cylinders as close to the node as possible.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes" id="atrail-greedy">
             </li>
             <li data-role="hint" data-hint-position="right" data-hint-text="Stop the search after this many seconds.">
                 <input type="number" data-role="input" data-default-value="5" data-prepend="Search Time"
@@ -203,7 +203,7 @@
             </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Minimum length of a continuous double helix without strand gaps."><input type="number"
-                    data-role="input" data-default-value="10" data-prepend="Min Overlap" id="atrail-strand-length-min">
+                    data-role="input" data-default-value="10" data-prepend="Min Binding Length" id="atrail-strand-length-min">
             </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Minimum number of spacer nucleotides generated between each stem segment."><input
@@ -229,8 +229,8 @@
                 data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
                     data-default-value="50" data-prepend="GC-content" data-append="%" id="atrail-relax-iterations"></li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Add springs between the 3d-model and cylinders.">
-                <input checked type="checkbox" data-role="checkbox" data-caption="Floor Constraints"
+                data-hint-text="Add springs between the mesh edges and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Edge Constraints"
                     id="atrail-floor-constraints">
             </li>
             <li data-role="hint" data-hint-position="right"

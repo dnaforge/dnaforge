@@ -616,11 +616,11 @@ export class Context {
 
     // Graph:
     const graphData = {
-      Vertices: this.graph.getVertices().length,
+      Nodes: this.graph.getVertices().length,
       Edges: this.graph.getEdges().length,
       Faces: this.graph.getFaces().length,
     };
-    createComponent('Graph', graphData);
+    createComponent('Mesh', graphData);
 
     // Wires:
     const wm = this.activeContext?.wires;

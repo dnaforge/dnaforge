@@ -111,8 +111,8 @@
         <p>Routing parameters:</p>
         <ul class="group-list">
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Bring cylinders as close to the vertex as possible.">
-                <input checked type="checkbox" data-role="checkbox" data-caption="Greedy Vertices"
+                data-hint-text="Bring cylinders as close to the node as possible.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes"
                     id="cycle-cover-greedy">
             </li>
             <li>
@@ -126,8 +126,8 @@
                     Cycles</label>
                 <input data-role="radio" type="radio" id="cycle-cover-no-genus" name="cycle-cover-genus" checked></input>
                 <label data-role="hint" data-hint-position="top"
-                    data-hint-text="Ignore genus, and try to minimise linker segment lengths." for="cycle-cover-no-genus">Min
-                    Linkers</label>
+                    data-hint-text="Ignore genus, and try to minimise spacer segment lengths." for="cycle-cover-no-genus">Min
+                    Spacers</label>
             </li>
         </ul>
         <p>Strand parameters:</p>
@@ -137,7 +137,7 @@
             </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Minimum length of overlapping segments between strands in nucleotides.">
-                <input type="number" data-role="input" data-default-value="10" data-prepend="Min Overlap" id="cycle-cover-strand-length-min" />
+                <input type="number" data-role="input" data-default-value="10" data-prepend="Min Binding Length" id="cycle-cover-strand-length-min" />
             </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Minimum number of spacer nucleotides generated between each stem segment.">
@@ -161,8 +161,8 @@
                 <input type="text" data-role="taginput" value="W" id="cycle-cover-ps-linkers" />
             </li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Banned subsequences in IUPAC notation. Separated by spaces.">
-                <p>Banned subsequences:</p>
+                data-hint-text="Forbidden subsequences in IUPAC notation. Separated by spaces.">
+                <p>Forbidden subsequences:</p>
                 <input type="text" data-role="taginput" value="KKKKKK, MMMMMM, RRRRRR, SSSSSS, WWWWWW, YYYYYY"
                     id="cycle-cover-ps-banned" />
             </li>
@@ -190,8 +190,8 @@
                 data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
                     data-default-value="50" data-prepend="GC-content" data-append="%" id="cycle-cover-relax-iterations"></li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Add springs between the 3d-model and cylinders.">
-                <input checked type="checkbox" data-role="checkbox" data-caption="Floor Constraints"
+                data-hint-text="Add springs between the mesh edges and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Edge Constraints"
                     id="cycle-cover-floor-constraints">
             </li>
             <li data-role="hint" data-hint-position="right"
