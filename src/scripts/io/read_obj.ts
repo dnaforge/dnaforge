@@ -107,8 +107,8 @@ export class OBJLoader extends Loader {
       }
     }
     // find bounding box size and center of mass
-    const min = new Vector3();
-    const max = new Vector3();
+    const min = new Vector3(1,1,1).multiplyScalar(Infinity);
+    const max = new Vector3(1,1,1).multiplyScalar(-Infinity);
     for (const v of vertices) {
       min.x = Math.min(min.x, v.x);
       min.y = Math.min(min.y, v.y);
