@@ -2,7 +2,7 @@
 
 ## Introduction
 
-DNAforge is a generic design tool for DNA and RNA nanostructures based on 3D wireframe mesh models. The tool currently supports five design methods: the A-trail and spanning-tree methods for scaffolded DNA origami from [1] and [2], respectively; a cycle-cover method for scaffold-free DNA structures that generalises the one presented in [3]; and the spanning-tree method for RNA origami from [4], along with a variant that minimises the number of kissing loops in the eventual structure[5].
+DNAforge is a generic design tool for DNA and RNA nanostructures based on 3D wireframe mesh models. The tool currently supports five design methods: the A-trail and spanning-tree methods for scaffolded DNA origami from [1](#references) and [2](#references), respectively; a cycle-cover method for scaffold-free DNA structures that generalises the one presented in [3](#references); and the spanning-tree method for RNA origami from [4](#references), along with a variant that minimises the number of kissing loops in the eventual structure[5](#references).
 
 The DNAforge design process is fully automated and managed in a graphical web interface following a simple workflow: The user first uploads a 3D mesh model in the standard OBJ format and chooses the preferred design method tab. Then a click of a button determines the appropriate routing model for the nucleic acid strands to cover the mesh. Another click generates a cylinder model of the eventual helices and their interconnections. This can be relaxed to reduce the strain in the structure, before producing the full nucleotide model with another click. For each design method, a number of parameters (choice of scaffold strand, scale of the structure, etc.) can be adjusted, and the relaxation of the cylinder model can be manually fine-tuned.
 
@@ -54,10 +54,10 @@ The routing model represents the path one or more strands take around the wirefr
 The cylinder model is a simple abstraction for double helices that allows DNAforge to calculate the exact number of nucleotides corresponding to an edge and fit them in a way that prevents overlaps. Each cylinder has a certain length and radius and four connection points corresponding to the two 5-primes and two 3-primes of a double helix. A cylinder model is created automatically when necessary if one does not already exist, but it can also be created by clicking the "Generate Cylinders"-button in the desired design method tab. If the scale-parameter is changed, the cylinder model must also be recreated to reflect the change.
 
 #### Relaxation
-The cylinder model can optionally be relaxed using a physical simulation by clicking the "Relax Cylinder Model"-button in a design method tab. The cylinders are modelled as cylinder-shaped rigid bodies, and their primes are connected together with spring constraints. The springs try to pull neighbouring cylinders together, but collisions between the rigid bodies prevent them from overlapping. The relaxation procedure tries to minimise the lengths of the linker strands between cylinders, which is useful when using a variable number of linker nucleotides or when exporting the nucleotide model for simulation. 
+The cylinder model can optionally be relaxed using a physical simulation by clicking the "Relax Cylinder Model"-button in a design method tab. The cylinders are modelled as cylinder-shaped rigid bodies, and their primes are connected together with spring constraints. The springs try to pull neighbouring cylinders together, but collisions between the rigid bodies prevent them from overlapping. The relaxation procedure tries to minimise the lengths of the spacer strands between cylinders, which is useful when using a variable number of spacer nucleotides or when exporting the nucleotide model for simulation. 
 
 ### Nucleotide Model
-The nucleotide model is generated based on the cylinder model by clicking the "Generate Nucleotide Model"-button. Each cylinder is converted into two antiparallel strands, and their 5'- and 3'-ends are connected to each other with short linker segments according to the connectivity of the cylinder model. Depending on the design method, the strands are also re-routed further: For instance, some cylinders in Sterna should form kissing loops, which are created by changing the connectivity of certain nucleotides in the middle of the strands.
+The nucleotide model is generated based on the cylinder model by clicking the "Generate Nucleotide Model"-button. Each cylinder is converted into two antiparallel strands, and their 5'- and 3'-ends are connected to each other with short spacer segments according to the connectivity of the cylinder model. Depending on the design method, the strands are also re-routed further: For instance, some cylinders in Sterna should form kissing loops, which are created by changing the connectivity of certain nucleotides in the middle of the strands.
 
 ### Primary Structure
 Once the nucleotide model is generated, it can be assigned a primary structure. For scaffold-based design methods, the primary structure is automatically assigned based on the scaffold chosen from the drop-down menu. For further information about the procedures for the different design methods, see the appropriate entries in [Design Methods](#design-methods).
@@ -71,13 +71,13 @@ The nucleotide model can be exported into UNF-file or into oxDNA-files by clicki
 ## Design Methods
 
 ### AT-DNA
-The A-trail routing, AT-DNA, follows the procedure laid out by Benson et al. It uses a breadth-first branch and bound algorithm over two vertex types, left- or right-handed, to find a connected graph, resulting in an A-trail. Note: This algorithm has a high time complexity, and DNAforge is unlikely to find a routing for meshes larger than about 100 vertices.
+The A-trail routing, AT-DNA, follows the procedure laid out by Benson et al. It uses a breadth-first branch and bound algorithm over two node types, left- or right-handed, to find a connected graph, resulting in an A-trail. Note: This algorithm has a high time complexity, and DNAforge is unlikely to find a routing for meshes larger than about 100 nodes.
 
 #### Reinforcement
 Cylinders can be reinforced by clicking the "Reinforce"-button. This will replace the selected cylinder with four-cylinder bundles. 
 
-#### Custom Trail
-A custom routing can be entered by clicking the "Upload Trail"-button. The trail must be a list of vertex ID's separated by spaces. Vertex ID visibility can be toggled in the interface menu.
+#### Custom Route
+A custom routing can be entered by clicking the "Upload Route"-button. The route must be a list of node ID's separated by spaces. Node ID visibility can be toggled in the interface menu.
 
 
 #### Parameters
@@ -87,31 +87,31 @@ A custom routing can be entered by clicking the "Upload Trail"-button. The trail
 
 #### Additional Parameters
 * Routing Parameters
-    + **Checkerboard** Make the graph Eulerian by using checkerboard-colouring. Otherwise use the Maximum Matching algorithm. 
-    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Checkerboard reconditionin** Guarantee unknotted scaffold routing for tori by doubling additional edges to make the mesh checkerboard colourable. (Mohammed 2020). 
+    + **Minimise steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
     + **Search time** Stop the search after this many seconds
 
 * Strand Parameters
     + **Midpoint nicking** Place the strand gaps at the midpoint of each edge.
     + **Max Staple Length** Maximum staple length in nucleotides.
-    + **Min Overlap** Minimum length of a continuous double helix without strand gaps.
+    + **Min Binding Length** Minimum length of a continuous double helix without strand gaps.
     + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
     + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
     + **Offset** Offset for the scaffold. Ignore this many bases from scaffold start.
     + **5' ID** ID of the first nucleotide in the scaffold strand.
 
 * Relaxation Parameters
-    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Edge constraints Constraints** Add springs between the mesh edges and cylinders. 
     + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
     + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
 ---
 
 ### CC-DNA
-Cycle cover, CC-DNA, is based on the scaffold-free routing method, where the long scaffold strand is done away with and replaced with a number of shorter staple-strands. Cycle cover routing is done greedily vertex by vertex. Each incoming edge is first split into two, corresponding to the two antiparallel strands of a double helix, and they are then connected to each other in such an order that no edge is visited twice until all edges have been visited at least once. This will result in a cycle cover over the entire mesh, allowing any connected wireframe to be routed.
+Cycle cover, CC-DNA, is based on the scaffold-free routing method, where the long scaffold strand is done away with and replaced with a number of shorter staple-strands. Cycle cover routing is done greedily node by node. Each incoming edge is first split into two, corresponding to the two antiparallel strands of a double helix, and they are then connected to each other in such an order that no edge is visited twice until all edges have been visited at least once. This will result in a cycle cover over the entire mesh, allowing any connected wireframe to be routed.
 
 #### Primary structure
-The primary structure is generated with Focused Metropolis Search, a local search algorithm. The search algorithm tries to minimise the length of the longest repeated substring to avoid non-specific and unintended pairings while adhering to the user-supplied constraints of GC-content, linker-bases, and  prohibited subsequences. To generate a primary structure, click the "Generate Primary Structure"-button. Parameters controlling the generator can be found in the additional settings.
+The primary structure is generated with Focused Metropolis Search, a local search algorithm. The search algorithm tries to minimise the length of the longest repeated substring to avoid non-specific and unintended pairings while adhering to the user-supplied constraints of GC-content, spacer-bases, and  prohibited subsequences. To generate a primary structure, click the "Generate Primary Structure"-button. Parameters controlling the generator can be found in the additional settings.
 
 #### Parameters
 * **Scale** Input scale in nanometers. This is the side length of each grid square.
@@ -119,18 +119,21 @@ The primary structure is generated with Focused Metropolis Search, a local searc
 
 #### Additional Parameters
 * Routing Parameters
-    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Minimise steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
+    + **Max Cycles** Maximise the number of cycles / minimise the embedding genus. 
+    + **Min Cycles** Minimise the number of cycles / maximise the embedding genus. 
+    + **Min Spacers** Ignore genus and try to minimise the lengths of spacer segments. 
 
 * Strand Parameters
     + **Max Strand Length** Maximum strand length in nucleotides.
-    + **Min Overlap** Minimum length of overlapping segments in nucleotides.
+    + **Min Binding Length** Minimum length of overlapping segments in nucleotides.
     + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
     + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
 
 * Primary Structure Parameters
     + **GC-content** Target Proportion of G's and C's in the generated primary structure.
     + **Spacer Nucleotides** Spacer bases in IUPAC notation. Separated by spaces.
-    + **Banned Subsequences** Banned subsequences in IUPAC notation. Separated by spaces.
+    + **Forbidden Subsequences** Banned subsequences in IUPAC notation. Separated by spaces.
 
 * Primary Generator Parameters
     + **Iterations** The generator will run for this many iterations.
@@ -138,7 +141,7 @@ The primary structure is generated with Focused Metropolis Search, a local searc
     + **Eta** Acceptance probability of less favourable changes.
 
 * Relaxation Parameters
-    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Edge Constraints** Add springs between the mesh edges and cylinders. 
     + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
     + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
@@ -154,14 +157,14 @@ The spanning-tree method, Daedalus, routes the scaffold strand twice around the 
 
 #### Additional Parameters
 * Routing Parameters
-    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Minimise steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
 
 * Strand Parameters
     + **Offset** Offset for the scaffold. Ignore this many bases from scaffold start.
     + **5' ID** ID of the first nucleotide in the scaffold strand.
 
 * Relaxation Parameters
-    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Edge Constraints** Add springs between the mesh egdes and cylinders. 
     + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
     + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
@@ -173,25 +176,25 @@ Sterna routes a path around a random spanning-tree, but it utilises no staples. 
 #### Primary Structure
 The primary structure for a Sterna design can either be generated entirely randomly, or it can be generated externally and imported back into the DNAforge tool. The DNAforge tool has an export function, which creates a NUPACK-runnable input file, where the kissing loops and certain specific bases are already set. The output of NUPACK can then be imported back into the DNAforge tool.
 
-"Generate Partial"-button will assign bases to each kissing loop from a predefined list of strong kissing loops. It will also assign IUPAC-bases to linker segments and periodically along the double helices in order to prevent the DNA primer from having unwanted secondary structure.
+"Generate Partial"-button will assign bases to each kissing loop from a predefined list of strong kissing loops. It will also assign IUPAC-bases to spacer segments and periodically along the double helices in order to prevent the DNA primer from having unwanted secondary structure.
 "Generate Random"-button will assign random complementary bases to each yet unassigned nucleotide.
 "Download NP"-button generates a NUPACK input file, which can be used to generate the primary structure.
 "Upload Priamry"-buttons opens a dialog, where the user can manually input a primary structure.
 
 #### Parameters
 * **Scale** Input scale in nanometers. This is the side length of each grid square.
-* **Add a Strand Breakpoints** Adds a strand gap between 5'- and 3'- ends of the strand. Otherwise the strand will form a cycle.
+* **Add a Strand Breakpoint** Adds a strand gap between 5'- and 3'- ends of the strand. Otherwise the strand will form a cycle.
 
 #### Additional Parameters
 * Routing Parameters
-    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Minimis steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
 
 * Strand Parameters
     + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
     + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
 
 * Relaxation Parameters
-    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Edge Constraints** Add springs between the mesh edges and cylinders. 
     + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
     + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
@@ -204,24 +207,24 @@ XT-RNA is a single-stranded RNA routing method that minimises the number of kiss
 #### Primary Structure
 The primary structure for an XT-RNA design can either be generated entirely randomly, or it can be generated externally and imported back into the DNAforge tool. 
 
-"Generate Partial"-button will assign bases to each kissing loop from a predefined list of strong kissing loops. It will also assign IUPAC-bases to linker segments and periodically along the double helices in order to prevent the DNA primer from having unwanted secondary structure.
+"Generate Partial"-button will assign bases to each kissing loop from a predefined list of strong kissing loops. It will also assign IUPAC-bases to spacer segments and periodically along the double helices in order to prevent the DNA primer from having unwanted secondary structure.
 "Generate Random"-button will assign random complementary bases to each yet unassigned nucleotide.
 "Upload Priamry"-buttons opens a dialog, where the user can manually input a primary structure.
 
 #### Parameters
 * **Scale** Input scale in nanometers. This is the side length of each grid square.
-* **Add a Strand Breakpoints** Adds a strand gap between 5'- and 3'- ends of the strand. Otherwise the strand will form a cycle.
+* **Add a Strand Breakpoint** Adds a strand gap between 5'- and 3'- ends of the strand. Otherwise the strand will form a cycle.
 
 #### Additional Parameters
 * Routing Parameters
-    + **Greedy Vertices** Bring cylinders as close to the vertex as possible. Otherwise keeps each cylinder equally distant from the vertex.
+    + **Minimise steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
 
 * Strand Parameters
     + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
     + **Max Spacer Nucleotides** Maximum number of spacer nucleotides generated between each stem segment.
 
 * Relaxation Parameters
-    + **Floor Constraints** Add springs between the 3d-model and cylinders. 
+    + **Edge Constraints** Add springs between the mesh edges and cylinders. 
     + **Bundle Constraints** Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.
     + **Spring Constraints** Add springs between 3'- and 5'-primes of neighbouring cylinders.
 
@@ -255,6 +258,7 @@ DNAforge viewport look and behaviour can be modified from the interface menu.
     + **Camera Light** Toggle a light that follows the camera.
     + **Ambient Light** Toggle a static light that illuminates the whole scene.
     + **Fog** Toggle a fog that hides elements far from the camera.
+    + **Colours** Open a colour managment interface for assigning and adding new colours to viewport objects.
 * **Scene**
     + **Axes** Toggle the display of global XYZ-axes.
     + **Grid** Toggle the display of the grid.
@@ -263,13 +267,15 @@ DNAforge viewport look and behaviour can be modified from the interface menu.
     + **Solid** Toggle the display of mesh faces.
     + **Wireframe** Toggle the dispaly of mesh wireframe model.
     + **Bounding Box** Toggle the display of a 10 by 10 by 10 box around the mesh.
-    + **Indices** Toggle the display of vertex indices.
+    + **Indices** Toggle the display of node indices.
 * **Cylinders**
     + **Torque Overlay** Shade cylinders by the torque exerted by the neighbouring cylinders.
     + **Tension Overlay** Shade cylinders by the tension exerted by the neighbouring cylinders. 
 * **Nucleotides**
     + **Draw Backbones** Toggle the display of nucleotide backbones.
     + **Draw Bases** Toggle the display of nucleotide bases.
+    + **Strands** Open a strand selection menu.
+    + **Arcs** View an arc diagram of the nucleotide model.
 * **Camera**
     + **Reset Camera** Reset the camera to its original state.
     + **Ortographic/Perspective** Toggle between orthogonal and perspective cameras.

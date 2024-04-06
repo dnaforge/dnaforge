@@ -24,4 +24,4 @@ Generate a custom route around a cube. This is used for bringing an externally g
     * Input a sequence of vertices. To retain the original structure, this sequence should visit all edges at least once
     * 1 3 7 5 1 2 4 3 1 3 7 8 6 2 4 8 7 5 6 2 1 is one possible route.
     * Click Set Trail
-7 Optionally, the cylinder model can be relaxed by clicking Relax Cylinder Model.
+7. Optionally, the cylinder model can be relaxed by clicking Relax Cylinder Model.
