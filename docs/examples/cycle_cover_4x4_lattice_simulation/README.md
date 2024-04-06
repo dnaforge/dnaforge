@@ -1,4 +1,4 @@
-# Cycle Cover 3x3 Lattice Example
+# Cycle Cover 4x4 Lattice Example
 
 ![screenshot](screenshot.png "Result")
 
@@ -8,15 +8,15 @@ Generate a cycle cover around a general mesh based on the procedure described by
 > Wang, W. et al. Complex wireframe DNA nanostructures from simple building blocks. Nature Communications 10, 1067 (2019). DOI: https://doi.org/10.1038/s41467-019-08647-7
 
 ## Files
-* 3x3.obj
+* 4x4.obj
 
 ## Steps
 1. Import the obj-file.
-    * Click Open in the file-tab and select 3x3.obj.
-    * **Or** Simply drag and drop the 3x3.obj into the 3D viewport.
+    * Click Open in the file-tab and select 4x4.obj.
+    * **Or** Simply drag and drop the 4x4.obj into the 3D viewport.
 2. Navigate to the Cycle Cover context by clicking the Cycle Cover tab.
 3. Choose an appropriate scale for the structure.
-    * 3nm is a good scale, but it could also be slightly smaller.
+    * 3.5nm is a good scale, but it could also be slightly smaller.
     * 2nm is too small and would require tweaking additional parameters to make work.
 4. Optionally, relax the structure by clicking Relax Cylinder Model.
     * Relaxing here makes it easier for the oxDNA simulation to start.
