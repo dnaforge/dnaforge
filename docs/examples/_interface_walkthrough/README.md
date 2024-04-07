@@ -19,7 +19,7 @@ The AT-DNA context. Click the Generate Route button to find an A-trail route aro
 Set the scale to 2 and regenerate the structure. This time everything works out.
 ![screenshot](ss5.png "ss5")
 
-The cylinder model can be visualised by checking the Cylindes-switch. Deselecting the Nucleotides-switch hides the nucleotide model and makes the viewport cleaner.
+The cylinder model can be visualised by checking the Cylinders-switch. Deselecting the Nucleotides-switch hides the nucleotide model and makes the viewport cleaner.
 ![screenshot](ss6.png "ss6")
 
 Click Relax Cylinder Model to minimise the lengths of linker segments.
@@ -31,10 +31,10 @@ Note that you can select cylinders and perform simple edit operations on them. C
 Relax the structure again with the new cylinder model.
 ![screenshot](ss9.png "ss9")
 
-Switch back to the nucleotide display by checking the Nucleotides-switch and unchecking the Cylinders-switch.
+Switch back to the nucleotide display by checking the Nucleotides-switch and unchecking the Cylinders-switch. Pick a scaffold strand to generate a primary sequence for the DNA tetrahedron. Click the Generate Nucleotide Model to assign the chosen scaffold to the design.
 ![screenshot](ss10.png "ss10")
 
-Pick a scaffold strand to generate a primary sequence for the DNA tetrahedron. Click the Generate Nucleotide Model to assign the chosen scaffold to the design. In this case, we accidentally clicked Generate Route instead, and DNAforge created the design from scratch. Press Ctrl+Z on your keyboard to revert this change, and click the correct button next.
+In this case, we accidentally clicked Generate Route instead, and DNAforge created the design from scratch. Press Ctrl+Z on your keyboard to revert this change, and click the correct button next.
 ![screenshot](ss11.png "ss11")
 
 Now that the design is finished, click Donwload PDB button to download the design as a PDB file.
