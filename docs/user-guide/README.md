@@ -2,7 +2,7 @@
 
 ## Introduction
 
-DNAforge is a generic design tool for DNA and RNA nanostructures based on 3D wireframe mesh models. The tool currently supports five design methods: the A-trail and spanning-tree methods for scaffolded DNA origami from [1](#references) and [2](#references), respectively; a cycle-cover method for scaffold-free DNA structures that generalises the one presented in [3](#references); and the spanning-tree method for RNA origami from [4](#references), along with a variant that minimises the number of kissing loops in the eventual structure[5](#references).
+DNAforge is a generic design tool for DNA and RNA nanostructures based on 3D wireframe mesh models. The tool currently supports five design methods: the A-trail and spanning-tree methods for scaffolded DNA origami from [1](#references) and [2](#references), respectively; a cycle-cover method for scaffold-free DNA structures that generalises the one presented in [3](#references); and the spanning-tree method for RNA origami from [4](#references), along with a variant that minimises the number of kissing loops in the eventual structure [5](#references).
 
 The DNAforge design process is fully automated and managed in a graphical web interface following a simple workflow: The user first uploads a 3D mesh model in the standard OBJ format and chooses the preferred design method tab. Then a click of a button determines the appropriate routing model for the nucleic acid strands to cover the mesh. Another click generates a cylinder model of the eventual helices and their interconnections. This can be relaxed to reduce the strain in the structure, before producing the full nucleotide model with another click. For each design method, a number of parameters (choice of scaffold strand, scale of the structure, etc.) can be adjusted, and the relaxation of the cylinder model can be manually fine-tuned.
 
@@ -60,21 +60,21 @@ The cylinder model can optionally be relaxed using a physical simulation by clic
 The nucleotide model is generated based on the cylinder model by clicking the "Generate Nucleotide Model"-button. Each cylinder is converted into two antiparallel strands, and their 5'- and 3'-ends are connected to each other with short spacer segments according to the connectivity of the cylinder model. Depending on the design method, the strands are also re-routed further: For instance, some cylinders in Sterna should form kissing loops, which are created by changing the connectivity of certain nucleotides in the middle of the strands.
 
 ### Primary Structure
-Once the nucleotide model is generated, it can be assigned a primary structure. For scaffold-based design methods, the primary structure is automatically assigned based on the scaffold chosen from the drop-down menu. For further information about the procedures for the different design methods, see the appropriate entries in [Design Methods](#design-methods).
+Once the nucleotide model is generated, it can be assigned a primary sequence. For scaffold-based design methods, the primary sequence is automatically assigned based on the scaffold chosen from the drop-down menu. For further information about the procedures for the different design methods, see the appropriate entries in [Design Methods](#design-methods).
 
 
 ### Output
-The nucleotide model can be exported into UNF-file or into oxDNA-files by clicking the "Download"-buttons. The primary structure can be exported into a CSV-file as well.
+The nucleotide model can be exported as a UNF-file, as oxDNA-files, or as a PDB-file, by clicking the "Download"-buttons. The primary sequence can be exported into a CSV-file as well.
 
 ---
 
 ## Design Methods
 
 ### AT-DNA
-The A-trail routing, AT-DNA, follows the procedure laid out by Benson et al. It uses a breadth-first branch and bound algorithm over two node types, left- or right-handed, to find a connected graph, resulting in an A-trail. Note: This algorithm has a high time complexity, and DNAforge is unlikely to find a routing for meshes larger than about 100 nodes.
+The A-trail routing, AT-DNA, follows the procedure laid out by [Benson et al](https://doi.org/10.1038/nature14586). It uses a breadth-first branch and bound algorithm over two node types, left- or right-handed, to find a connected graph, resulting in an A-trail. Note: This algorithm has a high time complexity, and DNAforge is unlikely to find a routing for meshes larger than about 100 nodes.
 
 #### Reinforcement
-Cylinders can be reinforced by clicking the "Reinforce"-button. This will replace the selected cylinder with four-cylinder bundles. 
+Cylinders can be reinforced by clicking the "Reinforce"-button. This will replace the selected cylinder with four-cylinder bundles. Based on the procedure described by [Högberg et al](https://doi.org/10.1021/acsnano.2c11982).
 
 #### Custom Route
 A custom routing can be entered by clicking the "Upload Route"-button. The route must be a list of node ID's separated by spaces. Node ID visibility can be toggled in the interface menu.
@@ -108,7 +108,7 @@ A custom routing can be entered by clicking the "Upload Route"-button. The route
 ---
 
 ### CC-DNA
-Cycle cover, CC-DNA, is based on the scaffold-free routing method, where the long scaffold strand is done away with and replaced with a number of shorter staple-strands. Cycle cover routing is done greedily node by node. Each incoming edge is first split into two, corresponding to the two antiparallel strands of a double helix, and they are then connected to each other in such an order that no edge is visited twice until all edges have been visited at least once. This will result in a cycle cover over the entire mesh, allowing any connected wireframe to be routed.
+Cycle cover, CC-DNA, is based on the scaffold-free routing method by [Wang et al.](https://doi.org/10.1038/s41467-019-08647-7), where the long scaffold strand is done away with and replaced with a number of shorter staple-strands. Cycle cover routing is done greedily node by node. Each incoming edge is first split into two, corresponding to the two antiparallel strands of a double helix, and they are then connected to each other in such an order that no edge is visited twice until all edges have been visited at least once. This will result in a cycle cover over the entire mesh, allowing any connected wireframe to be routed.
 
 #### Primary structure
 The primary structure is generated with Focused Metropolis Search, a local search algorithm. The search algorithm tries to minimise the length of the longest repeated substring to avoid non-specific and unintended pairings while adhering to the user-supplied constraints of GC-content, spacer-bases, and  prohibited subsequences. To generate a primary structure, click the "Generate Primary Structure"-button. Parameters controlling the generator can be found in the additional settings.
@@ -148,7 +148,7 @@ The primary structure is generated with Focused Metropolis Search, a local searc
 ---
 
 ### ST-DNA
-The spanning-tree method, Daedalus, routes the scaffold strand twice around the maximally branching spanning tree of the input mesh. The spanning tree is found by Prim's algorithm, and each edge is associated with bundles consisting of two cylinders and two double helices. The cylinder lengths are rounded to the nearest full-length turn to facilitate the specific stapling-pattern of the method.
+The spanning-tree method, [Daedalus](https://doi.org/10.1126/science.aaf4388), routes the scaffold strand twice around the maximally branching spanning tree of the input mesh. The spanning tree is found by Prim's algorithm, and each edge is associated with bundles consisting of two cylinders and two double helices. The cylinder lengths are rounded to the nearest full-length turn to facilitate the specific stapling-pattern of the method.
 
 #### Parameters
 * **Scale** Input scale in nanometers. This is the side length of each grid square.
@@ -171,10 +171,10 @@ The spanning-tree method, Daedalus, routes the scaffold strand twice around the 
 ---
 
 ### ST-RNA
-Sterna routes a path around a random spanning-tree, but it utilises no staples. Instead, it routes a single RNA strand around the spanning tree, and it replaces the non-spanning-tree edges with kissing loops. The kissing loops behave much like regular double helices and as such are modelled with normal cylinders in the cylinder model. 
+[Sterna](https://doi.org/10.1021/acsnano.2c06035) routes a path around a random spanning-tree, but it utilises no staples. Instead, it routes a single RNA strand around the spanning tree, and it replaces the non-spanning-tree edges with kissing loops. The kissing loops behave much like regular double helices and as such are modelled with normal cylinders in the cylinder model.
 
 #### Primary Structure
-The primary structure for a Sterna design can either be generated entirely randomly, or it can be generated externally and imported back into the DNAforge tool. The DNAforge tool has an export function, which creates a NUPACK-runnable input file, where the kissing loops and certain specific bases are already set. The output of NUPACK can then be imported back into the DNAforge tool.
+The primary structure for a Sterna design can either be generated entirely randomly, or it can be generated externally and imported back into the DNAforge tool. The DNAforge tool has an export function, which creates a [NUPACK](https://nupack.org/)-runnable input file, where the kissing loops and certain specific bases are already set. The output of NUPACK can then be imported back into the DNAforge tool.
 
 "Generate Partial"-button will assign bases to each kissing loop from a predefined list of strong kissing loops. It will also assign IUPAC-bases to spacer segments and periodically along the double helices in order to prevent the DNA primer from having unwanted secondary structure.
 "Generate Random"-button will assign random complementary bases to each yet unassigned nucleotide.
