@@ -12,6 +12,11 @@ import { Selectable } from './selectable';
 import { SelectionModes } from '../editor/editor';
 import { bbToCoM } from '../utils/misc_utils';
 import { nmToPDB } from '../utils/pdb_utils';
+import { StickObject } from './nuc_objects/simple';
+import { AtomicObject } from './nuc_objects/atomic';
+import { GLOBALS } from '../globals/globals';
+
+export type NucleotideDisplay = 'stick' | 'atomic';
 
 /**
  * Nucleotide model. Contains strands. Strands contain nucleotides.
@@ -729,14 +734,24 @@ export class NucleotideModel extends Model {
   generateObject() {
     this.obj ?? this.dispose();
 
-    const meshes = Nucleotide.createInstanceMesh(this.nucParams, this.length());
+    let NucleotideObject;
+    if (GLOBALS.nucleotideDisplay == 'atomic') NucleotideObject = AtomicObject;
+    else if (GLOBALS.nucleotideDisplay == 'stick')
+      NucleotideObject = StickObject;
 
-    for (const i of this.idToNuc.keys())
-      this.idToNuc.get(i).setObjectInstance(meshes);
+    const meshes = NucleotideObject.createInstanceMesh(
+      this.nucParams,
+      this.length(),
+    );
+
+    for (const i of this.idToNuc.keys()) {
+      const n = this.idToNuc.get(i);
+      const objInstace = new NucleotideObject(meshes, n);
+      n.setObjectInstance(objInstace);
+    }
 
     this.obj = new THREE.Group();
-    let n: keyof NucleotideMeshes;
-    for (n in meshes) {
+    for (const n in meshes) {
       meshes[n].boundingSphere = new THREE.Sphere(new Vector3(), 100000);
       this.obj.add(meshes[n]);
     }
@@ -746,7 +761,10 @@ export class NucleotideModel extends Model {
   }
 
   solveIntersection(i: Intersection) {
-    return this.idToNuc.get(i.instanceId);
+    if (GLOBALS.nucleotideDisplay == 'atomic')
+      return this.idToNuc.get(AtomicObject.getIntersectionID(i));
+    else if (GLOBALS.nucleotideDisplay == 'stick')
+      return this.idToNuc.get(StickObject.getIntersectionID(i));
   }
 
   /**

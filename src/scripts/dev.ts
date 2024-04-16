@@ -54,7 +54,7 @@ export function dev(context: Context) {
   //cc.generateWires();
   //cc.generateCylinderModel();
   //cc.generateNucleotideModel();
-  //cc.generatePrimary();
+  cc.generatePrimary();
   //cc.downloadOxDNA();
   //cc.downloadPDB();
   context.switchContext(cc);

@@ -883,5 +883,13 @@ export class InterfaceMenu extends Menu {
     $('#ui-system-button').on('click', () => {
       this.context.uiNeedsUpdate = true;
     });
+
+    $('#nucleotide-display').on('click', (e: any) => {
+      GLOBALS.nucleotideDisplay = $('#nucleotide-display')
+        .find('.active')
+        .attr('data-id');
+      const nm = this.context.activeContext?.nm;
+      nm && this.context.editor.regenerateObject(nm);
+    });
   }
 }

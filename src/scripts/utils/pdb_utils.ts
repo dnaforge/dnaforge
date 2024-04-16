@@ -284,8 +284,8 @@ const baseToPDB = (naType: NATYPE) => {
   return baseToPDB;
 };
 
-const baseToPDBRNA = baseToPDB('RNA');
-const baseToPDBDNA = baseToPDB('DNA');
+export const baseToPDBRNA = baseToPDB('RNA');
+export const baseToPDBDNA = baseToPDB('DNA');
 
 export function nucToPDBAtoms(n: Nucleotide, atomId: number, resID: number) {
   const pdbRef =

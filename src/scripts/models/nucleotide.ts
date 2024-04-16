@@ -8,6 +8,7 @@ import { Selectable, SelectionStatus } from './selectable';
 import { NucleotideModel } from './nucleotide_model';
 import { ColourScheme } from './colour_schemes';
 import { Strand } from './strand';
+import { StickObject } from './nuc_objects/simple';
 
 export interface NucleotideMeshes {
   bases: InstancedMesh;
@@ -52,7 +53,7 @@ export class Nucleotide extends Selectable {
   owner: NucleotideModel;
   strand: Strand;
   id: number;
-  instanceMeshes: NucleotideMeshes;
+  obj3d: StickObject;
 
   base: string;
   scale: number;
@@ -159,48 +160,6 @@ export class Nucleotide extends Selectable {
   }
 
   /**
-   * Generates instanced meshes of DNA or RNA nucleotides.
-   *
-   * @param nucParams DNA | RNA
-   * @param count number of instances
-   * @returns NucleotideMeshes
-   */
-  static createInstanceMesh(
-    nucParams: typeof DNA | typeof RNA,
-    count: number,
-  ): NucleotideMeshes {
-    const meshBases = new THREE.InstancedMesh(
-      baseGeometry(nucParams),
-      materialNucleotides,
-      count,
-    );
-    const meshNucleotides = new THREE.InstancedMesh(
-      nucleotideGeometry(nucParams),
-      materialNucleotides,
-      count,
-    );
-    const meshBackbone1 = new THREE.InstancedMesh(
-      backboneGeometryCone,
-      materialNucleotides,
-      count,
-    );
-    const meshBackbone2 = new THREE.InstancedMesh(
-      backboneGeometryBall(nucParams),
-      materialNucleotides,
-      count,
-    );
-
-    const meshes = {
-      bases: meshBases,
-      nucleotides: meshNucleotides,
-      backbone1: meshBackbone1,
-      backbone2: meshBackbone2,
-    };
-
-    return meshes;
-  }
-
-  /**
    * Connects the nucleotide following this one to the one preceding this one and vice versa.
    * Does not delete the nucleotide elsehwere.
    */
@@ -234,71 +193,26 @@ export class Nucleotide extends Selectable {
    *
    * @param meshes
    */
-  setObjectInstance(meshes: NucleotideMeshes) {
-    this.instanceMeshes = meshes;
-    this.updateObjectMatrices();
-    this.updateObjectColours();
-    this.updateObjectVisibility();
+  setObjectInstance(obj: StickObject) {
+    this.obj3d = obj;
   }
 
   /**
    * Set the object instance transformation matrices
    */
   updateObjectMatrices() {
-    if (!this.instanceMeshes) return;
-    this.instanceMeshes.bases.setMatrixAt(this.id, this.transform);
-    this.instanceMeshes.nucleotides.setMatrixAt(this.id, this.transform);
-    let bbTransform;
-    if (this.next) {
-      const p1 = this.backboneCenter;
-      const p2 = this.next.backboneCenter;
-      const length = p2.clone().sub(p1).length();
-      bbTransform = get2PointTransform(p1, p2).scale(
-        new Vector3(this.scale, length, this.scale),
-      );
-    } else {
-      bbTransform = new Matrix4().scale(new Vector3(0, 0, 0));
-    }
-    this.instanceMeshes.backbone1.setMatrixAt(this.id, bbTransform);
-    this.instanceMeshes.backbone2.setMatrixAt(this.id, this.transform);
-
-    let m: keyof NucleotideMeshes;
-    for (m in this.instanceMeshes) {
-      this.instanceMeshes[m].instanceMatrix.needsUpdate = true;
-    }
+    this.obj3d?.updateObjectMatrices();
   }
 
   /**
    * Set the object instance colours.
    */
   updateObjectColours() {
-    if (!this.instanceMeshes) return;
-    const strandColours = Object.values(ColourScheme.StrandColours);
-    const strandColour = strandColours[this.strand.id % strandColours.length];
-    const selectionColour =
-      ColourScheme.NucleotideSelectionColours[this.selectionStatus];
-
-    const colour =
-      this.selectionStatus == 'default' ? strandColour : selectionColour;
-    this.instanceMeshes.backbone1.setColorAt(this.id, colour);
-    this.instanceMeshes.backbone2.setColorAt(this.id, colour);
-    this.instanceMeshes.nucleotides.setColorAt(this.id, colour);
-    this.instanceMeshes.bases.setColorAt(
-      this.id,
-      ColourScheme.NucleotideColours[<IUPAC_CHAR>this.base],
-    );
-    for (const m of _.keys(this.instanceMeshes))
-      this.instanceMeshes[
-        m as keyof NucleotideMeshes
-      ].instanceColor.needsUpdate = true;
+    this.obj3d?.updateObjectColours();
   }
 
   updateObjectVisibility() {
-    if (!this.instanceMeshes) return;
-    this.instanceMeshes.backbone1.visible = GLOBALS.visibilityNucBackbone;
-    this.instanceMeshes.backbone2.visible = GLOBALS.visibilityNucBackbone;
-    this.instanceMeshes.nucleotides.visible = GLOBALS.visibilityNucBase;
-    this.instanceMeshes.bases.visible = GLOBALS.visibilityNucBase;
+    this.obj3d?.updateObjectVisibility();
   }
 
   /**
@@ -400,7 +314,7 @@ export class Nucleotide extends Selectable {
   }
 
   updateVisuals() {
-    if (!this.instanceMeshes) return;
+    if (!this.obj3d) return;
 
     this.updateObjectMatrices();
     this.next?.updateObjectMatrices();
