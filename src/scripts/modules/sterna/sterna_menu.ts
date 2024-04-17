@@ -18,7 +18,10 @@ import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { editOp } from '../../editor/editOPs';
 
-export type SternaParameters = ModuleMenuParameters;
+export interface SternaParameters extends ModuleMenuParameters {
+  dfs?: boolean;
+  rst?: boolean;
+}
 
 export class SternaMenu extends ModuleMenu {
   params: SternaParameters;
@@ -118,6 +121,8 @@ export class SternaMenu extends ModuleMenu {
     );
     register(this.params, 'addNicks', 'sterna-add-nicks');
     register(this.params, 'greedyOffset', 'sterna-greedy');
+    register(this.params, 'dfs', 'sterna-depth-tree');
+    register(this.params, 'rst', 'sterna-random-tree');
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
 

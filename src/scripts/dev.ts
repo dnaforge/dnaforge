@@ -54,10 +54,10 @@ export function dev(context: Context) {
   //cc.generateWires();
   //cc.generateCylinderModel();
   //cc.generateNucleotideModel();
-  cc.generatePrimary();
+  //cc.generatePrimary();
   //cc.downloadOxDNA();
   //cc.downloadPDB();
-  context.switchContext(cc);
+  //context.switchContext(cc);
 
   //$('#atrail-scale')[0].value = 1;
   const atrail = <ATrailMenu>context.menus.get('atrail');
@@ -83,11 +83,11 @@ export function dev(context: Context) {
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.generateWires();
   //sterna.addCylinders();
-  //sterna.generateNucleotideModel();
+  sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
   //sterna.generatePrimary();
-  //context.switchContext(sterna);
+  context.switchContext(sterna);
   //sterna.downloadPDB();
 
   //const r = new Relaxer(cm);

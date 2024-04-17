@@ -1,4 +1,5 @@
-<div class="section" id="sterna" data-title="ST-RNA" data-hint-text=" Single-stranded RNA wireframes based on spanning tree routings.<br><br><i>Elonen et al. 2022/Sterna<i>">
+<div class="section" id="sterna" data-title="ST-RNA"
+    data-hint-text=" Single-stranded RNA wireframes based on spanning tree routings.<br><br><i>Elonen et al. 2022/Sterna<i>">
     <div class="d-flex flex-wrap">
         <div class="group">
             <button class="ribbon-button" id="sterna-generate-wires" data-role="hint" data-hint-position="right"
@@ -30,8 +31,8 @@
         <div class="group">
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Input scale in nanometers. This is the edge length of each reference grid square."><input
-                        type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each reference grid square.">
+                    <input type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
                         data-size="225" data-prepend="Scale" data-append="nm" id="sterna-scale">
                 </li>
                 <li data-role="hint" data-hint-position="right"
@@ -99,7 +100,8 @@
 
             <ul style="list-style-type:none;">
                 <li>
-                    <button class="button light w-100 small" id="sterna-download-unf" data-role="hint" data-hint-position="right"
+                    <button class="button light w-100 small" id="sterna-download-unf" data-role="hint"
+                        data-hint-position="right"
                         data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download UNF</span>
@@ -113,15 +115,16 @@
                     </button>
                 </li>
                 <li>
-                    <button class="button light w-100 small" id="sterna-download-ox" data-role="hint" data-hint-position="right"
+                    <button class="button light w-100 small" id="sterna-download-ox" data-role="hint"
+                        data-hint-position="right"
                         data-hint-text="Download the current nucleotide model as oxDNA files.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download oxDNA</span>
                     </button>
                 </li>
                 <li>
-                    <button class="button light w-100 small" id="sterna-download-strands" data-role="hint" data-hint-position="right"
-                        data-hint-text="Download the primary structure.">
+                    <button class="button light w-100 small" id="sterna-download-strands" data-role="hint"
+                        data-hint-position="right" data-hint-text="Download the primary structure.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download Strands</span>
                     </button>
@@ -130,7 +133,9 @@
             <span class="title">Download</span>
         </div>
         <div class="group">
-            <a href="https://doi.org/10.1021/acsnano.2c06035"><h5><span class="mif-file-text icon"></span> Source</h5></a>
+            <a href="https://doi.org/10.1021/acsnano.2c06035">
+                <h5><span class="mif-file-text icon"></span> Source</h5>
+            </a>
         </div>
     </div>
 </div>
@@ -158,17 +163,26 @@
                 <input checked type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes"
                     id="sterna-greedy">
             </li>
+            <li>
+                <input data-role="radio" type="radio" id="sterna-random-tree" name="sterna-tree"></input>
+                <label data-role="hint" data-hint-position="top" data-hint-text="Route around a random spanning tree."
+                    for="sterna-random-tree">Random Route</label>
+                <input checked data-role="radio" type="radio" id="sterna-depth-tree" name="sterna-tree"></input>
+                <label data-role="hint" data-hint-position="top"
+                    data-hint-text="Find co-transcriptionally optimal kissing loop configuration by routing around a depth-first-search-tree."
+                    for="sterna-depth-tree">Co-Transcriptional Route</label>
+            </li>
         </ul>
         <p>Strand parameters:</p>
         <ul class="group-list">
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Minimum number of spacer nucleotides generated between each stem segment."><input
-                    type="number" data-role="input" data-default-value="3"
-                    data-prepend="Min Spacer Nucleotides" id="sterna-linkers-min"></li>
+                    type="number" data-role="input" data-default-value="3" data-prepend="Min Spacer Nucleotides"
+                    id="sterna-linkers-min"></li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Maximum number of spacers nucleotides generated between each stem segment."><input
-                    type="number" data-role="input" data-default-value="3"
-                    data-prepend="Max Spacer Nucleotides" id="sterna-linkers-max"></li>
+                    type="number" data-role="input" data-default-value="3" data-prepend="Max Spacer Nucleotides"
+                    id="sterna-linkers-max"></li>
         </ul>
         <p>Relaxation parameters:</p>
         <ul class="group-list">

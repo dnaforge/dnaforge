@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-import { get2PointTransform } from '../../utils/misc_utils';
 import { InstancedMesh, Vector3, Intersection } from 'three';
 import { CylinderModel } from '../../models/cylinder_model';
 import { Cylinder, PrimePos, RoutingStrategy } from '../../models/cylinder';
@@ -17,27 +15,32 @@ import { Selectable } from '../../models/selectable';
 export class Sterna extends WiresModel {
   graph: Graph;
   st: Set<Edge>;
+  postOrder: boolean;
   trail: HalfEdge[];
 
   obj: InstancedMesh;
 
-  constructor(graph: Graph) {
+  /**
+   *
+   * @param graph
+   * @param postOrder: traverse kissing loop edges after stem edges. Otherwise, use vertex order.
+   */
+  constructor(graph: Graph, postOrder = false) {
     super();
     this.graph = graph;
-    this.st = this.getRST();
-    this.trail = this.getSterna();
+    this.postOrder = postOrder;
   }
 
   toJSON(): JSONObject {
     const st: number[] = [];
     for (const e of this.st) st.push(e.id);
     const graph = this.graph.toJSON();
-    return { graph: graph, st: st };
+    return { graph: graph, st: st, postOrder: this.postOrder };
   }
 
   static loadJSON(json: any) {
     const graph = Graph.loadJSON(json.graph);
-    const sterna = new Sterna(graph);
+    const sterna = new Sterna(graph, json.postOrder);
     const idToEdge = new Map<number, Edge>();
     for (const e of graph.edges) idToEdge.set(e.id, e);
 
@@ -45,7 +48,7 @@ export class Sterna extends WiresModel {
     for (const e of json.st) {
       sterna.st.add(idToEdge.get(e));
     }
-    sterna.trail = sterna.getSterna();
+    sterna.trail = sterna.findRoute();
     return sterna;
   }
 
@@ -77,15 +80,26 @@ export class Sterna extends WiresModel {
    *
    * @returns route as an ordered list of edges
    */
-  getSterna() {
+  findRoute() {
+    const setPostOrder = (edges: HalfEdge[]): HalfEdge[] => {
+      const first = [];
+      const post = [];
+      for (const e of edges) {
+        if (this.st.has(e.edge)) first.push(e);
+        else post.push(e);
+      }
+      return post.concat(first);
+    };
+
     const route: HalfEdge[] = [];
     const startEdge = [...this.st][0].halfEdges[0];
     const stack = [startEdge];
     const visited = new Set();
     while (stack.length > 0) {
       const curE = stack.pop();
-      const curV = curE.vertex;
+      const curV = curE.twin.vertex;
       route.push(curE);
+
       if (!this.st.has(curE.edge)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
@@ -97,12 +111,14 @@ export class Sterna extends WiresModel {
         }
         stack.push(curE.twin);
         neighbours = neighbours
-          .slice(1 + neighbours.indexOf(curE))
-          .concat(neighbours.slice(0, neighbours.indexOf(curE)));
-        for (const n of neighbours) stack.push(n.twin);
+          .slice(1 + neighbours.indexOf(curE.twin))
+          .concat(neighbours.slice(0, neighbours.indexOf(curE.twin)));
+        if (this.postOrder) neighbours = setPostOrder(neighbours);
+        for (const n of neighbours) stack.push(n);
       }
     }
-    return route.slice(0, route.length - 1);
+    this.trail = route.slice(0, route.length - 1);
+    return this.trail;
   }
 
   /**
@@ -136,6 +152,45 @@ export class Sterna extends WiresModel {
       }
     }
 
+    this.st = st;
+    return st;
+  }
+
+  /**
+   * Depth-first spanning tree.
+   *
+   * @returns a set of edges in the spanning tree
+   */
+  getDFST(): Set<Edge> {
+    const edges = this.graph.getEdges();
+    const visited = new Set<Vertex>();
+    const stV = new Set<Vertex>();
+    const st = new Set<Edge>();
+
+    const v0 = edges[0].vertices[0];
+    const stack: [Vertex, Edge][] = [[v0, undefined]];
+    while (stack.length > 0) {
+      const [v1, e1] = stack[stack.length - 1];
+      visited.add(v1);
+      const neighbours = v1.getAdjacentEdges();
+      let extended = false;
+      for (const e2 of neighbours) {
+        const v2 = e2.getOtherVertex(v1);
+        if (!visited.has(v2)) {
+          stack.push([v2, e2]);
+          extended = true;
+        }
+      }
+      if (!extended) {
+        if (e1 && !stV.has(v1)) {
+          st.add(e1);
+          stV.add(v1);
+        }
+        stack.pop();
+      }
+    }
+
+    this.st = st;
     return st;
   }
 
@@ -197,10 +252,10 @@ export class Sterna extends WiresModel {
       const coords: Vector3[] = [];
 
       for (const curE of this.trail) {
-        const dir = curE.getDirection().negate(); // the halfEdges point in the wrong direction...
+        const dir = curE.getDirection();
         const edge = curE.edge;
-        const v1 = curE.twin.vertex;
-        const v2 = curE.vertex;
+        const v1 = curE.vertex;
+        const v2 = curE.twin.vertex;
 
         let co1: Vector3;
         let co2: Vector3;
@@ -257,7 +312,11 @@ export class Sterna extends WiresModel {
  * @returns
  */
 export function graphToWires(graph: Graph, params: SternaParameters) {
-  const sterna = new Sterna(graph);
+  const sterna = new Sterna(graph, params.dfs);
+  if (params.dfs) sterna.getDFST();
+  else sterna.getRST();
+  sterna.findRoute();
+
   return sterna;
 }
 
@@ -310,6 +369,7 @@ export function cylindersToNucleotides(
   const minLinkers = params.minLinkers;
   const maxLinkers = params.maxLinkers;
   const addNick = params.addNicks;
+  const dfs = params.dfs;
 
   const nm = new NucleotideModel(scale, 'RNA');
 
@@ -337,6 +397,8 @@ export function cylindersToNucleotides(
         len = s.length();
       }
     }
+    //TODO: If editing cylinders is added, the next line might not always be correct
+    if (dfs) longest = cylToStrands.get(cm.getCylinders()[0])[0];
     const i = Math.round(len / 2) - 1;
     longest.nucleotides[i].next.prev = null;
     longest.nucleotides[i].next = null;
@@ -352,8 +414,8 @@ function createCylinder(
   halfEdge: HalfEdge,
   greedyOffset: boolean,
 ) {
-  const v1 = halfEdge.twin.vertex;
-  const v2 = halfEdge.vertex;
+  const v1 = halfEdge.vertex;
+  const v2 = halfEdge.twin.vertex;
   const dir = v2.coords.clone().sub(v1.coords).normalize();
   const inclination = dir
     .clone()
