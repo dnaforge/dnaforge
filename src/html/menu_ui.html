@@ -68,11 +68,13 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle axes display."><input
-                            checked autocomplete="off" type="checkbox" data-role="checkbox" data-caption="Axes" id="toggle-axes"></div>
+                            checked autocomplete="off" type="checkbox" data-role="checkbox" data-caption="Axes"
+                            id="toggle-axes"></div>
                 </li>
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Toggle grid display."><input
-                            checked autocomplete="off" type="checkbox" data-role="checkbox" data-caption="Grid" id="toggle-grid"></div>
+                            checked autocomplete="off" type="checkbox" data-role="checkbox" data-caption="Grid"
+                            id="toggle-grid"></div>
                 </li>
             </ul>
             <button class="ribbon-button" onclick="$('#ui-colours-dialog')[0].hidden = false" data-role="hint"
@@ -133,15 +135,15 @@
         <div class="group">
             <div id="nucleotide-display" data-role="button-group" data-cls-active="active">
                 <div class="d-flex flex-column">
-                    <button class="ribbon-icon-button active" data-id="stick" data-role="hint" data-hint-position="right"
-                        data-hint-text="">
+                    <button class="ribbon-icon-button active" data-id="stick" data-role="hint"
+                        data-hint-position="right" data-hint-text="Render the nucleotide model as sticks.">
                         <span class="icon">
                             <span class="mif-arrow-right"></span>
                         </span>
                         <span class="caption">Stick</span>
                     </button>
-                    <button class="ribbon-icon-button" data-id="atomic" data-role="hint"
-                        data-hint-position="right" data-hint-text="">
+                    <button class="ribbon-icon-button" data-id="atomic" data-role="hint" data-hint-position="right"
+                        data-hint-text="Render the nucleotide model as individual atoms.">
                         <span class="icon">
                             <span class="mif-arrow-down-right"></span>
                         </span>
@@ -152,8 +154,8 @@
             <ul class="tight-list">
                 <li>
                     <div data-role="hint" data-hint-position="right" data-hint-text="Draw backbones">
-                        <input checked autocomplete="off" type="checkbox" data-role="checkbox" data-caption="Draw Backbones"
-                            id="toggle-nucleotides-backbone">
+                        <input checked autocomplete="off" type="checkbox" data-role="checkbox"
+                            data-caption="Draw Backbones" id="toggle-nucleotides-backbone">
                     </div>
                 </li>
                 <li>
@@ -164,15 +166,17 @@
                 </li>
             </ul>
             <div class="d-flex flex-column">
-                <button class="ribbon-icon-button" onclick="$('#ui-system-dialog')[0].hidden = false" id="ui-system-button"
-                    data-role="hint" data-hint-position="right" data-hint-text="Show strand listing.">
+                <button class="ribbon-icon-button" onclick="$('#ui-system-dialog')[0].hidden = false"
+                    id="ui-system-button" data-role="hint" data-hint-position="right"
+                    data-hint-text="Show strand listing.">
                     <span class="icon">
                         <span class="mif-tab"></span>
                     </span>
                     <span class="caption">Strands</span>
                 </button>
-                <button class="ribbon-icon-button" onclick="$('#ui-arcs-dialog')[0].hidden = false" id="ui-system-button"
-                    data-role="hint" data-hint-position="right" data-hint-text="Show arc diagram.">
+                <button class="ribbon-icon-button" onclick="$('#ui-arcs-dialog')[0].hidden = false"
+                    id="ui-system-button" data-role="hint" data-hint-position="right"
+                    data-hint-text="Show arc diagram.">
                     <span class="icon">
                         <span class="mif-stumbleupon"></span>
                     </span>
