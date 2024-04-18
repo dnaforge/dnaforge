@@ -3,8 +3,8 @@ import {
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
-} from './spanning_tree';
-import html from './spanning_tree_ui.htm';
+} from './stdna';
+import html from './stdna_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';

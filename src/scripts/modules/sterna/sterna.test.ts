@@ -203,4 +203,74 @@ describe('Sterna Nucleotide Model', function () {
       }
     });
   });
+
+  sternas.forEach(function (g: [string, Sterna]) {
+    it(`Top export should have as many entries as there are nucleotides + 1: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const top = nm.toTop();
+      const topL = top.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(topL == nmL + 1, true);
+    });
+  });
+
+  sternas.forEach(function (g: [string, Sterna]) {
+    it(`Forces export should have a mutual trap for every basepair: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const forces = nm.toExternalForces();
+      const forcesL = forces.split('\n').length;
+      const nmL = nm.getNucleotides().reduce((i, n) => {
+        return n.pair ? i + 1 : i;
+      }, 0);
+
+      assert.equal(forcesL == 9 * nmL, true);
+    });
+  });
+
+  sternas.forEach(function (g: [string, Sterna]) {
+    it(`UNF export should have as many entries as there are nucleotides: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const unf = nm.toUNF();
+      const unfL = unf.idCounter;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(unfL == nmL, true);
+    });
+  });
+
+  sternas.forEach(function (g: [string, Sterna]) {
+    it(`PDB export should have ~20 times as many atoms as there are nucleotides: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const pdb = nm.toPDB();
+      const pdbL = pdb.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(pdbL > 15 * nmL && pdbL < 25 * nmL, true);
+    });
+  });
 });

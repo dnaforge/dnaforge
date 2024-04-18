@@ -72,8 +72,6 @@ export function setPrimaryFromScaffold(
     if (n.isLinker && !n.isScaffold) n.base = linkerOptions[r];
   }
 
-  console.log(gcContent);
-
   return setRandomPrimary(nm, gcContent, naType); // fill the remaining non-scaffold bases randomly
 }
 

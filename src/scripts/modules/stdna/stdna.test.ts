@@ -6,12 +6,12 @@ import { CylinderModel } from '../../models/cylinder_model';
 import { PrimePos } from '../../models/cylinder';
 import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
-import { STParameters } from './spanning_tree_menu';
+import { STParameters } from './stdna_menu';
 import {
   cylindersToNucleotides,
   SpanningTree,
   wiresToCylinders,
-} from './spanning_tree';
+} from './stdna';
 const tet = require('../../../test/test_shapes/tetra_dubs.obj');
 const x3 = require('../../../test/test_shapes/3x3.obj');
 const plane = require('../../../test/test_shapes/plane.obj');
@@ -189,6 +189,76 @@ describe('Spanning Tree Nucleotide Model', function () {
         if (s.isScaffold) continue;
         assert.equal(options.has(s.length()), true);
       }
+    });
+  });
+
+  sts.forEach(function (g: [string, SpanningTree]) {
+    it(`Top export should have as many entries as there are nucleotides + 1: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const top = nm.toTop();
+      const topL = top.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(topL == nmL + 1, true);
+    });
+  });
+
+  sts.forEach(function (g: [string, SpanningTree]) {
+    it(`Forces export should have a mutual trap for every basepair: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const forces = nm.toExternalForces();
+      const forcesL = forces.split('\n').length;
+      const nmL = nm.getNucleotides().reduce((i, n) => {
+        return n.pair ? i + 1 : i;
+      }, 0);
+
+      assert.equal(forcesL == 9 * nmL, true);
+    });
+  });
+
+  sts.forEach(function (g: [string, SpanningTree]) {
+    it(`UNF export should have as many entries as there are nucleotides: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const unf = nm.toUNF();
+      const unfL = unf.idCounter;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(unfL == nmL, true);
+    });
+  });
+
+  sts.forEach(function (g: [string, SpanningTree]) {
+    it(`PDB export should have ~20 times as many atoms as there are nucleotides: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const pdb = nm.toPDB();
+      const pdbL = pdb.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(pdbL > 15 * nmL && pdbL < 25 * nmL, true);
     });
   });
 });

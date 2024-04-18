@@ -3,7 +3,7 @@ import { OBJLoader } from './io/read_obj';
 import { Context } from './menus/context';
 import { ModuleMenu } from './menus/module_menu';
 import { Matrix4, Vector3 } from 'three';
-import { SpanningTreeMenu } from './modules/spanning_tree/spanning_tree_menu';
+import { SpanningTreeMenu } from './modules/stdna/stdna_menu';
 import { ATrailMenu } from './modules/atrail/atrail_menu';
 import { CycleCoverMenu } from './modules/cycle_cover/cycle_cover_menu';
 import { SternaMenu } from './modules/sterna/sterna_menu';

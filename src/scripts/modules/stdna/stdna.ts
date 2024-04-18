@@ -11,7 +11,7 @@ import {
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { Graph, Edge, HalfEdge, Vertex } from '../../models/graph_model';
 import { setPrimaryFromScaffold } from '../../utils/primary_utils';
-import { STParameters } from './spanning_tree_menu';
+import { STParameters } from './stdna_menu';
 import { Nucleotide } from '../../models/nucleotide';
 import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';

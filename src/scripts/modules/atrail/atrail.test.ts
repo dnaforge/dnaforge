@@ -269,4 +269,74 @@ describe('Atrail Nucleotide Model', function () {
       }
     });
   });
+
+  atrails.forEach(function (g: [string, ATrail]) {
+    it(`Top export should have as many entries as there are nucleotides + 1: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const top = nm.toTop();
+      const topL = top.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(topL == nmL + 1, true);
+    });
+  });
+
+  atrails.forEach(function (g: [string, ATrail]) {
+    it(`Forces export should have a mutual trap for every basepair: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const forces = nm.toExternalForces();
+      const forcesL = forces.split('\n').length;
+      const nmL = nm.getNucleotides().reduce((i, n) => {
+        return n.pair ? i + 1 : i;
+      }, 0);
+
+      assert.equal(forcesL == 9 * nmL, true);
+    });
+  });
+
+  atrails.forEach(function (g: [string, ATrail]) {
+    it(`UNF export should have as many entries as there are nucleotides: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const unf = nm.toUNF();
+      const unfL = unf.idCounter;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(unfL == nmL, true);
+    });
+  });
+
+  atrails.forEach(function (g: [string, ATrail]) {
+    it(`PDB export should have ~20 times as many atoms as there are nucleotides: ${g[0]}`, function () {
+      const params = getParams();
+      params.scale = 0.2;
+      params.scaffoldName = 'random';
+
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+
+      const pdb = nm.toPDB();
+      const pdbL = pdb.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(pdbL > 15 * nmL && pdbL < 25 * nmL, true);
+    });
+  });
 });

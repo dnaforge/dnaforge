@@ -1,4 +1,3 @@
-/*
 const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
@@ -9,12 +8,12 @@ import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { MenuParameters } from '../../menus/menu';
 import { setRandomPrimary } from '../../utils/primary_utils';
-import { cylindersToNucleotides, Sterna, wiresToCylinders } from './x';
+import { cylindersToNucleotides, Xtrna, wiresToCylinders } from './xtrna';
 const tet = require('../../../test/test_shapes/tetra_dubs.obj');
 const x3 = require('../../../test/test_shapes/3x3.obj');
 const plane = require('../../../test/test_shapes/plane.obj');
 
-describe('Sterna routing', function () {
+describe('XT-RNA routing', function () {
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -23,33 +22,34 @@ describe('Sterna routing', function () {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
 
-  let sterna: Sterna;
+  let xtrna: Xtrna;
   let graph: Graph;
   let trail: HalfEdge[];
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should start where it ends: ${g[0]}`, function () {
       graph = g[1];
-      sterna = new Sterna(graph);
-      trail = sterna.trail;
+      xtrna = new Xtrna(graph);
+      trail = xtrna.trail;
 
       const first = trail[0];
       const last = trail[trail.length - 1];
 
-      if (!sterna.st.has(last.edge))
-        assert.equal(first.twin.vertex == last.twin.vertex, true);
-      else assert.equal(first.twin.vertex == last.vertex, true);
+      assert.equal(
+        first.vertex == last.twin.vertex || first.vertex == last.vertex,
+        true,
+      );
     });
   });
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should span all edges twice: ${g[0]}`, function () {
       graph = g[1];
-      sterna = new Sterna(graph);
-      trail = sterna.trail;
+      xtrna = new Xtrna(graph);
+      trail = xtrna.trail;
 
       const visited = new Map(
-        sterna.graph.edges.map((e) => {
+        xtrna.graph.edges.map((e) => {
           return [e, 0];
         }),
       );
@@ -58,14 +58,14 @@ describe('Sterna routing', function () {
         visited.set(e.edge, visited.get(e.edge) + 1);
       }
 
-      for (const e of sterna.graph.getEdges()) {
+      for (const e of xtrna.graph.getEdges()) {
         assert.equal(visited.get(e) == 2, true);
       }
     });
   });
 });
 
-describe('Sterna Cylinder Model', function () {
+describe('Xtrna Cylinder Model', function () {
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -73,14 +73,14 @@ describe('Sterna Cylinder Model', function () {
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
-  const sternas = graphs.map((g) => {
-    const sterna = new Sterna(g[1]);
-    return [g[0], sterna];
+  const xtrnas = graphs.map((g) => {
+    const xtrna = new Xtrna(g[1]);
+    return [g[0], xtrna];
   });
 
   let cm: CylinderModel;
 
-  sternas.forEach(function (g: [string, Sterna]) {
+  xtrnas.forEach(function (g: [string, Xtrna]) {
     it(`Should throw error because of small scale: ${g[0]}`, function () {
       const params = {
         scale: 100,
@@ -92,7 +92,7 @@ describe('Sterna Cylinder Model', function () {
     });
   });
 
-  sternas.forEach(function (g: [string, Sterna]) {
+  xtrnas.forEach(function (g: [string, Xtrna]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
       const params = {
         scale: 0.1,
@@ -107,7 +107,7 @@ describe('Sterna Cylinder Model', function () {
     });
   });
 
-  sternas.forEach(function (g: [string, Sterna]) {
+  xtrnas.forEach(function (g: [string, Xtrna]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
       const params = {
         scale: 0.1,
@@ -126,7 +126,7 @@ describe('Sterna Cylinder Model', function () {
   });
 });
 
-describe('Sterna Nucleotide Model', function () {
+describe('Xtrna Nucleotide Model', function () {
   const graphs = [
     ['tetrahedron', tet],
     ['3x3', x3],
@@ -134,15 +134,15 @@ describe('Sterna Nucleotide Model', function () {
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
-  const sternas = graphs.map((g) => {
-    const sterna = new Sterna(g[1]);
-    return [g[0], sterna];
+  const xtrnas = graphs.map((g) => {
+    const xtrna = new Xtrna(g[1]);
+    return [g[0], xtrna];
   });
 
   let cm: CylinderModel;
   let nm: NucleotideModel;
 
-  sternas.forEach(function (g: [string, Sterna]) {
+  xtrnas.forEach(function (g: [string, Xtrna]) {
     it(`Should generate nucleotides: ${g[0]}`, function () {
       const params = {
         scale: 0.5,
@@ -155,7 +155,7 @@ describe('Sterna Nucleotide Model', function () {
     });
   });
 
-  sternas.forEach(function (g: [string, Sterna]) {
+  xtrnas.forEach(function (g: [string, Xtrna]) {
     it(`There should be only one strand: ${g[0]}`, function () {
       const params = {
         scale: 0.2,
@@ -171,7 +171,7 @@ describe('Sterna Nucleotide Model', function () {
     });
   });
 
-  sternas.forEach(function (g: [string, Sterna]) {
+  xtrnas.forEach(function (g: [string, Xtrna]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
       const params: MenuParameters = {
         scale: 0.2,
@@ -196,5 +196,91 @@ describe('Sterna Nucleotide Model', function () {
       }
     });
   });
+
+  xtrnas.forEach(function (g: [string, Xtrna]) {
+    it(`Dat export should have as many entries as there are nucleotides + 3: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const dat = nm.toDat();
+      const datL = dat.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(datL == nmL + 3, true);
+    });
+  });
+
+  xtrnas.forEach(function (g: [string, Xtrna]) {
+    it(`Top export should have as many entries as there are nucleotides + 1: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const top = nm.toTop();
+      const topL = top.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(topL == nmL + 1, true);
+    });
+  });
+
+  xtrnas.forEach(function (g: [string, Xtrna]) {
+    it(`Forces export should have a mutual trap for every basepair: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const forces = nm.toExternalForces();
+      const forcesL = forces.split('\n').length;
+      const nmL = nm.getNucleotides().reduce((i, n) => {
+        return n.pair ? i + 1 : i;
+      }, 0);
+
+      assert.equal(forcesL == 9 * nmL, true);
+    });
+  });
+
+  xtrnas.forEach(function (g: [string, Xtrna]) {
+    it(`UNF export should have as many entries as there are nucleotides: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const unf = nm.toUNF();
+      const unfL = unf.idCounter;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(unfL == nmL, true);
+    });
+  });
+
+  xtrnas.forEach(function (g: [string, Xtrna]) {
+    it(`PDB export should have ~20 times as many atoms as there are nucleotides: ${g[0]}`, function () {
+      const params: MenuParameters = {
+        scale: 0.2,
+      };
+      cm = wiresToCylinders(g[1], params);
+      nm = cylindersToNucleotides(cm, params);
+      setRandomPrimary(nm, 0.5, 'RNA');
+
+      const pdb = nm.toPDB();
+      const pdbL = pdb.split('\n').length;
+      const nmL = nm.getNucleotides().length;
+
+      assert.equal(pdbL > 15 * nmL && pdbL < 25 * nmL, true);
+    });
+  });
 });
-*/

@@ -1,7 +1,7 @@
 import { Context } from '../menus/context';
 import { ATrailMenu } from './atrail/atrail_menu';
 import { CycleCoverMenu } from './cycle_cover/cycle_cover_menu';
-import { SpanningTreeMenu } from './spanning_tree/spanning_tree_menu';
+import { SpanningTreeMenu } from './stdna/stdna_menu';
 import { SternaMenu } from './sterna/sterna_menu';
 import { XtrnaMenu } from './xtrna/xtrna_menu';
 
