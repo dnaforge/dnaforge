@@ -188,6 +188,8 @@ The primary structure for a Sterna design can either be generated entirely rando
 #### Additional Parameters
 * Routing Parameters
     + **Minimis steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
+    + **Random Route** Route the RNA strand around a random spanning tree and place the strand gap at the longest duplex.
+    + **Co-Transcriptional Route** Route the RNA strand around a depth-first spanning tree and place the strand gap at the first edge of the route. This procedure optimises the kissing loop locations for co-transcriptional folding.
 
 * Strand Parameters
     + **Min Spacer Nucleotides** Minimum number of spacer nucleotides generated between each stem segment.
@@ -272,6 +274,8 @@ DNAforge viewport look and behaviour can be modified from the interface menu.
     + **Torque Overlay** Shade cylinders by the torque exerted by the neighbouring cylinders.
     + **Tension Overlay** Shade cylinders by the tension exerted by the neighbouring cylinders. 
 * **Nucleotides**
+    + **Stick** Display nucleotides as sticks.
+    + **Atomic** Display nucleotides as individual atoms.
     + **Draw Backbones** Toggle the display of nucleotide backbones.
     + **Draw Bases** Toggle the display of nucleotide bases.
     + **Strands** Open a strand selection menu.
