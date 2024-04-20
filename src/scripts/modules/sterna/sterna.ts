@@ -118,6 +118,9 @@ export class Sterna extends WiresModel {
       }
     }
     this.trail = route.slice(0, route.length - 1);
+
+    for (const he of this.trail) console.log(he.toString());
+
     return this.trail;
   }
 
@@ -164,31 +167,26 @@ export class Sterna extends WiresModel {
   getDFST(): Set<Edge> {
     const edges = this.graph.getEdges();
     const visited = new Set<Vertex>();
-    const stV = new Set<Vertex>();
     const st = new Set<Edge>();
 
-    const v0 = edges[0].vertices[0];
-    const stack: [Vertex, Edge][] = [[v0, undefined]];
+    const he0 = edges[0].halfEdges[0];
+    const stack: HalfEdge[] = [he0];
     while (stack.length > 0) {
-      const [v1, e1] = stack[stack.length - 1];
-      visited.add(v1);
-      const neighbours = v1.getAdjacentEdges();
-      let extended = false;
-      for (const e2 of neighbours) {
-        const v2 = e2.getOtherVertex(v1);
-        if (!visited.has(v2)) {
-          stack.push([v2, e2]);
-          extended = true;
+      const he1 = stack[stack.length - 1];
+      stack.pop();
+      if (!visited.has(he1.vertex) || !visited.has(he1.twin.vertex))
+        st.add(he1.edge);
+      visited.add(he1.vertex);
+      visited.add(he1.twin.vertex);
+      const neighbours = he1.twin.vertex.getAdjacentHalfEdges();
+      for (const he2 of neighbours) {
+        if (!visited.has(he2.twin.vertex)) {
+          stack.push(he2);
         }
-      }
-      if (!extended) {
-        if (e1 && !stV.has(v1)) {
-          st.add(e1);
-          stV.add(v1);
-        }
-        stack.pop();
       }
     }
+
+    for (const e of st) console.log(e.toString());
 
     this.st = st;
     return st;
@@ -399,7 +397,7 @@ export function cylindersToNucleotides(
     }
     //TODO: If editing cylinders is added, the next line might not always be correct
     if (dfs) longest = cylToStrands.get(cm.getCylinders()[0])[0];
-    const i = Math.round(len / 2) - 1;
+    const i = Math.round(longest.length() / 2) - 1;
     longest.nucleotides[i].next.prev = null;
     longest.nucleotides[i].next = null;
   }

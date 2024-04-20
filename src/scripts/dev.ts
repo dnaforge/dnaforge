@@ -37,6 +37,7 @@ export function dev(context: Context) {
   const bunny = require('../../resources/bunny-128.obj');
   const swan = require('../../resources/swan2.obj');
   const ct = require('../../resources/cube_torus.obj');
+  const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
   let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
   context.setGraph(graph);
@@ -79,7 +80,7 @@ export function dev(context: Context) {
   //st.addNucleotides();
   //st.generatePrimary();
 
-  $('#sterna-scale')[0].value = 1;
+  $('#sterna-scale')[0].value = 5;
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.generateWires();
   //sterna.addCylinders();
@@ -112,4 +113,5 @@ export function dev(context: Context) {
   //(<SimulationAPI>context.menus.get('sim')).dev();
 
   context.updateArcDiagram();
+  $('#ui-arcs-dialog')[0].hidden = false;
 }
