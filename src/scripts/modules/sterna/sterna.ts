@@ -119,8 +119,6 @@ export class Sterna extends WiresModel {
     }
     this.trail = route.slice(0, route.length - 1);
 
-    for (const he of this.trail) console.log(he.toString());
-
     return this.trail;
   }
 
@@ -185,8 +183,6 @@ export class Sterna extends WiresModel {
         }
       }
     }
-
-    for (const e of st) console.log(e.toString());
 
     this.st = st;
     return st;
