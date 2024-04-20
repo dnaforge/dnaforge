@@ -1,4 +1,5 @@
 import {
+  IUPAC_CHAR,
   IUPAC_CHAR_DNA,
   IUPAC_CHAR_RNA,
   NATYPE,
@@ -105,10 +106,9 @@ export class PrimaryGenerator {
     this.numGC = 0;
     for (const n of this.nm.getNucleotides()) {
       if (n.isLinker)
-        n.base =
-          this.linkerOptions[
-            Math.floor(Math.random() * this.linkerOptions.length)
-          ];
+        n.base = this.linkerOptions[
+          Math.floor(Math.random() * this.linkerOptions.length)
+        ] as IUPAC_CHAR;
       else n.base = 'N';
     }
     setRandomPrimary(this.nm, this.params.gcContent, this.nm.naType, false);
@@ -391,7 +391,7 @@ export class PrimaryGenerator {
   private savePrimary() {
     const nucs = this.nm.getNucleotides();
     for (let i = 0; i < nucs.length; i++) {
-      nucs[i].base = this.pString[i];
+      nucs[i].base = this.pString[i] as IUPAC_CHAR;
     }
     this.nm.updateObject();
     this.validate();

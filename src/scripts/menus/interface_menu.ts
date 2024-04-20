@@ -7,6 +7,7 @@ import { Menu, MenuParameters } from './menu';
 import { ColourScheme, ColourSchemePresets } from '../models/colour_schemes';
 import { downloadTXT } from '../io/download';
 import { read_json } from '../io/read_json';
+import { Nucleotide } from '../models/nucleotide';
 
 const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
@@ -243,9 +244,21 @@ export class InterfaceMenu extends Menu {
     } else this.removeScale();
   }
 
-  updateScale(value: number) {
-    this.scaleBar.divs[0].textContent = `${Number(value.toFixed(5))} nm`;
-    this.addScale();
+  updateScale() {
+    const setText = (value: number) => {
+      this.scaleBar.divs[0].textContent = `${Number(value.toFixed(5))} nm`;
+      this.addScale();
+    };
+
+    const cm = this.context.activeContext?.cm;
+    if (cm) {
+      this.scaleBar.visible = true;
+      setText(1 / cm.scale);
+    } else {
+      this.scaleBar.visible = false;
+      this.removeScale();
+    }
+    this.context.rendererNeedsUpdate = true;
   }
 
   removeScale() {
@@ -614,8 +627,6 @@ export class InterfaceMenu extends Menu {
 
       const copyToCustom = () => {
         if ($('#ui-colours-presets')[0].value != 'Custom') {
-          console.log('asdf');
-
           let kt: keyof typeof ColourScheme;
           for (const t in customVals) delete customVals[t];
           for (kt in ColourScheme) {
@@ -652,6 +663,7 @@ export class InterfaceMenu extends Menu {
           const colourVal = new THREE.Color(colour.val());
           customVals[kClosure] = colourVal;
           this.context.activeContext?.updateVisuals();
+          this.updateArcDiagram();
         });
 
         if (varN) {
@@ -670,6 +682,7 @@ export class InterfaceMenu extends Menu {
             this.createColoursSwatches();
 
             this.context.activeContext?.updateVisuals();
+            this.updateArcDiagram();
           };
 
           cross.on('click', del);
@@ -695,6 +708,7 @@ export class InterfaceMenu extends Menu {
           }
           this.createColoursSwatches();
           this.context.activeContext?.updateVisuals();
+          this.updateArcDiagram();
         });
       }
     };
@@ -718,6 +732,298 @@ export class InterfaceMenu extends Menu {
     createSubComponent('CylinderColours');
     container.append($('<p>CylinderSelection Colours</p>'));
     createSubComponent('CylinderSelectionColours');
+  }
+
+  updateSceneStatistics() {
+    const container = $('#scene-stats');
+    container.html('');
+    if (!this.context.graph) {
+      container.text('No graph loaded.');
+      return;
+    }
+
+    const root = $('<ul>', { 'data-role': 'treeview' });
+    container.append(root);
+
+    const createComponent = (title: string, data: JSONObject) => {
+      const componentRoot = $(`<li>${title}</li>`);
+      const componentData = $('<ul>');
+
+      let count = 0;
+      for (const key in data) {
+        count += 1;
+        const line = $(`<li>${key}: ${data[key]}</li>`);
+        componentData.append(line);
+      }
+
+      if (count > 0) {
+        // Only create data if there is any data
+        root.append(componentRoot);
+        componentRoot.append(componentData);
+      }
+    };
+
+    // Graph:
+    const graphData = {
+      Nodes: this.context.graph.getVertices().length,
+      Edges: this.context.graph.getEdges().length,
+      Faces: this.context.graph.getFaces().length,
+    };
+    createComponent('Mesh', graphData);
+
+    // Wires:
+    const wm = this.context.activeContext?.wires;
+    wm && createComponent('Wire Model', wm.getStatistics());
+
+    // CM:
+    const cm = this.context.activeContext?.cm;
+    cm && createComponent('Cylinder Model', cm.getStatistics());
+
+    // NM:
+    const nm = this.context.activeContext?.nm;
+    nm && createComponent('Nucleotide Model', nm.getStatistics());
+
+    // Selection:
+    const selection = this.context.editor.activeModel?.selection;
+    if (selection && this.context.editor.activeModel?.isVisible) {
+      createComponent('Selection', { N: selection.size });
+    }
+
+    // Scale
+    this.updateScale();
+  }
+
+  updateSelectors() {
+    if ($('#ui-system-dialog')[0].hidden) return;
+
+    const container = $('#ui-system');
+    container.html('');
+
+    const n_cols = 4;
+    const grid = $('<div>', { class: 'grid' });
+    container.append(grid);
+    const row = $('<div>', { class: 'row' });
+    grid.append(row);
+    const lists = Array.from({ length: n_cols }, () => {
+      const cell = $('<div>', { class: 'cell-' + Math.floor(12 / n_cols) });
+      const list = $('<ul>', { style: 'list-style-type: none;' });
+
+      row.append(cell);
+      cell.append(list);
+
+      return list;
+    });
+
+    const nm = this.context.activeContext?.nm;
+    if (nm) {
+      for (let i = 0; i < nm.strands.length; i++) {
+        const s = nm.strands[i];
+        const list = lists[i % n_cols];
+
+        const strandContainer = $('<li>');
+
+        const strandID = $(
+          `<a href="javascript: void(0)"> Strand ${s.id} </a>`,
+          { style: s.isScaffold ? 'color: red;' : '' },
+        );
+        const p5Button = $(`<a href="javascript: void(0)">5'</a>`);
+        const p3Button = $(`<a href="javascript: void(0)">3'</a>`);
+
+        p5Button.on('click', () => {
+          const p5 = s.nucleotides[0];
+          this.context.focusCamera(p5.getPosition());
+          this.context.editor.select(p5);
+        });
+
+        p3Button.on('click', () => {
+          const p3 = s.nucleotides[s.nucleotides.length - 1];
+          this.context.focusCamera(p3.getPosition());
+          this.context.editor.select(p3);
+        });
+
+        strandID.on('click', () => {
+          const p5 = s.nucleotides[0];
+          this.context.focusCamera(p5.getPosition());
+          this.context.editor.deselectAll();
+          for (const n of s.nucleotides) this.context.editor.select(n, true);
+        });
+
+        strandContainer.append(p5Button);
+        strandContainer.append(strandID);
+        strandContainer.append(p3Button);
+        list.append(strandContainer);
+      }
+    }
+  }
+
+  updateArcDiagram() {
+    const arcCanvas = $('#ui-arcs');
+    if ($('#ui-arcs-dialog')[0].hidden) return;
+
+    const ctx = arcCanvas[0].getContext('2d');
+
+    // Setup Canvas -------------
+    const nucs = this.context.activeContext?.nm?.getNucleotides();
+    const strands = this.context.activeContext?.nm?.getStrands();
+    if (!nucs) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, arcCanvas[0].width, arcCanvas[0].height);
+      ctx.restore();
+      return;
+    }
+    let maxDist = 0;
+    for (const n of nucs)
+      if (n.pair) maxDist = Math.max(maxDist, n.pair.id - n.id);
+
+    const SCALE = Math.min(8, (0.75 * screen.width) / nucs.length);
+    const floor = 20;
+    const width = nucs.length * SCALE;
+    const height = (maxDist / 2) * SCALE + floor;
+    const tickHeight = 5;
+    const tickWidth = 5;
+    const tickInterval = Math.ceil(Math.floor(nucs.length / 20) / 20) * 20;
+
+    arcCanvas.attr('width', width);
+    arcCanvas.attr('height', height);
+
+    // --------------------------
+    // Colour Functions ---------
+    let colourSegments: THREE.Color[];
+    let colourFunction: (n: Nucleotide) => void;
+    const colour = new THREE.Color(0xffffff);
+
+    const setStrokeColour = (
+      r: number,
+      g: number,
+      b: number,
+      a: number = 0.9,
+    ) => {
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+    };
+
+    const lerpColours = (idx: number, max: number) => {
+      const colorID = Math.floor((idx / max) * (colourSegments.length - 1));
+      const theta = (idx / max) * (colourSegments.length - 1) - colorID;
+
+      colour.lerpColors(
+        colourSegments[colorID],
+        colourSegments[colorID + 1],
+        theta,
+      );
+
+      return colour;
+    };
+
+    const setRandomStrandColour = (n: Nucleotide) => {
+      if (n.id == 0 || n.prev?.id != n.pair?.next?.pair?.id) {
+        setStrokeColour(
+          Math.floor(Math.random() * 255),
+          Math.floor(Math.random() * 255),
+          Math.floor(Math.random() * 255),
+        );
+      }
+    };
+
+    const setRandomNucleotidecolour = () => {
+      setStrokeColour(
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+        Math.floor(Math.random() * 255),
+      );
+    };
+
+    let setWireColour = (n: Nucleotide) => {
+      colourSegments = Object.keys(ColourScheme.WiresColours).map(
+        (k: keyof typeof ColourScheme.WiresColours) =>
+          ColourScheme.WiresColours[k],
+      );
+      setWireColour = (n: Nucleotide) => {
+        colourSegments.push(colourSegments[0]);
+        const idx = n.id;
+        const max = nucs.length;
+        const colour = lerpColours(idx, max);
+
+        setStrokeColour(
+          Math.floor(colour.r * 255),
+          Math.floor(colour.g * 255),
+          Math.floor(colour.b * 255),
+        );
+      };
+      setWireColour(n);
+    };
+
+    const setNucleotideColour = (n: Nucleotide) => {
+      const colour = ColourScheme.NucleotideColours[n.base];
+      setStrokeColour(
+        Math.floor(colour.r * 255),
+        Math.floor(colour.g * 255),
+        Math.floor(colour.b * 255),
+      );
+    };
+
+    const setStrandColour = (n: Nucleotide) => {
+      const strandColours = Object.values(ColourScheme.StrandColours);
+      const colour = strandColours[n.pair.strand.id % strandColours.length];
+
+      setStrokeColour(
+        Math.floor(colour.r * 255),
+        Math.floor(colour.g * 255),
+        Math.floor(colour.b * 255),
+      );
+    };
+
+    const selectorVal = $('#ui-arcs-colours')[0].value;
+    if (selectorVal == 'wires') colourFunction = setWireColour;
+    else if (selectorVal == 'nucleotides') colourFunction = setNucleotideColour;
+    else if (selectorVal == 'strands') colourFunction = setStrandColour;
+    else if (selectorVal == 'random_nucleotides')
+      colourFunction = setRandomNucleotidecolour;
+    else if (selectorVal == 'random_strands')
+      colourFunction = setRandomStrandColour;
+
+    // --------------------------
+    // Draw Arcs  ---------------
+    for (const s of strands) {
+      for (const n of s.getNucleotides()) {
+        const p1 = n.id * SCALE;
+
+        if (n.id % tickInterval == 1) {
+          const prevStroke = ctx.strokeStyle;
+          ctx.beginPath();
+          ctx.strokeStyle = '#000000';
+          ctx.moveTo(p1, height - floor * 0.5 + tickHeight);
+          ctx.lineTo(p1, height - floor * 0.5 - tickHeight);
+          ctx.fillText(n.id - 1, p1 + tickWidth, height - tickHeight);
+          ctx.stroke();
+          ctx.strokeStyle = prevStroke;
+        }
+
+        if (n.pair) {
+          colourFunction(n);
+
+          const p2 = n.pair.id * SCALE;
+          if (p1 >= p2) continue;
+
+          ctx.beginPath();
+          ctx.arc(
+            (p2 + p1) / 2,
+            height - floor,
+            (p2 - p1) / 2,
+            Math.PI,
+            2 * Math.PI,
+          );
+          ctx.stroke();
+        }
+      }
+    }
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    ctx.moveTo(0, height - floor + ctx.lineWidth);
+    ctx.lineTo(width, height - floor + ctx.lineWidth);
+    ctx.stroke();
   }
 
   /**
@@ -890,6 +1196,10 @@ export class InterfaceMenu extends Menu {
         .attr('data-id');
       const nm = this.context.activeContext?.nm;
       nm && this.context.editor.regenerateObject(nm);
+    });
+
+    $('#ui-arcs-colours').on('change', () => {
+      this.updateArcDiagram();
     });
   }
 }

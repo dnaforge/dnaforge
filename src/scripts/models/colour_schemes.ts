@@ -3,7 +3,7 @@ import { SelectionStatus } from './selectable';
 import { IUPAC_CHAR } from '../globals/consts';
 
 interface ColourScheme {
-  WiresColours: Record<'1' | '2' | '3' | '4' | '5', Color>;
+  WiresColours: Record<string, Color>;
 
   NucleotideColours: Record<IUPAC_CHAR, Color>;
   NucleotideSelectionColours: Record<SelectionStatus, Color>;

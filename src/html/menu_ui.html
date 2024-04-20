@@ -256,6 +256,14 @@
     style="opacity: 0.9; z-index: 1;" data-drag-element=".drag-element">
     <div class="dialog-title drag-element">Arcs</div>
     <div class="dialog-content" style="overflow-y: scroll;">
+        <label>Colour Scheme</label>
+        <select data-prepend="Presets" id="ui-arcs-colours">
+            <option value="wires">Wires</option>
+            <option value="nucleotides">Nucleotides</option>
+            <option value="strands">Strands</option>
+            <option value="random_nucleotides">Random Nucleotides</option>
+            <option value="random_strands">Random Strands</option>
+        </select>
         <div>
             <canvas id="ui-arcs"></canvas>
         </div>

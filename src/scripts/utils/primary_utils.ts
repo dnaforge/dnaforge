@@ -4,6 +4,9 @@ import {
   IUPAC_RNA,
   IUPAC_DNA,
   NATYPE,
+  IUPAC_CHAR,
+  IUPAC_CHAR_DNA,
+  IUPAC_CHAR_RNA,
 } from '../globals/consts';
 import { NucleotideModel } from '../models/nucleotide_model';
 import { DNA_SCAFFOLDS } from '../globals/consts';
@@ -58,7 +61,7 @@ export function setPrimaryFromScaffold(
       .concat(scaffoldNucs.slice(0, idx));
     for (let i = 0; i < scaffoldNucs.length; i++) {
       const nuc = scaffoldNucs[i];
-      const base = scaffold[i];
+      const base = scaffold[i] as IUPAC_CHAR;
       if (
         (naType == 'DNA' && !(base in IUPAC_DNA)) ||
         (naType == 'RNA' && !(base in IUPAC_RNA))
@@ -69,7 +72,7 @@ export function setPrimaryFromScaffold(
   }
   for (const n of nm.getNucleotides()) {
     const r = Math.floor(Math.random() * linkerOptions.length);
-    if (n.isLinker && !n.isScaffold) n.base = linkerOptions[r];
+    if (n.isLinker && !n.isScaffold) n.base = linkerOptions[r] as IUPAC_CHAR;
   }
 
   return setRandomPrimary(nm, gcContent, naType); // fill the remaining non-scaffold bases randomly
@@ -229,9 +232,20 @@ export function setPartialPrimaryRNA(nm: NucleotideModel): string[] {
  * @param pair IUPAC codes for the base pair
  * @returns the base
  */
-export function getComplementRNA(base: string, pair: string) {
-  const complement: Record<string, string> = { A: 'U', U: 'A', G: 'C', C: 'G' };
-  const wobbleComplement: Record<string, string> = { U: 'G', G: 'U' };
+export function getComplementRNA(
+  base: IUPAC_CHAR_RNA,
+  pair: IUPAC_CHAR_RNA,
+): IUPAC_CHAR_RNA {
+  const complement: Partial<Record<IUPAC_CHAR_RNA, IUPAC_CHAR_RNA>> = {
+    A: 'U',
+    U: 'A',
+    G: 'C',
+    C: 'G',
+  };
+  const wobbleComplement: Partial<Record<IUPAC_CHAR_RNA, IUPAC_CHAR_RNA>> = {
+    U: 'G',
+    G: 'U',
+  };
   const options = new Set(IUPAC_RNA[base]);
 
   if (options.has(complement[pair])) return complement[pair];
@@ -248,8 +262,16 @@ export function getComplementRNA(base: string, pair: string) {
  * @param pair IUPAC codes for the base pair
  * @returns the base
  */
-export function getComplementDNA(base: string, pair: string) {
-  const complement: Record<string, string> = { A: 'T', T: 'A', G: 'C', C: 'G' };
+export function getComplementDNA(
+  base: IUPAC_CHAR_DNA,
+  pair: IUPAC_CHAR_DNA,
+): IUPAC_CHAR_DNA {
+  const complement: Partial<Record<IUPAC_CHAR_DNA, IUPAC_CHAR_DNA>> = {
+    A: 'T',
+    T: 'A',
+    G: 'C',
+    C: 'G',
+  };
   const options = new Set(IUPAC_DNA[base]);
 
   if (options.has(complement[pair])) return complement[pair];
@@ -264,7 +286,10 @@ export function getComplementDNA(base: string, pair: string) {
  * @param gcContent the proportion of G's and C's
  * @returns the base
  */
-export function getBaseRNA(options: string[], gcContent: number): string {
+export function getBaseRNA(
+  options: string[],
+  gcContent: number,
+): IUPAC_CHAR_RNA {
   const optionsAU = [];
   const optionsGC = [];
   for (const c of options) {
@@ -277,7 +302,9 @@ export function getBaseRNA(options: string[], gcContent: number): string {
   else if (Math.random() <= gcContent) optionsF = optionsGC;
   else optionsF = optionsAU;
 
-  const base = optionsF[Math.floor(Math.random() * optionsF.length)];
+  const base = optionsF[
+    Math.floor(Math.random() * optionsF.length)
+  ] as IUPAC_CHAR_RNA;
 
   return base;
 }
@@ -290,8 +317,14 @@ export function getBaseRNA(options: string[], gcContent: number): string {
  * @param gcContent the proportion of G's and C's
  * @returns the base
  */
-export function getBaseDNA(options: string[], gcContent: number): string {
-  const base = getBaseRNA(options, gcContent).replace('U', 'T');
+export function getBaseDNA(
+  options: string[],
+  gcContent: number,
+): IUPAC_CHAR_DNA {
+  const base = getBaseRNA(options, gcContent).replace(
+    'U',
+    'T',
+  ) as IUPAC_CHAR_DNA;
   return base;
 }
 
@@ -319,14 +352,14 @@ export function setRandomPrimary(
   const visited = new Set();
   const ps = [];
   for (let i = 0; i < nucleotides.length; i++) {
-    let base;
+    let base: IUPAC_CHAR;
     const n = nucleotides[i];
     if (ignoreExisting) n.base = 'N';
     if (n.isLinker || !visited.has(n.pair)) {
       const options = iupac[n.base];
       base = getBase(options, gcContent);
     } else {
-      base = getComplement(n.base, n.pair.base);
+      base = getComplement(n.base as any, n.pair.base as any);
       if (!base)
         throw `Impossible base pair. ${n.id}: ${n.base} - ${n.pair.id}: ${n.pair.base}`;
     }

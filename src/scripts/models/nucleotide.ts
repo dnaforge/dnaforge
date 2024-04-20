@@ -55,7 +55,7 @@ export class Nucleotide extends Selectable {
   id: number;
   obj3d: StickObject;
 
-  base: string;
+  base: IUPAC_CHAR;
   scale: number;
   naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
@@ -82,7 +82,7 @@ export class Nucleotide extends Selectable {
    * @param naType DNA | RNA
    * @param base IUPAC code
    */
-  constructor(nm: NucleotideModel, strand: Strand, base = 'N') {
+  constructor(nm: NucleotideModel, strand: Strand, base: IUPAC_CHAR = 'N') {
     super();
     this.owner = nm;
     this.strand = strand;

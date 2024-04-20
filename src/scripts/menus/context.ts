@@ -167,6 +167,18 @@ export class Context {
     this.isAnimating = false;
   }
 
+  updateSceneStatistics() {
+    (<InterfaceMenu>this.menus.get('interface'))?.updateSceneStatistics();
+  }
+
+  updateSelectors() {
+    (<InterfaceMenu>this.menus.get('interface'))?.updateSelectors();
+  }
+
+  updateArcDiagram() {
+    (<InterfaceMenu>this.menus.get('interface'))?.updateArcDiagram();
+  }
+
   getScreenshot() {
     const X = 7680;
     const Y = X * (canvas.height / canvas.width);
@@ -583,220 +595,6 @@ export class Context {
   switchMainTab(id: string) {
     const menu = this.menus.get(id);
     if (menu && !menu.isGlobal) this.switchContext(<ModuleMenu>menu);
-  }
-
-  updateSceneStatistics() {
-    const container = $('#scene-stats');
-    container.html('');
-    if (!this.graph) {
-      container.text('No graph loaded.');
-      return;
-    }
-
-    const root = $('<ul>', { 'data-role': 'treeview' });
-    container.append(root);
-
-    const createComponent = (title: string, data: JSONObject) => {
-      const componentRoot = $(`<li>${title}</li>`);
-      const componentData = $('<ul>');
-
-      let count = 0;
-      for (const key in data) {
-        count += 1;
-        const line = $(`<li>${key}: ${data[key]}</li>`);
-        componentData.append(line);
-      }
-
-      if (count > 0) {
-        // Only create data if there is any data
-        root.append(componentRoot);
-        componentRoot.append(componentData);
-      }
-    };
-
-    // Graph:
-    const graphData = {
-      Nodes: this.graph.getVertices().length,
-      Edges: this.graph.getEdges().length,
-      Faces: this.graph.getFaces().length,
-    };
-    createComponent('Mesh', graphData);
-
-    // Wires:
-    const wm = this.activeContext?.wires;
-    wm && createComponent('Wire Model', wm.getStatistics());
-
-    // CM:
-    const cm = this.activeContext?.cm;
-    cm && createComponent('Cylinder Model', cm.getStatistics());
-
-    // NM:
-    const nm = this.activeContext?.nm;
-    nm && createComponent('Nucleotide Model', nm.getStatistics());
-
-    // Selection:
-    const selection = this.editor.activeModel?.selection;
-    if (selection && this.editor.activeModel?.isVisible) {
-      createComponent('Selection', { N: selection.size });
-    }
-
-    // Scale
-    this.updateScale();
-  }
-
-  updateScale() {
-    const cm = this.activeContext?.cm;
-    const ui = <InterfaceMenu>this.menus.get('interface');
-    if (cm) {
-      ui.scaleBar.visible = true;
-      ui.updateScale(1 / cm.scale);
-    } else {
-      ui.scaleBar.visible = false;
-      ui.removeScale();
-    }
-    this.rendererNeedsUpdate = true;
-  }
-
-  updateSelectors() {
-    if ($('#ui-system-dialog')[0].hidden) return;
-
-    const container = $('#ui-system');
-    container.html('');
-
-    const n_cols = 4;
-    const grid = $('<div>', { class: 'grid' });
-    container.append(grid);
-    const row = $('<div>', { class: 'row' });
-    grid.append(row);
-    const lists = Array.from({ length: n_cols }, () => {
-      const cell = $('<div>', { class: 'cell-' + Math.floor(12 / n_cols) });
-      const list = $('<ul>', { style: 'list-style-type: none;' });
-
-      row.append(cell);
-      cell.append(list);
-
-      return list;
-    });
-
-    const nm = this.activeContext?.nm;
-    if (nm) {
-      for (let i = 0; i < nm.strands.length; i++) {
-        const s = nm.strands[i];
-        const list = lists[i % n_cols];
-
-        const strandContainer = $('<li>');
-
-        const strandID = $(
-          `<a href="javascript: void(0)"> Strand ${s.id} </a>`,
-          { style: s.isScaffold ? 'color: red;' : '' },
-        );
-        const p5Button = $(`<a href="javascript: void(0)">5'</a>`);
-        const p3Button = $(`<a href="javascript: void(0)">3'</a>`);
-
-        p5Button.on('click', () => {
-          const p5 = s.nucleotides[0];
-          this.focusCamera(p5.getPosition());
-          this.editor.select(p5);
-        });
-
-        p3Button.on('click', () => {
-          const p3 = s.nucleotides[s.nucleotides.length - 1];
-          this.focusCamera(p3.getPosition());
-          this.editor.select(p3);
-        });
-
-        strandID.on('click', () => {
-          const p5 = s.nucleotides[0];
-          this.focusCamera(p5.getPosition());
-          this.editor.deselectAll();
-          for (const n of s.nucleotides) this.editor.select(n, true);
-        });
-
-        strandContainer.append(p5Button);
-        strandContainer.append(strandID);
-        strandContainer.append(p3Button);
-        list.append(strandContainer);
-      }
-    }
-  }
-
-  updateArcDiagram() {
-    const arcCanvas = $('#ui-arcs');
-    if ($(arcCanvas)[0].hidden) return;
-    const ctx = arcCanvas[0].getContext('2d');
-
-    const nucs = this.activeContext?.nm?.getNucleotides().sort((a, b) => {
-      return a.id - b.id;
-    });
-    if (!nucs) {
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, arcCanvas[0].width, arcCanvas[0].height);
-      ctx.restore();
-      return;
-    }
-    let maxDist = 0;
-    for (const n of nucs)
-      if (n.pair) maxDist = Math.max(maxDist, n.pair.id - n.id);
-
-    const SCALE = Math.min(8, (0.75 * screen.width) / nucs.length);
-    const floor = 20;
-    const width = nucs.length * SCALE;
-    const height = (maxDist / 2) * SCALE + floor;
-    const tickHeight = 5;
-    const tickWidth = 5;
-    const tickInterval = Math.ceil(Math.floor(nucs.length / 20) / 20) * 20;
-
-    arcCanvas.attr('width', width);
-    arcCanvas.attr('height', height);
-
-    const setRandomStroke = () => {
-      ctx.strokeStyle = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(
-        Math.random() * 255,
-      )}, ${Math.floor(Math.random() * 255)}, 0.9)`;
-    };
-    setRandomStroke();
-
-    for (const n of nucs) {
-      const p1 = n.id * SCALE;
-
-      if (n.id % tickInterval == 1) {
-        const prevStroke = ctx.strokeStyle;
-        ctx.beginPath();
-        ctx.strokeStyle = '#000000';
-        ctx.moveTo(p1, height - floor * 0.5 + tickHeight);
-        ctx.lineTo(p1, height - floor * 0.5 - tickHeight);
-        ctx.fillText(n.id - 1, p1 + tickWidth, height - tickHeight);
-        ctx.stroke();
-        ctx.strokeStyle = prevStroke;
-      }
-
-      if (n.pair) {
-        const p2 = n.pair.id * SCALE;
-        if (p1 >= p2) continue;
-
-        ctx.beginPath();
-        ctx.arc(
-          (p2 + p1) / 2,
-          height - floor,
-          (p2 - p1) / 2,
-          Math.PI,
-          2 * Math.PI,
-        );
-        ctx.stroke();
-
-        if (n.next?.id != n.pair?.prev?.pair?.id) {
-          setRandomStroke();
-        }
-      }
-    }
-
-    ctx.beginPath();
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 4;
-    ctx.moveTo(0, height - floor + ctx.lineWidth);
-    ctx.lineTo(width, height - floor + ctx.lineWidth);
-    ctx.stroke();
   }
 
   /**

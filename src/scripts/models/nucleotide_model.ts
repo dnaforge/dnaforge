@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { Intersection } from 'three';
-import { DNA, NATYPE, RNA } from '../globals/consts';
+import { DNA, IUPAC_CHAR, NATYPE, RNA } from '../globals/consts';
 import { CylinderModel } from './cylinder_model';
 import { Cylinder, RoutingStrategy, PrimePos } from './cylinder';
 import { ModuleMenu, ModuleMenuParameters } from '../menus/module_menu';
@@ -131,7 +131,7 @@ export class NucleotideModel extends Model {
         }
         if (next >= 0) pairs.push([idx, next]);
         if (prev >= 0) pairs.push([prev, idx]);
-        const n = new Nucleotide(nm, strand, base);
+        const n = new Nucleotide(nm, strand, base as IUPAC_CHAR);
         nucs.push(n);
         strand.addNucleotides(n);
       });
@@ -696,7 +696,7 @@ export class NucleotideModel extends Model {
     const iupac = new Set('ACGTUWSMKRYBDHVN'.split(''));
     for (const b of str) if (!iupac.has(b)) throw `Unrecognised base ${b}`;
     for (let i = 0; i < str.length; i++) {
-      nucleotides[i].base = str[i];
+      nucleotides[i].base = str[i] as IUPAC_CHAR;
     }
     this.updateObject();
   }
