@@ -19,11 +19,13 @@ interface ColourScheme {
 export const ColourSchemePresets: Record<string, ColourScheme> = {
   Default: {
     WiresColours: {
-      '1': new Color(0xff0000),
-      '2': new Color(0xff7f00),
-      '3': new Color(0xffff00),
-      '4': new Color(0x00ff00),
-      '5': new Color(0x0000ff),
+      '1': new Color(0x8b00ff), // Violet
+      '2': new Color(0x4b0082), // Indigo
+      '3': new Color(0x0000ff), // Blue
+      '4': new Color(0x00ff00), // Green
+      '5': new Color(0xffff00), // Yellow
+      '6': new Color(0xff7f00), // Orange
+      '7': new Color(0xff0000), // Red
     },
 
     NucleotideColours: {

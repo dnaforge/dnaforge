@@ -938,8 +938,8 @@ export class InterfaceMenu extends Menu {
         (k: keyof typeof ColourScheme.WiresColours) =>
           ColourScheme.WiresColours[k],
       );
+      if (colourSegments.length < 2) colourSegments.push(colourSegments[0]);
       setWireColour = (n: Nucleotide) => {
-        colourSegments.push(colourSegments[0]);
         const idx = n.id;
         const max = nucs.length;
         const colour = lerpColours(idx, max);
