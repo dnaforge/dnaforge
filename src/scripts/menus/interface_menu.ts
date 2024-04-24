@@ -587,7 +587,7 @@ export class InterfaceMenu extends Menu {
     $('#ui-colours-presets')[0].value = 'Custom';
     Object.assign(ColourScheme, ColourSchemePresets['Custom']);
     this.createColoursSwatches();
-    this.context.activeContext?.updateVisuals();
+    this.context.editor.UpdateObjectVisuals();
   }
 
   createColoursComponent() {
@@ -607,7 +607,7 @@ export class InterfaceMenu extends Menu {
       if (nScheme == 'Random') updateRandomColours();
       Object.assign(ColourScheme, ColourSchemePresets[nScheme]);
       this.createColoursSwatches();
-      this.context.activeContext?.updateVisuals();
+      this.context.editor.UpdateObjectVisuals();
     });
   }
 
@@ -662,7 +662,7 @@ export class InterfaceMenu extends Menu {
           copyToCustom();
           const colourVal = new THREE.Color(colour.val());
           customVals[kClosure] = colourVal;
-          this.context.activeContext?.updateVisuals();
+          this.context.editor.UpdateObjectVisuals();
           this.updateArcDiagram();
         });
 
@@ -681,7 +681,7 @@ export class InterfaceMenu extends Menu {
             //if(swatchContainer.children().length == 0) swatchContainer.remove();
             this.createColoursSwatches();
 
-            this.context.activeContext?.updateVisuals();
+            this.context.editor.UpdateObjectVisuals();
             this.updateArcDiagram();
           };
 
@@ -707,7 +707,7 @@ export class InterfaceMenu extends Menu {
             }
           }
           this.createColoursSwatches();
-          this.context.activeContext?.updateVisuals();
+          this.context.editor.UpdateObjectVisuals();
           this.updateArcDiagram();
         });
       }
@@ -769,7 +769,7 @@ export class InterfaceMenu extends Menu {
       Edges: this.context.graph.getEdges().length,
       Faces: this.context.graph.getFaces().length,
     };
-    createComponent('Mesh', graphData);
+    createComponent('Mesh Model', graphData);
 
     // Wires:
     const wm = this.context.activeContext?.wires;
@@ -1133,12 +1133,12 @@ export class InterfaceMenu extends Menu {
 
     $('#toggle-cylinder-tension-overlay').on('click', () => {
       GLOBALS.overlayTension = $('#toggle-cylinder-tension-overlay')[0].checked;
-      this.context.activeContext?.updateVisuals();
+      this.context.editor.UpdateObjectVisuals();
     });
 
     $('#toggle-cylinder-torque-overlay').on('click', () => {
       GLOBALS.overlayTorque = $('#toggle-cylinder-torque-overlay')[0].checked;
-      this.context.activeContext?.updateVisuals();
+      this.context.editor.UpdateObjectVisuals();
     });
 
     $('#selection-mode').on('click', (e: any) => {
@@ -1151,12 +1151,12 @@ export class InterfaceMenu extends Menu {
       GLOBALS.visibilityNucBackbone = $(
         '#toggle-nucleotides-backbone',
       )[0].checked;
-      this.context.activeContext?.updateVisuals();
+      this.context.editor.UpdateObjectVisuals();
     });
 
     $('#toggle-nucleotides-bases').on('click', () => {
       GLOBALS.visibilityNucBase = $('#toggle-nucleotides-bases')[0].checked;
-      this.context.activeContext?.updateVisuals();
+      this.context.editor.UpdateObjectVisuals();
     });
 
     this.hoverButton.on('click', (e: Event) => {
@@ -1194,8 +1194,7 @@ export class InterfaceMenu extends Menu {
       GLOBALS.nucleotideDisplay = $('#nucleotide-display')
         .find('.active')
         .attr('data-id');
-      const nm = this.context.activeContext?.nm;
-      nm && this.context.editor.regenerateObject(nm);
+      this.context.editor.updateAllObjects();
     });
 
     $('#ui-arcs-colours').on('change', () => {

@@ -62,7 +62,7 @@ export class ATrailMenu extends ModuleMenu {
     reinforceCylinders(this.cm, selection as Iterable<Cylinder>);
 
     this.removeNucleotides(true); // make sure the old model is deleted
-    this.context.editor.regenerateObject(this.cm);
+    this.context.editor.updateObject(this.cm);
 
     this.generateVisible();
   }

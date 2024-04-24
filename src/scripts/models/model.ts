@@ -4,6 +4,7 @@ import { SelectionModes } from '../editor/editor';
 
 export abstract class Model {
   isVisible = false;
+  needsUpdate = false;
   obj?: Object3D;
   selection = new Set<Selectable>();
   hovers = new Set<Selectable>();

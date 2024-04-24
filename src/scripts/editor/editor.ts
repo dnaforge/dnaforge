@@ -115,18 +115,37 @@ export class Editor {
    *
    * @param model
    */
-  regenerateObject(model: Model) {
+  updateObject(model: Model) {
     this.removeModel(model);
     this.addModel(model);
+    model.needsUpdate = false;
+  }
+
+  updateAllObjects() {
+    for (let m of Array.from(this.models)) m.needsUpdate = true;
+    this.UpdateVisibleObjects();
+  }
+
+  UpdateVisibleObjects() {
+    for (let m of Array.from(this.models)) {
+      m.isVisible && this.updateObject(m);
+    }
+  }
+
+  UpdateObjectVisuals() {
+    this.context.activeContext?.updateVisuals();
   }
 
   hideModel(model: Model) {
-    model?.hide();
+    if (!model) return;
+    model.hide();
     this.context.rendererNeedsUpdate = true;
   }
 
   showModel(model: Model) {
-    model?.show();
+    if (!model) return;
+    model.show();
+    model.needsUpdate && this.updateObject(model);
     this.context.rendererNeedsUpdate = true;
   }
 

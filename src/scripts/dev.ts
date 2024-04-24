@@ -112,6 +112,6 @@ export function dev(context: Context) {
 
   //(<SimulationAPI>context.menus.get('sim')).dev();
 
-  context.updateArcDiagram();
-  $('#ui-arcs-dialog')[0].hidden = false;
+  //context.updateArcDiagram();
+  //$('#ui-arcs-dialog')[0].hidden = false;
 }
