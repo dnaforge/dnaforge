@@ -27,7 +27,8 @@
                 <li>
                     <h4>Cite:</h4>
                 </li>
-                <li><a href=""><span class="mif-file-text icon"></span> DNAforge</a></li>
+                <li><a href="javascript:void(0)" onclick="Metro.dialog.open('#cite-main');"><span
+                            class="mif-file-text icon"></span> DNAforge</a></li>
             </ul>
         </div>
     </div>
@@ -56,13 +57,46 @@
 <div class="dialog" data-role="dialog" id="open-file-example" data-overlay-click-close="true">
     <div class="dialog-title">Open file</div>
     <div class="dialog-content" style="overflow-y: scroll;">
-        <span>These are example obj-files. For step-by-step examples, click <a href="https://github.com/dnaforge/dnaforge/tree/main/docs/examples">here</a>.</span>
-                
+        <span>These are example obj-files. For step-by-step examples, click <a
+                href="https://github.com/dnaforge/dnaforge/tree/main/docs/examples">here</a>.</span>
+
         <ul data-role="listview" data-view="content" data-select-node="true" id="file-input-example">
         </ul>
     </div>
     <div class="dialog-actions">
         <button class="button js-dialog-close">Cancel</button>
         <button class="button primary js-dialog-close" id="file-input-example-open">Open</button>
+    </div>
+</div>
+
+
+<div class="dialog" data-role="dialog" id="cite-main" data-overlay-click-close="true" data-width="50vw">
+    <div class="dialog-title">Cite</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <p>
+            Antti Elonen, Leon Wimbes, Abdulmelik Mohammed, and Pekka Orponen. DNAforge: A design tool for nucleic
+            acid wireframe nanostructures. Nucleic Acids Research, to appear. pre-print:
+            <a
+                href="https://research.cs.aalto.fi/nc/papers/dnaforge_2024.pdf">https://research.cs.aalto.fi/nc/papers/dnaforge_2024.pdf</a>.
+            doi: <a href="https://doi.org/10.1093/nar/gkae367">https://doi.org/10.1093/nar/gkae367</a>.
+        </p>
+        <div class="card">
+            <div class="card-header">
+                BibTeX
+            </div>
+            <div class="card-content">
+                <pre><code>@article{Elonen2024DNAforge,
+    title = {{DNAforge}: {A} design tool for nucleic acid wireframe nanostructures},
+    author = {Elonen, Antti and Wimbes, Leon and Mohammed, Abdulmelik and Orponen, Pekka},
+    journal = {Nucleic Acids Research},
+    year = {to appear},
+    doi = {10.1093/nar/gkae367},
+    note = {preprint: \url{https://research.cs.aalto.fi/nc/papers/dnaforge\_2024.pdf}}
+}</code></pre>
+            </div>
+        </div>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
     </div>
 </div>
