@@ -1,7 +1,6 @@
 # Blender 3.5.1
 # www.blender.org
-mtllib torus55.mtl
-o Torus
+o 5x5 torus
 v 1.250000 0.000000 0.000000
 v 1.077254 0.237764 0.000000
 v 0.797746 0.146946 0.000000

@@ -820,21 +820,9 @@ class Graph {
   }
 
   /**
-   * Calculates the genus of this graph, assuming it is a closed orientable surface
-   *
-   * @returns
-   */
-  getGenus(): number {
-    const v = this.getVertices().length;
-    const e = this.getEdges().length;
-    const f = this.getFaces().length;
-    return (-v + e - f) / 2 + 1;
-  }
-
-  /**
    * Duplicate edges so that the graph becomes checkerboard-colourable
    */
-  checkerBoard() {
+  makeCheckerBoard() {
     const l = new Set<Face>();
     const r = new Set<Face>();
 
@@ -859,6 +847,18 @@ class Graph {
       if ((r.has(f1) && r.has(f2)) || (l.has(f1) && l.has(f2)))
         this.splitEdge(e);
     }
+  }
+
+  /**
+   * Calculates the genus of this graph, assuming it is a closed orientable surface
+   *
+   * @returns
+   */
+  getGenus(): number {
+    const v = this.getVertices().length;
+    const e = this.getEdges().length;
+    const f = this.getFaces().length;
+    return (-v + e - f) / 2 + 1;
   }
 
   test() {

@@ -23,14 +23,15 @@ export function dev(context: Context) {
   window.context = <any>context;
 
   const tet = require('../examples/tetrahedron.obj');
+  const ico = require('../examples/icosahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');
   const plane = require('../../resources/plane.obj');
   const plane2 = require('../../resources/plane2.obj');
   const plane3 = require('../../resources/plane3.obj');
-  const cube = require('../../resources/cube.obj');
-  const x3 = require('../../resources/3x3.obj');
-  const x4 = require('../../resources/4x4.obj');
+  const cube = require('../../resources/cube_triangulated.obj');
+  const x3 = require('../../resources/3x3x3.obj');
+  const x4 = require('../../resources/4x4x4.obj');
   const shape = require('../../resources/shape.obj');
   const shape2 = require('../../resources/shape2.obj');
   const shape3 = require('../../resources/shape3.obj');
@@ -39,7 +40,9 @@ export function dev(context: Context) {
   const ct = require('../../resources/cube_torus.obj');
   const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(ico);
+  graph.makeEulerian();
+  //graph.makeCheckerBoard();
   context.setGraph(graph);
 
   const xtrna = <XtrnaMenu>context.menus.get('xtrna');
@@ -63,15 +66,14 @@ export function dev(context: Context) {
   //$('#atrail-scale')[0].value = 1;
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.params.checkerBoard = true;
-  //atrail.generateWires();
+  atrail.generateWires();
   //atrail.addCylinders();
   //atrail.generateNucleotideModel();
-  //atrail.relaxCylinders();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   //atrail.reinforce();
-  //context.switchContext(atrail);
+  context.switchContext(atrail);
   //atrail.nm.toPDB();
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
@@ -84,11 +86,11 @@ export function dev(context: Context) {
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.generateWires();
   //sterna.addCylinders();
-  sterna.generateNucleotideModel();
+  //sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
   //sterna.generatePrimary();
-  context.switchContext(sterna);
+  //context.switchContext(sterna);
   //sterna.downloadPDB();
 
   //const r = new Relaxer(cm);

@@ -122,12 +122,12 @@ export class Editor {
   }
 
   updateAllObjects() {
-    for (let m of Array.from(this.models)) m.needsUpdate = true;
+    for (const m of Array.from(this.models)) m.needsUpdate = true;
     this.UpdateVisibleObjects();
   }
 
   UpdateVisibleObjects() {
-    for (let m of Array.from(this.models)) {
+    for (const m of Array.from(this.models)) {
       m.isVisible && this.updateObject(m);
     }
   }

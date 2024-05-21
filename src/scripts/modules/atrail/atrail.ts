@@ -67,7 +67,7 @@ export class ATrail extends WiresModel {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;
     if (checkerBoard) {
-      this.graph.checkerBoard();
+      this.graph.makeCheckerBoard();
     } else {
       try {
         this.graph.makeEulerian();

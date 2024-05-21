@@ -25,15 +25,37 @@ const examples = ((): { [id: string]: Graph } => {
     const nEdges = graph.getEdges().length;
     const nFaces = graph.getFaces().length;
     examples[id] = graph;
-    $('#file-input-example').append(`
-            <li data-icon="<span class='mif-file-empty'>" 
-            data-caption="${name}"  
-            data-id="${id}" 
-            data-content="<span class='text-muted'>
-            ${nVerts} Vertices - 
-            ${nEdges} Edges - 
-            ${nFaces} Faces
-            </span>"></li>`);
+
+    const example = $(`
+    <li data-icon="<span class='mif-file-empty'>" 
+    data-caption="${name}"  
+    data-id="${id}" 
+    data-content="<span class='text-muted'>
+    ${nVerts} Vertices - 
+    ${nEdges} Edges - 
+    ${nFaces} Faces
+    </span>"
+    </li>`);
+
+    example.on('dblclick', () => {
+      $('#file-input-example-open').click();
+    });
+
+    const downloadButton = $('<button>', {
+      class: 'button cycle mif-2x mif-download outline primary sim-download',
+      'data-role': 'hint',
+      'data-hint-text': `Download ${name}.obj.`,
+      'data-hint-position': 'right',
+      style: 'width: 3rem;', // the aspect ratio is skewed with default width for some reason
+    });
+
+    downloadButton.on('click', () => {
+      console.log(obj);
+      downloadTXT(`${name}.obj`, obj);
+    });
+
+    example.append(downloadButton);
+    $('#file-input-example').append(example);
   }
 
   return examples;
