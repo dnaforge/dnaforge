@@ -59,16 +59,16 @@ abstract class WiresModel extends Model {
   }
 
   show() {
-    this.obj.layers.set(0);
     if (this.obj) {
+      this.obj.layers.set(0);
       this.isVisible = true;
       for (const o of this.obj.children) o.layers.set(0);
     }
   }
 
   hide() {
-    this.obj.layers.set(1);
     if (this.obj) {
+      this.obj.layers.set(1);
       this.isVisible = false;
       for (const o of this.obj.children) o.layers.set(1);
     }

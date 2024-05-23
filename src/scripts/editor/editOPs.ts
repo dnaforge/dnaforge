@@ -28,7 +28,11 @@ function initiateEditOP(target: any, ...t: string[]) {
     const prev: Model = target[m];
     prevs.set(m, prev);
     target.context.editor.removeModel(prev);
-    target[m] = prev ? prev.clone() : null;
+    try {
+      target[m] = prev ? prev.clone() : null;
+    } catch {
+      target[m] = null; // if clone fails for whatever reason, just prevent undoing to it
+    }
     target.context.editor.addModel(target[m]);
     target.updateVisuals();
     (<any>target).curCheckPoints.set(m, prev);

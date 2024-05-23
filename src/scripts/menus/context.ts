@@ -450,10 +450,9 @@ export class Context {
 
     if (!process.env.PRODUCTION) console.log(message);
     console.log(
-      `${type.toUpperCase()}: ${message.replace(
-        /<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g,
-        ' ',
-      )}`,
+      `${type.toUpperCase()}: ${message
+        .toString()
+        .replace(/<\/?("[^"]*"|'[^']*'|[^>])*(>|$)/g, ' ')}`,
     );
 
     const els = $('.notify-container').children();
