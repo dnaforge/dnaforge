@@ -39,7 +39,7 @@ export class ATrailMenu extends ModuleMenu {
     const genus = graph.getGenus();
     if (genus > 0 && !params.checkerBoard)
       this.context.addMessage(
-        `Graph genus appears to be ${genus}. Consider using checkerboard-colouring.`,
+        `Graph genus appears to be ${genus}. Consider using checkerboard-reconditioning.`,
         'warning',
       );
     const atrail = graphToWires(graph, params);

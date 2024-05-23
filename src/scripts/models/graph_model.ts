@@ -843,8 +843,15 @@ class Graph {
     }
 
     for (const e of this.getEdges()) {
-      const [f1, f2] = e.getFaces();
-      if ((r.has(f1) && r.has(f2)) || (l.has(f1) && l.has(f2)))
+      const nFaces = e.getFaces();
+      if (nFaces.length > 2)
+        throw `Unable to checkerboard recondition a non-surface mesh.`;
+      const [f1, f2] = nFaces;
+      if (
+        (r.has(f1) && r.has(f2)) ||
+        (l.has(f1) && l.has(f2)) ||
+        (!f2 && r.has(f1))
+      )
         this.splitEdge(e);
     }
   }
