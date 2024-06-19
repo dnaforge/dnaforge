@@ -1,0 +1,252 @@
+<div class="section" id="euler" data-title="ET-DNA" data-hint-text="Scaffolded DNA wireframes based on non-crossing Eulerian cycles; single-duplex edges.<br><br><i>TBD 2024/vHelix<i>">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li>
+                    <button class="ribbon-button" id="euler-generate-wires" data-role="hint" data-hint-position="right"
+                        data-hint-text="Generate an unknotted Eulerian routing.">
+                        <span class="mif-play mif-1x"></span>
+                        <span class="caption">Generate<br>Route</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button primary"
+                        onclick="$('#euler-upload-dialog')[0].hidden = false; $('#euler-upload-dialog-text').focus()"
+                        data-role="hint" data-hint-position="right"
+                        data-hint-text="Generate a routing along a set of node indices.">Upload Route</button>
+                </li>
+            </ul>
+            <ul style="list-style-type:none;">
+                <li>
+                    <button class="ribbon-button" id="euler-generate-cylinders" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Generate a cylinder model based on the current routing.">
+                        <span class="mif-loop2 mif-1x"></span>
+                        <span class="caption">Generate<br>Cylinders</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button primary" data-role="hint" id="euler-reinforce-cylinders"
+                        data-hint-position="right" data-hint-text="Reinforce selected cylinders.">Reinforce</button>
+                </li>
+            </ul>
+            <span class="title">Main</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+                    <input type="checkbox" data-role="switch" data-caption="Wires" id="euler-toggle-wires">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the cylinder model.">
+                    <input type="checkbox" data-role="switch" data-caption="Cylinders" id="euler-toggle-cylinders">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the nucleotide model.">
+                    <input checked type="checkbox" data-role="switch" data-caption="Nucleotides"
+                        id="euler-toggle-nucleotides">
+                </li>
+            </ul>
+            <span class="title">Visibility</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each reference grid square."><input
+                        type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
+                        data-size="225" data-prepend="Scale" data-append="nm" id="euler-scale">
+                </li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
+                    <select data-prepend="Scaffold" data-role="select" id="euler-scaffold">
+                        <optgroup label="Scaffold Strand">
+                            <option value="none">Blank</option>
+                            <option value="m13mp18">M13mp18 (7249)</option>
+                            <option value="p7560">p7560 (7560)</option>
+                            <option value="p8064">p8064 (8064)</option>
+                            <option value="p8634">p8634 (8634)</option>
+                            <option value="p7308">p7308 (7308)</option>
+                            <option value="p7704">p7704 (7704)</option>
+                            <option value="p8100">p8100 (8100)</option>
+                            <option value="random">Random</option>
+                            <option value="custom">Custom</option>
+                        </optgroup>
+                    </select>
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Add breakpoints to convert complement strand(s) into individual staples. If off the complement strand(s) will form cycles.">
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add Staple Breakpoints"
+                        id="euler-add-nicks">
+                </li>
+            </ul>
+
+            <button class="ribbon-button" onclick="Metro.dialog.open('#euler-settings');" data-role="hint"
+                data-hint-position="right" data-hint-text="Additional ET-DNA settings.">
+                <span class="mif-cogs mif-4x"></span>
+                <span class="caption">Additional<br>Parameters</span>
+            </button>
+            <span class="title">Parameters</span>
+        </div>
+        <div class="group">
+            <button class="ribbon-button" id="euler-relax" data-role="hint" data-hint-position="right"
+                data-hint-text="Try to relax the cylinder model by rotating individual cylinders to minimise the length of spacer segments.">
+                <span class="mif-shrink2 mif-4x"></span>
+                <span class="caption">Relax<br>Cylinder<br>Model</span>
+            </button>
+            <button class="ribbon-button" id="euler-generate-nucleotides" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a nucleotide model based on the current cylinder model. Also assigns bases identities if the scaffold strand is defined.">
+                <span class="mif-shuffle mif-4x"></span>
+                <span class="caption">Generate<br>Nucleotide<br>Model</span>
+            </button>
+            <span class="title">Generation</span>
+        </div>
+        <div class="group">
+
+            <ul style="list-style-type:none;">
+                <li>
+                    <button class="button light w-100 small" id="euler-download-unf" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download UNF</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="euler-download-pdb" data-role="hint"
+                        data-hint-position="right" data-hint-text="Download the current nucleotide model as a pdb.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download PDB</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="euler-download-ox" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as oxDNA files.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download oxDNA</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="euler-download-strands" data-role="hint"
+                        data-hint-position="right" data-hint-text="Download the primary structure.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download Strands</span>
+                    </button>
+                </li>
+            </ul>
+            <span class="title">Download</span>
+        </div>
+
+        <div class="group">
+            <ul style="list-style-type: none;">
+                <li>
+                    <h6>Sources:</h6>
+                </li>
+                <li>
+                <li>
+                    <a href="" data-role="hint" data-hint-position="right"
+                    data-hint-text="TBD"><span class="mif-file-text icon"></span>TBD</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="hidden dialog draggable-dialog" id="euler-upload-dialog" data-role="draggable" data-drag-area="body"
+    style="opacity: 0.9; z-index: 1;" data-drag-element=".drag-element">
+    <div class="dialog-title drag-element">Input trail</div>
+    <div class="dialog-content">
+        <span>The trail should be a list of vertices separated by spaces.</span>
+        <textarea data-role="textarea" id="euler-upload-dialog-text" data-auto-size="false"></textarea>
+    </div>
+    <div class="dialog-actions">
+        <button class="button" onclick="$('#euler-upload-dialog')[0].hidden = true">Cancel</button>
+        <button class="button primary" id="euler-upload-dialog-confirm">Set trail</button>
+    </div>
+</div>
+
+<div class="dialog" data-role="dialog" id="euler-scaffold-dialog" data-overlay-click-close="true">
+    <div class="dialog-title">Input a custom scaffold</div>
+    <div class="dialog-content">
+        <textarea data-role="textarea" data-chars-counter="#euler-chars-counter"
+            data-chars-counter-template="Length $1 bases" id="euler-scaffold-dialog-text"
+            data-auto-size="false"></textarea>
+        <p id="euler-chars-counter">Length: 0 bases</p>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="euler-scaffold-dialog-confirm">Set Scaffold</button>
+    </div>
+</div>
+
+<div class="dialog" data-role="dialog" id="euler-settings" data-overlay-click-close="true">
+    <div class="dialog-title">ET-DNA parameters</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <p>Routing parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Bring cylinders as close to the node as possible.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes" id="euler-greedy">
+            </li>
+        </ul>
+        <p>Strand parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add strand gaps in the middle of each edge.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Midpoint nicking"
+                    id="euler-midpoint-nicking">
+            </li>
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                    type="number" data-role="input" data-default-value="50" data-prepend="GC-content" data-append="%"
+                    id="euler-gc-content"></li>
+            <li data-role="hint" data-hint-position="right" data-hint-text="Maximum staple length in nucleotides.">
+                <input type="number" data-role="input" data-default-value="100" data-prepend="Max Staple Length"
+                    id="euler-strand-length-max">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Minimum length of a continuous double helix without strand gaps."><input type="number"
+                    data-role="input" data-default-value="10" data-prepend="Min Binding Length" id="euler-strand-length-min">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Minimum number of spacer nucleotides generated between each stem segment."><input
+                    type="number" data-role="input" data-default-value="3" data-prepend="Min Spacer Nucleotides"
+                    id="euler-linkers-min"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Maximum number of spacer nucleotides generated between each stem segment."><input
+                    type="number" data-role="input" data-default-value="3" data-prepend="Max Spacer Nucleotides"
+                    id="euler-linkers-max"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="Offset"
+                    id="euler-scaffold-offset">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="5' ID"
+                    id="euler-scaffold-start">
+        </ul>
+        <p>Relaxation parameters:</p>
+        <ul class="group-list">
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
+                    data-default-value="50" data-prepend="GC-content" data-append="%" id="euler-relax-iterations"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between the mesh edges and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Edge Constraints"
+                    id="euler-floor-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Bundle Constraints"
+                    id="euler-bundle-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
+                    id="euler-spring-constraints">
+            </li>
+        </ul>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
+    </div>
+</div>

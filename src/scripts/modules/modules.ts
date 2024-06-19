@@ -1,6 +1,7 @@
 import { Context } from '../menus/context';
 import { ATrailMenu } from './atrail/atrail_menu';
 import { CycleCoverMenu } from './cycle_cover/cycle_cover_menu';
+import { EulerMenu } from './euler/euler_menu';
 import { SpanningTreeMenu } from './stdna/stdna_menu';
 import { SternaMenu } from './sterna/sterna_menu';
 import { XtrnaMenu } from './xtrna/xtrna_menu';
@@ -14,6 +15,7 @@ import { XtrnaMenu } from './xtrna/xtrna_menu';
 export function setupModules(context: Context) {
   new ATrailMenu(context);
   new CycleCoverMenu(context);
+  new EulerMenu(context);
   new SpanningTreeMenu(context);
   new SternaMenu(context);
   new XtrnaMenu(context);
