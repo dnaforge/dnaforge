@@ -15,6 +15,7 @@ import { PrimaryGenerator } from './utils/primary_generator';
 import { SimulationAPI } from './menus/simulations_menu';
 import { XtrnaMenu } from './modules/xtrna/xtrna_menu';
 import { getXuon } from './utils/matroid_parity';
+import { EulerMenu } from './modules/euler/euler_menu';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -64,17 +65,17 @@ export function dev(context: Context) {
   //context.switchContext(cc);
 
   //$('#atrail-scale')[0].value = 1;
-  $('#atrail-toggle-wires')[0].checked = 1;
-  $('#atrail-checkerboard')[0].checked = 1;
+  //$('#atrail-toggle-wires')[0].checked = 1;
+  //$('#atrail-checkerboard')[0].checked = 1;
   const atrail = <ATrailMenu>context.menus.get('atrail');
-  atrail.generateWires();
+  //atrail.generateWires();
   //atrail.addCylinders();
   //atrail.generateNucleotideModel();
   //atrail.relaxCylinders();
   // const cm = atrail.cm;
   //for (let i = 0; i < cm.cylinders.length; i++) cm.toggleSelect(cm.cylinders[i]);
   //atrail.reinforce();
-  context.switchContext(atrail);
+  //context.switchContext(atrail);
   //atrail.nm.toPDB();
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
@@ -93,6 +94,11 @@ export function dev(context: Context) {
   //sterna.generatePrimary();
   //context.switchContext(sterna);
   //sterna.downloadPDB();
+
+  const euler = <EulerMenu>context.menus.get('euler');
+  $('#euler-toggle-wires')[0].checked = 1;
+  euler.generateWires();
+  context.switchContext(euler);
 
   //const r = new Relaxer(cm);
 

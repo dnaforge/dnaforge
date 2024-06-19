@@ -189,11 +189,23 @@ class Vertex {
   }
 
   getAdjacentFaces() {
-    const faces: Face[] = [];
+    const faces = new Set<Face>();
     for (const e of this.getAdjacentEdges()) {
-      faces.push(...e.getFaces());
+      for(let f of e.getFaces()) faces.add(f);
     }
-    return faces;
+    return Array.from(faces);
+  }
+
+  getTopoAdjacentFaces(){
+    const faces = new Set<Face>();
+    const edges = this.getTopoAdjacentEdges();
+    for(const e of edges){
+      for(const f of e.getFaces()) faces.add(f);
+    }
+    for(const f of edges[0].getFaces()) faces.delete(f);
+    for(const f of edges[edges.length - 1].getFaces()) faces.add(f);
+    for(const f of edges[0].getFaces()) faces.add(f);
+    return Array.from(faces);
   }
 
   degree() {
@@ -347,13 +359,13 @@ class Face {
     if ((v11 == v21 && v12 == v22) || (v11 == v22 && v12 == v21)) return true;
   }
 
-  getVertices(): Vertex[] {
-    const vertices = [];
+  getVertices(): Set<Vertex> {
+    const vertices = new Set<Vertex>();
     let last;
     for (const e of this.getEdges()) {
       const [v1, v2] = e.getVertices();
-      if (last == v1) vertices.push(v2);
-      else vertices.push(v1);
+      vertices.add(v1);
+      vertices.add(v2);
     }
     return vertices;
   }
@@ -873,4 +885,4 @@ class Graph {
   }
 }
 
-export { Graph, Vertex, Edge, HalfEdge };
+export { Graph, Vertex, Edge, HalfEdge, Face };
