@@ -191,20 +191,20 @@ class Vertex {
   getAdjacentFaces() {
     const faces = new Set<Face>();
     for (const e of this.getAdjacentEdges()) {
-      for(let f of e.getFaces()) faces.add(f);
+      for (const f of e.getFaces()) faces.add(f);
     }
     return Array.from(faces);
   }
 
-  getTopoAdjacentFaces(){
+  getTopoAdjacentFaces() {
     const faces = new Set<Face>();
     const edges = this.getTopoAdjacentEdges();
-    for(const e of edges){
-      for(const f of e.getFaces()) faces.add(f);
+    for (const e of edges) {
+      for (const f of e.getFaces()) faces.add(f);
     }
-    for(const f of edges[0].getFaces()) faces.delete(f);
-    for(const f of edges[edges.length - 1].getFaces()) faces.add(f);
-    for(const f of edges[0].getFaces()) faces.add(f);
+    for (const f of edges[0].getFaces()) faces.delete(f);
+    for (const f of edges[edges.length - 1].getFaces()) faces.add(f);
+    for (const f of edges[0].getFaces()) faces.add(f);
     return Array.from(faces);
   }
 

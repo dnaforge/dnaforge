@@ -71,31 +71,30 @@ export class Euler extends WiresModel {
 
   findEuler(): HalfEdge[] {
     this.initialiseGraph();
-    let trail = this.getEuler();
+    const trail = this.getEuler();
     this.trail = trail;
     //this.validate();
     return trail;
   }
 
-
   private getEuler(): Array<HalfEdge> {
-    // probably an awful way to implement this function, 
+    // probably an awful way to implement this function,
     // but the underlying data structures are what they are.
     const trail: Array<HalfEdge> = [];
 
     // find every white face in the checkerboard
     const whiteFaces = new Set<Face>();
     const faceStack: Face[] = [this.graph.getFaces()[0]];
-    while(faceStack.length > 0){
+    while (faceStack.length > 0) {
       const cFace = faceStack.shift();
-      if(!whiteFaces.has(cFace)) whiteFaces.add(cFace);
+      if (!whiteFaces.has(cFace)) whiteFaces.add(cFace);
       else continue;
 
       const ns = cFace.getNeighbours();
-      for(let nFace of ns){
+      for (const nFace of ns) {
         const ns2 = nFace.getNeighbours();
-        for(let nFace2 of ns2){
-          if(!whiteFaces.has(nFace2)) faceStack.push(nFace2);
+        for (const nFace2 of ns2) {
+          if (!whiteFaces.has(nFace2)) faceStack.push(nFace2);
         }
       }
     }
@@ -104,10 +103,10 @@ export class Euler extends WiresModel {
     const traverse = (face: Face, hE: HalfEdge): HalfEdge[] => {
       const edges = face.getEdges();
       const vToEs = new Map<Vertex, HalfEdge[]>();
-      for(const e of edges){
+      for (const e of edges) {
         const [v1, v2] = e.getVertices();
-        if(!vToEs.has(v1)) vToEs.set(v1, []);
-        if(!vToEs.has(v2)) vToEs.set(v2, []);
+        if (!vToEs.has(v1)) vToEs.set(v1, []);
+        if (!vToEs.has(v2)) vToEs.set(v2, []);
 
         vToEs.get(v1).push(e.getOutwardHalfEdge(v1));
         vToEs.get(v2).push(e.getOutwardHalfEdge(v2));
@@ -115,45 +114,47 @@ export class Euler extends WiresModel {
 
       const cycle: HalfEdge[] = [];
       let curE = hE;
-      while(curE != cycle[0]){
+      while (curE != cycle[0]) {
         cycle.push(curE);
         const v2 = curE.twin.vertex;
         const ns = vToEs.get(v2);
-        if(ns[0].edge == curE.edge) curE = ns[1];
+        if (ns[0].edge == curE.edge) curE = ns[1];
         else curE = ns[0];
       }
-      return cycle.reverse().map(e => e.twin);
+      return cycle.reverse().map((e) => e.twin);
     };
 
     // traverse the dual graph along the white faces
-    const stack: HalfEdge[] = [this.graph.getVertices()[0].getAdjacentEdges()[1].halfEdges[0]];
+    const stack: HalfEdge[] = [
+      this.graph.getVertices()[0].getAdjacentEdges()[1].halfEdges[0],
+    ];
     const visited = new Set<Face>();
-    for(;stack.length > 0;){
+    for (; stack.length > 0; ) {
       const hE = stack.shift();
       const v = hE.vertex;
 
       const ns = v.getTopoAdjacentHalfEdges();
       const idx = ns.indexOf(hE);
-      for(let i = 0; i < ns.length; i++){
+      for (let i = 0; i < ns.length; i++) {
         const nE = ns[(i + idx) % ns.length];
-        const nF = whiteFaces.has(nE.edge.faces[0]) ? nE.edge.faces[0] : nE.edge.faces[1];
-        if(!whiteFaces.has(nF) || visited.has(nF)) continue;
+        const nF = whiteFaces.has(nE.edge.faces[0])
+          ? nE.edge.faces[0]
+          : nE.edge.faces[1];
+        if (!whiteFaces.has(nF) || visited.has(nF)) continue;
         else visited.add(nF);
 
         const loop = traverse(nF, nE);
-        for(let hE2 of loop) stack.push(hE2);
-        let j = 0
-        for(; j < trail.length; j++){
-          if(trail[j].vertex == v) break;
+        for (const hE2 of loop) stack.push(hE2);
+        let j = 0;
+        for (; j < trail.length; j++) {
+          if (trail[j].vertex == v) break;
         }
         trail.splice(j, 0, ...loop);
       }
-      
     }
-    
+
     return trail;
   }
-
 
   setEuler(trail: Array<number>) {
     const idToVert = new Map<number, Vertex>();
