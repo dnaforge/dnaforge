@@ -742,9 +742,9 @@ class Graph {
   }
 
   /**
-   * 
+   *
    * @param randomSeed A random seed for a small random number added to each pair-wise length. Breaks ties between equal lengths.
-   * @returns 
+   * @returns
    */
   makeEulerian(randomSeed: number = 0) {
     //TODO: clean this up
@@ -758,7 +758,8 @@ class Graph {
       const paths = new Map();
       for (const v1 of verts) {
         for (const v2 of verts) {
-          if (v1.id <= v2.id || v1.degree() % 2 != 1 || v2.degree() % 2 != 1) continue;
+          if (v1.id <= v2.id || v1.degree() % 2 != 1 || v2.degree() % 2 != 1)
+            continue;
           const path = this.dijkstra(v1, v2);
           //console.log(v1.id, v2.id, ":", path.path.length);
 

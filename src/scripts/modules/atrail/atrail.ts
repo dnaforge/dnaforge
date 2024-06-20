@@ -80,16 +80,16 @@ export class ATrail extends WiresModel {
   findATrail(checkerBoard = false, maxTime = 10000, maxGraphs = 4): HalfEdge[] {
     const origGraph = this.graph.clone();
 
-    for(let i = 0; i < maxGraphs; i++){
+    for (let i = 0; i < maxGraphs; i++) {
       try {
         this.initialiseGraph(checkerBoard, i);
         const transitions = new Map<Vertex, Direction>(); // orentations of vertices
         const neighbours = this.getNeighbourhoodFunction(transitions);
-  
+
         this.splitAndCheck(transitions, neighbours, maxTime);
         let trail = this.getEuler(neighbours);
         trail = this.fixQuads(trail);
-  
+
         this.trail = trail;
         this.validate();
         return trail;

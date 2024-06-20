@@ -142,7 +142,7 @@ export class Euler extends WiresModel {
           ? nE.edge.faces[0]
           : nE.edge.faces[1];
         if (!whiteFaces.has(nF) || visited.has(nF)) continue;
-        if(nE2.edge.faces.includes(nF)) continue;
+        if (nE2.edge.faces.includes(nF)) continue;
         else visited.add(nF);
 
         const loop = traverse(nF, nE);
