@@ -63,32 +63,42 @@ export class ATrail extends WiresModel {
     return super._toObj(coords);
   }
 
-  initialiseGraph(checkerBoard: boolean) {
+  initialiseGraph(checkerBoard: boolean, randomSeed: number = 0) {
     if (!this.graph.hasFaceInformation())
       throw `Graph has insufficient face-information for topological routing.`;
     if (checkerBoard) {
       this.graph.makeCheckerBoard();
     } else {
       try {
-        this.graph.makeEulerian();
+        this.graph.makeEulerian(randomSeed);
       } catch (error) {
         throw 'Error making the graph Eulerian.';
       }
     }
   }
 
-  findATrail(checkerBoard = false, maxTime = 10000): HalfEdge[] {
-    this.initialiseGraph(checkerBoard);
-    const transitions = new Map<Vertex, Direction>(); // orentations of vertices
-    const neighbours = this.getNeighbourhoodFunction(transitions);
+  findATrail(checkerBoard = false, maxTime = 10000, maxGraphs = 4): HalfEdge[] {
+    const origGraph = this.graph.clone();
 
-    this.splitAndCheck(transitions, neighbours, maxTime);
-    let trail = this.getEuler(neighbours);
-    trail = this.fixQuads(trail);
+    for(let i = 0; i < maxGraphs; i++){
+      try {
+        this.initialiseGraph(checkerBoard, i);
+        const transitions = new Map<Vertex, Direction>(); // orentations of vertices
+        const neighbours = this.getNeighbourhoodFunction(transitions);
+  
+        this.splitAndCheck(transitions, neighbours, maxTime);
+        let trail = this.getEuler(neighbours);
+        trail = this.fixQuads(trail);
+  
+        this.trail = trail;
+        this.validate();
+        return trail;
+      } catch (error) {
+        this.graph = origGraph.clone();
+      }
+    }
 
-    this.trail = trail;
-    this.validate();
-    return trail;
+    throw `Could not find an A-trail.`;
   }
 
   private getNeighbourhoodFunction(

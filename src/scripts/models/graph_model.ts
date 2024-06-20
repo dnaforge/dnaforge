@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import blossom from 'edmonds-blossom-fixed';
+import { randomGen } from '../utils/misc_utils';
 
 // TODO: reimplement the whole graph class, and try not to be retarded next time
 class Vertex {
@@ -740,9 +741,15 @@ class Graph {
     return true;
   }
 
-  makeEulerian() {
+  /**
+   * 
+   * @param randomSeed A random seed for a small random number added to each pair-wise length. Breaks ties between equal lengths.
+   * @returns 
+   */
+  makeEulerian(randomSeed: number = 0) {
     //TODO: clean this up
     if (this.isEulerian()) return;
+    const random = randomGen(randomSeed);
     const verts = this.getVertices();
 
     // find minimum paths between all the odd vertices
@@ -751,7 +758,7 @@ class Graph {
       const paths = new Map();
       for (const v1 of verts) {
         for (const v2 of verts) {
-          if (v1.id <= v2.id) continue;
+          if (v1.id <= v2.id || v1.degree() % 2 != 1 || v2.degree() % 2 != 1) continue;
           const path = this.dijkstra(v1, v2);
           //console.log(v1.id, v2.id, ":", path.path.length);
 
@@ -769,7 +776,7 @@ class Graph {
       }
       // this blossom algorithm implementation requires all the weights to be positive for some reason:
       for (const p of paths) {
-        p[1].length = maxLength - p[1].length;
+        p[1].length = maxLength - p[1].length + random() / 10000;
       }
       return paths;
     };

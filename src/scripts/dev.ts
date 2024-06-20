@@ -41,7 +41,7 @@ export function dev(context: Context) {
   const ct = require('../../resources/cube_torus.obj');
   const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(plane2);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(ico);
   //graph.makeEulerian();
   //graph.makeCheckerBoard();
   context.setGraph(graph);
@@ -65,7 +65,7 @@ export function dev(context: Context) {
   //context.switchContext(cc);
 
   //$('#atrail-scale')[0].value = 1;
-  //$('#atrail-toggle-wires')[0].checked = 1;
+  $('#atrail-toggle-wires')[0].checked = 1;
   //$('#atrail-checkerboard')[0].checked = 1;
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.generateWires();
