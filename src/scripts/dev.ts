@@ -25,6 +25,7 @@ export function dev(context: Context) {
 
   const tet = require('../examples/tetrahedron.obj');
   const ico = require('../examples/icosahedron.obj');
+  const dode = require('../examples/dodecahedron.obj');
   const tet2 = require('../../resources/tetra_test.obj');
   const proteus = require('../../resources/proteus3.obj');
   const plane = require('../../resources/plane.obj');
@@ -41,7 +42,7 @@ export function dev(context: Context) {
   const ct = require('../../resources/cube_torus.obj');
   const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(ico);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(dode);
   //graph.makeEulerian();
   //graph.makeCheckerBoard();
   context.setGraph(graph);

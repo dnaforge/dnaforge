@@ -121,12 +121,12 @@ export class Euler extends WiresModel {
         if (ns[0].edge == curE.edge) curE = ns[1];
         else curE = ns[0];
       }
-      return cycle.reverse().map((e) => e.twin);
+      return cycle;
     };
 
     // traverse the dual graph along the white faces
     const stack: HalfEdge[] = [
-      this.graph.getVertices()[0].getAdjacentEdges()[1].halfEdges[0],
+      Array.from(whiteFaces)[0].getEdges()[0].halfEdges[0],
     ];
     const visited = new Set<Face>();
     for (; stack.length > 0; ) {
@@ -135,12 +135,14 @@ export class Euler extends WiresModel {
 
       const ns = v.getTopoAdjacentHalfEdges();
       const idx = ns.indexOf(hE);
-      for (let i = 0; i < ns.length; i++) {
+      for (let i = 0; i < ns.length - 1; i++) {
         const nE = ns[(i + idx) % ns.length];
+        const nE2 = ns[(i + idx + 1) % ns.length];
         const nF = whiteFaces.has(nE.edge.faces[0])
           ? nE.edge.faces[0]
           : nE.edge.faces[1];
         if (!whiteFaces.has(nF) || visited.has(nF)) continue;
+        if(nE2.edge.faces.includes(nF)) continue;
         else visited.add(nF);
 
         const loop = traverse(nF, nE);
