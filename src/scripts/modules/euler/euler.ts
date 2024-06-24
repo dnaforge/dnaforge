@@ -73,7 +73,7 @@ export class Euler extends WiresModel {
     this.initialiseGraph();
     const trail = this.getEuler();
     this.trail = trail;
-    //this.validate();
+    this.validate();
     return trail;
   }
 
@@ -128,6 +128,7 @@ export class Euler extends WiresModel {
     const stack: HalfEdge[] = [
       Array.from(whiteFaces)[0].getEdges()[0].halfEdges[0],
     ];
+
     const visited = new Set<Face>();
     for (; stack.length > 0; ) {
       const hE = stack.shift();

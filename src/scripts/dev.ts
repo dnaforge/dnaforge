@@ -98,6 +98,7 @@ export function dev(context: Context) {
 
   const euler = <EulerMenu>context.menus.get('euler');
   $('#euler-toggle-wires')[0].checked = 1;
+  $('#euler-toggle-nucleotides')[0].checked = 0;
   euler.generateWires();
   context.switchContext(euler);
 
