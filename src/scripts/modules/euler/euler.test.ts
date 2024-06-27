@@ -1,4 +1,3 @@
-/*
 const assert = require('assert');
 import * as _ from 'lodash';
 import * as THREE from 'three';
@@ -8,23 +7,21 @@ import { PrimePos } from '../../models/cylinder';
 import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { Euler, cylindersToNucleotides, wiresToCylinders } from './euler';
-import { ATrailParameters } from './euler_menu';
+import { EulerParameters } from './euler_menu';
 const x3 = require('../../../test/test_shapes/3x3.obj');
-const tet = require('../../../test/test_shapes/tetra_dubs.obj');
+const tet = require('../../../test/test_shapes/tetra.obj');
 const x4 = require('../../../test/test_shapes/4x4.obj');
 const plane = require('../../../test/test_shapes/plane.obj');
 
-function getParams(): ATrailParameters {
+function getParams(): EulerParameters {
   return {
     scaffoldOffset: 0,
     scaffoldStart: 0,
-    checkerBoard: false,
     midpointNicking: false,
-    maxTime: 10000,
   };
 }
 
-describe('Atrail-routing', function () {
+describe('Euler-routing', function () {
   const graphs = [
     ['tetrahedron', tet],
     ['4x4', x4],
@@ -33,15 +30,15 @@ describe('Atrail-routing', function () {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
 
-  let atrail: Euler;
+  let euler: Euler;
   let graph: Graph;
   let trail: HalfEdge[];
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should be directed: ${g[0]}`, function () {
       graph = g[1];
-      atrail = new Euler(graph);
-      trail = atrail.findATrail();
+      euler = new Euler(graph);
+      trail = euler.findEuler();
 
       for (let i = 1; i < trail.length; i++) {
         assert.notEqual(trail[i - 1].vertex, trail[i].vertex);
@@ -50,8 +47,8 @@ describe('Atrail-routing', function () {
 
     it(`Should span all edges once: ${g[0]}`, function () {
       graph = g[1];
-      atrail = new Euler(graph);
-      trail = atrail.findATrail();
+      euler = new Euler(graph);
+      trail = euler.findEuler();
 
       const visited = new Set();
 
@@ -60,26 +57,27 @@ describe('Atrail-routing', function () {
         visited.add(he.edge);
       }
 
-      for (const e of atrail.graph.getEdges()) {
+      for (const e of euler.graph.getEdges()) {
         assert.equal(visited.has(e), true);
       }
     });
 
     it(`Should start where it ends: ${g[0]}`, function () {
       graph = g[1];
-      atrail = new Euler(graph);
-      trail = atrail.findATrail();
+      euler = new Euler(graph);
+      trail = euler.findEuler();
 
       assert.equal(
-        trail[0].twin.vertex == trail[trail.length - 1].vertex,
+        trail[trail.length - 1].twin.vertex == trail[0].vertex,
         true,
       );
     });
 
+    /*
     it(`Should be non-crossing: ${g[0]}`, function () {
       graph = g[1];
-      atrail = new Euler(graph);
-      trail = atrail.findATrail();
+      euler = new Euler(graph);
+      trail = euler.findEuler();
 
       for (let i = 0; i < trail.length; i++) {
         const incoming = trail[i];
@@ -96,19 +94,20 @@ describe('Atrail-routing', function () {
         assert.equal(isRight || isLeft, true);
       }
     });
+    */
   });
 
-  it(`Should not have an atrail: 3x3`, function () {
+  it(`Should not have an euler: 3x3`, function () {
     graph = new OBJLoader(new THREE.LoadingManager()).parse(x3);
     try {
-      atrail = new Euler(graph);
-      trail = atrail.findATrail();
+      euler = new Euler(graph);
+      trail = euler.findEuler();
       assert.equal(false, true);
     } catch {}
   });
 });
 
-describe('Atrail Cylinder Model', function () {
+describe('Euler Cylinder Model', function () {
   const graphs = [
     ['tetrahedron', tet],
     ['4x4', x4],
@@ -116,15 +115,15 @@ describe('Atrail Cylinder Model', function () {
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
-  const atrails = graphs.map((g) => {
-    const atrail = new Euler(g[1]);
-    atrail.findATrail();
-    return [g[0], atrail];
+  const eulers = graphs.map((g) => {
+    const euler = new Euler(g[1]);
+    euler.findEuler();
+    return [g[0], euler];
   });
 
   let cm: CylinderModel;
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Should throw error because of small scale: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 100;
@@ -135,7 +134,7 @@ describe('Atrail Cylinder Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.1;
@@ -149,7 +148,7 @@ describe('Atrail Cylinder Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.1;
@@ -167,7 +166,7 @@ describe('Atrail Cylinder Model', function () {
   });
 });
 
-describe('Atrail Nucleotide Model', function () {
+describe('Euler Nucleotide Model', function () {
   const graphs = [
     ['tetrahedron', tet],
     ['4x4', x4],
@@ -175,16 +174,16 @@ describe('Atrail Nucleotide Model', function () {
   ].map((g) => {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
-  const atrails = graphs.map((g) => {
-    const atrail = new Euler(g[1]);
-    atrail.findATrail();
-    return [g[0], atrail];
+  const eulers = graphs.map((g) => {
+    const euler = new Euler(g[1]);
+    euler.findEuler();
+    return [g[0], euler];
   });
 
   let cm: CylinderModel;
   let nm: NucleotideModel;
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Should generate nucleotides: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.5;
@@ -197,7 +196,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Min strand overlap should be above 5: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -227,7 +226,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Max strand length should be under 100: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -246,7 +245,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -271,7 +270,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Top export should have as many entries as there are nucleotides + 1: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -288,7 +287,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`Forces export should have a mutual trap for every basepair: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -307,7 +306,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`UNF export should have as many entries as there are nucleotides: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -324,7 +323,7 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 
-  atrails.forEach(function (g: [string, Euler]) {
+  eulers.forEach(function (g: [string, Euler]) {
     it(`PDB export should have ~20 times as many atoms as there are nucleotides: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -341,4 +340,3 @@ describe('Atrail Nucleotide Model', function () {
     });
   });
 });
-*/

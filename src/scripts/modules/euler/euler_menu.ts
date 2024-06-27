@@ -18,9 +18,7 @@ import { editOp } from '../../editor/editOPs';
 export interface EulerParameters extends ModuleMenuParameters {
   scaffoldOffset: number;
   scaffoldStart: number;
-  checkerBoard: boolean;
   midpointNicking: boolean;
-  maxTime: number;
 }
 
 export class EulerMenu extends ModuleMenu {

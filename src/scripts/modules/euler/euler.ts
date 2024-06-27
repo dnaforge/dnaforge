@@ -16,12 +16,6 @@ import { EulerParameters } from './euler_menu';
 import { Strand } from '../../models/strand';
 import { Selectable } from '../../models/selectable';
 
-enum Direction {
-  LEFT = 0,
-  RIGHT = 1,
-  NONE = -1,
-}
-
 export class Euler extends WiresModel {
   graph: Graph;
   trail: Array<HalfEdge>;
@@ -78,13 +72,12 @@ export class Euler extends WiresModel {
   }
 
   private getEuler(): Array<HalfEdge> {
-    // probably an awful way to implement this function,
-    // but the underlying data structures are what they are.
     const trail: Array<HalfEdge> = [];
 
     // find every white face in the checkerboard
+    const faces = this.graph.getFaces();
     const whiteFaces = new Set<Face>();
-    const faceStack: Face[] = [this.graph.getFaces()[0]];
+    const faceStack: Face[] = [faces[0]];
     while (faceStack.length > 0) {
       const cFace = faceStack.shift();
       if (!whiteFaces.has(cFace)) whiteFaces.add(cFace);
@@ -96,6 +89,13 @@ export class Euler extends WiresModel {
         for (const nFace2 of ns2) {
           if (!whiteFaces.has(nFace2)) faceStack.push(nFace2);
         }
+      }
+    }
+    // use the complement if there are holes
+    if (faces.length > whiteFaces.size * 2) {
+      for (const f of faces) {
+        if (whiteFaces.has(f)) whiteFaces.delete(f);
+        else whiteFaces.add(f);
       }
     }
 
@@ -240,6 +240,7 @@ export class Euler extends WiresModel {
         tangent.multiplyScalar(nextE.getDirection().dot(tangent) < 0 ? -1 : 1);
         const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
         const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        //vertexOffset2.add(dir.multiplyScalar(-2 * tangentOffsetScale));
         co1 = v1.coords.clone().add(tangent).add(vertexOffset1);
         co2 = v2.coords.clone().add(tangent).add(vertexOffset2);
 

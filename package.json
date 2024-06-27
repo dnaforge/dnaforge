@@ -6,6 +6,7 @@
   "scripts": {
     "test": "instant-mocha --webpack-config webpack.test.js \"./src/**/*.test.ts\"",
     "start-test": "instant-mocha --watch --webpack-config webpack.test.js \"./src/**/*.test.ts\"",
+    "start-test-file": "instant-mocha --watch --webpack-config webpack.test.js",
     "watch": "webpack --watch --config webpack.dev.js",
     "start": "webpack serve --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",

@@ -492,6 +492,10 @@ class Graph {
     while (stack.length > 0) {
       const [f, halfEdge] = stack.pop();
       if (visitedF.has(f)) continue;
+      if (f.isSplit()) {
+        f.normal = null;
+        continue;
+      }
       visitedF.add(f);
       const edges = new Set(f.getEdges());
       const hEdges: HalfEdge[] = [];
@@ -535,10 +539,10 @@ class Graph {
       f.normal = dir.normalize();
 
       if (f.normal.length() < 0.9) {
-        //This is probably because of a multigraph edge, so just assing a random direction.
-        //TODO: Find an actual solution.
+        // This is probably because of a multigraph edge
+        // If not, it's an error, and just use a random normal
         f.normal = new Vector3().randomDirection();
-        //console.error(`Error calculating the normal of face ${f.id}`);
+        console.error(`Error calculating the normal of face ${f.id}`);
       }
     }
 
@@ -554,6 +558,7 @@ class Graph {
       }
       const n = new Vector3();
       for (const f of e.getFaces()) {
+        if (!f.normal) continue;
         n.add(f.normal);
       }
       e.normal = n.normalize();
@@ -563,7 +568,7 @@ class Graph {
       }
     }
 
-    //Vertex nromals:
+    //Vertex normals:
     for (const v of this.getVertices()) {
       const n = new Vector3();
       for (const e of v.getAdjacentEdges()) {
@@ -573,6 +578,21 @@ class Graph {
       if (v.normal.length() < 0.9) {
         v.normal = new Vector3().randomDirection();
         console.error(`Error calculating the normal of vertex ${v.id}`);
+      }
+    }
+
+    // multi edges cause some faces to have null normals still
+    for (const f of this.getFaces()) {
+      if (!f.normal) {
+        const n = new Vector3();
+        for (const e of f.getEdges()) {
+          n.add(e.normal);
+        }
+        f.normal = n.normalize();
+        if (f.normal.length() < 0.9) {
+          f.normal = new Vector3().randomDirection();
+          console.error(`Error calculating the normal of face ${f.id}`);
+        }
       }
     }
   }

@@ -42,7 +42,7 @@ export function dev(context: Context) {
   const ct = require('../../resources/cube_torus.obj');
   const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(dode);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet2);
   //graph.makeEulerian();
   //graph.makeCheckerBoard();
   context.setGraph(graph);
