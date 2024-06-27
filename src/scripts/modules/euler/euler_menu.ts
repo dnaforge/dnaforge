@@ -37,7 +37,7 @@ export class EulerMenu extends ModuleMenu {
 
   graphToWires(graph: Graph, params: EulerParameters) {
     const euler = graphToWires(graph, params);
-    this.context.addMessage(`Found an euler.`, 'info');
+    this.context.addMessage(`Found an Eulerian trail.`, 'info');
     return euler;
   }
 

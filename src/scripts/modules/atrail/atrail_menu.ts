@@ -43,7 +43,7 @@ export class ATrailMenu extends ModuleMenu {
         'warning',
       );
     const atrail = graphToWires(graph, params);
-    this.context.addMessage(`Found an atrail.`, 'info');
+    this.context.addMessage(`Found an A-trail.`, 'info');
     return atrail;
   }
 
