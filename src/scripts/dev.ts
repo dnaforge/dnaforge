@@ -42,7 +42,7 @@ export function dev(context: Context) {
   const ct = require('../../resources/cube_torus.obj');
   const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(tet2);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(shape3);
   //graph.makeEulerian();
   //graph.makeCheckerBoard();
   context.setGraph(graph);
@@ -99,7 +99,7 @@ export function dev(context: Context) {
   const euler = <EulerMenu>context.menus.get('euler');
   $('#euler-toggle-wires')[0].checked = 1;
   $('#euler-toggle-nucleotides')[0].checked = 0;
-  euler.generateWires();
+  //euler.generateWires();
   context.switchContext(euler);
 
   //const r = new Relaxer(cm);

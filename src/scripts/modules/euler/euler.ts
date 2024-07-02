@@ -99,31 +99,6 @@ export class Euler extends WiresModel {
       }
     }
 
-    // traverse a face cycle
-    const traverse = (face: Face, hE: HalfEdge): HalfEdge[] => {
-      const edges = face.getEdges();
-      const vToEs = new Map<Vertex, HalfEdge[]>();
-      for (const e of edges) {
-        const [v1, v2] = e.getVertices();
-        if (!vToEs.has(v1)) vToEs.set(v1, []);
-        if (!vToEs.has(v2)) vToEs.set(v2, []);
-
-        vToEs.get(v1).push(e.getOutwardHalfEdge(v1));
-        vToEs.get(v2).push(e.getOutwardHalfEdge(v2));
-      }
-
-      const cycle: HalfEdge[] = [];
-      let curE = hE;
-      while (curE != cycle[0]) {
-        cycle.push(curE);
-        const v2 = curE.twin.vertex;
-        const ns = vToEs.get(v2);
-        if (ns[0].edge == curE.edge) curE = ns[1];
-        else curE = ns[0];
-      }
-      return cycle;
-    };
-
     // traverse the dual graph along the white faces
     const stack: HalfEdge[] = [
       Array.from(whiteFaces)[0].getEdges()[0].halfEdges[0],
@@ -146,7 +121,7 @@ export class Euler extends WiresModel {
         if (nE2.edge.faces.includes(nF)) continue;
         else visited.add(nF);
 
-        const loop = traverse(nF, nE);
+        const loop = nF.getFaceCycle(nE);
         for (const hE2 of loop) stack.push(hE2);
         let j = 0;
         for (; j < trail.length; j++) {

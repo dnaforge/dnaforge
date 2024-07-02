@@ -13,7 +13,6 @@ const meshMaterial = new THREE.MeshBasicMaterial({
   color: 0x9999ff,
   transparent: true,
   opacity: 0.1,
-  depthWrite: false,
 });
 
 const GRID_SIZE = 14;
@@ -396,30 +395,14 @@ export class InterfaceMenu extends Menu {
     const vertices = [];
     const normals = [];
     for (const f of graph.getFaces()) {
-      const edges = f.getEdges();
-      const v1 = edges[0].getVertices()[0];
-      for (let i = 0; i < edges.length; i++) {
-        const [v2, v3] = edges[i].getVertices();
-        if (v1 == v2 || v1 == v3) continue;
-        if (
-          v2.coords
-            .clone()
-            .sub(v1.coords)
-            .cross(v3.coords.clone().sub(v1.coords))
-            .dot(f.normal) > 0
-        ) {
-          vertices.push(
-            ...(<any>v1.coords),
-            ...(<any>v2.coords),
-            ...(<any>v3.coords),
-          );
-        } else {
-          vertices.push(
-            ...(<any>v1.coords),
-            ...(<any>v3.coords),
-            ...(<any>v2.coords),
-          );
-        }
+      const tris = f.triangulate();
+      for (const tri of tris) {
+        const [v1, v2, v3] = tri;
+        vertices.push(
+          ...(<any>v1.coords),
+          ...(<any>v2.coords),
+          ...(<any>v3.coords),
+        );
         normals.push(
           ...(<any>f.normal),
           ...(<any>f.normal),

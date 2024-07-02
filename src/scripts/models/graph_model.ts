@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import blossom from 'edmonds-blossom-fixed';
 import { randomGen } from '../utils/misc_utils';
+import { ShapeUtils } from 'three';
 
 // TODO: reimplement the whole graph class, and try not to be retarded next time
 class Vertex {
@@ -349,6 +350,58 @@ class Face {
     }
   }
 
+  getFaceCycle(start: HalfEdge) {
+    const edges = this.getEdges();
+    const vToEs = new Map<Vertex, HalfEdge[]>();
+    for (const e of edges) {
+      const [v1, v2] = e.getVertices();
+      if (!vToEs.has(v1)) vToEs.set(v1, []);
+      if (!vToEs.has(v2)) vToEs.set(v2, []);
+
+      vToEs.get(v1).push(e.getOutwardHalfEdge(v1));
+      vToEs.get(v2).push(e.getOutwardHalfEdge(v2));
+    }
+
+    const cycle: HalfEdge[] = [];
+    let curE = start;
+    while (curE != cycle[0]) {
+      cycle.push(curE);
+      const v2 = curE.twin.vertex;
+      const ns = vToEs.get(v2);
+      if (ns[0].edge == curE.edge) curE = ns[1];
+      else curE = ns[0];
+    }
+    return cycle;
+  }
+
+  triangulate(): [Vertex, Vertex, Vertex][] {
+    const verts = this.getFaceCycle(this.getEdges()[0].halfEdges[0]).map(
+      (he) => he.vertex,
+    );
+    const flatVerts: THREE.Vector2[] = [];
+    let px = new Vector3().randomDirection();
+    px = px.sub(this.normal.clone().multiplyScalar(px.dot(this.normal)));
+    const py = px.clone().cross(this.normal);
+
+    for (const v of verts) {
+      const o = v.coords.clone();
+      const x = o.dot(px);
+      const y = o.dot(py);
+
+      flatVerts.push(new THREE.Vector2(x, y));
+    }
+
+    const triIDs = ShapeUtils.triangulateShape(flatVerts, []);
+    const tris: [Vertex, Vertex, Vertex][] = [];
+    for (const triID of triIDs) {
+      let tri: [Vertex, Vertex, Vertex];
+      tri = [verts[triID[0]], verts[triID[1]], verts[triID[2]]];
+      tris.push(tri);
+    }
+
+    return tris;
+  }
+
   getEdges(): Edge[] {
     return this.edges;
   }
@@ -516,13 +569,13 @@ class Graph {
 
       //
       const dir = new Vector3();
+      const c0 = hEdges[0].vertex.coords;
       for (let i = 0; i < hEdges.length; i++) {
         const he = hEdges[i];
         const he2 = hEdges[(i + 1) % hEdges.length];
-        const c1 = he.vertex.coords;
         const c2 = he2.vertex.coords;
         const c3 = he2.twin.vertex.coords;
-        const d1 = c2.clone().sub(c1);
+        const d1 = c2.clone().sub(c0);
         const d2 = c3.clone().sub(c2);
         const n = d2.cross(d1);
         dir.add(n);
