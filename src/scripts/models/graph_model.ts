@@ -535,6 +535,34 @@ class Graph {
     return g;
   }
 
+  getStatistics() {
+    const verts = this.getVertices();
+    const edges = this.getEdges();
+    const faces = this.getFaces();
+
+    let minDeg = Number('Infinity');
+    let maxDeg = 0;
+    let isEulerian = true;
+
+    for (const v of verts) {
+      const d = v.degree();
+      if (d < minDeg) minDeg = d;
+      if (d > maxDeg) maxDeg = d;
+      if (d % 2 != 0) isEulerian = false;
+    }
+
+    const graphData = {
+      Nodes: verts.length,
+      Edges: edges.length,
+      Faces: faces.length,
+      'Min d': minDeg,
+      'Max d': maxDeg,
+      Eulerian: isEulerian ? 'True' : 'False',
+    };
+
+    return graphData;
+  }
+
   calculateNormals() {
     //Face normals:
     const visitedF = new Set();

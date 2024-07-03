@@ -747,12 +747,8 @@ export class InterfaceMenu extends Menu {
     };
 
     // Graph:
-    const graphData = {
-      Nodes: this.context.graph.getVertices().length,
-      Edges: this.context.graph.getEdges().length,
-      Faces: this.context.graph.getFaces().length,
-    };
-    createComponent('Mesh Model', graphData);
+    const gm = this.context.graph;
+    gm && createComponent('Mesh Model', gm.getStatistics());
 
     // Wires:
     const wm = this.context.activeContext?.wires;
