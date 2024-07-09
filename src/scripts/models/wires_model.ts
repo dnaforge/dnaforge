@@ -144,7 +144,7 @@ abstract class WiresModel extends Model {
           if (angle > Math.PI) angle = 2 * Math.PI - angle;
 
           const len = Math.min(d1.length(), d2.length());
-          const radius = 0.4 * len * Math.tan(angle / 2);
+          const radius = 0.15 * len * Math.tan(angle / 2);
           if (radius < maxRadius) maxRadius = radius;
         }
       }

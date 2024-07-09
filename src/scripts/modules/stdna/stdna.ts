@@ -104,7 +104,7 @@ export class SpanningTree extends WiresModel {
   }
 
   getPrim(): Set<Edge> {
-    const visited = new Set();
+    const visited = new Set<Vertex>();
     const st: Set<Edge> = new Set();
     const stack: Edge[] = [];
 
@@ -115,20 +115,21 @@ export class SpanningTree extends WiresModel {
 
     for (const e of v0.getAdjacentEdges()) stack.push(e);
     while (stack.length > 0) {
+      console.log(visited.size);
+
       const edge = stack.shift();
       const v1 = edge.vertices[0];
       const v2 = edge.vertices[1];
-      if (!visited.has(v1) || !visited.has(v2)) {
-        st.add(edge);
-      }
-      visited.add(v1);
-      visited.add(v2);
+      if (visited.has(v1) && visited.has(v2)) continue;
       const neighbours = v1.getAdjacentEdges().concat(v2.getAdjacentEdges());
       for (let i = 0; i < neighbours.length; i++) {
         const edge2 = neighbours[i];
         const [ev1, ev2] = edge2.getVertices();
         if (!visited.has(ev1) || !visited.has(ev2)) {
+          st.add(edge);
           stack.push(edge2);
+          visited.add(v1);
+          visited.add(v2);
         }
       }
     }
