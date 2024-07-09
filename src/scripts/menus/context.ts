@@ -525,10 +525,6 @@ export class Context {
       'info',
     );
     this.refresh();
-
-    if (!process.env.PRODUCTION){
-      for(const v of graph.getVertices()) console.log(v.degree());
-    };
   }
 
   /**

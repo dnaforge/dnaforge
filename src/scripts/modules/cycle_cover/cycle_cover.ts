@@ -217,7 +217,8 @@ export class CycleCover extends WiresModel {
   }
 
   generateObject() {
-    const tangentOffsetScale = 0.1;
+    const scaleFactor = this.getScaleFactor();
+    const tangentOffsetScale = 0.3 * scaleFactor;
 
     if (!this.obj) {
       const coords: Vector3[][] = [];
@@ -259,7 +260,7 @@ export class CycleCover extends WiresModel {
         coords.push(cCoords);
       }
 
-      super._generateObject(...coords);
+      super._generateObject(coords);
     }
 
     return this.obj;

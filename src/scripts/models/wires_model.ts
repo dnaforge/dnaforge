@@ -3,13 +3,21 @@ import { Vector3, Intersection, Object3D } from 'three';
 import { Model } from './model';
 import { Selectable } from './selectable';
 import { ModuleMenu } from '../menus/module_menu';
-import { Vertex } from './graph_model';
+import { Graph, Vertex } from './graph_model';
 import { get2PointTransform } from '../utils/misc_utils';
 import { ColourScheme } from './colour_schemes';
 
 const cyclesMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
+export const WIRE_PARAMETERS = {
+  MIN_ANGLE: 0.001, // consider edges parallel if their angle is smaller than this
+  PREFERRED_RADIUS: 0.5,
+  PREFERRED_THICKNESS: 0.1,
+  MIN_THICKNESS: 0.01,
+};
+
 abstract class WiresModel extends Model {
+  graph: Graph;
   obj?: THREE.InstancedMesh;
   owner?: ModuleMenu;
   coords?: Vector3[][];
@@ -83,8 +91,7 @@ abstract class WiresModel extends Model {
     return [];
   }
 
-  getVertexOffset(v1: Vertex, v2: Vertex, radius: number) {
-    const MIN_ANGLE = 0.001; // consider edges parallel if their angle is smaller than this
+  getVertexOffset(v1: Vertex, v2: Vertex, scaleFactor: number) {
     const neighbours = v1.getNeighbours();
     const dirs = neighbours.map((n) => n.coords.clone().sub(v1.coords));
 
@@ -95,12 +102,17 @@ abstract class WiresModel extends Model {
         const d2 = dirs[j];
 
         let angle = d1.angleTo(d2);
-        if (angle < MIN_ANGLE && angle > -MIN_ANGLE) continue;
+        if (
+          angle < WIRE_PARAMETERS.MIN_ANGLE &&
+          angle > -WIRE_PARAMETERS.MIN_ANGLE
+        )
+          continue;
         if (angle > Math.PI) angle = 2 * Math.PI - angle;
         if (angle < minAngle) minAngle = angle;
       }
     }
 
+    const radius = WIRE_PARAMETERS.PREFERRED_RADIUS * scaleFactor;
     const abs = radius / Math.tan(minAngle / 2);
     const offset = v2.coords
       .clone()
@@ -111,10 +123,48 @@ abstract class WiresModel extends Model {
     return offset;
   }
 
-  protected _generateObject(...coords: Vector3[][]): Object3D {
+  getScaleFactor() {
+    let maxRadius = Number('Infinity');
+
+    for (const v1 of this.graph.getVertices()) {
+      const neighbours = v1.getNeighbours();
+      const dirs = neighbours.map((n) => n.coords.clone().sub(v1.coords));
+
+      for (let i = 0; i < dirs.length; i++) {
+        for (let j = i + 1; j < dirs.length; j++) {
+          const d1 = dirs[i];
+          const d2 = dirs[j];
+
+          let angle = d1.angleTo(d2);
+          if (
+            angle < WIRE_PARAMETERS.MIN_ANGLE &&
+            angle > -WIRE_PARAMETERS.MIN_ANGLE
+          )
+            continue;
+          if (angle > Math.PI) angle = 2 * Math.PI - angle;
+
+          const len = Math.min(d1.length(), d2.length());
+          const radius = 0.4 * len * Math.tan(angle / 2);
+          if (radius < maxRadius) maxRadius = radius;
+        }
+      }
+    }
+
+    let scale = 1;
+    if (WIRE_PARAMETERS.PREFERRED_RADIUS > maxRadius)
+      scale = maxRadius / WIRE_PARAMETERS.PREFERRED_RADIUS;
+    return scale;
+  }
+
+  protected _generateObject(coords: Vector3[][]): Object3D {
     this.obj ?? this.dispose();
 
-    const thickness = 0.04;
+    const scaleFactor = this.getScaleFactor();
+    const thickness = Math.max(
+      scaleFactor * WIRE_PARAMETERS.PREFERRED_THICKNESS,
+      WIRE_PARAMETERS.MIN_THICKNESS,
+    );
+
     const count = coords.reduce((a, b) => a + b.length, 0) - coords.length;
     const lineSegment = new THREE.CylinderGeometry(
       thickness,

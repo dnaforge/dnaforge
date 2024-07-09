@@ -79,6 +79,7 @@ export class ATrail extends WiresModel {
 
   findATrail(checkerBoard = false, maxTime = 10000, maxGraphs = 4): HalfEdge[] {
     const origGraph = this.graph.clone();
+    const startTime = performance.now();
 
     for (let i = 0; i < maxGraphs; i++) {
       try {
@@ -86,7 +87,9 @@ export class ATrail extends WiresModel {
         const transitions = new Map<Vertex, Direction>(); // orentations of vertices
         const neighbours = this.getNeighbourhoodFunction(transitions);
 
-        this.splitAndCheck(transitions, neighbours, maxTime);
+        const timeLeft = maxTime - (performance.now() - startTime);
+        if (timeLeft < 0) break;
+        this.splitAndCheck(transitions, neighbours, timeLeft);
         let trail = this.getEuler(neighbours);
         trail = this.fixQuads(trail);
 
@@ -354,7 +357,8 @@ export class ATrail extends WiresModel {
    *
    */
   generateObject() {
-    const tangentOffsetScale = 0.1;
+    const scaleFactor = this.getScaleFactor();
+    const tangentOffsetScale = 0.5 * scaleFactor;
 
     if (!this.obj) {
       const coords: Vector3[] = [];
@@ -382,8 +386,8 @@ export class ATrail extends WiresModel {
           .cross(edge.normal)
           .multiplyScalar((1 - edgeVisitCounts.get(edge)) * tangentOffsetScale);
         tangent.multiplyScalar(nextE.getDirection().dot(tangent) < 0 ? 1 : -1);
-        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
-        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        const vertexOffset1 = this.getVertexOffset(v1, v2, scaleFactor);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, scaleFactor);
         co1 = v1.coords.clone().add(tangent).add(vertexOffset1);
         co2 = v2.coords.clone().add(tangent).add(vertexOffset2);
 
@@ -392,7 +396,7 @@ export class ATrail extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super._generateObject(coords);
+      super._generateObject([coords]);
     }
     return this.obj;
   }

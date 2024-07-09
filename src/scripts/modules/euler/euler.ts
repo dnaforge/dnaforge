@@ -185,7 +185,8 @@ export class Euler extends WiresModel {
    *
    */
   generateObject() {
-    const tangentOffsetScale = 0.1;
+    const scaleFactor = this.getScaleFactor();
+    const tangentOffsetScale = 0.5 * scaleFactor;
 
     if (!this.obj) {
       const coords: Vector3[] = [];
@@ -213,8 +214,8 @@ export class Euler extends WiresModel {
           .cross(edge.normal)
           .multiplyScalar((1 - edgeVisitCounts.get(edge)) * tangentOffsetScale);
         tangent.multiplyScalar(nextE.getDirection().dot(tangent) < 0 ? -1 : 1);
-        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
-        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        const vertexOffset1 = this.getVertexOffset(v1, v2, scaleFactor);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, scaleFactor);
         //vertexOffset2.add(dir.multiplyScalar(-2 * tangentOffsetScale));
         co1 = v1.coords.clone().add(tangent).add(vertexOffset1);
         co2 = v2.coords.clone().add(tangent).add(vertexOffset2);
@@ -224,7 +225,7 @@ export class Euler extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super._generateObject(coords);
+      super._generateObject([coords]);
     }
     return this.obj;
   }

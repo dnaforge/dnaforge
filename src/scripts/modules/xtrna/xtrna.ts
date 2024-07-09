@@ -374,9 +374,10 @@ export class Xtrna extends WiresModel {
    *
    */
   generateObject() {
-    const tangentOffsetScale = 0.1;
-    const normalOffsetScale = 0.02;
-    const klOffsetScale = 0.1;
+    const scaleFactor = this.getScaleFactor();
+    const tangentOffsetScale = 0.25 * scaleFactor;
+    const klOffsetScale = 0.2 * scaleFactor;
+    const normalOffsetScale = 0.02 * scaleFactor;
 
     if (!this.obj) {
       const coords: Vector3[] = [];
@@ -401,8 +402,8 @@ export class Xtrna extends WiresModel {
         const normal2 = curE.edge.normal
           .clone()
           .multiplyScalar(normalOffsetScale * (3 - visitedCount.get(v2)));
-        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
-        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        const vertexOffset1 = this.getVertexOffset(v1, v2, scaleFactor);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, scaleFactor);
         co1 = v1.coords.clone().add(tangent).add(vertexOffset1).add(normal1);
         co2 = v2.coords.clone().add(tangent).add(vertexOffset2).add(normal2);
 
@@ -427,7 +428,7 @@ export class Xtrna extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super._generateObject(coords);
+      super._generateObject([coords]);
     }
     return this.obj;
   }

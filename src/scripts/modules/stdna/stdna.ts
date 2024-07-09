@@ -186,8 +186,9 @@ export class SpanningTree extends WiresModel {
    *
    */
   generateObject() {
-    const tangentOffsetScale = 0.1;
-    const klOffsetScale = 0.1;
+    const scaleFactor = this.getScaleFactor();
+    const tangentOffsetScale = 0.25 * scaleFactor;
+    const klOffsetScale = 0.2 * scaleFactor;
 
     if (!this.obj) {
       const coords: Vector3[] = [];
@@ -205,8 +206,8 @@ export class SpanningTree extends WiresModel {
           .clone()
           .cross(edge.normal)
           .multiplyScalar(tangentOffsetScale);
-        const vertexOffset1 = this.getVertexOffset(v1, v2, tangentOffsetScale);
-        const vertexOffset2 = this.getVertexOffset(v2, v1, tangentOffsetScale);
+        const vertexOffset1 = this.getVertexOffset(v1, v2, scaleFactor);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, scaleFactor);
         co1 = v1.coords.clone().add(tangent).add(vertexOffset1);
         co2 = v2.coords.clone().add(tangent).add(vertexOffset2);
 
@@ -228,7 +229,7 @@ export class SpanningTree extends WiresModel {
       }
       coords.push(coords[0]);
 
-      super._generateObject(coords);
+      super._generateObject([coords]);
     }
     return this.obj;
   }
