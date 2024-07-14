@@ -7,11 +7,7 @@ import { PrimePos } from '../../models/cylinder';
 import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { STParameters } from './stdna_menu';
-import {
-  cylindersToNucleotides,
-  SpanningTree,
-  wiresToCylinders,
-} from './stdna';
+import { cylindersToNucleotides, STDNA, wiresToCylinders } from './stdna';
 const tet = require('../../../test/test_shapes/tetra_dubs.obj');
 const x3 = require('../../../test/test_shapes/3x3.obj');
 const plane = require('../../../test/test_shapes/plane.obj');
@@ -20,6 +16,7 @@ function getParams(): STParameters {
   return {
     scaffoldOffset: 0,
     scaffoldStart: 0,
+    minCrossovers: false,
   };
 }
 
@@ -32,14 +29,14 @@ describe('Spanning tree-routing', function () {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
 
-  let st: SpanningTree;
+  let st: STDNA;
   let graph: Graph;
   let trail: HalfEdge[];
 
   graphs.forEach(function (g: [string, Graph]) {
     it(`Should start where it ends: ${g[0]}`, function () {
       graph = g[1];
-      st = new SpanningTree(graph);
+      st = new STDNA(graph);
       trail = st.trail;
 
       const first = trail[0];
@@ -52,7 +49,7 @@ describe('Spanning tree-routing', function () {
 
     it(`Should span all edges twice: ${g[0]}`, function () {
       graph = g[1];
-      st = new SpanningTree(graph);
+      st = new STDNA(graph);
       trail = st.trail;
     });
   });
@@ -67,13 +64,13 @@ describe('Spanning Tree Cylinder Model', function () {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
   const sts = graphs.map((g) => {
-    const st = new SpanningTree(g[1]);
+    const st = new STDNA(g[1]);
     return [g[0], st];
   });
 
   let cm: CylinderModel;
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`Should throw error because of small scale: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 100;
@@ -85,7 +82,7 @@ describe('Spanning Tree Cylinder Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`All cylinders should be fully connected: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.1;
@@ -100,7 +97,7 @@ describe('Spanning Tree Cylinder Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`All primes should be 1-to-1 connected: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.1;
@@ -128,14 +125,14 @@ describe('Spanning Tree Nucleotide Model', function () {
     return [g[0], new OBJLoader(new THREE.LoadingManager()).parse(g[1])];
   });
   const sts = graphs.map((g) => {
-    const st = new SpanningTree(g[1]);
+    const st = new STDNA(g[1]);
     return [g[0], st];
   });
 
   let cm: CylinderModel;
   let nm: NucleotideModel;
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`Should generate nucleotides: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.3;
@@ -148,7 +145,7 @@ describe('Spanning Tree Nucleotide Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`Primary structure should be complementary: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -173,7 +170,7 @@ describe('Spanning Tree Nucleotide Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`Staple lengths should be 20, 22, 31, 32, 42, 52, or 78 ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -192,7 +189,7 @@ describe('Spanning Tree Nucleotide Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`Top export should have as many entries as there are nucleotides + 1: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -209,7 +206,7 @@ describe('Spanning Tree Nucleotide Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`Forces export should have a mutual trap for every basepair: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -228,7 +225,7 @@ describe('Spanning Tree Nucleotide Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`UNF export should have as many entries as there are nucleotides: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;
@@ -245,7 +242,7 @@ describe('Spanning Tree Nucleotide Model', function () {
     });
   });
 
-  sts.forEach(function (g: [string, SpanningTree]) {
+  sts.forEach(function (g: [string, STDNA]) {
     it(`PDB export should have ~20 times as many atoms as there are nucleotides: ${g[0]}`, function () {
       const params = getParams();
       params.scale = 0.2;

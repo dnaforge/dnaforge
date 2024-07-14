@@ -16,16 +16,19 @@ import { Nucleotide } from '../../models/nucleotide';
 import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';
 import { Selectable } from '../../models/selectable';
+import { Xtrna } from '../xtrna/xtrna';
 
-export class SpanningTree extends WiresModel {
+export class STDNA extends WiresModel {
   graph: Graph;
   st: Set<Edge>;
   trail: HalfEdge[];
+  minCrossovers: boolean;
 
   obj: THREE.InstancedMesh;
 
-  constructor(graph: Graph) {
+  constructor(graph: Graph, minCrossovers = false) {
     super();
+    this.minCrossovers = minCrossovers;
     this.graph = graph;
     this.st = this.getPrim();
     this.trail = this.getVeneziano();
@@ -35,12 +38,13 @@ export class SpanningTree extends WiresModel {
     const st: number[] = [];
     for (const e of this.st) st.push(e.id);
     const graph = this.graph.toJSON();
-    return { graph: graph, st: st };
+    return { graph: graph, st: st, minCrossovers: this.minCrossovers };
   }
 
   static loadJSON(json: any) {
     const graph = Graph.loadJSON(json.graph);
-    const v = new SpanningTree(graph);
+    const v = new STDNA(graph);
+    v.minCrossovers = json.minCrossovers;
     const idToEdge = new Map<number, Edge>();
     for (const e of graph.edges) idToEdge.set(e.id, e);
 
@@ -76,14 +80,27 @@ export class SpanningTree extends WiresModel {
   }
 
   getVeneziano() {
+    if (this.minCrossovers) {
+      const xt = new Xtrna(this.graph);
+      // replace the spanning tree with a new one that misses only the XT kissing loops
+      // TODO: don't hack it like this
+      this.st = new Set<Edge>();
+      for (const e of this.graph.getEdges()) {
+        const [he1, he2] = e.halfEdges;
+        if (!xt.kls.has(he1) && !xt.kls.has(he2)) this.st.add(e);
+      }
+      return xt.trail;
+    }
+
     const route: HalfEdge[] = [];
     const startEdge = [...this.st][0].halfEdges[0];
     const stack = [startEdge];
     const visited = new Set();
     while (stack.length > 0) {
       const curE = stack.pop();
-      const curV = curE.vertex;
+      const curV = curE.twin.vertex;
       route.push(curE);
+
       if (!this.st.has(curE.edge)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
@@ -95,11 +112,13 @@ export class SpanningTree extends WiresModel {
         }
         stack.push(curE.twin);
         neighbours = neighbours
-          .slice(1 + neighbours.indexOf(curE))
-          .concat(neighbours.slice(0, neighbours.indexOf(curE)));
-        for (const n of neighbours) stack.push(n.twin);
+          .slice(1 + neighbours.indexOf(curE.twin))
+          .concat(neighbours.slice(0, neighbours.indexOf(curE.twin)));
+        for (const n of neighbours) stack.push(n);
       }
     }
+    this.trail = route.slice(0, route.length - 1);
+
     return route.slice(0, route.length - 1);
   }
 
@@ -115,8 +134,6 @@ export class SpanningTree extends WiresModel {
 
     for (const e of v0.getAdjacentEdges()) stack.push(e);
     while (stack.length > 0) {
-      console.log(visited.size);
-
       const edge = stack.shift();
       const v1 = edge.vertices[0];
       const v2 = edge.vertices[1];
@@ -195,10 +212,10 @@ export class SpanningTree extends WiresModel {
       const coords: Vector3[] = [];
 
       for (const curE of this.trail) {
-        const dir = curE.getDirection().negate(); // the halfEdges point in the wrong direction...
+        const dir = curE.getDirection();
         const edge = curE.edge;
-        const v1 = curE.twin.vertex;
-        const v2 = curE.vertex;
+        const v1 = curE.vertex;
+        const v2 = curE.twin.vertex;
 
         let co1: Vector3;
         let co2: Vector3;
@@ -256,7 +273,7 @@ export class SpanningTree extends WiresModel {
  * @returns
  */
 export function graphToWires(graph: Graph, params: STParameters) {
-  const veneziano = new SpanningTree(graph);
+  const veneziano = new STDNA(graph, params.minCrossovers);
   return veneziano;
 }
 
@@ -267,10 +284,7 @@ export function graphToWires(graph: Graph, params: STParameters) {
  * @param params
  * @returns
  */
-export function wiresToCylinders(
-  veneziano: SpanningTree,
-  params: STParameters,
-) {
+export function wiresToCylinders(veneziano: STDNA, params: STParameters) {
   const scale = params.scale;
   const cm = new CylinderModel(scale, 'DNA');
 
@@ -331,8 +345,8 @@ function createCylinder(
   he: HalfEdge,
   greedyOffset: boolean,
 ) {
-  const v1 = he.twin.vertex;
-  const v2 = he.vertex;
+  const v1 = he.vertex;
+  const v2 = he.twin.vertex;
 
   const dir = v2.coords.clone().sub(v1.coords).normalize();
   const nor = he.edge.normal.clone();
@@ -363,7 +377,7 @@ function createCylinder(
 function connectCylinders(cm: CylinderModel) {
   let prev = cm.cylinders[0];
   for (let i = 1; i < cm.cylinders.length + 1; i++) {
-    const cur = i == cm.cylinders.length ? cm.cylinders[0] : cm.cylinders[i];
+    const cur = cm.cylinders[i % cm.cylinders.length];
 
     prev.neighbours[PrimePos.first3] = [cur, PrimePos.first5];
     cur.neighbours[PrimePos.first5] = [prev, PrimePos.first3];

@@ -1,5 +1,5 @@
 import {
-  SpanningTree,
+  STDNA,
   graphToWires,
   wiresToCylinders,
   cylindersToNucleotides,
@@ -16,6 +16,7 @@ import { editOp } from '../../editor/editOPs';
 export interface STParameters extends ModuleMenuParameters {
   scaffoldOffset: number;
   scaffoldStart: number;
+  minCrossovers: boolean;
 }
 
 export class SpanningTreeMenu extends ModuleMenu {
@@ -28,7 +29,7 @@ export class SpanningTreeMenu extends ModuleMenu {
   }
 
   jsonToWires(json: JSONObject): WiresModel {
-    return SpanningTree.loadJSON(json);
+    return STDNA.loadJSON(json);
   }
 
   graphToWires(graph: Graph, params: STParameters) {
@@ -41,7 +42,7 @@ export class SpanningTreeMenu extends ModuleMenu {
   }
 
   wiresToCylinders(wires: WiresModel, params: STParameters) {
-    return wiresToCylinders(<SpanningTree>wires, params);
+    return wiresToCylinders(<STDNA>wires, params);
   }
 
   cylindersToNucleotides(cm: CylinderModel, params: STParameters) {
@@ -94,6 +95,7 @@ export class SpanningTreeMenu extends ModuleMenu {
       },
     );
     register(this.params, 'greedyOffset', 'spanning-tree-greedy');
+    register(this.params, 'minCrossovers', 'spanning-tree-crossovers');
 
     $('#spanning-tree-scaffold').on('change', () => {
       if ($('#spanning-tree-scaffold')[0].value == 'custom') {
