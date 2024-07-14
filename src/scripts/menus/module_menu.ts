@@ -399,7 +399,7 @@ export abstract class ModuleMenu extends Menu {
   downloadUNF() {
     try {
       const str = JSON.stringify(this.nm.toUNF());
-      downloadTXT(`${this.elementId}.unf`, str);
+      downloadTXT(`${this.title.toLowerCase()}.unf`, str);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -410,9 +410,9 @@ export abstract class ModuleMenu extends Menu {
       const top = this.nm.toTop();
       const dat = this.nm.toDat();
       const forces = this.nm.toExternalForces();
-      downloadTXT(`${this.elementId}.top`, top);
-      downloadTXT(`${this.elementId}.dat`, dat);
-      downloadTXT(`${this.elementId}.forces`, forces);
+      downloadTXT(`${this.title.toLowerCase()}.top`, top);
+      downloadTXT(`${this.title.toLowerCase()}.dat`, dat);
+      downloadTXT(`${this.title.toLowerCase()}.forces`, forces);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -421,7 +421,7 @@ export abstract class ModuleMenu extends Menu {
   downloadStrands() {
     try {
       const strands = this.nm.toStrands();
-      downloadTXT(`${this.elementId}-strands.csv`, strands);
+      downloadTXT(`${this.title.toLowerCase()}-strands.csv`, strands);
     } catch (error) {
       throw `Nucleotide model not defined.`;
     }
@@ -430,7 +430,7 @@ export abstract class ModuleMenu extends Menu {
   downloadObj() {
     try {
       const obj = this.wires.toObj();
-      downloadTXT(`${this.elementId}-routing.obj`, obj);
+      downloadTXT(`${this.title.toLowerCase()}-routing.obj`, obj);
     } catch (error) {
       throw `Wires model not defined.`;
     }
@@ -439,7 +439,7 @@ export abstract class ModuleMenu extends Menu {
   downloadPDB() {
     try {
       const pdb = this.nm.toPDB();
-      downloadTXT(`${this.elementId}.pdb`, pdb);
+      downloadTXT(`${this.title.toLowerCase()}.pdb`, pdb);
     } catch (error) {
       throw `Primary sequence not defined.`;
     }
