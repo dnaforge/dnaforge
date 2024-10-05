@@ -43,8 +43,8 @@ describe('Spanning tree-routing', function () {
       const last = trail[trail.length - 1];
 
       if (!st.st.has(last.edge))
-        assert.equal(first.twin.vertex == last.twin.vertex, true);
-      else assert.equal(first.twin.vertex == last.vertex, true);
+        assert.equal(first.vertex == last.vertex, true);
+      else assert.equal(first.vertex == last.twin.vertex, true);
     });
 
     it(`Should span all edges twice: ${g[0]}`, function () {
