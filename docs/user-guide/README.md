@@ -48,7 +48,7 @@ This is an overview of the DNAforge design workflow. For a more detailed descrip
 The first step of using the DNAforge tool is to select and load a 3D-model in the OBJ-format. It is then used as a basis for one of the available design methods, each of which produces a routing model, a cylinder model, and a nucleotide model. OBJ-files can be opened by clicking the open-button in the File-tab or by simply dragging and dropping a file into the 3D viewport. DNAforge also includes some built-in 3D models, which can be opened by clicking the Example-button.
 
 ### Routing Model
-The routing model represents the path one or more strands take around the wireframe mesh. The routing model defines how the edges of the wireframe model should connect to each other, i.e., it determines the connections of the individual cylinders of the cylinder model. Each design method has its own routing model. The routing model is automatically generated when necessary, but it can also be explicitly created by clicking the "Generate"-button in the desired design method tab.
+The routing model represents the path one or more strands take around the wireframe mesh. The routing model defines how the edges of the wireframe model should connect to each other, i.e., it determines the connections of the individual cylinders of the cylinder model. Each design method has its own routing model. The routing model is automatically generated when necessary, but it can also be explicitly created by clicking the "Generate Design"-button in the desired design method tab.
 
 ### Cylinder Model
 The cylinder model is a simple abstraction for double helices that allows DNAforge to calculate the exact number of nucleotides corresponding to an edge and fit them in a way that prevents overlaps. Each cylinder has a certain length and radius and four connection points corresponding to the two 5-primes and two 3-primes of a double helix. A cylinder model is created automatically when necessary if one does not already exist, but it can also be created by clicking the "Generate Cylinders"-button in the desired design method tab. If the scale-parameter is changed, the cylinder model must also be recreated to reflect the change.
@@ -204,7 +204,7 @@ The primary structure for a Sterna design can either be generated entirely rando
 
 
 ### XT-RNA
-XT-RNA is a single-stranded RNA routing method that minimises the number of kissing loops. WIP
+XT-RNA is a single-stranded RNA routing method that minimises the number of kissing loops. 
 
 #### Primary Structure
 The primary structure for an XT-RNA design can either be generated entirely randomly, or it can be generated externally and imported back into the DNAforge tool. 
@@ -305,4 +305,6 @@ building blocks. Nature Communications 10, 1067 (2019). DOI: https://doi.org/10.
 [4] Elonen, A. et al. Algorithmic design of 3D wireframe RNA polyhedra.
 ACS Nano 16, 16608-16616 (2022). DOI: https://doi.org/10.1021/acsnano.2c06035
 
-[5] Elonen, A. and Orponen, P. RNA origami with minimum number of kissing loops. In preparation.
+[5] Elonen, A. and Orponen, P. Designing 3D RNA Origami Nanostructures with a Minimum Number of Kissing Loops.
+30th International Conference on DNA Computing and Molecular Programming (DNA 30)(2024). DOI: https://doi.org/10.4230/LIPIcs.DNA.30.4 
+
