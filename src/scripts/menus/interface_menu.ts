@@ -697,7 +697,7 @@ export class InterfaceMenu extends Menu {
     };
 
     //Wires:
-    container.append($('<p>Wires Colours</p>'));
+    container.append($('<p>Route Colours</p>'));
     createSubComponent('WiresColours', true);
 
     //Nucleotides:
