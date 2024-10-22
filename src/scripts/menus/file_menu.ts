@@ -19,7 +19,7 @@ const examples = ((): { [id: string]: Graph } => {
   for (const k of objs.keys()) {
     const obj = objs(k);
     const graph = new OBJLoader(new THREE.LoadingManager()).parse(obj);
-    const name = k.slice(2, k.length - 4);
+    const name = k.slice(2, k.length - 4).replace('_', ' ');
     const id = k.slice(2, k.length - 4);
     const nVerts = graph.getVertices().length;
     const nEdges = graph.getEdges().length;
@@ -51,7 +51,7 @@ const examples = ((): { [id: string]: Graph } => {
 
     downloadButton.on('click', () => {
       console.log(obj);
-      downloadTXT(`${name}.obj`, obj);
+      downloadTXT(`${name.replace(' ', '_')}.obj`, obj);
     });
 
     example.append(downloadButton);
