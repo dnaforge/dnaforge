@@ -752,7 +752,7 @@ export class InterfaceMenu extends Menu {
 
     // Wires:
     const wm = this.context.activeContext?.wires;
-    wm && createComponent('Wire Model', wm.getStatistics());
+    wm && createComponent('Routing Model', wm.getStatistics());
 
     // CM:
     const cm = this.context.activeContext?.cm;

@@ -15,6 +15,7 @@ import { Selectable } from '../../models/selectable';
 export class Sterna extends WiresModel {
   graph: Graph;
   klx: number = -1;
+  height: number = -1;
   st: Set<Edge>;
   trail: HalfEdge[];
 
@@ -411,8 +412,24 @@ export class Sterna extends WiresModel {
     return klx;
   }
 
+  getHeight() {
+    if (this.height != -1) return this.height; // this object probably won't ever be modified
+    let height = 0;
+    let td = 0;
+    const visited = new Set<Edge>();
+    for (const he of this.trail) {
+      if (!this.st.has(he.edge)) continue;
+      if (visited.has(he.edge)) td -= 1;
+      else td += 1;
+      height = Math.max(td, height);
+      visited.add(he.edge);
+    }
+    this.height = height;
+    return height;
+  }
+
   getStatistics(): JSONObject {
-    return { klx: this.countUniqueKLs() };
+    return { KLX: this.countUniqueKLs(), 'Tree Height': this.getHeight() };
   }
 
   /**
