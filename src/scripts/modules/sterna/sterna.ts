@@ -14,6 +14,7 @@ import { Selectable } from '../../models/selectable';
  */
 export class Sterna extends WiresModel {
   graph: Graph;
+  klx: number = -1;
   st: Set<Edge>;
   trail: HalfEdge[];
 
@@ -33,9 +34,10 @@ export class Sterna extends WiresModel {
     const st: number[] = [];
     const trail: [number, number][] = [];
     for (const e of this.st) st.push(e.id);
-    for(const he of this.trail) trail.push([he.edge.id, he.edge.halfEdges.indexOf(he)]);
+    for (const he of this.trail)
+      trail.push([he.edge.id, he.edge.halfEdges.indexOf(he)]);
     const graph = this.graph.toJSON();
-    return { graph: graph, st: st, trail: trail};
+    return { graph: graph, st: st, trail: trail };
   }
 
   static loadJSON(json: any) {
@@ -49,7 +51,7 @@ export class Sterna extends WiresModel {
       sterna.st.add(idToEdge.get(e));
     }
     sterna.trail = [];
-    for(const et of json.trail){
+    for (const et of json.trail) {
       sterna.trail.push(idToEdge.get(et[0]).halfEdges[et[1]]);
     }
     return sterna;
@@ -120,7 +122,7 @@ export class Sterna extends WiresModel {
         for (const n of neighbours) stack.push(n);
       }
     }
-    
+
     const trail = route.slice(0, route.length - 1);
     return trail;
   }
@@ -155,7 +157,7 @@ export class Sterna extends WiresModel {
         }
       }
     }
-    
+
     const trail = this.findTrail(st, false);
 
     this.st = st;
@@ -198,10 +200,10 @@ export class Sterna extends WiresModel {
   }
 
   /**
-   * Depth-first spanning tree with the minimum number of kissing loops. 
+   * Depth-first spanning tree with the minimum number of kissing loops.
    *
    * @param maxIterations: maximum number of spanning trees to try
-   * 
+   *
    * @returns A route around the tree
    */
   getMinKLDFSTRoute(maxIterations: number): HalfEdge[] {
@@ -212,9 +214,9 @@ export class Sterna extends WiresModel {
       route: HalfEdge[];
       cost: number;
       worstCost: number;
-    };
+    }
 
-    let stack: klPrefix[] = []
+    let stack: klPrefix[] = [];
     let bestTree: Set<Edge> = undefined;
     let bestRoute: HalfEdge[] = undefined;
     let bestCost: number = Number('Infinity');
@@ -222,14 +224,24 @@ export class Sterna extends WiresModel {
     const edges = this.graph.getEdges();
     for (const edge of edges) {
       for (const he0 of edge.halfEdges) {
-        stack.push({ visited: new Set<Vertex>(), st: new Set<Edge>(), heads: [he0], route: [he0], cost: 0, worstCost: 0 });
+        stack.push({
+          visited: new Set<Vertex>(),
+          st: new Set<Edge>(),
+          heads: [he0],
+          route: [he0],
+          cost: 0,
+          worstCost: 0,
+        });
       }
     }
     let i = 0;
     while (stack.length > 0 && i < maxIterations) {
       i += 1;
       if (++i % 5000 == 0) {
-        stack = stack.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ value }) => value);
+        stack = stack
+          .map((value) => ({ value, sort: Math.random() }))
+          .sort((a, b) => a.sort - b.sort)
+          .map(({ value }) => value);
       }
       const prefix = stack[stack.length - 1];
       const visited = prefix.visited;
@@ -259,7 +271,14 @@ export class Sterna extends WiresModel {
         if (!nVisited.has(n)) {
           const nHeads = [...heads, he2];
           const nRoute = [...route, he2];
-          stack.push({ visited: nVisited, st: nSt, heads: nHeads, route: nRoute, cost: cost, worstCost: worstCost });
+          stack.push({
+            visited: nVisited,
+            st: nSt,
+            heads: nHeads,
+            route: nRoute,
+            cost: cost,
+            worstCost: worstCost,
+          });
           extended = true;
         }
       }
@@ -267,14 +286,14 @@ export class Sterna extends WiresModel {
         const sortKLs = (neighbours: HalfEdge[]) => {
           const pre = [];
           const post = [];
-          for(const he of neighbours){
-            if(nSt.has(he.edge)) continue;
+          for (const he of neighbours) {
+            if (nSt.has(he.edge)) continue;
             const n = he.twin.vertex;
-            if(tVisited.has(n)) post.push(he);
+            if (tVisited.has(n)) post.push(he);
             else pre.push(he);
           }
           return [...pre, ...post];
-        }
+        };
 
         const tVisited = new Set<Vertex>(); // unclosed heads
         for (const he1 of heads) {
@@ -296,12 +315,19 @@ export class Sterna extends WiresModel {
         nRoute.push(nHeads[nHeads.length - 1].twin);
         nHeads.length -= 1;
 
-        if (nHeads.length > 0 && nWorstCost < bestCost) 
-          stack.push({ visited: nVisited, st: nSt, heads: nHeads, route: nRoute, cost: nCost, worstCost: nWorstCost });
+        if (nHeads.length > 0 && nWorstCost < bestCost)
+          stack.push({
+            visited: nVisited,
+            st: nSt,
+            heads: nHeads,
+            route: nRoute,
+            cost: nCost,
+            worstCost: nWorstCost,
+          });
         else {
           if (nWorstCost < bestCost) {
             const last = nRoute[nRoute.length - 1].twin;
-            for(const he2 of sortKLs(last.vertex.getAdjacentHalfEdges())){
+            for (const he2 of sortKLs(last.vertex.getAdjacentHalfEdges())) {
               nRoute.push(he2);
             }
 
@@ -316,7 +342,7 @@ export class Sterna extends WiresModel {
 
     this.st = bestTree;
     this.trail = bestRoute;
-    return bestRoute
+    return bestRoute;
   }
 
   /**
@@ -366,21 +392,27 @@ export class Sterna extends WiresModel {
   }
 
   /**
-   * 
+   *
    * @returns minimum number of unique kissing loops
    */
-  countUniqueKLs(){
-    let nKLs = 0;
+  countUniqueKLs() {
+    if (this.klx != -1) return this.klx; // this object probably won't ever be modified
+    let klx = 0;
     let tn = 0;
     const visited = new Set<Edge>();
-    for(const he of this.trail){
-      if(this.st.has(he.edge)) continue;
-      if(visited.has(he.edge)) tn -= 1;
+    for (const he of this.trail) {
+      if (this.st.has(he.edge)) continue;
+      if (visited.has(he.edge)) tn -= 1;
       else tn += 1;
-      nKLs = Math.max(tn, nKLs);
+      klx = Math.max(tn, klx);
       visited.add(he.edge);
     }
-    return nKLs;
+    this.klx = klx;
+    return klx;
+  }
+
+  getStatistics(): JSONObject {
+    return { klx: this.countUniqueKLs() };
   }
 
   /**
@@ -459,10 +491,9 @@ export function graphToWires(graph: Graph, params: SternaParameters) {
   const sterna = new Sterna(graph);
 
   if (params.dfs) {
-    if (params.minKLs) sterna.getMinKLDFSTRoute(params. minKLsIterations);
+    if (params.minKLs) sterna.getMinKLDFSTRoute(params.minKLsIterations);
     else sterna.getDFSTRoute();
-  }
-  else sterna.getRSTRoute();
+  } else sterna.getRSTRoute();
 
   return sterna;
 }

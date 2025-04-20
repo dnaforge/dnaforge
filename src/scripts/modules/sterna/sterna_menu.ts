@@ -46,8 +46,10 @@ export class SternaMenu extends ModuleMenu {
   graphToWires(graph: Graph, params: SternaParameters) {
     const wires = graphToWires(graph, params);
 
-    const minMsg = params.minKLs ? ` and ${wires.countUniqueKLs()} unique kissing loop pairs` : "";
-    
+    const minMsg = params.minKLs
+      ? ` and ${wires.countUniqueKLs()} unique kissing loop pairs`
+      : '';
+
     this.context.addMessage(
       `Generated a route around the spanning tree with ${wires.trail.length} helical segments${minMsg}.`,
       'info',
