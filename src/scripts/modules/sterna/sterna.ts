@@ -15,7 +15,6 @@ import { Selectable } from '../../models/selectable';
 export class Sterna extends WiresModel {
   graph: Graph;
   st: Set<Edge>;
-  postOrder: boolean;
   trail: HalfEdge[];
 
   obj: InstancedMesh;
@@ -23,24 +22,25 @@ export class Sterna extends WiresModel {
   /**
    *
    * @param graph
-   * @param postOrder: traverse kissing loop edges after stem edges. Otherwise, use vertex order.
+   * @param order: traverse kissing loop edges after stem edges, asap, or use vertex order.
    */
-  constructor(graph: Graph, postOrder = false) {
+  constructor(graph: Graph) {
     super();
     this.graph = graph;
-    this.postOrder = postOrder;
   }
 
   toJSON(): JSONObject {
     const st: number[] = [];
+    const trail: [number, number][] = [];
     for (const e of this.st) st.push(e.id);
+    for(const he of this.trail) trail.push([he.edge.id, he.edge.halfEdges.indexOf(he)]);
     const graph = this.graph.toJSON();
-    return { graph: graph, st: st, postOrder: this.postOrder };
+    return { graph: graph, st: st, trail: trail};
   }
 
   static loadJSON(json: any) {
     const graph = Graph.loadJSON(json.graph);
-    const sterna = new Sterna(graph, json.postOrder);
+    const sterna = new Sterna(graph);
     const idToEdge = new Map<number, Edge>();
     for (const e of graph.edges) idToEdge.set(e.id, e);
 
@@ -48,7 +48,10 @@ export class Sterna extends WiresModel {
     for (const e of json.st) {
       sterna.st.add(idToEdge.get(e));
     }
-    sterna.trail = sterna.findRoute();
+    sterna.trail = [];
+    for(const et of json.trail){
+      sterna.trail.push(idToEdge.get(et[0]).halfEdges[et[1]]);
+    }
     return sterna;
   }
 
@@ -78,21 +81,21 @@ export class Sterna extends WiresModel {
   /**
    * Route the RNA strand twice around the edges of the spanning tree of the graph.
    *
-   * @returns route as an ordered list of edges
+   * @returns route as an ordered list of half-edges
    */
-  findRoute() {
+  findTrail(st: Set<Edge>, postOrder = false) {
     const setPostOrder = (edges: HalfEdge[]): HalfEdge[] => {
       const first = [];
       const post = [];
       for (const e of edges) {
-        if (this.st.has(e.edge)) first.push(e);
+        if (st.has(e.edge)) first.push(e);
         else post.push(e);
       }
       return post.concat(first);
     };
 
     const route: HalfEdge[] = [];
-    const startEdge = [...this.st][0].halfEdges[0];
+    const startEdge = [...st][0].halfEdges[0];
     const stack = [startEdge];
     const visited = new Set();
     while (stack.length > 0) {
@@ -100,7 +103,7 @@ export class Sterna extends WiresModel {
       const curV = curE.twin.vertex;
       route.push(curE);
 
-      if (!this.st.has(curE.edge)) continue;
+      if (!st.has(curE.edge)) continue;
       if (!visited.has(curV)) {
         visited.add(curV);
         let neighbours;
@@ -113,21 +116,21 @@ export class Sterna extends WiresModel {
         neighbours = neighbours
           .slice(1 + neighbours.indexOf(curE.twin))
           .concat(neighbours.slice(0, neighbours.indexOf(curE.twin)));
-        if (this.postOrder) neighbours = setPostOrder(neighbours);
+        if (postOrder) neighbours = setPostOrder(neighbours);
         for (const n of neighbours) stack.push(n);
       }
     }
-    this.trail = route.slice(0, route.length - 1);
-
-    return this.trail;
+    
+    const trail = route.slice(0, route.length - 1);
+    return trail;
   }
 
   /**
    * Random spanning tree.
    *
-   * @returns a set of edges in the spanning tree
+   * @returns a route around a random spanning tree of the graph
    */
-  getRST(): Set<Edge> {
+  getRSTRoute(): HalfEdge[] {
     const edges = this.graph.getEdges();
     const visited = new Set();
     const st = new Set<Edge>();
@@ -152,17 +155,20 @@ export class Sterna extends WiresModel {
         }
       }
     }
+    
+    const trail = this.findTrail(st, false);
 
     this.st = st;
-    return st;
+    this.trail = trail;
+    return trail;
   }
 
   /**
    * Depth-first spanning tree.
    *
-   * @returns a set of edges in the spanning tree
+   * @returns a route around a DFS-tree of the graph
    */
-  getDFST(): Set<Edge> {
+  getDFSTRoute(): HalfEdge[] {
     const edges = this.graph.getEdges();
     const visited = new Set<Vertex>();
     const st = new Set<Edge>();
@@ -184,8 +190,133 @@ export class Sterna extends WiresModel {
       }
     }
 
+    const trail = this.findTrail(st, true);
+
     this.st = st;
-    return st;
+    this.trail = trail;
+    return trail;
+  }
+
+  /**
+   * Depth-first spanning tree with the minimum number of kissing loops. 
+   *
+   * @param maxIterations: maximum number of spanning trees to try
+   * 
+   * @returns A route around the tree
+   */
+  getMinKLDFSTRoute(maxIterations: number): HalfEdge[] {
+    interface klPrefix {
+      visited: Set<Vertex>;
+      st: Set<Edge>;
+      heads: HalfEdge[];
+      route: HalfEdge[];
+      cost: number;
+      worstCost: number;
+    };
+
+    let stack: klPrefix[] = []
+    let bestTree: Set<Edge> = undefined;
+    let bestRoute: HalfEdge[] = undefined;
+    let bestCost: number = Number('Infinity');
+
+    const edges = this.graph.getEdges();
+    for (const edge of edges) {
+      for (const he0 of edge.halfEdges) {
+        stack.push({ visited: new Set<Vertex>(), st: new Set<Edge>(), heads: [he0], route: [he0], cost: 0, worstCost: 0 });
+      }
+    }
+    let i = 0;
+    while (stack.length > 0 && i < maxIterations) {
+      i += 1;
+      if (++i % 5000 == 0) {
+        stack = stack.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ value }) => value);
+      }
+      const prefix = stack[stack.length - 1];
+      const visited = prefix.visited;
+      const st = prefix.st;
+      const heads = prefix.heads;
+      const route = prefix.route;
+      const cost = prefix.cost;
+      const worstCost = prefix.worstCost;
+      const head = heads[heads.length - 1];
+      stack.pop();
+
+      if (worstCost >= bestCost) continue;
+
+      const nVisited = new Set(visited);
+      const nSt = new Set(st);
+
+      if (!nVisited.has(head.vertex) || !nVisited.has(head.twin.vertex))
+        nSt.add(head.edge);
+      nVisited.add(head.vertex);
+      nVisited.add(head.twin.vertex);
+
+      const neighbours = head.twin.vertex.getAdjacentHalfEdges();
+      let extended = false;
+      for (const he2 of neighbours) {
+        if (nSt.has(he2.edge)) continue;
+        const n = he2.twin.vertex;
+        if (!nVisited.has(n)) {
+          const nHeads = [...heads, he2];
+          const nRoute = [...route, he2];
+          stack.push({ visited: nVisited, st: nSt, heads: nHeads, route: nRoute, cost: cost, worstCost: worstCost });
+          extended = true;
+        }
+      }
+      if (!extended) {
+        const sortKLs = (neighbours: HalfEdge[]) => {
+          const pre = [];
+          const post = [];
+          for(const he of neighbours){
+            if(nSt.has(he.edge)) continue;
+            const n = he.twin.vertex;
+            if(tVisited.has(n)) post.push(he);
+            else pre.push(he);
+          }
+          return [...pre, ...post];
+        }
+
+        const tVisited = new Set<Vertex>(); // unclosed heads
+        for (const he1 of heads) {
+          tVisited.add(he1.vertex);
+        }
+
+        let nCost = cost;
+        const nHeads = [...heads];
+        const nRoute = [...route];
+
+        for (const he2 of sortKLs(neighbours)) {
+          const n = he2.twin.vertex;
+          if (tVisited.has(n)) nCost += 1;
+          else nCost -= 1;
+          nRoute.push(he2);
+        }
+
+        const nWorstCost = Math.max(nCost, worstCost);
+        nRoute.push(nHeads[nHeads.length - 1].twin);
+        nHeads.length -= 1;
+
+        if (nHeads.length > 0 && nWorstCost < bestCost) 
+          stack.push({ visited: nVisited, st: nSt, heads: nHeads, route: nRoute, cost: nCost, worstCost: nWorstCost });
+        else {
+          if (nWorstCost < bestCost) {
+            const last = nRoute[nRoute.length - 1].twin;
+            for(const he2 of sortKLs(last.vertex.getAdjacentHalfEdges())){
+              nRoute.push(he2);
+            }
+
+            console.log(`${bestCost} -> ${nWorstCost}`);
+            bestCost = nWorstCost;
+            bestTree = nSt;
+            bestRoute = nRoute;
+          }
+        }
+      }
+    }
+
+    this.st = bestTree;
+    this.trail = bestRoute;
+    return bestRoute
   }
 
   /**
@@ -232,6 +363,24 @@ export class Sterna extends WiresModel {
     }
 
     return result;
+  }
+
+  /**
+   * 
+   * @returns minimum number of unique kissing loops
+   */
+  countUniqueKLs(){
+    let nKLs = 0;
+    let tn = 0;
+    const visited = new Set<Edge>();
+    for(const he of this.trail){
+      if(this.st.has(he.edge)) continue;
+      if(visited.has(he.edge)) tn -= 1;
+      else tn += 1;
+      nKLs = Math.max(tn, nKLs);
+      visited.add(he.edge);
+    }
+    return nKLs;
   }
 
   /**
@@ -307,10 +456,13 @@ export class Sterna extends WiresModel {
  * @returns
  */
 export function graphToWires(graph: Graph, params: SternaParameters) {
-  const sterna = new Sterna(graph, params.dfs);
-  if (params.dfs) sterna.getDFST();
-  else sterna.getRST();
-  sterna.findRoute();
+  const sterna = new Sterna(graph);
+
+  if (params.dfs) {
+    if (params.minKLs) sterna.getMinKLDFSTRoute(params. minKLsIterations);
+    else sterna.getDFSTRoute();
+  }
+  else sterna.getRSTRoute();
 
   return sterna;
 }

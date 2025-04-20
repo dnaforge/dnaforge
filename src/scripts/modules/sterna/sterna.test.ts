@@ -30,8 +30,7 @@ describe('Sterna routing', function () {
     it(`Should start where it ends: ${g[0]}`, function () {
       graph = g[1];
       sterna = new Sterna(graph);
-      sterna.getRST();
-      sterna.findRoute();
+      sterna.getRSTRoute();
       trail = sterna.trail;
 
       const first = trail[0];
@@ -47,8 +46,7 @@ describe('Sterna routing', function () {
     it(`Should span all edges twice: ${g[0]}`, function () {
       graph = g[1];
       sterna = new Sterna(graph);
-      sterna.getRST();
-      sterna.findRoute();
+      sterna.getRSTRoute();
       trail = sterna.trail;
 
       const visited = new Map(
@@ -78,8 +76,7 @@ describe('Sterna Cylinder Model', function () {
   });
   const sternas = graphs.map((g) => {
     const sterna = new Sterna(g[1]);
-    sterna.getRST();
-    sterna.findRoute();
+    sterna.getRSTRoute();
     return [g[0], sterna];
   });
 
@@ -141,8 +138,7 @@ describe('Sterna Nucleotide Model', function () {
   });
   const sternas = graphs.map((g) => {
     const sterna = new Sterna(g[1]);
-    sterna.getRST();
-    sterna.findRoute();
+    sterna.getRSTRoute();
     return [g[0], sterna];
   });
 

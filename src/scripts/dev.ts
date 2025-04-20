@@ -43,7 +43,7 @@ export function dev(context: Context) {
   const t5 = require('../../resources/torus55.obj');
   const b = require('../../resources/bloc_v2.obj');
   const knot = require('../../resources/knot-480.obj');
-  let graph = new OBJLoader(new THREE.LoadingManager()).parse(bunny);
+  let graph = new OBJLoader(new THREE.LoadingManager()).parse(cube);
   //graph.makeEulerian();
   //graph.makeCheckerBoard();
   context.setGraph(graph);
@@ -81,27 +81,27 @@ export function dev(context: Context) {
   //atrail.nm.toPDB();
 
   const st = <SpanningTreeMenu>context.menus.get('spanning-tree');
-  $('#spanning-tree-toggle-wires')[0].checked = 1;
-  $('#spanning-tree-toggle-cylinders')[0].checked = 1;
-  $('#spanning-tree-crossovers')[0].checked = 1;
-  $('#spanning-tree-scale')[0].value = 25;
+  //$('#spanning-tree-toggle-wires')[0].checked = 1;
+  //$('#spanning-tree-toggle-cylinders')[0].checked = 1;
+  //$('#spanning-tree-crossovers')[0].checked = 1;
+  //$('#spanning-tree-scale')[0].value = 25;
   //st.addWires();
   //st.addCylinders();
   //st.addNucleotides();
   //st.generatePrimary();
-  st.generateWires();
-  st.generateCylinderModel();
-  context.switchContext(st);
+  //st.generateWires();
+  //st.generateCylinderModel();
+  //context.switchContext(st);
 
   $('#sterna-scale')[0].value = 5;
   const sterna = <SternaMenu>context.menus.get('sterna');
   //sterna.generateWires();
   //sterna.addCylinders();
-  //sterna.generateNucleotideModel();
+  sterna.generateNucleotideModel();
   //sterna.downloadPrimary();
   //sterna.generatePartialPrimary();
   //sterna.generatePrimary();
-  //context.switchContext(sterna);
+  context.switchContext(sterna);
   //sterna.downloadPDB();
 
   const euler = <EulerMenu>context.menus.get('euler');

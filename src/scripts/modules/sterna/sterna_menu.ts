@@ -13,7 +13,7 @@ import { downloadTXT } from '../../io/download';
 import html from './sterna_ui.htm';
 import { ModuleMenu, ModuleMenuParameters } from '../../menus/module_menu';
 import { Context } from '../../menus/context';
-import { Graph } from '../../models/graph_model';
+import { Edge, Graph } from '../../models/graph_model';
 import { WiresModel } from '../../models/wires_model';
 import { CylinderModel } from '../../models/cylinder_model';
 import { editOp } from '../../editor/editOPs';
@@ -21,6 +21,8 @@ import { editOp } from '../../editor/editOPs';
 export interface SternaParameters extends ModuleMenuParameters {
   dfs?: boolean;
   rst?: boolean;
+  minKLs?: boolean;
+  minKLsIterations?: number;
 }
 
 export class SternaMenu extends ModuleMenu {
@@ -43,8 +45,11 @@ export class SternaMenu extends ModuleMenu {
 
   graphToWires(graph: Graph, params: SternaParameters) {
     const wires = graphToWires(graph, params);
+
+    const minMsg = params.minKLs ? ` and ${wires.countUniqueKLs()} unique kissing loop pairs` : "";
+    
     this.context.addMessage(
-      `Generated a route around the spanning tree with ${wires.trail.length} edges.`,
+      `Generated a route around the spanning tree with ${wires.trail.length} helical segments${minMsg}.`,
       'info',
     );
     return wires;
@@ -121,6 +126,8 @@ export class SternaMenu extends ModuleMenu {
     );
     register(this.params, 'addNicks', 'sterna-add-nicks');
     register(this.params, 'greedyOffset', 'sterna-greedy');
+    register(this.params, 'minKLs', 'sterna-minkls');
+    register(this.params, 'minKLsIterations', 'sterna-minkls-iterations');
     register(this.params, 'dfs', 'sterna-depth-tree');
     register(this.params, 'rst', 'sterna-random-tree');
 
