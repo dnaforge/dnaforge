@@ -208,6 +208,7 @@ export class Sterna extends WiresModel {
    * @returns A route around the tree
    */
   getMinKLDFSTRoute(maxIterations: number): HalfEdge[] {
+    //TODO: redo the whole funciton. It's unnecessarily slow and complex.
     interface klPrefix {
       visited: Set<Vertex>;
       st: Set<Edge>;
@@ -257,59 +258,59 @@ export class Sterna extends WiresModel {
       if (worstCost >= bestCost) continue;
 
       const nVisited = new Set(visited);
+      const tVisited = new Set<Vertex>(); // unclosed heads
       const nSt = new Set(st);
+      let nCost = cost;
 
       if (!nVisited.has(head.vertex) || !nVisited.has(head.twin.vertex))
         nSt.add(head.edge);
       nVisited.add(head.vertex);
       nVisited.add(head.twin.vertex);
+      for (const he1 of heads) {
+        tVisited.add(he1.vertex);
+      }
 
       const neighbours = head.twin.vertex.getAdjacentHalfEdges();
+      const routeExtension: HalfEdge[] = [];
+      for (const he of neighbours) {
+        if (nSt.has(he.edge)) continue;
+        const n = he.twin.vertex;
+        if (!tVisited.has(n) && nVisited.has(n) && route.indexOf(he) == -1) {
+          nCost -= 1;
+          routeExtension.push(he);
+        }
+      }
+
       let extended = false;
-      for (const he2 of neighbours) {
-        if (nSt.has(he2.edge)) continue;
-        const n = he2.twin.vertex;
+      for (const he of neighbours) {
+        if (nSt.has(he.edge)) continue;
+        const n = he.twin.vertex;
         if (!nVisited.has(n)) {
-          const nHeads = [...heads, he2];
-          const nRoute = [...route, he2];
+          const nHeads = [...heads, he];
+          const nRoute = [...route, ...routeExtension, he];
           stack.push({
             visited: nVisited,
             st: nSt,
             heads: nHeads,
             route: nRoute,
-            cost: cost,
+            cost: nCost,
             worstCost: worstCost,
           });
           extended = true;
         }
       }
+
       if (!extended) {
-        const sortKLs = (neighbours: HalfEdge[]) => {
-          const pre = [];
-          const post = [];
-          for (const he of neighbours) {
-            if (nSt.has(he.edge)) continue;
-            const n = he.twin.vertex;
-            if (tVisited.has(n)) post.push(he);
-            else pre.push(he);
-          }
-          return [...pre, ...post];
-        };
-
-        const tVisited = new Set<Vertex>(); // unclosed heads
-        for (const he1 of heads) {
-          tVisited.add(he1.vertex);
-        }
-
-        let nCost = cost;
         const nHeads = [...heads];
-        const nRoute = [...route];
+        const nRoute = [...route, ...routeExtension];
 
-        for (const he2 of sortKLs(neighbours)) {
-          const n = he2.twin.vertex;
-          if (tVisited.has(n)) nCost += 1;
-          else nCost -= 1;
-          nRoute.push(he2);
+        for (const he of neighbours) {
+          if (nSt.has(he.edge)) continue;
+          const n = he.twin.vertex;
+          if (tVisited.has(n)) {
+            nRoute.push(he);
+            nCost += 1;
+          }
         }
 
         const nWorstCost = Math.max(nCost, worstCost);
@@ -328,8 +329,8 @@ export class Sterna extends WiresModel {
         else {
           if (nWorstCost < bestCost) {
             const last = nRoute[nRoute.length - 1].twin;
-            for (const he2 of sortKLs(last.vertex.getAdjacentHalfEdges())) {
-              nRoute.push(he2);
+            for (const he of last.vertex.getAdjacentHalfEdges()) {
+              if (nRoute.indexOf(he) == -1) nRoute.push(he);
             }
 
             console.log(`${bestCost} -> ${nWorstCost}`);
@@ -340,6 +341,8 @@ export class Sterna extends WiresModel {
         }
       }
     }
+
+    //for(let t of bestRoute) console.log(t.toString());
 
     this.st = bestTree;
     this.trail = bestRoute;
