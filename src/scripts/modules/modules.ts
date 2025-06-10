@@ -5,6 +5,7 @@ import { EulerMenu } from './euler/euler_menu';
 import { SpanningTreeMenu } from './stdna/stdna_menu';
 import { SternaMenu } from './sterna/sterna_menu';
 import { XtrnaMenu } from './xtrna/xtrna_menu';
+import { XtdnaMenu } from './xtdna/xtdna_menu';
 
 /**
  * Instantiate all the modules and connects them to the main context.
@@ -17,6 +18,7 @@ export function setupModules(context: Context) {
   new CycleCoverMenu(context);
   new EulerMenu(context);
   new SpanningTreeMenu(context);
+  new XtdnaMenu(context);
   new SternaMenu(context);
   new XtrnaMenu(context);
 }

@@ -32,6 +32,7 @@ interface ScaffoldParams {
 export function setPrimaryFromScaffold(
   nm: NucleotideModel,
   params: ScaffoldParams,
+  hybrid = false,
 ) {
   const scaffoldName = params.scaffoldName || 'none';
   const customScaffold = params.customScaffold || '';
@@ -75,7 +76,7 @@ export function setPrimaryFromScaffold(
     if (n.isLinker && !n.isScaffold) n.base = linkerOptions[r] as IUPAC_CHAR;
   }
 
-  return setRandomPrimary(nm, gcContent, naType); // fill the remaining non-scaffold bases randomly
+  return setRandomPrimary(nm, gcContent, naType, false, hybrid); // fill the remaining non-scaffold bases randomly
 }
 
 /**
@@ -279,6 +280,31 @@ export function getComplementDNA(
 }
 
 /**
+ * Returns a complementary base matching to the constraints of the input base and its base pair.
+ * E.g. input base = W and pair = T, output would be A. Note that the pair must be one of the four
+ * actual bases.
+ *
+ * @param base IUPAC codes for the base
+ * @param pair IUPAC codes for the base pair
+ * @returns the base
+ */
+export function getComplementDNAHybrid(
+  base: IUPAC_CHAR_DNA,
+  pair: IUPAC_CHAR_RNA,
+): IUPAC_CHAR_DNA {
+  const complement: Partial<Record<IUPAC_CHAR_RNA, IUPAC_CHAR_DNA>> = {
+    A: 'T',
+    U: 'A',
+    G: 'C',
+    C: 'G',
+  };
+  const options = new Set(IUPAC_DNA[base]);
+
+  if (options.has(complement[pair])) return complement[pair];
+  return null;
+}
+
+/**
  * Returns a random base matching the constraints set by the options.
  * The options have to be any combination of "G", "C", "A" and "U".
  *
@@ -343,17 +369,22 @@ export function setRandomPrimary(
   gcContent: number,
   naType: NATYPE,
   ignoreExisting = false,
+  hybrid = false,
 ): string[] {
-  const iupac = naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
-  const getBase = naType == 'DNA' ? getBaseDNA : getBaseRNA;
-  const getComplement = naType == 'DNA' ? getComplementDNA : getComplementRNA;
-
   const nucleotides = nm.getNucleotides();
   const visited = new Set();
   const ps = [];
   for (let i = 0; i < nucleotides.length; i++) {
     let base: IUPAC_CHAR;
     const n = nucleotides[i];
+    const iupac = n.naType == 'DNA' ? IUPAC_DNA : IUPAC_RNA;
+    const getBase = n.naType == 'DNA' ? getBaseDNA : getBaseRNA;
+    const getComplement =
+      n.naType == 'DNA'
+        ? hybrid
+          ? getComplementDNAHybrid
+          : getComplementDNA
+        : getComplementRNA;
     if (ignoreExisting) n.base = 'N';
     if (n.isLinker || !visited.has(n.pair)) {
       const options = iupac[n.base];

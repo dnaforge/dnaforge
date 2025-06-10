@@ -88,8 +88,8 @@ export class Nucleotide extends Selectable {
     this.strand = strand;
     this.base = base;
     this.scale = nm.scale;
-    this.naType = nm.naType;
-    this.nucParams = nm.nucParams;
+    this.naType = strand.naType;
+    this.nucParams = strand.nucParams;
 
     this.setTransform(new Matrix4());
   }

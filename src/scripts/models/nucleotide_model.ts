@@ -29,6 +29,8 @@ export class NucleotideModel extends Model {
   naType: NATYPE;
   nucParams: typeof RNA | typeof DNA;
 
+  hybrid?: boolean; // Keeps track of whether the nucleotide model is a RNA-DNA hybrid
+
   obj?: THREE.Object3D;
   owner?: ModuleMenu;
 
@@ -142,9 +144,15 @@ export class NucleotideModel extends Model {
           const circular = sData
             .find((s) => s.includes('circular'))
             .includes('true');
+          const type = sData.find((s) => s.includes('type')).includes('DNA')
+            ? 'DNA'
+            : 'RNA';
+          const params = sData.find((s) => s.includes('type')).includes('DNA')
+            ? DNA
+            : RNA;
           const s_nucs: Nucleotide[] = [];
 
-          strand = new Strand(nm);
+          strand = new Strand(nm, type, params);
           strand.id = idx + 1;
           nm.addStrand(strand);
 
@@ -459,14 +467,22 @@ export class NucleotideModel extends Model {
    *
    * @param cm
    * @param hasScaffold Marks the first strand of each cylinder as scaffold
+   * @param hybrid Makes the scaffold RNA and staples DNA
    */
-  createStrands(cm: CylinderModel, hasScaffold: boolean) {
+  createStrands(cm: CylinderModel, hasScaffold: boolean, hybrid = false) {
     const cylToStrands = new Map<Cylinder, [Strand, Strand]>();
     for (let i = 0; i < cm.cylinders.length; i++) {
       const cyl = cm.cylinders[i];
-
-      const strand1 = new Strand(this);
-      const strand2 = new Strand(this);
+      let strand1;
+      let strand2;
+      if (hybrid) {
+        this.hybrid = true;
+        strand1 = new Strand(this, 'RNA', RNA);
+        strand2 = new Strand(this, 'DNA', DNA);
+      } else {
+        strand1 = new Strand(this);
+        strand2 = new Strand(this);
+      }
       strand1.isScaffold = hasScaffold;
       strand2.isScaffold = false;
       this.addStrand(strand1);
@@ -556,7 +572,7 @@ export class NucleotideModel extends Model {
           if (cur.prev) cur = cur.prev;
           else break;
         } while (cur != start);
-        const newStrand = new Strand(this);
+        const newStrand = new Strand(this, s.naType, s.nucParams);
         newStrand.isScaffold = s.isScaffold;
         newStrands.push(newStrand);
         do {

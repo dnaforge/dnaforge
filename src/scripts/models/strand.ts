@@ -25,12 +25,17 @@ export class Strand {
    * @param NucleotideModel
    * @param scale
    * @param naType DNA | RNA
+   * @param nucParams typeof RNA | typeof DNA
    */
-  constructor(nm: NucleotideModel) {
+  constructor(
+    nm: NucleotideModel,
+    naType = nm.naType,
+    nucParams = nm.nucParams,
+  ) {
     this.owner = nm;
     this.scale = nm.scale;
-    this.naType = nm.naType;
-    this.nucParams = nm.nucParams;
+    this.naType = naType;
+    this.nucParams = nucParams;
   }
 
   toJSON(): JSONObject {

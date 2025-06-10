@@ -1,0 +1,209 @@
+<div class="section" id="xtdna" data-title="XT-DNA" data-hint-text="Scaffolded DNA wireframes based on spanning tree routings, while minimising the number of scaffold crossovers; parallel-duplex edges.">
+    <div class="d-flex flex-wrap">
+        <div class="group">
+            <button class="ribbon-button" id="xtdna-generate-wires" data-role="hint" data-hint-position="right"
+                data-hint-text="Generate a maximally branching spanning tree and a route twice around it.">
+                <span class="mif-play mif-4x"></span>
+                <span class="caption">Generate<br>Design</span>
+            </button>
+            <span class="title">Main</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
+                    <input type="checkbox" data-role="switch" data-caption="Route"
+                        id="xtdna-toggle-wires">
+                </li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
+                        data-caption="Cylinders" id="xtdna-toggle-cylinders"></li>
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Toggle visibility of the nucleotide model."><input checked type="checkbox"
+                        data-role="switch" data-caption="Nucleotides" id="xtdna-toggle-nucleotides"></li>
+            </ul>
+            <span class="title">Visibility</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Input scale in nanometers. This is the edge length of each reference grid square."><input
+                        type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
+                        data-size="225" data-prepend="Scale" data-append="nm" id="xtdna-scale"></li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
+                    <select data-prepend="Scaffold" data-role="select" id="xtdna-scaffold">
+                        <optgroup label="Scaffold Strand">
+                            <option value="none">Blank</option>
+                            <option value="random">Random</option>
+                            <option value="custom">Custom</option>
+                            <option value="m13mp18">M13mp18 (7249)</option>
+                            <option value="p7560">p7560 (7560)</option>
+                            <option value="p8064">p8064 (8064)</option>
+                            <option value="p8634">p8634 (8634)</option>
+                            <option value="p7308">p7308 (7308)</option>
+                            <option value="p7704">p7704 (7704)</option>
+                            <option value="p8100">p8100 (8100)</option>
+                        </optgroup>
+                    </select>
+                </li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Add breakpoints to convert complement strand(s) into individual staples. If off the complement strand(s) will form cycles.">
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add Staple Breakpoints"
+                        id="xtdna-add-nicks">
+                </li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Add breakpoint to the scaffold strand between its 5'- and 3'-ends. If off the scaffold will form a cycle.">
+                    <input checked type="checkbox" data-role="checkbox" data-caption="Add Scaffold Breakpoint"
+                        id="xtdna-scaffold-breakpoint">
+                </li>
+            </ul>
+            <button class="ribbon-button" onclick="Metro.dialog.open('#xtdna-parameters');" data-role="hint"
+                data-hint-position="right" data-hint-text="Setup additional XT-DNA parameters.">
+                <span class="mif-cogs mif-4x"></span>
+                <span class="caption">Additional<br>Parameters</span>
+            </button>
+            <span class="title">Parameters</span>
+        </div>
+        <div class="group">
+            <button hidden class="ribbon-button" id="xtdna-relax" data-role="hint" data-hint-position="right"
+                data-hint-text="">
+                <span class="mif-shrink2 mif-4x"></span>
+                <span class="caption">Relax<br>Cylinder<br>Model</span>
+            </button>
+            <button class="ribbon-button" id="xtdna-generate-nucleotides" data-role="hint"
+                data-hint-position="right"
+                data-hint-text="Generate a nucleotide model based on the current cylinder model. Also assigns bases identities if the scaffold strand is defined.">
+                <span class="mif-shuffle mif-4x"></span>
+                <span class="caption">Generate<br>Nucleotide<br>Model</span>
+            </button>
+            <span class="title">Generation</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type:none;">
+                <li>
+                    <button class="button light w-100 small" id="xtdna-download-unf" data-role="hint" data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download UNF</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="xtdna-download-pdb" data-role="hint"
+                        data-hint-position="right" data-hint-text="Download the current nucleotide model as a pdb.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download PDB</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="xtdna-download-ox" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as classic oxDNA files.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download oxDNA (classic)</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="xtdna-download-ox-new" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Download the current nucleotide model as new oxNA files.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download oxNA</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="button light w-100 small" id="xtdna-download-strands" data-role="hint" data-hint-position="right"
+                        data-hint-text="Download the primary structure.">
+                        <span class="mif-download mif-2x"></span>
+                        <span class="caption">Download Strands</span>
+                    </button>
+                </li>
+            </ul>
+            <span class="title">Download</span>
+        </div>
+        <div class="group">
+            <ul style="list-style-type: none;">
+                <li>
+                    <h6>Sources:</h6>
+                </li>
+                <li>
+                    <a  data-role="hint" data-hint-position="right"
+                    data-hint-text=""><span class="mif-file-text icon"></span></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="dialog" data-role="dialog" id="xtdna-scaffold-dialog" data-overlay-click-close="true">
+    <div class="dialog-title">Input a custom scaffold</div>
+    <div class="dialog-content">
+        <textarea data-role="textarea" data-chars-counter="#xtdna-chars-counter"
+            data-chars-counter-template="Length $1 bases" id="xtdna-scaffold-dialog-text"
+            data-auto-size="false"></textarea>
+        <p id="xtdna-chars-counter">Length: 0 bases</p>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="xtdna-scaffold-dialog-confirm">Set Scaffold</button>
+    </div>
+</div>
+
+
+<div class="dialog" data-role="dialog" id="xtdna-parameters" data-overlay-click-close="true">
+    <div class="dialog-title">XT-DNA settings</div>
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <p>Routing parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Bring cylinders as close to the node as possible.">
+                <input type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes"
+                    id="xtdna-greedy">
+            </li>
+        </ul>
+        <p>Strand parameters:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right" data-hint-text="Choose which nucleic acid is the scaffold. The staples will be DNA in both cases.">
+                <select data-prepend="Scaffold Type" data-role="select" id="xtdna-scaffold-type">
+                    <optgroup label="Scaffold Strand Type">
+                        <option value="DNA">DNA</option>
+                        <option value="RNA">RNA</option>
+                    </optgroup>
+                </select>
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="Offset"
+                    id="xtdna-scaffold-offset">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="ID of the first nucleotide in the scaffold strand.">
+                <input type="number" data-role="input" data-default-value="0" data-prepend="5' ID"
+                    id="xtdna-scaffold-start">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
+                    type="number" data-role="input" data-default-value="50" data-size="260"
+                    data-prepend="GC-content" data-append="%" id="xtdna-gc-content"></li>
+        </ul>
+        <p>Relaxation parameters:</p>
+        <ul class="group-list">
+            <li hidden data-role="hint" data-hint-position="right"
+                data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
+                    data-default-value="50" data-prepend="GC-content" data-append="%" id="xtdna-relax-iterations"></li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between the mesh edges and cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Edge Constraints"
+                    id="xtdna-floor-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between cylinders in bundles, e.g. reinforced cylinders or doubled edges.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Bundle Constraints"
+                    id="xtdna-bundle-constraints">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
+                <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
+                    id="xtdna-spring-constraints">
+            </li>
+        </ul>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
+    </div>
+</div>
