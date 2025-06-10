@@ -8,7 +8,11 @@ import { WiresModel } from '../../models/wires_model';
 import { Graph, Vertex, HalfEdge } from '../../models/graph_model';
 import { CCParameters } from './cycle_cover_menu';
 import { Selectable } from '../../models/selectable';
-import { Xtrna } from '../xtrna/xtrna';
+import {
+  augmentRotations,
+  getVertexRotations,
+  xtrnaParameters,
+} from '../shared/xtrna_routing';
 
 export class CycleCover extends WiresModel {
   cycles: Array<Array<HalfEdge>>;
@@ -128,10 +132,10 @@ export class CycleCover extends WiresModel {
     if (genusTarget == 'min') {
       throw 'Unimplemented;';
     } else if (genusTarget == 'max') {
-      // Use XT-RNA for this. //TODO: Don't use XT-RNA for this.
-      const xt = new Xtrna(this.graph);
-      const xRot = xt.getVertexRotations();
-      xt.augmentRotations(xRot);
+      const xt = xtrnaParameters(this.graph);
+      const xRot = getVertexRotations(this.graph, xt.st);
+      augmentRotations(this.graph, xRot);
+
       for (const v of this.graph.getVertices()) {
         const nFunction = new Map<HalfEdge, HalfEdge>();
         rotationSystem.set(v, nFunction);

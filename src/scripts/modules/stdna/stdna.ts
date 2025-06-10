@@ -16,7 +16,7 @@ import { Nucleotide } from '../../models/nucleotide';
 import { Strand } from '../../models/strand';
 import { WiresModel } from '../../models/wires_model';
 import { Selectable } from '../../models/selectable';
-import { Xtrna } from '../xtrna/xtrna';
+import { xtrnaParameters } from '../shared/xtrna_routing';
 
 export class STDNA extends WiresModel {
   graph: Graph;
@@ -81,9 +81,8 @@ export class STDNA extends WiresModel {
 
   getVeneziano() {
     if (this.minCrossovers) {
-      const xt = new Xtrna(this.graph);
+      const xt = xtrnaParameters(this.graph);
       // replace the spanning tree with a new one that misses only the XT kissing loops
-      // TODO: don't hack it like this
       this.st = new Set<Edge>();
       for (const e of this.graph.getEdges()) {
         const [he1, he2] = e.halfEdges;
