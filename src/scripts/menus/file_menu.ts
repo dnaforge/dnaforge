@@ -7,6 +7,7 @@ import { Graph } from '../models/graph_model';
 import { ModuleMenu } from './module_menu';
 import { Context } from './context';
 import { Menu } from './menu';
+import { buildPluginContent } from '../modules/plugin/build_plugin';
 
 /**
  * Loads all the example obj-files, converts them to graphs and creates their HTML menu items.
@@ -125,6 +126,102 @@ const uploadedPlugins = ((): { [id: string]: string } => {
     li.append(downloadButton);
     li.append(deleteButton);
     $('#plugin-list').append(li);
+  }
+  return plugins;
+})();
+
+const loadedModules: { [id: string]: boolean } = JSON.parse(
+  localStorage.getItem('loadedModules') || '{}',
+);
+
+/**
+ * Loads all plugin files from ../../module_plugins and creates their HTML menu items.
+ *
+ * @returns plugins dictionary mapping the plugin ids to their javascript content
+ */
+export const preloadedPlugins = ((): { [id: string]: string } => {
+  const pluginFiles = buildPluginContent();
+
+  const plugins: { [id: string]: string } = {};
+  for (const [moduleName, content] of pluginFiles) {
+    const name = moduleName;
+    const fileName = `${moduleName.replace(/-/g, '').toLowerCase()}_plugin.js`;
+
+    if (!(moduleName in loadedModules)) loadedModules[moduleName] = true;
+
+    const li = $(`
+      <li data-icon="<span class='mif-file-empty'>" 
+      data-caption="${name}"  
+      data-id="${fileName}" 
+      data-content="<span class='text-muted'>
+      ${fileName}
+      </span>"
+      </li>`);
+
+    const downloadButton = $('<button>', {
+      class: 'button cycle mif-2x mif-download outline primary sim-download',
+      'data-role': 'hint',
+      'data-hint-text': `Download ${fileName} to your computer.`,
+      'data-hint-position': 'right',
+      style: 'width: 3rem;',
+    });
+
+    downloadButton.on('click', () => {
+      downloadTXT(fileName, content);
+    });
+
+    plugins[fileName] = content;
+
+    const deleteButton = $('<button>', {
+      class: 'button cycle mif-2x mif-bin outline alert',
+      'data-role': 'hint',
+      'data-hint-text': `Remove ${name} from use.`,
+      'data-hint-position': 'right',
+      style: 'width: 3rem;',
+    });
+
+    deleteButton.on('click', () => {
+      const confirmDelete = window.confirm(
+        `Remove "${name}" from use? The website will refresh.`,
+      );
+      if (!confirmDelete) return;
+
+      loadedModules[moduleName] = false;
+      localStorage.setItem('loadedModules', JSON.stringify(loadedModules));
+      window.location.reload();
+    });
+
+    const loadButton = $('<button>', {
+      class: 'button cycle mif-2x mif-upload outline secondary',
+      'data-role': 'hint',
+      'data-hint-text': `Take ${name} into use.`,
+      'data-hint-position': 'right',
+      style: 'width: 3rem;',
+    });
+
+    loadButton.on('click', () => {
+      const confirmUpload = window.confirm(
+        `Take "${name}" to use? The website will refresh.`,
+      );
+      if (!confirmUpload) return;
+
+      loadedModules[moduleName] = true;
+      localStorage.setItem('loadedModules', JSON.stringify(loadedModules));
+      window.location.reload();
+    });
+
+    li.on('dblclick', () => {
+      downloadButton.click();
+    });
+
+    li.append(downloadButton);
+
+    if (loadedModules[moduleName]) {
+      li.append(deleteButton);
+    } else {
+      li.append(loadButton);
+    }
+    $('#preloaded-plugin-list').append(li);
   }
   return plugins;
 })();
@@ -351,6 +448,54 @@ export class FileMenu extends Menu {
       const files = (e as unknown as DragEvent).dataTransfer.files;
       this.readFiles(files);
     });
+
+    $('#pre-download-all').on('click', () => {
+      const preloaded = preloadedPlugins;
+      for (const name in preloaded) {
+        const content = preloaded[name];
+        downloadTXT(name, content);
+      }
+    });
+
+    $('#pre-upload-all').on('click', () => {
+      const confirmUpload = window.confirm(
+        `Upload all built-in plugins to use? The website will refresh.`,
+      );
+      if (!confirmUpload) return;
+
+      for (const name in loadedModules) {
+        loadedModules[name] = true;
+      }
+      localStorage.setItem('loadedModules', JSON.stringify(loadedModules));
+      window.location.reload();
+    });
+
+    $('#pre-remove-all').on('click', () => {
+      const confirmRemove = window.confirm(
+        `Remove all built-in plugins from use? The website will refresh.`,
+      );
+      if (!confirmRemove) return;
+
+      for (const name in loadedModules) {
+        loadedModules[name] = false;
+      }
+      localStorage.setItem('loadedModules', JSON.stringify(loadedModules));
+      window.location.reload();
+    });
+
+    const allTrue =
+      Object.values(loadedModules).filter((v) => v === true).length ==
+        Object.values(loadedModules).length ||
+      Object.values(loadedModules).length == 0;
+    const allFalse =
+      Object.values(loadedModules).filter((v) => v === false).length ==
+      Object.values(loadedModules).length;
+
+    if (allTrue) {
+      $('#pre-upload-all').hide();
+    } else if (allFalse) {
+      $('#pre-remove-all').hide();
+    }
 
     $('#user-download-all').on('click', () => {
       const uploaded = uploadedPlugins;

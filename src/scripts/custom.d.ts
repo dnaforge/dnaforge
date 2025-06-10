@@ -16,6 +16,11 @@ declare module '*.htm' {
   export default content;
 }
 
+declare module '*?raw' {
+  const content: string;
+  export default content;
+}
+
 type JSONValue = JSONObject | string | number | boolean | Array<JSONValue>;
 
 interface JSONObject {

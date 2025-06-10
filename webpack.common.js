@@ -14,6 +14,10 @@ module.exports = {
     module: {
         rules: [
             {
+                resourceQuery: /raw/,
+                type: 'asset/source',
+              },
+            {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/,

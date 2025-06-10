@@ -56,7 +56,7 @@ export function dev(context: Context) {
   //context.switchContext(xtrna);
   //getXuon(graph);
 
-  $('#cycle-cover-scale')[0].value = 1.5;
+  //$('#cycle-cover-scale')[0].value = 1.5;
   const cc = <CycleCoverMenu>context.menus.get('cycle-cover');
   //cc.generateWires();
   //cc.generateCylinderModel();
@@ -67,7 +67,7 @@ export function dev(context: Context) {
   //context.switchContext(cc);
 
   //$('#atrail-scale')[0].value = 1;
-  $('#atrail-toggle-wires')[0].checked = 1;
+  //$('#atrail-toggle-wires')[0].checked = 1;
   //$('#atrail-checkerboard')[0].checked = 1;
   const atrail = <ATrailMenu>context.menus.get('atrail');
   //atrail.generateWires();

@@ -103,13 +103,50 @@
     <div class="dialog-title">Manage Plugins</div>
 
     <div class="dialog-content" style="overflow-y: scroll;">
-        <div id="user-plugins-tab">
-            <ul data-role="listview" data-view="content" data-select-node="true" id="plugin-list"
-                style="overflow-y: scroll;">
-                You have no uploaded plugins.
-            </ul>
-            <button class="button primary js-dialog-close" id="user-download-all">Download All</button>
-            <button class="button alert js-dialog-close" id="user-delete-all">Delete All</button>
+        <ul
+            id="plugin-tabs"
+            data-role="tabs"
+            data-expand="true"
+            data-update-uri="false"
+        >
+            <li><a href="#built-in-plugins-tab">Built-in Plugins</a></li>
+            <li><a href="#user-plugins-tab">User Plugins</a></li>
+        </ul>
+
+        <div class="tabs-targets">
+            <div id="built-in-plugins-tab">
+                <span>These are the plugins for built-in modules.</span>
+                <ul data-role="listview" data-view="content" data-select-node="true" id="preloaded-plugin-list" style="overflow-y: scroll;">
+                </ul>
+                <button class="button primary js-dialog-close" 
+                    id="pre-download-all"
+                    data-role="hint"
+                    data-hint-position="right" 
+                    data-hint-text="Download all built-in plugin files to your computer.">
+                    Download All</button>
+                <button 
+                    class="button secondary js-dialog-close" 
+                    id="pre-upload-all"
+                    data-role="hint"
+                    data-hint-position="right" 
+                    data-hint-text="Take all built-in modules to use.">
+                    Upload All</button>
+                <button 
+                    class="button alert js-dialog-close" 
+                    id="pre-remove-all"
+                    data-role="hint"
+                    data-hint-position="right" 
+                    data-hint-text="Remove all built-in modules from use.">
+                    Remove All</button>
+            </div>
+
+            <div id="user-plugins-tab">
+                <ul data-role="listview" data-view="content" data-select-node="true" id="plugin-list" style="overflow-y: scroll;">
+                    You have no uploaded plugins.
+                </ul>
+                <button class="button primary js-dialog-close" id="user-download-all">Download All</button>
+                <button class="button alert js-dialog-close" id="user-delete-all">Delete All</button>
+            </div>
         </div>
     </div>
 
