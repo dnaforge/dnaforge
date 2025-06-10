@@ -17,6 +17,8 @@ function getParams(): STParameters {
     scaffoldOffset: 0,
     scaffoldStart: 0,
     minCrossovers: false,
+    middleConnection: false,
+    sixHelix: false,
   };
 }
 

@@ -104,8 +104,8 @@
                     </button>
                 </li>
                 <li>
-                    <button class="button light w-100 small" id="spanning-tree-download-strands" data-role="hint" data-hint-position="right"
-                        data-hint-text="Download the primary structure.">
+                    <button class="button light w-100 small" id="spanning-tree-download-strands" data-role="hint"
+                        data-hint-position="right" data-hint-text="Download the primary structure.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download Strands</span>
                     </button>
@@ -147,12 +147,12 @@
         <p>Routing parameters:</p>
         <ul class="group-list">
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Minimise the number of scaffold crossovers.">
+                data-hint-text="Minimise the number of scaffold crossovers. Only functional when six-helix bundles are not used.">
                 <input type="checkbox" data-role="checkbox" data-caption="Minimise scaffold crossovers"
                     id="spanning-tree-crossovers">
             </li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Bring cylinders as close to the node as possible.">
+                data-hint-text="Bring cylinders as close to the node as possible. Only functional when six-helix bundles are not used.">
                 <input type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes"
                     id="spanning-tree-greedy">
             </li>
@@ -171,14 +171,16 @@
             </li>
             <li hidden data-role="hint" data-hint-position="right"
                 data-hint-text="Proportion of G's and C's in the randomly generated primary structure."><input
-                    type="number" data-role="input" data-default-value="50" data-size="260"
-                    data-prepend="GC-content" data-append="%" id="spanning-tree-gc-content"></li>
+                    type="number" data-role="input" data-default-value="50" data-size="260" data-prepend="GC-content"
+                    data-append="%" id="spanning-tree-gc-content">
+            </li>
         </ul>
         <p>Relaxation parameters:</p>
         <ul class="group-list">
             <li hidden data-role="hint" data-hint-position="right"
                 data-hint-text="Number of relaxation simulation iterations."><input type="number" data-role="input"
-                    data-default-value="50" data-prepend="GC-content" data-append="%" id="spanning-tree-relax-iterations"></li>
+                    data-default-value="50" data-prepend="GC-content" data-append="%"
+                    id="spanning-tree-relax-iterations"></li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Add springs between the mesh edges and cylinders.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Edge Constraints"
@@ -193,6 +195,23 @@
                 data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
                     id="spanning-tree-spring-constraints">
+            </li>
+        </ul>
+        <p>Six-helix bundle:</p>
+        <ul class="group-list">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Use six-helix bundle edges. The route visites every edge total of six times, three in both directions.">
+                <input type="checkbox" data-role="checkbox" data-caption="Six-helix bundles" id="spanning-tree-shb">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Select to use the middle connection layer, meaning the middle cylinders connect to other bundles at the vertex. If unchecked, inner connection layer will be used. Only functional when six-helix bundles are used.">
+                <input type="checkbox" data-role="checkbox" data-caption="Use Middle Connection Layer"
+                    id="spanning-tree-vertex-connection">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Maximum staple length in nucleotides. Only functional when six-helix bundles are used.">
+                <input type="number" data-role="input" data-default-value="60" data-prepend="Max Staple Length"
+                    id="spanning-tree-strand-length-max">
             </li>
         </ul>
     </div>

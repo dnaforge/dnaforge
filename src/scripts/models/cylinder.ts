@@ -14,6 +14,7 @@ export enum RoutingStrategy {
   Pseudoknot = 1,
   Reinforced = 2,
   Veneziano = 3,
+  SixHelix = 4,
 }
 
 export enum PrimePos {
