@@ -1176,7 +1176,7 @@ export class SimulationAPI extends Menu {
   ) {
     console.log('Submit Job');
     const dat = model.toDat();
-    const top = model.toTop();
+    const top = model.toTop(false);
     const forces = model.toExternalForces();
 
     const job = {

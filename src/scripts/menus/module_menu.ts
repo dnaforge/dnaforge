@@ -405,9 +405,22 @@ export abstract class ModuleMenu extends Menu {
     }
   }
 
-  downloadOx() {
+  downloadOx(classic = true) {
     try {
-      const top = this.nm.toTop();
+      const top = this.nm.toTop(classic);
+      const dat = this.nm.toDat();
+      const forces = this.nm.toExternalForces();
+      downloadTXT(`${this.title.toLowerCase()}.top`, top);
+      downloadTXT(`${this.title.toLowerCase()}.dat`, dat);
+      downloadTXT(`${this.title.toLowerCase()}.forces`, forces);
+    } catch (error) {
+      throw `Nucleotide model not defined.`;
+    }
+  }
+
+  downloadOxNew() {
+    try {
+      const top = this.nm.toTop(false);
       const dat = this.nm.toDat();
       const forces = this.nm.toExternalForces();
       downloadTXT(`${this.title.toLowerCase()}.top`, top);
@@ -529,6 +542,10 @@ export abstract class ModuleMenu extends Menu {
 
     $(`#${this.elementId}-download-ox`).on('click', () => {
       tryError(this.downloadOx);
+    });
+
+    $(`#${this.elementId}-download-ox-new`).on('click', () => {
+      tryError(this.downloadOxNew);
     });
 
     $(`#${this.elementId}-download-strands`).on('click', () => {

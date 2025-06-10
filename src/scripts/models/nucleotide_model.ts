@@ -112,28 +112,58 @@ export class NucleotideModel extends Model {
     const nucs: Nucleotide[] = [];
     const pairs: [number, number][] = [];
     let strand: Strand;
+    const classic = top.split('\n')[0].split(' ')[2] != '5->3'; // checks which .top file version is used
 
     top
       .split('\n')
       .slice(1)
       .map((line: string, idx: number) => {
         if (!line) return;
-        const sData = line.split(' ');
-        const sid = parseInt(sData[0]);
-        const base = sData[1];
-        const next = parseInt(sData[2]); // 5' -> 3'
-        const prev = parseInt(sData[3]);
+        if (classic) {
+          const sData = line.split(' ');
+          const sid = parseInt(sData[0]);
+          const base = sData[1];
+          const next = parseInt(sData[2]); // 5' -> 3'
+          const prev = parseInt(sData[3]);
 
-        if (!strand || strand.id != sid) {
+          if (!strand || strand.id != sid) {
+            strand = new Strand(nm);
+            strand.id = sid;
+            nm.addStrand(strand);
+          }
+          if (next >= 0) pairs.push([idx, next]);
+          if (prev >= 0) pairs.push([prev, idx]);
+          const n = new Nucleotide(nm, strand, base as IUPAC_CHAR);
+          nucs.push(n);
+          strand.addNucleotides(n);
+        } else {
+          const sData = line.split(' ');
+          const bases = sData[0];
+          const circular = sData
+            .find((s) => s.includes('circular'))
+            .includes('true');
+          const s_nucs: Nucleotide[] = [];
+
           strand = new Strand(nm);
-          strand.id = sid;
+          strand.id = idx + 1;
           nm.addStrand(strand);
+
+          bases.split('').map((base: string) => {
+            const n = new Nucleotide(nm, strand, base as IUPAC_CHAR);
+            s_nucs.push(n);
+            strand.addNucleotides(n);
+          });
+
+          for (let i = 0; i < s_nucs.length; i++) {
+            if (circular && i == s_nucs.length - 1) {
+              s_nucs[i].next = s_nucs[0];
+              s_nucs[0].prev = s_nucs[i];
+            } else if (i < s_nucs.length - 1) {
+              s_nucs[i].next = s_nucs[i + 1];
+              s_nucs[i + 1].prev = s_nucs[i];
+            }
+          }
         }
-        if (next >= 0) pairs.push([idx, next]);
-        if (prev >= 0) pairs.push([prev, idx]);
-        const n = new Nucleotide(nm, strand, base as IUPAC_CHAR);
-        nucs.push(n);
-        strand.addNucleotides(n);
       });
 
     for (const p of pairs) {
@@ -210,30 +240,53 @@ export class NucleotideModel extends Model {
   /**
    * Returns an oxDNA top-file corresponding to this model.
    *
+   * @param classic determines whether to use the classic oxDNA topology file or the new one. Default is true.
+   *
    * @returns string
    */
-  toTop(): string {
+  toTop(classic = true): string {
     const lines = [];
 
     const nNucs = this.getNucleotides().length;
     const nStrands = this.getStrands().length;
+    let file;
 
-    lines.push(`${nNucs} ${nStrands}`);
+    if (classic) {
+      lines.push(`${nNucs} ${nStrands}`);
 
-    let j = 0;
-    for (const s of this.getStrands()) {
-      j += 1;
-      for (const n of s.getNucleotides()) {
+      let j = 0;
+      for (const s of this.getStrands()) {
+        j += 1;
+        for (const n of s.getNucleotides()) {
+          const line = [];
+          line.push(j);
+          line.push(n.base);
+          line.push(n.next ? n.next.id : -1);
+          line.push(n.prev ? n.prev.id : -1);
+          lines.push(line.join(' '));
+        }
+      }
+      file = lines.join('\n');
+    } else {
+      lines.push(`${nNucs} ${nStrands} 5->3`);
+      for (const s of this.getStrands()) {
         const line = [];
-        line.push(j);
-        line.push(n.base);
-        line.push(n.next ? n.next.id : -1);
-        line.push(n.prev ? n.prev.id : -1);
+
+        const primary = s.toPrimary();
+        line.push(primary);
+
+        const type = `type=${s.naType}`;
+        line.push(type);
+
+        const nucs = s.nucleotides;
+        const circular = `circular=${nucs[nucs.length - 1].next == nucs[0]}`;
+        line.push(circular);
         lines.push(line.join(' '));
       }
+      file = lines.join('\n') + '\n';
     }
 
-    return lines.join('\n');
+    return file;
   }
 
   /**
