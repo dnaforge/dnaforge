@@ -62,6 +62,74 @@ const examples = ((): { [id: string]: Graph } => {
 })();
 
 /**
+ * Loads all plugin files from localStorage, creates their HTML menu items.
+ *
+ * @returns plugins dictionary mapping the plugin ids to their content
+ */
+const uploadedPlugins = ((): { [id: string]: string } => {
+  const storedPlugins = JSON.parse(localStorage.getItem('plugins') || '[]');
+  const plugins: { [id: string]: string } = {};
+  if (!storedPlugins) return;
+  if (storedPlugins.length != 0) $('#plugin-list').empty();
+  for (const plugin of storedPlugins) {
+    const id = plugin.name.replace('.ts', '').replace('.js', '');
+    const name = id.replace('_', ' ');
+    plugins[plugin.name] = plugin.content;
+
+    const li = $(`
+      <li data-icon="<span class='mif-file-empty'>" 
+      data-caption="${name}"  
+      data-id="${id}" 
+      data-content="<span class='text-muted'>
+      ${plugin.name}
+      </span>"
+      </li>`);
+
+    const downloadButton = $('<button>', {
+      class: 'button cycle mif-2x mif-download outline primary sim-download',
+      'data-role': 'hint',
+      'data-hint-text': `Download ${plugin.name} to your computer`,
+      'data-hint-position': 'right',
+      style: 'width: 3rem;',
+    });
+
+    downloadButton.on('click', () => {
+      downloadTXT(plugin.name, plugin.content);
+    });
+
+    const deleteButton = $('<button>', {
+      class: 'button cycle mif-2x mif-bin outline alert',
+      'data-role': 'hint',
+      'data-hint-text': `Delete ${plugin.name}`,
+      'data-hint-position': 'right',
+      style: 'width: 3rem;',
+    });
+
+    deleteButton.on('click', () => {
+      const confirmDelete = window.confirm(
+        `Delete plugin "${plugin.name}"?  It will be permanently removed and cannot be recovered. The website will refresh.`,
+      );
+      if (!confirmDelete) return;
+
+      const updatedPlugins = storedPlugins.filter(
+        (p: { name: string }) => p.name !== plugin.name,
+      );
+      localStorage.setItem('plugins', JSON.stringify(updatedPlugins));
+      window.location.reload();
+    });
+
+    li.on('dblclick', () => {
+      downloadButton.click();
+    });
+
+    li.append(downloadButton);
+    li.append(deleteButton);
+    $('#plugin-list').append(li);
+  }
+  return plugins;
+})();
+
+/**
  * File tab.
  */
 export class FileMenu extends Menu {
@@ -70,6 +138,8 @@ export class FileMenu extends Menu {
   fileInput: any;
   openJSONDialogButton: any;
   downloadJSONButton: any;
+  pluginFileButton: any;
+  pluginFileInput: any;
 
   private createdJSONMenu = false;
 
@@ -109,6 +179,60 @@ export class FileMenu extends Menu {
       });
     } else {
       this.context.addMessage('Unrecognised file format.', '');
+    }
+  }
+
+  /**
+   * Saves the input files to local storage and reloads the page if valid plugins are added.
+   *
+   * @param files input files
+   */
+  async savePluginFiles(files: FileList) {
+    const storedPlugins = JSON.parse(localStorage.getItem('plugins') || '[]');
+    const newPlugins = [...storedPlugins];
+    const alertMessages: string[] = [];
+    let pluginAdded = false;
+
+    if (files.length == 0) {
+      this.context.addMessage(`File not detected`, 'alert');
+      return;
+    }
+
+    for (const file of files) {
+      const name = file.name;
+      const content = await file.text();
+
+      if (!content) {
+        alertMessages.push(`File "${name}" is empty`);
+        continue;
+      }
+
+      const isDuplicate = newPlugins.some((plugin) => plugin.name === name);
+      if (isDuplicate) {
+        alertMessages.push(`A plugin named "${name}" already exists.`);
+        continue;
+      }
+
+      const isCorrectType = name.endsWith('.ts') || name.endsWith('.js');
+      if (!isCorrectType) {
+        alertMessages.push(`"${name}" is not a .ts or .js file.`);
+        continue;
+      }
+
+      const confirmed = window.confirm(`Add new plugin "${name}"?`);
+      if (!confirmed) continue;
+
+      newPlugins.push({ name, content });
+      pluginAdded = true;
+    }
+
+    if (pluginAdded) {
+      localStorage.setItem('plugins', JSON.stringify(newPlugins));
+      localStorage.setItem('pluginAlerts', JSON.stringify(alertMessages));
+      window.location.reload();
+    } else {
+      alertMessages.forEach((msg) => this.context.addMessage(msg, 'alert'));
+      localStorage.removeItem('pluginAlerts');
     }
   }
 
@@ -183,6 +307,9 @@ export class FileMenu extends Menu {
     this.downloadJSONButton = $(`#file-download-json`);
     this.openJSONDialogButton = $(`#file-open-json-dialog`);
 
+    this.pluginFileButton = $('#upload-plugin-button');
+    this.pluginFileInput = $('#plugin-file-input');
+
     this.openJSONDialogButton.on('click', () => {
       this.createJSONMenu();
       Metro.dialog.open('#file-json-dialog');
@@ -207,6 +334,11 @@ export class FileMenu extends Menu {
       this.context.setGraph(examples[id]);
     });
 
+    this.pluginFileButton.on('click', () => {
+      const files = (<HTMLInputElement>this.pluginFileInput[0]).files;
+      this.savePluginFiles(files);
+    });
+
     $('#canvas').on('dragover', (e: Event) => {
       e.stopPropagation();
       e.preventDefault();
@@ -219,5 +351,27 @@ export class FileMenu extends Menu {
       const files = (e as unknown as DragEvent).dataTransfer.files;
       this.readFiles(files);
     });
+
+    $('#user-download-all').on('click', () => {
+      const uploaded = uploadedPlugins;
+      for (const name in uploaded) {
+        const content = uploaded[name];
+        downloadTXT(name, content);
+      }
+    });
+
+    $('#user-delete-all').on('click', () => {
+      const confirmRemove = window.confirm(
+        `Delete all user-uploaded plugins? They will be permanently removed and cannot be recovered. The website will refresh.`,
+      );
+      if (!confirmRemove) return;
+      localStorage.removeItem('plugins');
+      window.location.reload();
+    });
+
+    if (Object.values(uploadedPlugins).length == 0) {
+      $('#user-download-all').hide();
+      $('#user-delete-all').hide();
+    }
   }
 }

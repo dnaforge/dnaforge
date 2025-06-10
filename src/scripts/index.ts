@@ -6,6 +6,7 @@ import { FileMenu } from './menus/file_menu';
 import { setupModules } from './modules/modules';
 import { dev } from './dev';
 import { SimulationAPI } from './menus/simulations_menu';
+import { loadPlugins } from './modules/plugin/plugins';
 
 let context: Context;
 
@@ -19,6 +20,7 @@ $.ready(function () {
   new SimulationAPI(context);
 
   setupModules(context);
+  loadPlugins(context);
 });
 
 window.onload = function () {
@@ -26,6 +28,12 @@ window.onload = function () {
     `DNAforge v${process.env.__VERSION__} Built at ${process.env.__BUILDTIME__}`,
   );
   misc();
+
+  // If an user uploads many plugins at once, some of which produce an error, display the messages after the reload
+  const savedAlerts = JSON.parse(localStorage.getItem('pluginAlerts') || '[]');
+  savedAlerts.forEach((msg: string) => context.addMessage(msg, 'alert'));
+  localStorage.removeItem('pluginAlerts');
+
   if (!process.env.PRODUCTION) dev(context);
 };
 

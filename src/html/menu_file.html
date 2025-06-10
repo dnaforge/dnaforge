@@ -23,6 +23,19 @@
             <span class="title">Save</span>
         </div>
         <div class="group">
+            <button class="ribbon-button" onclick="Metro.dialog.open('#upload-plugin')" data-role="hint"
+                data-hint-position="right" data-hint-text="Open a plugin file from the local file system.">
+                <span class="mif-folder-open mif-3x"></span>
+                <span class="caption">Upload Plugin</span>
+            </button>
+            <button class="ribbon-button" onclick="Metro.dialog.open('#plugin-manage')" data-role="hint"
+                data-hint-position="right" data-hint-text="Manage the built-in and user uploaded plugin files.">
+                <span class="mif-list mif-3x"></span>
+                <span class="caption">Manage Plugins</span>
+            </button>
+            <span class="title">Plugin</span>
+        </div>
+        <div class="group">
             <ul style="list-style-type: none;">
                 <li>
                     <h6>Please cite:</h6>
@@ -31,7 +44,7 @@
                     <!--<a href="javascript:void(0)" onclick="Metro.dialog.open('#cite-main');"><span
                             class="mif-file-text icon"></span> DNAforge</a>-->
                     <a href="https://doi.org/10.1093/nar/gkae367" data-role="hint" data-hint-position="right"
-                    data-hint-text="DNAforge: a design tool for nucleic acid wireframe nanostructures 
+                        data-hint-text="DNAforge: a design tool for nucleic acid wireframe nanostructures 
                     "><span class="mif-file-text icon"></span> Elonen et al. 2024</a>
                 </li>
             </ul>
@@ -74,6 +87,36 @@
     </div>
 </div>
 
+<div class="dialog" data-role="dialog" id="upload-plugin" data-overlay-click-close="true">
+    <div class="dialog-title">Upload a New Plugin</div>
+    <div class="dialog-content">
+        <p>The accepted file types are .js and .ts.</p>
+        <input type="file" data-role="file" data-mode="drop" id="plugin-file-input" multiple>
+    </div>
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Cancel</button>
+        <button class="button primary js-dialog-close" id="upload-plugin-button">Upload Plugin</button>
+    </div>
+</div>
+
+<div class="dialog" data-role="dialog" id="plugin-manage" data-overlay-click-close="true">
+    <div class="dialog-title">Manage Plugins</div>
+
+    <div class="dialog-content" style="overflow-y: scroll;">
+        <div id="user-plugins-tab">
+            <ul data-role="listview" data-view="content" data-select-node="true" id="plugin-list"
+                style="overflow-y: scroll;">
+                You have no uploaded plugins.
+            </ul>
+            <button class="button primary js-dialog-close" id="user-download-all">Download All</button>
+            <button class="button alert js-dialog-close" id="user-delete-all">Delete All</button>
+        </div>
+    </div>
+
+    <div class="dialog-actions">
+        <button class="button js-dialog-close">Close</button>
+    </div>
+</div>
 
 <!--
 <div class="dialog" data-role="dialog" id="cite-main" data-overlay-click-close="true" data-width="50vw">
