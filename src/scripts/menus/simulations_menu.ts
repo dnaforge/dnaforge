@@ -1164,7 +1164,7 @@ export class SimulationAPI extends Menu {
         description: $('#sim-sims-description').val(),
         algorithm: this.context.activeContext.elementId,
         scale: model.scale.toString(),
-        naType: model.naType,
+        naType: model.hybrid ? 'NA' : model.naType,
       });
     }
   }
