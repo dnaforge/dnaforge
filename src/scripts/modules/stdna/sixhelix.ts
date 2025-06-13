@@ -30,6 +30,7 @@ export class SixHelixBundle extends WiresModel {
     this.minCrossovers = minCrossovers;
     this.middleConnection = middleConnection;
     this.graph = graph;
+    if (this.graph.faces.length == 0) throw `Insufficient face-information for topological routing`;
     this.st = this.getPrim();
     this.trail = this.getTALOS();
   }
@@ -296,29 +297,29 @@ export class SixHelixBundle extends WiresModel {
         const groupSize = edgeToGroupSize.get(curE);
         if (groupSize != 1) {
           //1
-          const [coordinate1_1, , midway_1] = getCoords(1, 8);
+          const [coordinate1_1, , midway_1] = getCoords(1, 3);
           coords.push(coordinate1_1, midway_1);
 
           //2
-          const [, , midway_2_1] = getCoords(2, 8);
+          const [, , midway_2_1] = getCoords(2, 3);
           coords.push(midway_2_1);
-          const [, , midway_2_2] = getCoords(2, 12);
+          const [, , midway_2_2] = getCoords(2, 5);
           coords.push(midway_2_2);
 
           //3
-          const [, coordinate2_3, midway_3] = getCoords(-2, 12);
+          const [, coordinate2_3, midway_3] = getCoords(-2, 5);
           coords.push(midway_3, coordinate2_3);
 
           //4
-          const [coordinate1_4, coordinate2_4] = getCoords(-3, 1);
+          const [coordinate1_4, coordinate2_4] = getCoords(-3, 2);
           coords.push(coordinate2_4, coordinate1_4);
 
           //5
-          const [coordinate1_5, , midway_5] = getCoords(-2, 14);
+          const [coordinate1_5, , midway_5] = getCoords(-2, 6);
           coords.push(coordinate1_5, midway_5);
 
           //6
-          const [coordinate1_6, , midway_6] = getCoords(2, 14);
+          const [coordinate1_6, , midway_6] = getCoords(2, 6);
           coords.push(midway_6, coordinate1_6);
 
           //7
@@ -326,33 +327,33 @@ export class SixHelixBundle extends WiresModel {
           coords.push(coordinate1_7, coordinate2_7);
 
           //8
-          const [, coordinate2_8, midway_8] = getCoords(2, 6);
+          const [, coordinate2_8, midway_8] = getCoords(2, 2);
           coords.push(coordinate2_8, midway_8);
 
           if (this.st.has(edge)) {
             //9
-            const [, coordinate2_9, midway_9] = getCoords(1, 6);
+            const [, coordinate2_9, midway_9] = getCoords(1, 2);
             coords.push(midway_9, coordinate2_9);
           } else {
             //9
-            const [, , midway_9_1] = getCoords(1, 6);
+            const [, , midway_9_1] = getCoords(1, 2);
             coords.push(midway_9_1);
-            const [, , midway_9_2] = getCoords(1, 1);
+            const [, , midway_9_2] = getCoords(1, -2);
             coords.push(midway_9_2);
 
             //10
-            const [coordinate1_10, , midway_10] = getCoords(-1, 1);
+            const [coordinate1_10, , midway_10] = getCoords(-1, -2);
             coords.push(midway_10, coordinate1_10);
           }
           continue;
         }
 
-        const [coordinate1_1, coordinate2_1, midway_1] = getCoords(1, 1);
+        const [coordinate1_1, coordinate2_1, midway_1] = getCoords(1, 3);
 
         if (this.st.has(edge)) {
           coords.push(coordinate1_1, coordinate2_1);
         } else {
-          const [coordinate1_2, , midway_2] = getCoords(-1, 1);
+          const [coordinate1_2, , midway_2] = getCoords(-1, 3);
 
           coords.push(coordinate1_1, midway_1, midway_2, coordinate1_2);
         }
