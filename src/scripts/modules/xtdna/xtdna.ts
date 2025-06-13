@@ -424,7 +424,6 @@ function connectStrands(
       // scaffold crossover:
       if (nm.hybrid) {
         let offset;
-        console.log(length);
         if (length % 2 == 0) {
           // even
           if (length % 22 == 0) offset = 0;
