@@ -99,14 +99,14 @@ export class SixHelixBundle extends WiresModel {
 
       route.push(curE);
 
-      if (!visitedEdge.has(edge)) {
+      if ((!visitedEdge.has(edge) && !this.st.has(edge)) || (visitedEdge.has(edge) && this.st.has(edge))) {
         route.push(curE.twin);
         route.push(curE);
         route.push(curE.twin);
         route.push(curE);
-
-        visitedEdge.add(edge);
       }
+
+      visitedEdge.add(edge);
 
       if (!this.st.has(curE.edge)) continue;
       if (!visited.has(curV)) {
@@ -125,8 +125,8 @@ export class SixHelixBundle extends WiresModel {
       }
     }
 
-    this.trail = route.slice(0, route.length - 1);
-    return route.slice(0, route.length - 1);
+    this.trail = route.slice(0, route.length - 5);
+    return route.slice(0, route.length - 5);
   }
 
   getPrim(): Set<Edge> {
@@ -246,116 +246,174 @@ export class SixHelixBundle extends WiresModel {
 
       const noRepeats = grouped.flatMap((array) => array[0]);
 
+      const getCoords = (
+        dir: Vector3,
+        edge: Edge,
+        v1: Vertex,
+        v2: Vertex,
+        tangentOffsetMultiplier: number,
+        klOffsetMultiplier: number
+      ): [Vector3, Vector3, Vector3] => {
+        const vertexOffset1 = this.getVertexOffset(v1, v2, scaleFactor);
+        const vertexOffset2 = this.getVertexOffset(v2, v1, scaleFactor);
+
+        const tangent = dir
+          .clone()
+          .cross(edge.normal)
+          .multiplyScalar(tangentOffsetScale * tangentOffsetMultiplier);
+
+        const coordinate1 = v1.coords.clone().add(tangent).add(vertexOffset1);
+        const coordinate2 = v2.coords.clone().add(tangent).add(vertexOffset2);
+
+        const klOffset = dir
+          .clone()
+          .multiplyScalar(klOffsetScale * klOffsetMultiplier);
+
+        const midway = coordinate2
+          .clone()
+          .sub(dir.clone().multiplyScalar(coordinate1.distanceTo(coordinate2) * 0.5))
+          .sub(klOffset);
+
+        return [coordinate1, coordinate2, midway];
+      };
+
       for (const curE of noRepeats) {
         const dir = curE.getDirection();
         const edge = curE.edge;
         const v1 = curE.vertex;
         const v2 = curE.twin.vertex;
+        const groupSize = edgeToGroupSize.get(curE);
 
-        const vertexOffset1 = this.getVertexOffset(v1, v2, scaleFactor);
-        const vertexOffset2 = this.getVertexOffset(v2, v1, scaleFactor);
-
-        const getCoords = (
-          tangentOffsetMultiplier: number,
-          klOffsetMultiplier: number,
-          co1First = false,
-        ): [
-          coordinate1: THREE.Vector3,
-          coordinate2: THREE.Vector3,
-          midway: THREE.Vector3,
-        ] => {
-          const tangent = dir
-            .clone()
-            .cross(edge.normal)
-            .multiplyScalar(tangentOffsetScale * tangentOffsetMultiplier);
-          const coordinate1 = v1.coords.clone().add(tangent).add(vertexOffset1);
-          const coordinate2 = v2.coords.clone().add(tangent).add(vertexOffset2);
-          const klOffset = dir
-            .clone()
-            .multiplyScalar(klOffsetScale * klOffsetMultiplier);
-          const midway = co1First
-            ? coordinate1
-                .clone()
-                .sub(
-                  dir
-                    .clone()
-                    .multiplyScalar(coordinate2.distanceTo(coordinate1) * 0.5),
-                )
-                .sub(klOffset)
-            : coordinate2
-                .clone()
-                .sub(
-                  dir
-                    .clone()
-                    .multiplyScalar(coordinate1.distanceTo(coordinate2) * 0.5),
-                )
-                .sub(klOffset);
-
-          return [coordinate1, coordinate2, midway];
+        const pushCoords = (
+          specs: [number, number, (coord: [Vector3, Vector3, Vector3]) => Vector3[]][]
+        ) => {
+          for (const [tanMul, klMul, orderFn] of specs) {
+            const coordsTriple = getCoords(dir, edge, v1, v2, tanMul, klMul);
+            coords.push(...orderFn(coordsTriple));
+          }
         };
 
-        const groupSize = edgeToGroupSize.get(curE);
-        if (groupSize != 1) {
-          //1
-          const [coordinate1_1, , midway_1] = getCoords(1, 3);
-          coords.push(coordinate1_1, midway_1);
-
-          //2
-          const [, , midway_2_1] = getCoords(2, 3);
-          coords.push(midway_2_1);
-          const [, , midway_2_2] = getCoords(2, 5);
-          coords.push(midway_2_2);
-
-          //3
-          const [, coordinate2_3, midway_3] = getCoords(-2, 5);
-          coords.push(midway_3, coordinate2_3);
-
-          //4
-          const [coordinate1_4, coordinate2_4] = getCoords(-3, 2);
-          coords.push(coordinate2_4, coordinate1_4);
-
-          //5
-          const [coordinate1_5, , midway_5] = getCoords(-2, 6);
-          coords.push(coordinate1_5, midway_5);
-
-          //6
-          const [coordinate1_6, , midway_6] = getCoords(2, 6);
-          coords.push(midway_6, coordinate1_6);
-
-          //7
-          const [coordinate1_7, coordinate2_7] = getCoords(3, 1);
-          coords.push(coordinate1_7, coordinate2_7);
-
-          //8
-          const [, coordinate2_8, midway_8] = getCoords(2, 2);
-          coords.push(coordinate2_8, midway_8);
+        if (!this.middleConnection) {
+          if (groupSize !== 1) {
+            if (!this.st.has(edge)) {
+              pushCoords([
+                //1
+                [1, -3, ([c1, , mid]) => [c1, mid]],
+                //2
+                [-1, -3, ([, , mid]) => [mid]],
+                [-1, -1, ([, , mid]) => [mid]],
+                //3
+                [-2, -1, ([, c2, mid]) => [mid, c2]],
+                //4
+                [-3, 3, ([, c2, mid]) => [c2, mid]],
+                //5
+                [3, 3, ([, c2, mid]) => [mid, c2]],
+                //6
+                [2, 1, ([c1, c2]) => [c2, c1]],
+                //7
+                [3, 4, ([c1, , mid]) => [c1, mid]],
+                //8
+                [-3, 4, ([c1, , mid]) => [mid, c1]],
+                //9
+                [-2, 1, ([c1, , mid]) => [c1, mid]],
+                //10
+                [-1, 1, ([c1, , mid]) => [mid, c1]]
+              ]);
+            } else {
+              pushCoords([[1, 4, ([c1, c2]) => [c1, c2]]]);
+            }
+            continue;
+          }
+          if (this.st.has(edge)) {
+            pushCoords([
+                //1
+                [1, 3, ([c1, , mid]) => [c1, mid]],
+                //2
+                [2, 3, ([c1, , mid]) => [mid, c1]],
+                //3
+                [3, -2, ([c1, , mid]) => [c1, mid]],
+                //4
+                [-3, -2, ([c1, , mid]) => [mid, c1]],
+                //5
+                [-2, -1, ([c1, c2]) => [c1, c2]],
+                //6
+                [-3, -3, ([, c2, mid]) => [c2, mid]],
+                //7
+                [3, -3, ([, c2, mid]) => [mid, c2]],
+                //8
+                [2, 2, ([, c2, mid]) => [c2, mid]],
+                //9
+                [1, 2, ([, c2, mid]) => [mid, c2]]
+              ]);
+          } else {
+            const [coordinate1_1, , midway_1] = getCoords(dir, edge, v1, v2, 1, 4);
+            const [coordinate1_2, , midway_2] = getCoords(dir, edge, v1, v2, -1, 4);
+            coords.push(coordinate1_1, midway_1, midway_2, coordinate1_2);
+          }
+        } else {
+          if (groupSize == 1) {
+            if (!this.st.has(edge)) {
+              pushCoords([
+                //1
+                [1, 2, ([c1, , mid]) => [c1, mid]],
+                //2
+                [2, 2, ([c1, , mid]) => [mid, c1]],
+                //3
+                [3, -1, ([c1, , mid]) => [c1, mid]],
+                //4
+                [-3, -1, ([, , mid]) => [mid]],
+                [-3, 3, ([, , mid]) => [mid]],
+                //5
+                [-2, 3, ([, c2, mid]) => [mid, c2]],
+                //6
+                [-1, 1, ([c1, c2]) => [c2, c1]],
+                //7
+                [-2, 4, ([c1, , mid]) => [c1, mid]],
+                //8
+                [-3, 4, ([c1, , mid]) => [mid, c1]],
+              ]);
+            } else {
+              pushCoords([
+                //1
+                [3, 3, ([c1, , mid]) => [c1, mid]],
+                //2
+                [-3, 3, ([c1, , mid]) => [mid, c1]],
+                //3
+                [-2, -2, ([c1, c2]) => [c1, c2]],
+                //4
+                [-3, 1, ([, c2, mid]) => [c2, mid]],
+                //5
+                [3, 1, ([, , mid]) => [mid]],
+                [3, -4, ([, , mid]) => [mid]],
+                //6
+                [2, -4, ([c1, , mid]) => [mid, c1]],
+                //7
+                [1, -3, ([c1, c2]) => [c1, c2]],
+                //8
+                [2, -5, ([, c2, mid]) => [c2, mid]],
+                //9
+                [3, -5, ([, c2, mid]) => [mid, c2]]
+              ]);
+            }
+            continue;
+          }
 
           if (this.st.has(edge)) {
-            //9
-            const [, coordinate2_9, midway_9] = getCoords(1, 2);
-            coords.push(midway_9, coordinate2_9);
+            pushCoords([
+              [1, 3, ([c1, c2,]) => [c1, c2]],
+            ]);
           } else {
-            //9
-            const [, , midway_9_1] = getCoords(1, 2);
-            coords.push(midway_9_1);
-            const [, , midway_9_2] = getCoords(1, -2);
-            coords.push(midway_9_2);
-
-            //10
-            const [coordinate1_10, , midway_10] = getCoords(-1, -2);
-            coords.push(midway_10, coordinate1_10);
+            pushCoords([
+              //1
+              [3, 2, ([c1, , mid]) => [c1, mid]],
+              //2
+              [-3, 2, ([c1, , mid]) => [mid, c1]],
+              //3
+              [-2, -1, ([c1, , mid]) => [c1, mid]],
+              //4
+              [-1, -1, ([c1, , mid]) => [mid, c1]],
+            ]);
           }
-          continue;
-        }
-
-        const [coordinate1_1, coordinate2_1, midway_1] = getCoords(1, 3);
-
-        if (this.st.has(edge)) {
-          coords.push(coordinate1_1, coordinate2_1);
-        } else {
-          const [coordinate1_2, , midway_2] = getCoords(-1, 3);
-
-          coords.push(coordinate1_1, midway_1, midway_2, coordinate1_2);
         }
       }
 
@@ -903,31 +961,31 @@ function connectStrands_sh(
     const idToscaffoldCrossover = new Map<number, [number, number]>(
       middleConnection
         ? [
-            [0, [0, 0]],
-            [1, [0, 0]],
-            [2, [13, length - 13 + 0 - 1]],
-            [3, [13, length - 13 + 0 - 1]],
-            [4, [0, 0]],
-            [
-              5,
-              cyl.routingStrategy != RoutingStrategy.SixHelix
-                ? [16, length - 16 + 1 - 1]
-                : [0, 0],
-            ],
-          ]
-        : [
-            [
-              0,
-              cyl.routingStrategy != RoutingStrategy.SixHelix
-                ? [16, length - 16 + 1 - 1]
-                : [0, 0],
-            ],
-            [1, [0, 0]],
-            [2, [0, 0]],
-            [3, [17, length - 17 + 4 - 1]],
-            [4, [0, 0]],
-            [5, [16, length - 16 - 1 - 1]],
+          [0, [0, 0]],
+          [1, [0, 0]],
+          [2, [13, length - 13 + 0 - 1]],
+          [3, [13, length - 13 + 0 - 1]],
+          [4, [0, 0]],
+          [
+            5,
+            cyl.routingStrategy != RoutingStrategy.SixHelix
+              ? [16, length - 16 + 1 - 1]
+              : [0, 0],
           ],
+        ]
+        : [
+          [
+            0,
+            cyl.routingStrategy != RoutingStrategy.SixHelix
+              ? [16, length - 16 + 1 - 1]
+              : [0, 0],
+          ],
+          [1, [0, 0]],
+          [2, [0, 0]],
+          [3, [17, length - 17 + 4 - 1]],
+          [4, [0, 0]],
+          [5, [16, length - 16 - 1 - 1]],
+        ],
     );
     // staple crossovers:
     const N42 = Math.floor((length - 21) / 21);
