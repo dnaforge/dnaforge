@@ -494,7 +494,8 @@ function addStrandGaps(nm: NucleotideModel) {
     const nucs = s.nucleotides;
     const cos = findCrossovers(nucs);
     // Vertices
-    if (nucs.length > 50) {
+    // Vertex always includes linkers (to skip long edge staples)
+    if (nucs.length > 50 && nucs.some(n => n.isLinker)) {
       let start;
       if (cos.length % 2 == 0) start = 1;
       else if (cos.length == 2) start = 0;
@@ -507,10 +508,17 @@ function addStrandGaps(nm: NucleotideModel) {
       }
     }
     // Edges
-    else if (cos.length == 2) {
-      const idx = cos[0];
-      nucs[idx].next.prev = null;
-      nucs[idx].next = null;
+    // Every staple that is circular is cut between its crossovers
+    else if (!nucs.some(n => n.next == null)) {
+      const idx1 = Math.round((cos[1] + cos[0]) / 2);
+      nucs[idx1].next.prev = null;
+      nucs[idx1].next = null;
+      // Cutting longer edge staples into two shorter staple strands
+      if (cos.length == 4 && nucs.length > 50) {
+        const idx2 = Math.round((cos[2] + cos[3]) / 2);
+        nucs[idx2].next.prev = null;
+        nucs[idx2].next = null;
+      }
     }
   }
   nm.concatenateStrands();
