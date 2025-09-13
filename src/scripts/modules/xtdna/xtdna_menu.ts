@@ -115,5 +115,18 @@ export class XtdnaMenu extends ModuleMenu {
         throw error;
       }
     });
+
+    const toggleScaffBreakpoint = () => {
+      if ($('#xtdna-scaffold-type').val() === 'DNA') {
+        $('#xtdna-scaffold-breakpoint')[0].checked = false;
+        this.params.scaffoldBreakpoint = false;
+      } else {
+        $('#xtdna-scaffold-breakpoint')[0].checked = true;
+        this.params.scaffoldBreakpoint = true;
+      }
+    };
+
+    $('#xtdna-scaffold-type').on('change', toggleScaffBreakpoint);
+    toggleScaffBreakpoint();
   }
 }

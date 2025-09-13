@@ -97,13 +97,13 @@ export class SpanningTreeMenu extends ModuleMenu {
     );
 
     register(this.params, 'maxStrandLength', 'spanning-tree-strand-length-max');
-    register(this.params, 'middleConnection','spanning-tree-vertex-connection');
+    register(this.params, 'middleConnection', 'spanning-tree-vertex-connection');
     register(this.params, 'minCrossovers', 'spanning-tree-crossovers');
     register(this.params, 'greedyOffset', 'spanning-tree-greedy');
     register(this.params, 'naType', 'stdna-scaffold-type');
     register(this.params, 'scaffoldBreakpoint', 'stdna-scaffold-breakpoint');
 
-    register(this.params, 'sixHelix', 'spanning-tree-shb');
+    register(this.params, 'sixHelix', 'spanning-tree-bundle');
     register(this.params, 'addNicks', 'spanning-tree-add-nicks');
     register(this.params, 'scaffoldName', 'spanning-tree-scaffold');
     register(this.params, 'scaffoldOffset', 'spanning-tree-scaffold-offset');
@@ -119,6 +119,31 @@ export class SpanningTreeMenu extends ModuleMenu {
         return t * 100;
       },
     );
+
+    const toggleSixHelixDependent = () => {
+      const isSHB = $('#spanning-tree-bundle').is(':checked');
+
+      $('li[id="st"]').css('display', isSHB ? 'none' : 'block');
+      $('li[id="shb"]').css('display', isSHB ? 'block' : 'none');
+    };
+
+    $('input[name="st-mode"]').on('change', toggleSixHelixDependent);
+
+    toggleSixHelixDependent();
+
+    const toggleScaffBreakpoint = () => {
+      if ($('#stdna-scaffold-type').val() === 'DNA') {
+        $('#stdna-scaffold-breakpoint')[0].checked = false;
+        this.params.scaffoldBreakpoint = false;
+      } else {
+        $('#stdna-scaffold-breakpoint')[0].checked = true;
+        this.params.scaffoldBreakpoint = true;
+      }
+    };
+
+    $('#stdna-scaffold-type').on('change', toggleScaffBreakpoint);
+
+    toggleScaffBreakpoint();
 
     $('#spanning-tree-scaffold').on('change', () => {
       if ($('#spanning-tree-scaffold')[0].value == 'custom') {

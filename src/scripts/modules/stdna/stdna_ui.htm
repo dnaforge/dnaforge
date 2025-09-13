@@ -1,4 +1,5 @@
-<div class="section" id="spanning-tree" data-title="ST-DNA" data-hint-text="Scaffolded DNA wireframes based on spanning tree routings; parallel-duplex edges.<br><br><i>Veneziano et al. 2016/DAEDALUS<i>">
+<div class="section" id="spanning-tree" data-title="ST-DNA"
+    data-hint-text="Scaffolded DNA wireframes based on spanning tree routings; parallel-duplex edges.<br><br><i>Veneziano et al. 2016/DAEDALUS<i>">
     <div class="d-flex flex-wrap">
         <div class="group">
             <button class="ribbon-button" id="spanning-tree-generate-wires" data-role="hint" data-hint-position="right"
@@ -11,8 +12,7 @@
         <div class="group">
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right" data-hint-text="Toggle visibility of the routing.">
-                    <input type="checkbox" data-role="switch" data-caption="Route"
-                        id="spanning-tree-toggle-wires">
+                    <input type="checkbox" data-role="switch" data-caption="Route" id="spanning-tree-toggle-wires">
                 </li>
                 <li data-role="hint" data-hint-position="right"
                     data-hint-text="Toggle visibility of the cylinder model."><input type="checkbox" data-role="switch"
@@ -26,13 +26,16 @@
         <div class="group">
             <ul style="list-style-type:none;">
                 <li data-role="hint" data-hint-position="right"
-                    data-hint-text="Input scale in nanometers. This is the edge length of each reference grid square."><input
-                        type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
-                        data-size="225" data-prepend="Scale" data-append="nm" id="spanning-tree-scale"></li>
+                    data-hint-text="Input scale in nanometers. This is the edge length of each reference grid square.">
+                    <input type="number" data-role="input" data-default-value="5" min="0.1" max="1000" step="0.1"
+                        data-size="225" data-prepend="Scale" data-append="nm" id="spanning-tree-scale">
+                </li>
                 <li data-role="hint" data-hint-position="right" data-hint-text="Scaffold strand primary structure.">
                     <select data-prepend="Scaffold" data-role="select" id="spanning-tree-scaffold">
                         <optgroup label="Scaffold Strand">
                             <option value="none">Blank</option>
+                            <option value="random">Random</option>
+                            <option value="custom">Custom</option>
                             <option value="m13mp18">M13mp18 (7249)</option>
                             <option value="p7560">p7560 (7560)</option>
                             <option value="p8064">p8064 (8064)</option>
@@ -40,16 +43,17 @@
                             <option value="p7308">p7308 (7308)</option>
                             <option value="p7704">p7704 (7704)</option>
                             <option value="p8100">p8100 (8100)</option>
-                            <option value="random">Random</option>
-                            <option value="custom">Custom</option>
                         </optgroup>
                     </select>
                 </li>
-                <li data-role="hint" data-hint-position="right" data-hint-text="Add breakpoints to convert complement strand(s) into individual staples. If off the complement strand(s) will form cycles.">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Add breakpoints to convert complement strand(s) into individual staples. If off the complement strand(s) will form cycles.">
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add Staple Breakpoints"
                         id="spanning-tree-add-nicks">
                 </li>
-                <li data-role="hint" data-hint-position="right" data-hint-text="Add breakpoint to the scaffold strand between its 5'- and 3'-ends. If off the scaffold will form a cycle.">
+                <li data-role="hint" data-hint-position="right"
+                    data-hint-text="Add breakpoint to the scaffold strand between its 5'- and 3'-ends. If off the scaffold will form a cycle."
+                    id="st">
                     <input type="checkbox" data-role="checkbox" data-caption="Add Scaffold Breakpoint"
                         id="stdna-scaffold-breakpoint">
                 </li>
@@ -78,7 +82,8 @@
         <div class="group">
             <ul style="list-style-type:none;">
                 <li>
-                    <button class="button light w-100 small" id="spanning-tree-download-unf" data-role="hint" data-hint-position="right"
+                    <button class="button light w-100 small" id="spanning-tree-download-unf" data-role="hint"
+                        data-hint-position="right"
                         data-hint-text="Download the current nucleotide model as a Unified Nanotechnology Format file.">
                         <span class="mif-download mif-2x"></span>
                         <span class="caption">Download UNF</span>
@@ -122,9 +127,16 @@
                 <li>
                     <h6>Sources:</h6>
                 </li>
-                <li>
+                <li id="st">
                     <a href="https://doi.org/10.1126/science.aaf4388" data-role="hint" data-hint-position="right"
-                    data-hint-text="Designer nanoscale DNA assemblies programmed from the top down"><span class="mif-file-text icon"></span> Veneziano et al. 2016</a>
+                        data-hint-text="Designer nanoscale DNA assemblies programmed from the top down"
+                        id="veneziano-source"><span class="mif-file-text icon"></span> Veneziano et al. 2016</a>
+                </li>
+                <li id="shb">
+                    <a href="https://pubs.acs.org/doi/10.1021/acsnano.8b08671" data-role="hint"
+                        data-hint-position="right"
+                        data-hint-text="Automated sequence design of 3D polyhedral wireframe DNA origami with honeycomb edges"
+                        id="shb-source"><span class="mif-file-text icon"></span> Jun et al. 2019</a>
                 </li>
             </ul>
         </div>
@@ -148,22 +160,43 @@
 <div class="dialog" data-role="dialog" id="spanning-tree-parameters" data-overlay-click-close="true">
     <div class="dialog-title">ST-DNA settings</div>
     <div class="dialog-content" style="overflow-y: scroll;">
+        <p>Mode:</p>
+        <ul class="group-list">
+            <li>
+                <input type="radio" name="st-mode" id="spanning-tree-original" value="original" checked>
+                <label data-role="hint" data-hint-position="right" data-hint-text="Use duplex edges"
+                    for="spanning-tree-original">Original</label>
+
+                <input type="radio" name="st-mode" id="spanning-tree-bundle" value="shb">
+                <label data-role="hint" data-hint-position="right"
+                    data-hint-text="Use six-helix bundle edges. The route visites every edge total of six times, three in both directions."
+                    for="spanning-tree-bundle">Six-helix bundle</label>
+            </li>
+        </ul>
         <p>Routing parameters:</p>
         <ul class="group-list">
-            <li data-role="hint" data-hint-position="right"
-                data-hint-text="Minimise the number of scaffold crossovers. Only functional when six-helix bundles are not used.">
+            <li data-role="hint" data-hint-position="right" data-hint-text="Minimise the number of scaffold crossovers."
+                id="st">
                 <input type="checkbox" data-role="checkbox" data-caption="Minimise scaffold crossovers"
                     id="spanning-tree-crossovers">
             </li>
             <li data-role="hint" data-hint-position="right"
-                data-hint-text="Bring cylinders as close to the node as possible. Only functional when six-helix bundles are not used.">
+                data-hint-text="Bring cylinders as close to the node as possible." id="st">
                 <input type="checkbox" data-role="checkbox" data-caption="Minimise steric zones at nodes"
                     id="spanning-tree-greedy">
+            </li>
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Select to use the middle connection layer, meaning the middle cylinders connect to other bundles at the vertex. If unchecked, inner connection layer will be used."
+                id="shb">
+                <input type="checkbox" data-role="checkbox" data-caption="Use Middle Connection Layer"
+                    id="spanning-tree-vertex-connection">
             </li>
         </ul>
         <p>Strand parameters:</p>
         <ul class="group-list">
-            <li data-role="hint" data-hint-position="right" data-hint-text="Choose which nucleic acid is the scaffold. The staples will be DNA in both cases.">
+            <li data-role="hint" data-hint-position="right"
+                data-hint-text="Choose which nucleic acid is the scaffold. The staples will be DNA in both cases."
+                id="st">
                 <select data-prepend="Scaffold Type" data-role="select" id="stdna-scaffold-type">
                     <optgroup label="Scaffold Strand Type">
                         <option value="DNA">DNA</option>
@@ -186,6 +219,11 @@
                     type="number" data-role="input" data-default-value="50" data-size="260" data-prepend="GC-content"
                     data-append="%" id="spanning-tree-gc-content">
             </li>
+            <li data-role="hint" data-hint-position="right" data-hint-text="Maximum staple length in nucleotides."
+                id="shb">
+                <input type="number" data-role="input" data-default-value="60" data-prepend="Max Staple Length"
+                    id="spanning-tree-strand-length-max">
+            </li>
         </ul>
         <p>Relaxation parameters:</p>
         <ul class="group-list">
@@ -207,23 +245,6 @@
                 data-hint-text="Add springs between 3'- and 5'-primes of neighbouring cylinders.">
                 <input checked type="checkbox" data-role="checkbox" data-caption="Spring Constraints"
                     id="spanning-tree-spring-constraints">
-            </li>
-        </ul>
-        <p>Six-helix bundle:</p>
-        <ul class="group-list">
-            <li data-role="hint" data-hint-position="right"
-                data-hint-text="Use six-helix bundle edges. The route visites every edge total of six times, three in both directions.">
-                <input type="checkbox" data-role="checkbox" data-caption="Six-helix bundles" id="spanning-tree-shb">
-            </li>
-            <li data-role="hint" data-hint-position="right"
-                data-hint-text="Select to use the middle connection layer, meaning the middle cylinders connect to other bundles at the vertex. If unchecked, inner connection layer will be used. Only functional when six-helix bundles are used.">
-                <input type="checkbox" data-role="checkbox" data-caption="Use Middle Connection Layer"
-                    id="spanning-tree-vertex-connection">
-            </li>
-            <li data-role="hint" data-hint-position="right"
-                data-hint-text="Maximum staple length in nucleotides. Only functional when six-helix bundles are used.">
-                <input type="number" data-role="input" data-default-value="60" data-prepend="Max Staple Length"
-                    id="spanning-tree-strand-length-max">
             </li>
         </ul>
     </div>
