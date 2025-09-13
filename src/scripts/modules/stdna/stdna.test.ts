@@ -19,6 +19,7 @@ function getParams(): STParameters {
     minCrossovers: false,
     middleConnection: false,
     sixHelix: false,
+    scaffoldBreakpoint: false,
   };
 }
 

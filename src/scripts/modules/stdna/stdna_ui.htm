@@ -49,6 +49,10 @@
                     <input checked type="checkbox" data-role="checkbox" data-caption="Add Staple Breakpoints"
                         id="spanning-tree-add-nicks">
                 </li>
+                <li data-role="hint" data-hint-position="right" data-hint-text="Add breakpoint to the scaffold strand between its 5'- and 3'-ends. If off the scaffold will form a cycle.">
+                    <input type="checkbox" data-role="checkbox" data-caption="Add Scaffold Breakpoint"
+                        id="stdna-scaffold-breakpoint">
+                </li>
             </ul>
             <button class="ribbon-button" onclick="Metro.dialog.open('#spanning-tree-parameters');" data-role="hint"
                 data-hint-position="right" data-hint-text="Setup additional ST-DNA parameters.">
@@ -159,6 +163,14 @@
         </ul>
         <p>Strand parameters:</p>
         <ul class="group-list">
+            <li data-role="hint" data-hint-position="right" data-hint-text="Choose which nucleic acid is the scaffold. The staples will be DNA in both cases.">
+                <select data-prepend="Scaffold Type" data-role="select" id="stdna-scaffold-type">
+                    <optgroup label="Scaffold Strand Type">
+                        <option value="DNA">DNA</option>
+                        <option value="RNA">RNA</option>
+                    </optgroup>
+                </select>
+            </li>
             <li data-role="hint" data-hint-position="right"
                 data-hint-text="Offset for the scaffold. Ignore this many bases from scaffold start.">
                 <input type="number" data-role="input" data-default-value="0" data-prepend="Offset"

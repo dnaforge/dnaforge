@@ -25,6 +25,7 @@ export interface STParameters extends ModuleMenuParameters {
   minCrossovers: boolean;
   middleConnection: boolean;
   sixHelix: boolean;
+  scaffoldBreakpoint: boolean;
 }
 
 export class SpanningTreeMenu extends ModuleMenu {
@@ -99,6 +100,8 @@ export class SpanningTreeMenu extends ModuleMenu {
     register(this.params, 'middleConnection','spanning-tree-vertex-connection');
     register(this.params, 'minCrossovers', 'spanning-tree-crossovers');
     register(this.params, 'greedyOffset', 'spanning-tree-greedy');
+    register(this.params, 'naType', 'stdna-scaffold-type');
+    register(this.params, 'scaffoldBreakpoint', 'stdna-scaffold-breakpoint');
 
     register(this.params, 'sixHelix', 'spanning-tree-shb');
     register(this.params, 'addNicks', 'spanning-tree-add-nicks');

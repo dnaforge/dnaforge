@@ -279,13 +279,13 @@ export function graphToWires(graph: Graph, params: STParameters) {
 /**
  * Creates a cylinder model from the input routing model.
  *
- * @param sterna
+ * @param xtdna
  * @param params
  * @returns
  */
 export function wiresToCylinders(veneziano: STDNA, params: STParameters) {
   const scale = params.scale;
-  const cm = new CylinderModel(scale, 'DNA');
+  const cm = new CylinderModel(scale, params.naType);
 
   const trail = veneziano.trail;
   const st = veneziano.st;
@@ -324,17 +324,20 @@ export function cylindersToNucleotides(
 ) {
   const scale = cm.scale;
   const addNicks = params.addNicks;
+  const scaffoldBreakpoint = params.scaffoldBreakpoint;
+  const hybrid = params.naType == 'RNA';
 
-  const nm = new NucleotideModel(scale);
+  const nm = new NucleotideModel(scale, params.naType);
 
-  const cylToStrands = nm.createStrands(cm, true);
+  const cylToStrands = nm.createStrands(cm, true, hybrid);
   connectStrands(nm, cm, cylToStrands);
   nm.concatenateStrands();
 
   if (addNicks) addStrandGaps(nm);
+  if (scaffoldBreakpoint) addScaffoldBreakpoint(nm);
 
   nm.setIDs();
-  setPrimaryFromScaffold(nm, params);
+  setPrimaryFromScaffold(nm, params, hybrid);
 
   return nm;
 }
@@ -359,7 +362,13 @@ function createCylinder(
   let length = p2_t.clone().sub(p1_t.clone()).length();
   if (p2_t.clone().sub(p1_t).dot(dir) < 0) length = 0;
   const length_bp = Math.floor(
-    Math.round(length / cm.scale / cm.nucParams.RISE / 10.5) * 10.5,
+    Math.round(
+      length /
+        cm.scale /
+        cm.nucParams.RISE /
+        ((1 / cm.nucParams.TWIST) * (2 * Math.PI)),
+    ) *
+      ((1 / cm.nucParams.TWIST) * (2 * Math.PI)),
   );
   const length_n = length_bp * cm.scale * cm.nucParams.RISE;
 
@@ -446,40 +455,83 @@ function connectStrands(
     };
 
     //vertex staples:
-    reroute(nucs_cur, nucs_pair, 10, length - 10);
-    reroute(nucs_pair, nucs_cur, 10, length - 10);
+    reroute(
+      nucs_cur,
+      nucs_pair,
+      nm.hybrid ? 8 : 10,
+      nm.hybrid ? length - 13 : length - 10,
+    );
+    reroute(
+      nucs_pair,
+      nucs_cur,
+      nm.hybrid ? 8 : 10,
+      nm.hybrid ? length - 13 : length - 10,
+    );
 
     if (cyl.routingStrategy != RoutingStrategy.Veneziano) {
       //edge staples:
-      const N42 = Math.floor((length - 21) / 21);
-      for (let i = 1; i < N42 + 1; i++) {
-        const idx1 = 10 + 21 * i;
-        const idx2 = length - 10 - 21 * i;
-        reroute(nucs_cur, nucs_pair, idx1, idx2);
+
+      if (nm.hybrid) {
+        const N44 = Math.floor((length - 22) / 22);
+        for (let i = 1; i < N44 + 1; i++) {
+          const idx1 = 8 + 22 * i;
+          const idx2 = length - 13 - 22 * i;
+          reroute(nucs_cur, nucs_pair, idx1, idx2);
+        }
+      } else {
+        const N42 = Math.floor((length - 21) / 21);
+        for (let i = 1; i < N42 + 1; i++) {
+          const idx1 = 10 + 21 * i;
+          const idx2 = length - 10 - 21 * i;
+          reroute(nucs_cur, nucs_pair, idx1, idx2);
+        }
       }
     } else if (cyl.routingStrategy == RoutingStrategy.Veneziano) {
       // scaffold crossover:
-      let offset;
-      if (length % 2 == 0) {
-        // even
-        if (length % 21 == 0) offset = 5.5;
-        else offset = 0.5;
+      if (nm.hybrid) {
+        let offset;
+        if (length % 2 == 0) {
+          // even
+          if (length % 22 == 0) offset = 0;
+          else offset = 0;
+        } else {
+          // odd
+          offset = 5.5;
+        }
+        const idxCo1 = (length - 22) / 2 - offset + 15;
+        const idxCo2 = length - (length - 22) / 2 + offset - 16;
+        reroute(nucs_scaffold, nucs_scaffold_pair, idxCo1, idxCo2);
+        // crossover staples:
+        const N44 = Math.floor((length - 22) / 22);
+        for (let i = 1; i < N44 + 1; i++) {
+          const idx1 = 8 + 22 * i;
+          const idx2 = length - 13 - 22 * i;
+          if (idx1 > idxCo1 && idx1 < idxCo1 + 18) continue;
+          reroute(nucs_cur, nucs_pair, idx1, idx2);
+        }
       } else {
-        // odd
-        if (length % 21 == 0) offset = 5;
-        else offset = 0;
-      }
-      const idxCo1 = (length - 21) / 2 - offset + 11;
-      const idxCo2 = length - (length - 21) / 2 + offset - 10;
-      reroute(nucs_scaffold, nucs_scaffold_pair, idxCo1, idxCo2);
+        let offset;
+        if (length % 2 == 0) {
+          // even
+          if (length % 21 == 0) offset = 5.5;
+          else offset = 0.5;
+        } else {
+          // odd
+          if (length % 21 == 0) offset = 5;
+          else offset = 0;
+        }
+        const idxCo1 = (length - 21) / 2 - offset + 11;
+        const idxCo2 = length - (length - 21) / 2 + offset - 10;
+        reroute(nucs_scaffold, nucs_scaffold_pair, idxCo1, idxCo2);
 
-      // crossover staples:
-      const N42 = Math.floor((length - 21) / 21);
-      for (let i = 1; i < N42 + 1; i++) {
-        const idx1 = 10 + 21 * i;
-        const idx2 = length - 10 - 21 * i;
-        if (idx1 > idxCo1 && idx1 < idxCo1 + 15) continue;
-        reroute(nucs_cur, nucs_pair, idx1, idx2);
+        // crossover staples:
+        const N42 = Math.floor((length - 21) / 21);
+        for (let i = 1; i < N42 + 1; i++) {
+          const idx1 = 10 + 21 * i;
+          const idx2 = length - 10 - 21 * i;
+          if (idx1 > idxCo1 && idx1 < idxCo1 + 15) continue;
+          reroute(nucs_cur, nucs_pair, idx1, idx2);
+        }
       }
     } else {
       throw `Unrecognised cylinder type.`;
@@ -535,5 +587,13 @@ function addStrandGaps(nm: NucleotideModel) {
       }
     }
   }
+  nm.concatenateStrands();
+}
+
+function addScaffoldBreakpoint(nm: NucleotideModel) {
+  const scaffold = nm.getScaffold();
+  const nucs = scaffold.nucleotides;
+  nucs[0].prev = null;
+  nucs[nucs.length - 1].next = null;
   nm.concatenateStrands();
 }
