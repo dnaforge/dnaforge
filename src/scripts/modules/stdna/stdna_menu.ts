@@ -124,12 +124,13 @@ export class SpanningTreeMenu extends ModuleMenu {
       const isSHB = $('#spanning-tree-bundle').is(':checked');
       const isDNA = $('#stdna-scaffold-type').val() === 'DNA';
 
-      $('li[id*="st"]').css('display', isSHB ? 'none' : 'block');
+      $('li[id="st"]').css('display', isSHB ? 'none' : 'block');
+      $('li[id*="st_"]').css('display', isSHB ? 'none' : 'block');
       $('li[id="shb"]').css('display', isSHB ? 'block' : 'none');
 
       if (!isSHB) {
-        $('li[id*="DNA"]').css('display', isDNA ? 'block' : 'none');
-        $('li[id*="RNA"]').css('display', isDNA ? 'none' : 'block');
+        $('li[id="st_DNA"]').css('display', isDNA ? 'block' : 'none');
+        $('li[id="st_RNA"]').css('display', isDNA ? 'none' : 'block');
       }
     };
 
