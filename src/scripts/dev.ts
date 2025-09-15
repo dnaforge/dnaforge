@@ -16,6 +16,7 @@ import { SimulationAPI } from './menus/simulations_menu';
 import { XtrnaMenu } from './modules/xtrna/xtrna_menu';
 import { getXuon } from './utils/matroid_parity';
 import { EulerMenu } from './modules/euler/euler_menu';
+import { XtdnaMenu } from './modules/xtdna/xtdna_menu';
 
 /**
  * Used for testing while developing. Does not get compiled to the final product.
@@ -111,6 +112,17 @@ export function dev(context: Context) {
   //context.switchContext(euler);
 
   //const r = new Relaxer(cm);
+
+
+  const xtdna = <XtdnaMenu>context.menus.get('xtdna');
+  //$('#xtdna-toggle-wires')[0].checked = 1;
+  //$('#xtdna-toggle-cylinders')[0].checked = 1;
+  //$('#xtdna-scale')[0].value = 2;
+  //$('#xtdna-scaffold-type')[0].value = 'RNA';
+  //xtdna.generateWires();
+  //xtdna.generateNucleotideModel();
+  //xtdna.generatePrimary();
+  //context.switchContext(xtdna);
 
   /**
   const json = JSON.stringify(

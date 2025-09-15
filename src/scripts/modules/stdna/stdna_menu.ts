@@ -120,30 +120,40 @@ export class SpanningTreeMenu extends ModuleMenu {
       },
     );
 
-    const toggleSixHelixDependent = () => {
+    const toggleSixHelix = () => {
       const isSHB = $('#spanning-tree-bundle').is(':checked');
+      const isDNA = $('#stdna-scaffold-type').val() === 'DNA';
 
-      $('li[id="st"]').css('display', isSHB ? 'none' : 'block');
+      $('li[id*="st"]').css('display', isSHB ? 'none' : 'block');
       $('li[id="shb"]').css('display', isSHB ? 'block' : 'none');
-    };
 
-    $('input[name="st-mode"]').on('change', toggleSixHelixDependent);
-
-    toggleSixHelixDependent();
-
-    const toggleScaffBreakpoint = () => {
-      if ($('#stdna-scaffold-type').val() === 'DNA') {
-        $('#stdna-scaffold-breakpoint')[0].checked = false;
-        this.params.scaffoldBreakpoint = false;
-      } else {
-        $('#stdna-scaffold-breakpoint')[0].checked = true;
-        this.params.scaffoldBreakpoint = true;
+      if (!isSHB) {
+        $('li[id*="DNA"]').css('display', isDNA ? 'block' : 'none');
+        $('li[id*="RNA"]').css('display', isDNA ? 'none' : 'block');
       }
     };
 
-    $('#stdna-scaffold-type').on('change', toggleScaffBreakpoint);
+    $('input[name="st-mode"]').on('change', toggleSixHelix);
 
-    toggleScaffBreakpoint();
+    toggleSixHelix();
+
+    const toggleNucType = () => {
+      if ($('#stdna-scaffold-type').val() === 'DNA') {
+        $('#stdna-scaffold-breakpoint')[0].checked = false;
+        this.params.scaffoldBreakpoint = false;
+        $('li[id*="DNA"]').css('display', 'block');
+        $('li[id*="RNA"]').css('display', 'none');
+      } else {
+        $('#stdna-scaffold-breakpoint')[0].checked = true;
+        this.params.scaffoldBreakpoint = true;
+        $('li[id*="RNA"]').css('display', 'block');
+        $('li[id*="DNA"]').css('display', 'none');
+      }
+    };
+
+    $('#stdna-scaffold-type').on('change', toggleNucType);
+
+    toggleNucType();
 
     $('#spanning-tree-scaffold').on('change', () => {
       if ($('#spanning-tree-scaffold')[0].value == 'custom') {

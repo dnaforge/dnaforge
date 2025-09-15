@@ -116,17 +116,20 @@ export class XtdnaMenu extends ModuleMenu {
       }
     });
 
-    const toggleScaffBreakpoint = () => {
+    const toggleNucType = () => {
       if ($('#xtdna-scaffold-type').val() === 'DNA') {
         $('#xtdna-scaffold-breakpoint')[0].checked = false;
         this.params.scaffoldBreakpoint = false;
+        $('li[id*="RNA"]').css('display', 'none');
       } else {
         $('#xtdna-scaffold-breakpoint')[0].checked = true;
         this.params.scaffoldBreakpoint = true;
+        $('li[id*="RNA"]').css('display', 'block');
       }
     };
 
-    $('#xtdna-scaffold-type').on('change', toggleScaffBreakpoint);
-    toggleScaffBreakpoint();
+    $('#xtdna-scaffold-type').on('change', toggleNucType);
+
+    toggleNucType();
   }
 }

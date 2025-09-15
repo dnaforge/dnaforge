@@ -364,11 +364,11 @@ function createCylinder(
   const length_bp = Math.floor(
     Math.round(
       length /
-        cm.scale /
-        cm.nucParams.RISE /
-        ((1 / cm.nucParams.TWIST) * (2 * Math.PI)),
-    ) *
+      cm.scale /
+      cm.nucParams.RISE /
       ((1 / cm.nucParams.TWIST) * (2 * Math.PI)),
+    ) *
+    ((1 / cm.nucParams.TWIST) * (2 * Math.PI)),
   );
   const length_n = length_bp * cm.scale * cm.nucParams.RISE;
 
@@ -399,8 +399,8 @@ function connectCylinders(cm: CylinderModel) {
           : cur.bundle.cylinders[0];
     else prev = cur;
 
-    if (cur.length < 31) {
-      throw `A cylinder length is ${cur.length} < 31 nucleotides. Scale is too small.`;
+    if (cm.naType == 'DNA' ? cur.length < 31 : cur.length < 33) {
+      throw `A cylinder length is ${cur.length} < ${cm.naType == 'DNA' ? '31' : '33'} nucleotides. Scale is too small.`;
     }
   }
 }
@@ -492,22 +492,40 @@ function connectStrands(
         let offset;
         if (length % 2 == 0) {
           // even
-          if (length % 22 == 0) offset = 0;
-          else offset = 0;
+          offset = 0;
         } else {
           // odd
-          offset = 5.5;
+          offset = 4.5;
         }
         const idxCo1 = (length - 22) / 2 - offset + 15;
         const idxCo2 = length - (length - 22) / 2 + offset - 16;
         reroute(nucs_scaffold, nucs_scaffold_pair, idxCo1, idxCo2);
         // crossover staples:
-        const N44 = Math.floor((length - 22) / 22);
-        for (let i = 1; i < N44 + 1; i++) {
-          const idx1 = 8 + 22 * i;
-          const idx2 = length - 13 - 22 * i;
-          if (idx1 > idxCo1 && idx1 < idxCo1 + 18) continue;
-          reroute(nucs_cur, nucs_pair, idx1, idx2);
+        const N44 = Math.round((length - 22) / 22);
+        let len_left = length;
+        for (let i = 1; i < N44; i++) {
+
+          let staple_len;
+
+          if ((len_left / 22) % 2 == 0 || (length % 33 == 0 && (len_left / 33) % 2 != 0)) {
+            staple_len = 22;
+            len_left = len_left - 22;
+          } else {
+            staple_len = 11;
+            len_left = len_left - 11;
+          }
+
+          const coef = Math.ceil(i / 2);
+
+          const idx1 = 8 + staple_len * coef;
+          const idx2 = length - 13 - staple_len * coef;
+          if (i % 2 == 0) {
+            if (idx1 > idxCo1 && idx1 < idxCo1 + staple_len) continue;
+            reroute(nucs_cur, nucs_pair, idx1, idx2);
+          } else {
+            if (idx1 > idxCo1 && idx1 < idxCo1 + staple_len) continue;
+            reroute(nucs_pair, nucs_cur, idx1, idx2);
+          }
         }
       } else {
         let offset;
@@ -576,7 +594,9 @@ function addStrandGaps(nm: NucleotideModel) {
     // Edges
     // Every staple that is circular is cut between its crossovers
     else if (!nucs.some(n => n.next == null)) {
-      const idx1 = Math.round((cos[1] + cos[0]) / 2);
+      const two_crossovers = Math.abs(cos[1] - cos[0]) >= 6 || cos[2] == undefined ? cos[1] + cos[0] : cos[0] + cos[1] + cos[2];
+      const idx1 = Math.round((two_crossovers) / 2);
+
       nucs[idx1].next.prev = null;
       nucs[idx1].next = null;
       // Cutting longer edge staples into two shorter staple strands
@@ -593,7 +613,8 @@ function addStrandGaps(nm: NucleotideModel) {
 function addScaffoldBreakpoint(nm: NucleotideModel) {
   const scaffold = nm.getScaffold();
   const nucs = scaffold.nucleotides;
-  nucs[0].prev = null;
-  nucs[nucs.length - 1].next = null;
+  const prev = nucs[6].prev;
+  nucs[6].prev = null;
+  prev.next = null;
   nm.concatenateStrands();
 }
