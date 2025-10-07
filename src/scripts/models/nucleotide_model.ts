@@ -60,7 +60,8 @@ export class NucleotideModel extends Model {
   }
 
   static loadJSON(json: any) {
-    const nm = new NucleotideModel(json.scale, json.naType);
+    const nm = new NucleotideModel(json.scale, json.naType == 'NA' ? 'RNA' : json.naType);
+    json.naType == 'NA' ? nm.hybrid = true : nm.hybrid = false;
     const idToStrand = new Map<number, Strand>();
     for (const s of json.strands) {
       const strand = Strand.loadJSON(nm, s);

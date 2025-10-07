@@ -45,6 +45,7 @@ export class Strand {
       }),
       id: this.id,
       scale: this.scale,
+      naType: this.naType,
       isScaffold: this.isScaffold,
       isLinker: this.isLinker,
       isPseudo: this.isPseudo,
@@ -54,13 +55,16 @@ export class Strand {
   }
 
   static loadJSON(nm: NucleotideModel, json: any): Strand {
-    const s = new Strand(nm);
+    let s;
+    json.naType ? s = new Strand(nm, json.naType) : s = new Strand(nm);
     s.id = json.id;
     s.isScaffold = json.isScaffold;
     s.isLinker = json.isLinker;
     s.isPseudo = json.isPseudo;
+
     for (const n of json.nucleotides) {
       s.addNucleotides(Nucleotide.loadJSON(nm, s, n));
+      if (n.base == 'T' && nm.hybrid && s.naType == 'RNA') s.naType = 'DNA';
     }
     return s;
   }
