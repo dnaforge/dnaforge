@@ -88,7 +88,7 @@ A custom routing can be entered by clicking the "Upload Route"-button. The route
 
 #### Additional Parameters
 * Routing Parameters
-    + **Checkerboard reconditionin** Guarantee unknotted scaffold routing for tori by doubling additional edges to make the mesh checkerboard colourable. (Mohammed 2020). 
+    + **Checkerboard reconditioning** Guarantee unknotted scaffold routing for tori by doubling additional edges to make the mesh checkerboard colourable. (Mohammed 2020). 
     + **Minimise steric zones at nodes** Bring cylinders as close to the node as possible. Otherwise keeps each cylinder equally distant from the node.
     + **Search time** Stop the search after this many seconds
 
