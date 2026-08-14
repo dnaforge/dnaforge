@@ -25,3 +25,7 @@ npm run build
 ```
 
 The output is in the dist-directory and should be runnable on all modern browsers.
+
+## Updates in Version 3 (2026)
+
+Changed RNA strand path routing direction from counterclockwise to clockwise for better alignment with helix chirality.
