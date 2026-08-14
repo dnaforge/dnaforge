@@ -25,3 +25,7 @@ npm run build
 ```
 
 The output is in the dist-directory and should be runnable on all modern browsers.
+
+## Changes and Updates in Version 3 (TBA)
+
+The default RNA strand route orientation has been changed from counterclockwise to clockwise, for better alignment with helix chirality at junctions.
