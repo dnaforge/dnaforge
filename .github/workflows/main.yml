@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - po_edits
+      - main
 
 jobs:
   build-and-deploy:
