@@ -132,6 +132,9 @@ export class SternaMenu extends ModuleMenu {
     register(this.params, 'minKLsIterations', 'sterna-minkls-iterations');
     register(this.params, 'dfs', 'sterna-depth-tree');
     register(this.params, 'rst', 'sterna-random-tree');
+    register(this.params, 'rst', 'sterna-clockwise');
+    register(this.params, 'rst', 'sterna-counterclockwise');
+
 
     this.generatePrimaryButton = $('#generate-sterna-primary');
 
