@@ -58,7 +58,7 @@ abstract class WiresModel extends Model {
   }
 
   /**
-   * Deletes all the mehses associated with this model.
+   * Deletes all the meshes associated with this model.
    */
   dispose() {
     if (!this.obj) return;
