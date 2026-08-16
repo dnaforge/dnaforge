@@ -27,6 +27,10 @@ export interface ModuleMenuParameters extends MenuParameters {
   customScaffold?: string;
   scaffoldOffset?: number;
   scaffoldStart?: number;
+    
+  //strand routing
+  cwtour: boolean;
+  ccwtour: boolean;
 
   //visibility
   showWires?: boolean;

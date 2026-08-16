@@ -1,3 +1,4 @@
+import { ModuleMenuParameters} from '../../menus/module_menu';
 import { Graph, Edge, Vertex, HalfEdge } from '../../models/graph_model';
 
 /**
@@ -146,7 +147,7 @@ export function getVertexRotations(
   const rotations = new Map<Vertex, HalfEdge[]>();
   for (const v of graph.getVertices()) {
     const rotation: HalfEdge[] = [];
-    for (const hE of v.getAdjacentHalfEdges()) {
+    for (const hE of v.getAdjacentHalfEdges(cwtour)) {
       if (st.has(hE.edge)) {
         rotation.push(hE);
       }
@@ -232,7 +233,7 @@ export function augmentRotations(
   const kls = new Set<HalfEdge>();
   for (const v of graph.getVertices()) {
     const rot = new Set(rotations.get(v));
-    for (const he of v.getAdjacentHalfEdges()) {
+    for (const he of v.getAdjacentHalfEdges(cwtour)) {
       if (!rot.has(he)) {
         kls.add(he);
         rotations.get(v).push(he);

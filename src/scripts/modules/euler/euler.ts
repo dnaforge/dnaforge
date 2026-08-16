@@ -109,7 +109,7 @@ export class Euler extends WiresModel {
       const hE = stack.shift();
       const v = hE.vertex;
 
-      const ns = v.getTopoAdjacentHalfEdges();
+      const ns = v.getTopoAdjacentHalfEdges(cwtour);
       const idx = ns.indexOf(hE);
       for (let i = 0; i < ns.length - 1; i++) {
         const nE = ns[(i + idx) % ns.length];
@@ -143,7 +143,7 @@ export class Euler extends WiresModel {
       const cur = idToVert.get(trail[i - 1]);
       const next = idToVert.get(trail[i]);
 
-      const edges = cur.getCommonEdges(next);
+      const edges = cur.getCommonEdges(next, cwtour);
       if (edges.length == 0) throw `No such edge: ${[trail[i - 1], trail[i]]}`;
 
       let edge;
@@ -194,14 +194,14 @@ export class Euler extends WiresModel {
       for (const e of this.graph.getEdges())
         edgeVisitCounts.set(
           e,
-          e.vertices[0].getCommonEdges(e.vertices[1]).length,
+          e.vertices[0].getCommonEdges(e.vertices[1], cwtour).length,
         );
 
       for (let i = 0; i < this.trail.length; i++) {
         const curE = this.trail[i];
         const nextE = this.trail[(i + 1) % this.trail.length];
         const dir = curE.getDirection();
-        const edge = curE.vertex.getCommonEdges(curE.twin.vertex)[0];
+        const edge = curE.vertex.getCommonEdges(curE.twin.vertex, cwtour)[0];
         edgeVisitCounts.set(edge, edgeVisitCounts.get(edge) - 1);
         const v1 = curE.vertex;
         const v2 = curE.twin.vertex;
@@ -281,7 +281,7 @@ export function wiresToCylinders(euler: Euler, params: EulerParameters) {
 
     const offset = new Vector3();
     let bundle;
-    const ces = v1.getCommonEdges(v2);
+    const ces = v1.getCommonEdges(v2, cwtour);
     if (ces.length > 1) {
       if (!edgeToBundle.get(ces[0])) {
         const b = new CylinderBundle();
