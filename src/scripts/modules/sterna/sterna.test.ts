@@ -7,6 +7,7 @@ import { PrimePos } from '../../models/cylinder';
 import { Graph, HalfEdge } from '../../models/graph_model';
 import { NucleotideModel } from '../../models/nucleotide_model';
 import { MenuParameters } from '../../menus/menu';
+import { SternaParameters } from './sterna_menu';
 import { setRandomPrimary } from '../../utils/primary_utils';
 import { cylindersToNucleotides, Sterna, wiresToCylinders } from './sterna';
 const tet = require('../../../test/test_shapes/tetra_dubs.obj');

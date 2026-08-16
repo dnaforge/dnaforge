@@ -138,9 +138,9 @@ export class Sterna extends WiresModel {
     const visited = new Set();
     const st = new Set<Edge>();
 
-    const stack = [edges[0]];
-    while (stack.length > 0) {
-      const edge = stack.splice(Math.floor(Math.random() * stack.length), 1)[0];
+    const elist = [edges[0]];
+    while (elist.length > 0) {
+      const edge = elist.splice(Math.floor(Math.random() * elist.length), 1)[0];
       const v1 = edge.vertices[0];
       const v2 = edge.vertices[1];
       if (!visited.has(v1) || !visited.has(v2)) {
@@ -154,7 +154,7 @@ export class Sterna extends WiresModel {
         const ev1 = edge2.vertices[0];
         const ev2 = edge2.vertices[1];
         if (!visited.has(ev1) || !visited.has(ev2)) {
-          stack.push(edge2);
+          elist.push(edge2);
         }
       }
     }
@@ -171,16 +171,15 @@ export class Sterna extends WiresModel {
    *
    * @returns a route around a DFS-tree of the graph
    */
-  getDFSTRoute(): HalfEdge[] {
+  getDFSRoute(): HalfEdge[] {
     const edges = this.graph.getEdges();
     const visited = new Set<Vertex>();
     const st = new Set<Edge>();
 
     const he0 = edges[0].halfEdges[0];
-    const stack: HalfEdge[] = [he0];
-    while (stack.length > 0) {
-      const he1 = stack[stack.length - 1];
-      stack.pop();
+    const hestack: HalfEdge[] = [he0];
+    while (hestack.length > 0) {
+      const he1 = hestack.pop();
       if (!visited.has(he1.vertex) || !visited.has(he1.twin.vertex))
         st.add(he1.edge);
       visited.add(he1.vertex);
@@ -188,7 +187,7 @@ export class Sterna extends WiresModel {
       const neighbours = he1.twin.vertex.getAdjacentHalfEdges();
       for (const he2 of neighbours) {
         if (!visited.has(he2.twin.vertex)) {
-          stack.push(he2);
+          hestack.push(he2);
         }
       }
     }
@@ -207,7 +206,7 @@ export class Sterna extends WiresModel {
    *
    * @returns A route around the tree
    */
-  getMinKLDFSTRoute(maxIterations: number): HalfEdge[] {
+  getMinKLDFSRoute(maxIterations: number): HalfEdge[] {
     //TODO: Redo the whole function. It is unnecessarily slow and complex.
     interface klPrefix {
       visited: Set<Vertex>;
@@ -511,8 +510,8 @@ export function graphToWires(graph: Graph, params: SternaParameters) {
   const sterna = new Sterna(graph);
 
   if (params.dfs) {
-    if (params.minKLs) sterna.getMinKLDFSTRoute(params.minKLsIterations);
-    else sterna.getDFSTRoute();
+    if (params.minKLs) sterna.getMinKLDFSRoute(params.minKLsIterations);
+    else sterna.getDFSRoute();
   } else sterna.getRSTRoute();
 
   return sterna;
