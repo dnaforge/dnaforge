@@ -4,7 +4,7 @@ import { Nucleotide } from './nucleotide';
 import { NucleotideModel } from './nucleotide_model';
 
 /**
- * A class represeting a strand. Contains nucleotides.
+ * A class representing a strand. Contains nucleotides.
  */
 export class Strand {
   owner: NucleotideModel;
