@@ -208,7 +208,7 @@ export class Sterna extends WiresModel {
    * @returns A route around the tree
    */
   getMinKLDFSTRoute(maxIterations: number): HalfEdge[] {
-    //TODO: redo the whole funciton. It's unnecessarily slow and complex.
+    //TODO: Redo the whole function. It is unnecessarily slow and complex.
     interface klPrefix {
       visited: Set<Vertex>;
       st: Set<Edge>;
