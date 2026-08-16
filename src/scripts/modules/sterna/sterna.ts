@@ -10,7 +10,7 @@ import { WiresModel } from '../../models/wires_model';
 import { Selectable } from '../../models/selectable';
 
 /**
- * Sterna RNA routing method.
+ * Sterna RNA routing method
  */
 export class Sterna extends WiresModel {
   graph: Graph;
