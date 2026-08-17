@@ -86,7 +86,7 @@ export class Sterna extends WiresModel {
    *
    * @returns route as an ordered list of half-edges
    */
-  findTrail(st: Set<Edge>, postOrder = false) {
+  findTrail(st: Set<Edge>, postOrder = false, cwtour: boolean) {
     const setPostOrder = (edges: HalfEdge[]): HalfEdge[] => {
       const first = [];
       const post = [];
@@ -113,7 +113,7 @@ export class Sterna extends WiresModel {
         try {
           neighbours = curV.getTopoAdjacentHalfEdges(cwtour);
         } catch (error) {
-          neighbours = this.getNeighbours(curV);
+          neighbours = this.getNeighbours(curV, cwtour);
         }
         stack.push(curE.twin);
         neighbours = neighbours
@@ -133,7 +133,7 @@ export class Sterna extends WiresModel {
    *
    * @returns a route around a random spanning tree of the graph
    */
-  getRSTRoute(): HalfEdge[] {
+  getRSTRoute(cwtour: boolean): HalfEdge[] {
     const edges = this.graph.getEdges();
     const visited = new Set();
     const st = new Set<Edge>();
@@ -159,7 +159,7 @@ export class Sterna extends WiresModel {
       }
     }
 
-    const trail = this.findTrail(st, false);
+    const trail = this.findTrail(st, false, cwtour);
 
     this.st = st;
     this.trail = trail;
@@ -171,7 +171,7 @@ export class Sterna extends WiresModel {
    *
    * @returns a route around a DFS-tree of the graph
    */
-  getDFSRoute(): HalfEdge[] {
+  getDFSRoute(cwtour: boolean): HalfEdge[] {
     const edges = this.graph.getEdges();
     const visited = new Set<Vertex>();
     const st = new Set<Edge>();
@@ -192,7 +192,7 @@ export class Sterna extends WiresModel {
       }
     }
 
-    const trail = this.findTrail(st, true);
+    const trail = this.findTrail(st, true, cwtour);
 
     this.st = st;
     this.trail = trail;
@@ -206,7 +206,7 @@ export class Sterna extends WiresModel {
    *
    * @returns A route around the tree
    */
-  getMinKLDFSRoute(maxIterations: number): HalfEdge[] {
+  getMinKLDFSRoute(maxIterations: number, cwtour: boolean): HalfEdge[] {
     //TODO: Redo the whole function. It is unnecessarily slow and complex.
     interface klPrefix {
       visited: Set<Vertex>;
@@ -357,7 +357,7 @@ export class Sterna extends WiresModel {
    * @param v vertex
    * @returns oredered list of edges
    */
-  getNeighbours(v: Vertex): Array<HalfEdge> {
+  getNeighbours(v: Vertex, cwtour: boolean): Array<HalfEdge> {
     const neighbours = v.getAdjacentHalfEdges(cwtour);
     // find pairwise distances
     const distances = new Map();
@@ -510,9 +510,9 @@ export function graphToWires(graph: Graph, params: SternaParameters) {
   const sterna = new Sterna(graph);
 
   if (params.dfs) {
-    if (params.minKLs) sterna.getMinKLDFSRoute(params.minKLsIterations);
-    else sterna.getDFSRoute();
-  } else sterna.getRSTRoute();
+    if (params.minKLs) sterna.getMinKLDFSRoute(params.minKLsIterations, cwtour: boolean);
+    else sterna.getDFSRoute(cwtour);
+  } else sterna.getRSTRoute(cwtour);
 
   return sterna;
 }
