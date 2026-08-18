@@ -17,6 +17,7 @@ import { Graph } from '../models/graph_model';
 import { Editor } from '../editor/editor';
 import { downloadIMG } from '../io/download';
 import { InterfaceMenu } from './interface_menu';
+import { GLOBALS } from '../globals/globals';
 
 const canvas = <HTMLCanvasElement>document.querySelector('#canvas');
 
@@ -582,6 +583,7 @@ export class Context {
     prevContext && prevContext.inactivate();
     context.activate();
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
+    this.addMessage(`Value of parameter clockwiseTour is '${GLOBALS.clockwiseTour}'`, 'info', 500);
     this.refresh();
   }
 
