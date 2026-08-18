@@ -21,6 +21,8 @@ import { editOp } from '../../editor/editOPs';
 export interface SternaParameters extends ModuleMenuParameters {
   dfs?: boolean;
   rst?: boolean;
+  cwtour?: boolean;
+  ccwtour?: boolean;
   minKLs?: boolean;
   minKLsIterations?: number;
 }

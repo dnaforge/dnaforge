@@ -3,7 +3,6 @@ import { Vector3 } from 'three';
 import blossom from 'edmonds-blossom-fixed';
 import { randomGen } from '../utils/misc_utils';
 import { ShapeUtils } from 'three';
-import { ModuleMenuParameters } from '../menus/module_menu';
 
 // TODO: reimplement the whole graph class, and try not to be retarded next time
 class Vertex {
@@ -24,7 +23,7 @@ class Vertex {
 
   toString() {
     return `${this.id}: ${this.coords} - Neighbours: ${[
-      this.getAdjacentHalfEdges(cwtour).map((e) => {
+      this.getAdjacentHalfEdges().map((e) => {
         e.vertex.id;
       }),
     ]}`;
@@ -59,7 +58,7 @@ class Vertex {
   /**
    * Adjacent edges based on rotating around vertex normal
    */
-  getTopoAdjacentEdges2(cwtour: boolean): Edge[] {
+  getTopoAdjacentEdges2(): Edge[] {
     const edges = this.getAdjacentEdges();
     const startEdge = edges[0];
     const [vs1, vs2] = startEdge.getCoords();
@@ -104,7 +103,7 @@ class Vertex {
    *
    * @returns
    */
-  getTopoAdjacentEdges(cwtour: boolean): Edge[] {
+  getTopoAdjacentEdges(): Edge[] {
     const adjacentEdges = new Set(this.getAdjacentEdges());
     let prev = this.getAdjacentEdges()[0];
     let prevF = prev.getFaces()[0];
@@ -156,8 +155,8 @@ class Vertex {
     return edges;
   }
 
-  getAdjacentHalfEdges(cwtour: boolean): HalfEdge[] {
-    const edges = this.getAdjacentEdges(cwtour);
+  getAdjacentHalfEdges(): HalfEdge[] {
+    const edges = this.getAdjacentEdges();
 
     const halfEdges = [];
     for (const e of edges) {
@@ -168,8 +167,8 @@ class Vertex {
     return halfEdges;
   }
 
-  getTopoAdjacentHalfEdges(cwtour: boolean): HalfEdge[] {
-    const edges = this.getTopoAdjacentEdges(cwtour);
+  getTopoAdjacentHalfEdges(): HalfEdge[] {
+    const edges = this.getTopoAdjacentEdges();
     const halfEdges = [];
     for (const e of edges) {
       for (const he of e.halfEdges) {
@@ -183,25 +182,25 @@ class Vertex {
     return [...this.adjacentEdges];
   }
 
-  getCommonEdges(other: Vertex, cwtour: boolean) {
+  getCommonEdges(other: Vertex) {
     const edges = [];
-    for (const e of this.getAdjacentEdges(cwtour)) {
+    for (const e of this.getAdjacentEdges()) {
       if (e.getOtherVertex(this) == other) edges.push(e);
     }
     return edges;
   }
 
-  getAdjacentFaces(cwtour: boolean) {
+  getAdjacentFaces() {
     const faces = new Set<Face>();
-    for (const e of this.getAdjacentEdges(cwtour)) {
+    for (const e of this.getAdjacentEdges()) {
       for (const f of e.getFaces()) faces.add(f);
     }
     return Array.from(faces);
   }
 
-  getTopoAdjacentFaces(cwtour: boolean) {
+  getTopoAdjacentFaces() {
     const faces = new Set<Face>();
-    const edges = this.getTopoAdjacentEdges(cwtour);
+    const edges = this.getTopoAdjacentEdges();
     for (const e of edges) {
       for (const f of e.getFaces()) faces.add(f);
     }

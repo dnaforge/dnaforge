@@ -162,7 +162,7 @@ export class STDNA extends WiresModel {
    * @returns oredered list of edges
    */
   getNeighbours(v: Vertex): Array<HalfEdge> {
-    const neighbours = v.getAdjacentHalfEdges(cwtour);
+    const neighbours = v.getAdjacentHalfEdges();
     // find pairwise distances
     const distances = new Map();
     for (const e1 of neighbours) {

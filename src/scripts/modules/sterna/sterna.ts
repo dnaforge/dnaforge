@@ -111,7 +111,7 @@ export class Sterna extends WiresModel {
         visited.add(curV);
         let neighbours;
         try {
-          neighbours = curV.getTopoAdjacentHalfEdges(cwtour);
+          neighbours = curV.getTopoAdjacentHalfEdges();
         } catch (error) {
           neighbours = this.getNeighbours(curV);
         }
@@ -184,7 +184,7 @@ export class Sterna extends WiresModel {
         st.add(he1.edge);
       visited.add(he1.vertex);
       visited.add(he1.twin.vertex);
-      const neighbours = he1.twin.vertex.getAdjacentHalfEdges(cwtour);
+      const neighbours = he1.twin.vertex.getAdjacentHalfEdges();
       for (const he2 of neighbours) {
         if (!visited.has(he2.twin.vertex)) {
           hestack.push(he2);
@@ -269,7 +269,7 @@ export class Sterna extends WiresModel {
         tVisited.add(he1.vertex);
       }
 
-      const neighbours = head.twin.vertex.getAdjacentHalfEdges(cwtour);
+      const neighbours = head.twin.vertex.getAdjacentHalfEdges();
       const routeExtension: HalfEdge[] = [];
       for (const he of neighbours) {
         if (nSt.has(he.edge)) continue;
@@ -328,7 +328,7 @@ export class Sterna extends WiresModel {
         else {
           if (nWorstCost < bestCost) {
             const last = nRoute[nRoute.length - 1].twin;
-            for (const he of last.vertex.getAdjacentHalfEdges(cwtour)) {
+            for (const he of last.vertex.getAdjacentHalfEdges()) {
               if (nRoute.indexOf(he) == -1) nRoute.push(he);
             }
 
@@ -358,7 +358,7 @@ export class Sterna extends WiresModel {
    * @returns oredered list of edges
    */
   getNeighbours(v: Vertex): Array<HalfEdge> {
-    const neighbours = v.getAdjacentHalfEdges(cwtour);
+    const neighbours = v.getAdjacentHalfEdges();
     // find pairwise distances
     const distances = new Map();
     for (const e1 of neighbours) {

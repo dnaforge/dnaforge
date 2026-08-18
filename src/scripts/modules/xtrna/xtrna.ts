@@ -300,7 +300,7 @@ export class Xtrna extends WiresModel {
     const kls = new Set<HalfEdge>();
     for (const v of this.graph.getVertices()) {
       const rot = new Set(rotations.get(v));
-      for (const he of v.getAdjacentHalfEdges(cwtour)) {
+      for (const he of v.getAdjacentHalfEdges()) {
         if (!rot.has(he)) {
           kls.add(he);
           rotations.get(v).push(he);

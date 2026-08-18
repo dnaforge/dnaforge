@@ -111,7 +111,7 @@ export class CycleCoverMenu extends ModuleMenu {
     register(this.params, 'maxStrandLength', 'cycle-cover-strand-length-max');
     register(this.params, 'minStrandLength', 'cycle-cover-strand-length-min');
     register(this.params, 'addNicks', 'cycle-cover-add-nicks');
-      
+
     register(
       this.params,
       'gcContent',

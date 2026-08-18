@@ -50,7 +50,7 @@ export class CycleCover extends WiresModel {
         const cur = idToVert.get(jCycle[i]);
         const next = idToVert.get(jCycle[(i + 1) % jCycle.length]);
 
-        const edges = cur.getCommonEdges(next, cwtour);
+        const edges = cur.getCommonEdges(next);
         let halfEdge;
         for (const edge of edges) {
           halfEdge =
@@ -150,7 +150,7 @@ export class CycleCover extends WiresModel {
       for (const v of this.graph.getVertices()) {
         let vNeighbours;
         try {
-          vNeighbours = v.getTopoAdjacentHalfEdges(cwtour);
+          vNeighbours = v.getTopoAdjacentHalfEdges();
         } catch {
           vNeighbours = this.getNeighbours(v);
         }
@@ -184,7 +184,7 @@ export class CycleCover extends WiresModel {
 
   //TODO: find a more accurate TSP solution
   getNeighbours(v: Vertex): Array<HalfEdge> {
-    const neighbours = v.getAdjacentHalfEdges(cwtour);
+    const neighbours = v.getAdjacentHalfEdges();
     // find pairwise distances
     const distances = new Map();
     for (const e1 of neighbours) {
@@ -391,7 +391,7 @@ function createCylinder(
     throw `Cylinder length is zero nucleotides. Scale is too small.`;
 
   const cyl = cm.createCylinder(p1, dir, length);
-  cyl.initOrientation(v1.getCommonEdges(v2, cwtour)[0].normal);
+  cyl.initOrientation(v1.getCommonEdges(v2)[0].normal);
 
   return cyl;
 }
