@@ -18,5 +18,5 @@ export const GLOBALS: GlobalParams = {
   overlayTension: false,
   selectionMode: 'connected',
   nucleotideDisplay: 'stick',
-  clockwiseTour: false,
+  clockwiseTour: true,
 };

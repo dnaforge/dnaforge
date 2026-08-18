@@ -50,7 +50,7 @@ class Vertex {
   getTopoNeighbours(): Vertex[] {
     let edges = this.getTopoAdjacentEdges();
     const verts = [];
-      // Quick-and-dirty fix to get clockwise rather than counterclockwise strand tours
+      // Quick fix to get clockwise rather than counterclockwise strand tours
       if (GLOBALS.clockwiseTour) {
           edges = edges.reverse();
       }
