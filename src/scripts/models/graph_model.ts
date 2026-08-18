@@ -3,6 +3,7 @@ import { Vector3 } from 'three';
 import blossom from 'edmonds-blossom-fixed';
 import { randomGen } from '../utils/misc_utils';
 import { ShapeUtils } from 'three';
+import { GLOBALS } from '../globals/globals';
 
 // TODO: reimplement the whole graph class, and try not to be retarded next time
 class Vertex {
@@ -47,8 +48,12 @@ class Vertex {
   }
 
   getTopoNeighbours(): Vertex[] {
-    const edges = this.getTopoAdjacentEdges();
+    let edges = this.getTopoAdjacentEdges();
     const verts = [];
+      // Quick-and-dirty fix to get clockwise rather than counterclockwise strand tours
+      if (GLOBALS.clockwiseTour) {
+          edges = edges.reverse();
+      }
     for (const e of edges) {
       verts.push(e.getOtherVertex(this));
     }

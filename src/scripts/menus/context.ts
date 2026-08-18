@@ -583,7 +583,7 @@ export class Context {
     prevContext && prevContext.inactivate();
     context.activate();
     this.addMessage(`Switched to ${context.title} context.`, 'info', 500);
-    this.addMessage(`Value of parameter clockwiseTour is '${GLOBALS.clockwiseTour}'`, 'info', 500);
+    this.addMessage(`Value of parameter clockwiseTour is '${GLOBALS.clockwiseTour}'.`, 'info', 500);
     this.refresh();
   }
 
