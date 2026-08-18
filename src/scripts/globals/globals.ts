@@ -8,6 +8,7 @@ interface GlobalParams {
   overlayTension: boolean;
   selectionMode: SelectionModes;
   nucleotideDisplay: NucleotideDisplay;
+  clockwiseTour: boolean;
 }
 
 export const GLOBALS: GlobalParams = {
@@ -17,4 +18,5 @@ export const GLOBALS: GlobalParams = {
   overlayTension: false,
   selectionMode: 'connected',
   nucleotideDisplay: 'stick',
+  clockwiseTour: false,
 };
